@@ -1,0 +1,8 @@
+-r requirements.txt
+
+# Tests and code quality
+pytest==9.2.0
+ruff==0.17.5
+
+# Reference implementation for scientific verification
+pymannkendall==1.4.3
