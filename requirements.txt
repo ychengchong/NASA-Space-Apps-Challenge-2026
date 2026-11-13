@@ -1,0 +1,11 @@
+# API and server
+fastapi==0.162.6
+uvicorn==0.54.0
+pydantic==2.14.3
+
+# NASA requests and local Ollama HTTP calls
+httpx==0.28.1
+
+# Numerical analysis
+numpy==2.5.4
+scipy==1.18.1
