@@ -1,0 +1,14 @@
+Variables in Trend Detective: Relative humidity (RH2M)
+Publisher: Trend Detective project
+
+Relative humidity (RH2M): How close the air two metres above the ground is to being saturated with water vapour, as a percentage, averaged over the month.
+
+- Catalogue ID: relative_humidity
+- NASA POWER parameter code: RH2M
+- Units: %
+- Rate of change shown in: percentage points per decade
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.
+
+Caution: Humidity trends from this model are less reliable than temperature trends.

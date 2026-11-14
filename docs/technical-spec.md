@@ -5,8 +5,10 @@ Draft 5 - 14 November 2026 - Working title - Prepared with AI assistance.
 Status: the implementation baseline on `main` at 1fa0cf1 includes core manual workflows, immutable evidence,
 bounded confirmed AI planner integration and globe interface. Draft 5 defines the
 approved next plan on `new-plan`: OpenAI-assisted discovery, documentation retrieval/RAG and
-cited qualitative explanations. These additions are planned, not implemented or
-evaluated. Existing provider tests use fakes; no live-model accuracy is established.
+cited qualitative explanations. Their endpoints and interface are implemented, unit-tested
+with fake providers and given one local live smoke check; their held-out evaluation, a user
+study and a deployment are still planned. Provider tests use fakes; no live-model accuracy is
+established.
 The statistical study is retained in
 [the preregistered plan](../research/inference-plan.md) and
 [all confirmation results](../research/inference-results.json). Automated checks
@@ -123,19 +125,19 @@ The current first visit shows a question box, manual settings and four saved exa
 The planned journey adds two guided walkthroughs and a water case. Choose examples
 transparently before inspecting outcomes; never force a desired result.
 
-1. Ask a question or manually choose variable and place. Planned discovery can
-   offer supported variables with sourced reasons and short clarification questions.
+1. Ask a question or manually choose variable and place. Guided discovery (when
+   enabled) offers supported variables with sourced reasons and short clarification questions.
 2. Confirm definition, location, explicit period and annual aggregation.
 3. Show actual grid cell and supported dates. Propose adjustments for confirmation;
    do not silently clamp requests or substitute quantities.
 4. Draw annual values, gaps and fitted line.
 5. Show the fixed verdict, slope/units, valid p-value, method and limitations.
 6. Compare the second place over identical complete years.
-7. Ask about the dataset, method or limitations through the planned cited explanation
-   panel. A request for new calculations produces settings for confirmation.
+7. Ask about the dataset, method or limitations through the cited explanation
+   panel (when enabled). A request for new calculations produces settings for confirmation.
 8. Complete interpretation feedback, then download values or share a pinned result.
 
-Planned explanation prompts: "Explain this simply", "What does this dataset actually
+Explanation prompts, offered as links in the panel: "Explain this simply", "What does this dataset actually
 measure?", "What are the limitations here?", "What can't we conclude?" and "What could
 I investigate next?" AI explanations sit below the chart and never delay the result.
 Show source passages/links, an AI label and a useful unsupported-answer state.
@@ -170,12 +172,12 @@ the city, not exact city measurement. Label AI commentary; hypotheses are unprov
 
 ### Interface
 
-This section and "The globe" describe the delivered interface: an atlas page with a detective's marks, and one globe behind every screen. Discovery clarification and the cited explanation panel above are planned additions.
+This section and "The globe" describe the delivered interface: an atlas page with a detective's marks, and one globe behind every screen. Guided discovery in the question bar and the "Ask about this investigation" panel are built, unit-tested with fake responses and given one local live smoke check against the endpoints; their held-out evaluation, a user study and a deployment are still planned (section 8).
 
 
 | Part | Purpose | What it holds |
 | --- | --- | --- |
-| Question bar | Entry point; turns a question into a case | Free-text box; on the first screen, example prompts; one line on whether an AI or keyword matching reads the question. When a keyword match finds a variable and a place, a "Ready to test" card under the question names the case ("Air temperature · Helsinki · from 1990, all months") with "Run this case" and "Change the settings": the user still confirms, where they are looking. Years in the question fill the period: one is the first year, two are the first and the last. An incomplete match sends focus to the settings instead |
+| Question bar | Entry point; turns a question into a case | Free-text box; on the first screen, example prompts; one line on whether an AI or keyword matching reads the question. When a keyword match finds a variable and a place, a "Ready to test" card under the question names the case ("Air temperature · Helsinki · from 1990, all months") with "Run this case" and "Change the settings": the user still confirms, where they are looking. Years in the question fill the period: one is the first year, two are the first and the last. An incomplete match sends focus to the settings instead. When the server reports `ai_discovery_available`, a question goes to /api/discover with the settings as they stand (section 8, "Guided discovery"), and the bar's line says "An AI suggests variables from reviewed documentation, with its sources, and proposes settings. Nothing runs until you confirm." The answer appears under the question with the typed label "Written by AI": a short clarification question with its choices as buttons, each of which puts its typed patch (variable, place, years or months) into the settings and asks the same question again with them; up to three suggestion cards, each with the variable's name, the catalogue's own facts under "From the catalogue, not written by AI:" (its definition, "The record starts in {year}.", its note and the years its data source changes, in the words of the case settings and the cautions), the AI's reason as plain text under "Why, in the AI's words:", its sources (publisher, title and section, linked to the manifest's address in a new tab, with "a note by this project, not by NASA" on project notes and the cited passage behind "Show the cited passage") and "Use this variable", which fills the settings with that variable and the answer's proposed places and dates; the parts the question left open, split into those the proposal filled ("Your question left open the first year, so the settings hold the proposed defaults. Check them before you run the case.") and those still to choose ("Still to choose in the case settings: the place."); and the proposal's own notices as plain text, such as "Choose the intended location for '…' in the place search." or "Requested dates are unsupported. Available dates: …", before the server's notice. The status line then says what came: the proposal is in the settings, a clarification waits, suggestions wait, or "No suggestion; you can set up the case by hand." A clarification choice and "Match the words instead" move focus to the question box, since the answer and its buttons leave the page. A "ready" answer fills the settings at once, and when its proposal names a variable and a place the "Ready to test" card offers it; nothing runs until "Run this case". An unsupported answer shows the server's reason with "Set up the case by hand" and "Match the words instead". A failed request falls back to keyword matching with the server's message and "Try the AI again". "Stop" cancels a question on its way, and a new question cancels the last. Suggestions go with their question when another page opens, and a question still on its way is cancelled then, its text kept in the box, so its answer never fills the settings of a page the user has left. Without discovery the bar uses the planner or keyword matching exactly as before |
 | Case settings | Show exactly what is being tested, and let the user change it | Variable, place or places, period, season |
 | Chart | The evidence at a glance | A sheet right under the verdict, first in the "Answer" tab: yearly values and the trend line, one pair per place; monthly values on request. Its legend is one row above the plot: for one place the kinds of mark ("Yearly values", "Record years", "Trend line"), for a comparison the places, with "Dashed lines are trend lines; rings mark record years." under the plot. Under the plot one line says what a point is. The rest, what a gap means and what the rings mark, and a summary in words of each trend line's ends, its rate and, where the evidence panel has one, the rate's 95% confidence interval, lies behind the disclosure "Read the chart in words", in the evidence panel's numbers, because the plot draws the line without its uncertainty; the same summary is the plot's text alternative. The plot is 300px high and the sheet about 520px for one place at 1440 by 900 |
 | Globe | Show where, and let the user pick a place | The Earth behind the page ("The globe" below): a marker per place and, closer in, the outline of its grid cell; on the first screen, a pin for each example case; in region view, grid cells coloured by trend |
@@ -183,6 +185,7 @@ This section and "The globe" describe the delivered interface: an atlas page wit
 | Verdict card | The answer in one sentence | The first sheet of the case file, tabbed "Case file". Each verdict's stamp, then the verdict sentence and the most important caution; for a comparison, the summary sentence first. A significant trend also shows its rate as a large figure above the sentence, such as "+0.79 °C per decade", with the digits and sign of the evidence panel; the sign is set in the text face, whose strokes are sturdier than the display face's. A trend that is not significant gets no figure, so a rate that year-to-year variation alone could produce is not read as the answer. The record years are not on the card: they have a sheet of their own after the chart (section 7, "Record years") |
 | Verdict line | Keep the answer in sight while the evidence is read | Once the verdict card of a case has scrolled out of view above the screen, one line holds at the top of the case file and repeats the card in its own words: for each place the card's figure, if it has one, and its stamp's words, such as "+0.79 °C per decade ↑ Rising · Significant". As on the card, a trend that is not significant gets no figure; the line then names the place. In a comparison every place has an entry with its marker shape and name; on a narrow screen the entries may take two lines. The line repeats the card, so it is hidden from screen readers and holds nothing focusable; while it shows, the page keeps room for it at the top (`scroll-padding-top`), so it never covers the element with keyboard focus. It slides in, and appears at once under reduced motion. It is kept on a phone: the question bar scrolls away with the page, so the line never crowds it |
 | Answer actions | Share the answer, and take it further | On a case "Copy link" is under the record years in the "Answer" tab and "Explore further" leads the "Explore" tab; on a map they are under the map's answer. Actions are hidden while a new case or map loads, including while the previous answer remains visible. "Copy link" copies the page's address and answers "Link copied. Anyone who opens it sees this case." (or "this map"); where the browser has no clipboard or refuses, it answers "The link could not be copied. Copy the address from the address bar instead." On a case one "Explore further" sheet holds every way on to another page. First come three links with one line each: "What is changing here?" opens the first place's overview; "The whole world" the same variable, period and season in the world sample when it covers the variable; and "Map this region" the region map of a 10° by 10° box around the first place, whose line says the map shows rates of change and does not assess significance. The seasons and the period are folded panels of the case's own page and are not repeated as links. The sheet ends with the group "Test another variable" (next row) |
+| Ask panel | Questions about the dataset, the method and the limits of one result | "Ask about this investigation", a sheet in the "Answer" tab after the record years and before "Copy link", shown only when the server reports `ai_explanation_available` and only once the case has loaded (not while a case loads, even with the previous answer on screen). It holds the line "Questions are sent to OpenAI. Answers are written by AI and checked against this result.", a labelled question box of at most 2,000 characters with "Ask" (and "Stop" while a question is on its way), and the five explanation prompts above as links. A question goes to /api/explain with the investigation's ID; the panel is keyed on that ID, so a new investigation, a reload of the case or leaving the page cancels the question on its way and discards its answer, and an answer bound to another ID is never shown. An answer sits under "Written by AI": each block's text as plain text; the result values it points at under "From this result, not written by AI:", each an allowlisted field read from the investigation on screen and written as the evidence panel writes it (a rate such as "+0.48 °C per decade", its interval, the p-value, the total change, the years, the verdict's kind and sentence, the place, the variable, its units, the period asked for and its months; a place's name is added to the label in a comparison); and its sources as in the question bar. No checked answer says why in plain words (no matching documentation, the AI declined or did not finish, the answer failed the checks against this result, or the question is outside what can be explained) and points to the "Evidence" and "Learn" tabs. A question that needs a new analysis shows the proposed settings in words, with the proposal's notices as plain text, and "Put these in the case settings", which fills the settings and moves focus there; nothing runs until "Run this case". The panel's status line says "The AI is writing an answer. The result above does not wait for it." while a question is on its way, then "The answer is below.", "There is no checked answer; the reason is below." or "This needs a new analysis; see below."; a failure is announced by its alert. The numerical result never waits for the panel |
 | Evidence panel | Let anyone check the method | Rate with its 95% interval, tests and p-values, number of years, every caution, data source, grid cell, a link to download the values, the steps taken |
 | Test another variable | Suggest the next variable to test | The last group of the "Explore further" sheet, headed "Test another variable", with the note "Each link tests another variable with the same places, period and season." Each line of links has its reason above it: "Cross-check with a related variable" for the variable's `related` entries, and "Worth testing here ({place names} · {region type})" for each region type known among the case's places, with links to the catalogue variables whose `region_types` include it, without the case's own variable. The group is left out when it would hold neither |
 | Example cases | Teach by showing | Four ready investigations that open instantly, numbered "Case 1" to "Case 4" in the list and on the globe |
@@ -198,7 +201,7 @@ This section and "The globe" describe the delivered interface: an atlas page wit
 - Seasons are named by their months, because "winter" means different months in each hemisphere.
 - The page has exactly one `h1`: the app's name, which links to the first screen.
 - An open case and the region view hold the answer first, then the settings, then the evidence, in one column at every width. On a case the verdict comes first and the rest of the case file lies under it in four tabs ("Case file tabs", next), then the AI proposal, then "Change this case", which is reachable whatever tab is chosen. A place's overview (section 7, "What is changing here?") holds its answer, the variables by theme, then its data sources. The chart follows the verdict directly, so the proof is seen with the claim: at 1440 by 900 pixels and at 1280 by 720 the chart of a single place starts on the first screen. The chart lies outside the live region that announces the verdict. In the region view the answer is the verdict for the whole box and the AI proposal, and the evidence is the "Trend in each grid cell" panel with its legend, and the map's evidence. The verdict for the whole box gives its sentence first and the note on how the box was averaged last. The page holds the parts in that order and shows them in that order, so the order on screen, the Tab order and the screen-reader order agree.
-- Case file tabs. Under the verdict of an open case a row of four tabs splits the case file, each about one screen: "Answer" holds the chart, the record years and "Copy link"; "Explore" holds "Explore further", the seasons panel, the period explorer and, for a comparison, the gap between the places; "Evidence" holds the evidence panel and the key to the globe; "Learn" holds the evidence lesson. "Answer" is chosen when a case opens. The tabs follow the ARIA tabs pattern: the row is one Tab stop, the arrow keys move along it and wrap round, Home and End go to the first and last tab, and the chosen tab shows its panel at once. Every panel stays in the page while its tab is hidden, so what was opened or typed in it is kept, and a chart drawn in a hidden tab is redrawn to its width when shown. The tab chosen is not part of the address: a link reproduces the case, not the view. The tabs are typed labels standing on an ink rule, the chosen one joined to the page, and each is at least 44px high. Inside a tab the seasons panel, the period explorer, the evidence panel, the key and the lesson are each folded to one line under a rule, with no gap or shadow between consecutive rows; "The gap" stays open, as a ruled panel. The chart lies outside the live region that announces the verdict, and the answer actions are hidden while a case loads.
+- Case file tabs. Under the verdict of an open case a row of four tabs splits the case file, each about one screen: "Answer" holds the chart, the record years, the "Ask about this investigation" panel when explanations are available, and "Copy link"; "Explore" holds "Explore further", the seasons panel, the period explorer and, for a comparison, the gap between the places; "Evidence" holds the evidence panel and the key to the globe; "Learn" holds the evidence lesson. "Answer" is chosen when a case opens. The tabs follow the ARIA tabs pattern: the row is one Tab stop, the arrow keys move along it and wrap round, Home and End go to the first and last tab, and the chosen tab shows its panel at once. Every panel stays in the page while its tab is hidden, so what was opened or typed in it is kept, and a chart drawn in a hidden tab is redrawn to its width when shown. The tab chosen is not part of the address: a link reproduces the case, not the view. The tabs are typed labels standing on an ink rule, the chosen one joined to the page, and each is at least 44px high. Inside a tab the seasons panel, the period explorer, the evidence panel, the key and the lesson are each folded to one line under a rule, with no gap or shadow between consecutive rows; "The gap" stays open, as a ruled panel. The chart lies outside the live region that announces the verdict, and the answer actions are hidden while a case loads.
 - Once a case or a map is on screen, its settings are folded behind one button, "Change this case" or "Change this map", so the evidence follows the answer closely. The settings stay in the page while folded. Every change in them waits for "Run this case", so no case runs before the user confirms it. They are shown unfolded, without the button, while the user has something to do in them: on the first screen, while settings wait for "Run this case", when a case or a map could not be made, and before a map has a box.
 - The verdict leads an open case or a map: it is the first sheet on the page. There the question bar steps back: its label is set smaller, and its line on who reads the question is kept for screen readers only. Below 640px the app's tagline is left out there too. On the first screen the question bar's label is the largest line under the app's name.
 - Under the question bar the first screen says "Or set up a case by hand: choose the variable, the place and the period yourself." The words "set up a case by hand" are a link to the case settings further down the page.
@@ -330,7 +333,8 @@ that intersection. Report excluded years. Gaps still block inference under secti
 
 These contracts are implemented once in models.py and generated into
 frontend/src/generatedModels.ts. The /api/discover and /api/explain endpoints that
-return them, and their held-out evaluation, are still planned.
+return them, and their interface (section 3), are implemented, unit-tested with fake
+providers and given one local live smoke check; their held-out evaluation is still planned.
 
 | Planned contract | Required semantics |
 | --- | --- |
@@ -351,6 +355,56 @@ typed `reason`: no_evidence, provider_refused, provider_incomplete (also an empt
 output), validation_failed or unsupported_question. An insufficient_evidence
 explanation and an unsupported discovery must carry a reason; every other status
 carries null.
+
+The checks are implemented in `backend/app/ai_guard.py` as pure functions over the
+provider's strict JSON (`ProviderDiscovery`, `ProviderExplanation`), which is internal
+to the AI boundary and never leaves the server. Each failure has a typed guard reason:
+unknown_source (an ID the manifest does not know), unretrieved_source (a manifest ID
+this request did not retrieve), missing_citation (a suggestion or block that cites
+nothing), wrong_investigation, unknown_reference (a place index outside the
+investigation), unsupported_variable, inconsistent_status (for example "ready" with no
+suggestion), number_in_text, url_in_text, markup_in_text, hidden_characters (control,
+format, private-use or unassigned characters), obfuscated_text (a word mixing scripts,
+or a checked word spread out with separators), place_query_too_long (a model-written
+place query longer than a place label may be, 40 characters), contradicts_verdict,
+causal_claim and forecast_claim. Any guard reason gives the contract reason
+validation_failed and the provider's text is not returned. Text is checked after NFKC
+normalisation, and digits also in their raw form. A digit is allowed only in a
+four-digit year (alone or in a range) of the investigation's period, the variable's
+record start, the question or draft (discovery), or the retrieved passages, and not
+when a unit or rate follows it ("1990 mm", "2010 per decade"); inside an identifier
+that starts with a letter and holds no decimal number, such as MERRA-2, T2M or GEOS-5,
+that a retrieved passage uses verbatim (so "2C", "10m" or "0.14E-1" in a passage are
+never allowed); or inside a trusted catalogue text the model was shown and quotes
+verbatim, such as "Wind speed at 10 m". A bare number in a passage is never allowed;
+spelled quantities with units ("two degrees"), spelled decimals ("point zero three"),
+runs of number words, factors ("a factor of two"), odds ("one in twenty") and percent
+signs count as numbers. URLs include any dotted name ending in two or more letters and
+"dot gov" forms. Claims of significance are read with their negation (a negator
+followed by "denying", "mistaking", "wonder" or a comparative such as "never more
+significant" affirms): affirming significance, also in other words ("strong evidence",
+"unlikely to be chance", "below the threshold", "a robust trend"), is rejected unless
+some place's verdict kind is significant; denying it is rejected when every place's
+kind is significant, except in a conditional or definitional clause ("if the result
+were not significant"); discovery text may never affirm it; "significance has not been
+assessed", the canonical wording of a verdict without inference, is neutral; and
+asserting "no change" is always rejected, except in the trend test's null hypothesis
+("if there were no trend") and "no change of source". In an explanation, a direction
+word (rising, increase, warming; falling, decline, cooling) not negated and not
+describing the method or a hypothetical ("how fast values tend to rise", "whether it is
+warming") is rejected unless some place's canonical direction matches it, so any
+direction claim is rejected when no place has a tested direction; discovery checks no
+direction. Causal claims are rejected unless negated ("cannot say what caused"): a
+causal connector, a named cause (human activity, emissions, industry and others)
+followed by a result word or with a verb such as "produced", "comes from", "reflects"
+or "a sign of", and adjectives such as "anthropogenic". Forecasts are rejected unless
+negated, including "will persist", "going to rise", "should continue", "ahead" and
+"years to come", but not advice such as "you could continue". Every model-written
+place query (discovery, and an explanation's plan) gets these text checks too, since
+an unresolved one is echoed in a proposal notice; an explanation plan's query equal to
+one of the investigation's own place labels stands for that place and is not checked.
+These are defensive filters; they do not establish that an answer is supported, and
+they reject some correct sentences, which then go unanswered.
 
 ## 6. Data
 
@@ -800,11 +854,13 @@ about 0.2 °C; a sample that stops at 80° misses the fastest-warming polar caps
 Existing: question-to-settings extraction and manual confirmation; AI is disabled
 by default. Implemented for retrieval: the discovery/explanation contracts, the
 retrieval settings and separate capability flags, the bounded vector-store search,
-the investigation lookup, and the owner-run corpus build and upload scripts; the
-owner has uploaded the reviewed corpus to an OpenAI vector store. Planned: the
-/api/discover and /api/explain endpoints, their interface and their held-out
-evaluation. No discovery or explanation answer or live provider evaluation is
-claimed by this document. The target is OpenAI-only for these new
+the investigation lookup, and the owner-run corpus build and upload scripts. The owner
+has uploaded the reviewed corpus to an OpenAI vector store. The /api/discover and
+/api/explain endpoints and their interface (guided discovery in the question bar and
+the "Ask about this investigation" panel) are implemented, unit-tested with fake
+providers and given one local live smoke check. Planned: their held-out evaluation, a
+user study and a deployment. No discovery or explanation quality or live provider
+evaluation is claimed by this document. The target is OpenAI-only for these new
 features; existing Ollama/Anthropic planner support is an alternative, not a required
 installation. Choose an exact model after semantic, latency and cost evaluation.
 
@@ -844,6 +900,27 @@ unbounded history. Location resolution remains deterministic and catalogue-backe
 No investigation or NASA call executes from a model proposal. Confirmation is
 required even when every setting is filled automatically.
 
+Implemented (`backend/app/adapters/discover.py`): POST /api/discover takes a
+DiscoveryRequest, searches the vector store once with the question (at most four
+passages; a hit whose source and section the manifest does not list, or whose text is not
+part of that section's reviewed file, is dropped), and,
+only when a citable passage remains, makes one strict-schema generation. The model
+returns a status, up to three catalogue variable IDs each with a reason and cited
+passage IDs (a passage's section ID, or a source ID naming every retrieved passage of
+that source), up to two place queries, from/to/season or null, missing fields and an
+optional clarification with up to four choices, each a typed patch (variable, place
+query, from, to, season). After the checks of section 5, "ready" builds the Proposal
+with the planner's resolve_plan from the first suggestion, the place queries and the
+dates, keeping the draft's dates and season where the question gave none; a choice's
+place query resolves to one exact reviewed find_place match, and a choice left with
+nothing to set is dropped. Citations are built by the server from the manifest and
+the retrieved text. No retrieved evidence returns "unsupported" with no_evidence and
+no generation; a refusal or incomplete output returns provider_refused or
+provider_incomplete; failed checks return validation_failed; a model "unsupported"
+returns unsupported_question; each with a manual-fallback notice. The instructions say
+that the question, draft and passages are untrusted data; draft coordinates are not
+sent to the provider.
+
 ### Planned corpus and retrieval
 
 Use reviewed NASA POWER methodology, variable/source/validation and resolution
@@ -865,6 +942,14 @@ relevant source/product/variable where possible. Tune these starting bounds only
 against development questions, then freeze them before held-out evaluation. Preserve
 enough section context; do not remove qualifiers to meet a length cap. Retrieval
 scores are ranking signals, not probabilities that an answer is correct.
+Both endpoints search with the question as asked and no attribute filter: the corpus has
+no attribute that ties a source to a variable, and prefixing the variable's name pulled
+in that variable's catalogue sections ahead of the notes on interpretation in a local
+development check (a causal-premise question then found no project note). Revisit this on
+development questions before the held-out evaluation. A retrieved passage is citable only
+when its whitespace-normalised text is part of the reviewed section file that the
+manifest lists by path and SHA-256 (checked when the manifest is read), so a stale or
+foreign file in the vector store carrying a section's attributes is never shown or cited.
 
 Source IDs resolve to canonical links in the manifest. Show the cited passage and
 its source context. Persist corpus/retrieval provenance separately from numerical
@@ -903,6 +988,32 @@ filters, not proof of truth; assess entailment and factual support in human-revi
 evaluation. A number matcher alone cannot protect against the wrong place or claim.
 Questions requiring new calculations create a new proposal for confirmation.
 
+Implemented (`backend/app/adapters/explain.py`): POST /api/explain takes an
+ExplanationRequest and looks the ID up with `Cache.find_investigation`. The recorded
+case query is rebuilt with the shared tools on a data source that refuses every fetch,
+after checking that it pins one snapshot per place with the recorded analysis version
+and that every snapshot is retained and passes its checksum; the rebuilt ID must equal
+the requested ID. An ID that is not on record (or whose record is older than 24
+hours), a missing or corrupt snapshot, or a different rebuilt ID fails with 409
+`investigation_unavailable` before any paid call, and NASA is never called. Retrieval
+then searches once with the question (at most four passages); no citable passage
+returns insufficient_evidence with no_evidence and no generation. The model receives
+the variable's catalogue name, definition and note, the period, place labels, each
+place's canonical verdict kind, direction and caution codes, the allowlisted field
+names it may reference, and the passages. It receives no value of the result: no rate,
+p-value, interval or count, and not the canonical verdict sentence, which states the
+rate (a block references verdict.sentence to show it). The catalogue texts can hold
+fixed numbers of a definition, such as "550 nm", which text may quote verbatim. It
+returns a status, blocks of text with cited passage IDs and field references, and for
+"new_investigation_required" a plan that resolve_plan turns into a proposal awaiting
+confirmation. The proposal changes only what the plan names (no silent substitution): a
+variable or year the plan leaves open is the investigation's own, and a plan that names
+no place, or one of the investigation's own place labels, keeps those places at their
+exact coordinates; only other place queries go to find_place. The plan's season is
+always given by the model. Every block of an answer must cite a
+retrieved passage. A model abstention returns no_evidence; refusals, incomplete
+output and failed checks return their reasons; no provider text is returned then.
+
 User and retrieved text are untrusted evidence, never instructions authorizing
 tools, URLs, uploads, secret access or source changes. Render plain text and curated
 links. No model-controlled Python/SQL execution or open-ended tool loop is allowed.
@@ -928,7 +1039,7 @@ Keep hosted mode off if accounting is unavailable. Counters need durable storage
 and concurrency/restart/redeployment checks. Local mode also needs compute bounds.
 No chat text is stored server-side.
 
-Planned /api/discover and /api/explain use independent readiness/evaluation flags
+/api/discover and /api/explain use independent readiness/evaluation flags
 so a working planner does not imply working RAG. Each accepts <=8 KiB and one
 question <=2,000 characters, performs at most one explicit retrieval and one model
 generation, has a 30-second total deadline and a 1,024-token output cap, and shares
@@ -981,8 +1092,9 @@ resources; share source limits/cache across adapters.
 
 ## 10. API and URLs
 
-The core numerical routes and /api/plan exist. Discovery, retrieval-backed
-explanation and their new contracts below are planned until implemented and tested.
+The core numerical routes, /api/plan, /api/discover and /api/explain exist. The
+discovery and explanation routes are tested with fake providers only; they answer 503
+until their evaluation flags are set (section 8).
 
 | Core route | Purpose |
 | --- | --- |
@@ -996,10 +1108,10 @@ explanation and their new contracts below are planned until implemented and test
 | GET /api/world | WorldTrend for v, from, to and s; 422 unsupported_request for a variable the sample does not cover |
 | /world | A variable's whole-world page |
 | GET /api/examples | Frozen example titles and pinned queries |
-| GET /api/capabilities | Existing planner availability; planned separate discovery/explanation readiness |
+| GET /api/capabilities | Separate planner, discovery and explanation availability |
 | POST /api/plan | Existing bounded question-to-settings proposal; user confirms |
-| POST /api/discover (planned) | Supported variable suggestions, cited reasons and clarification; no execution |
-| POST /api/explain (planned) | Question + investigation ID -> cited qualitative explanation or explicit unsupported state |
+| POST /api/discover | DiscoveryRequest -> DiscoveryResponse: supported variable suggestions, cited reasons, clarification and a proposal; no execution |
+| POST /api/explain | ExplanationRequest -> ExplanationResponse: cited qualitative blocks bound to a recorded pinned investigation, or an explicit unanswered state with its reason |
 | GET /healthz | Liveness without external calls |
 | GET /readyz | Catalogue/example manifest/schema loadability |
 | /case | Shareable static application route |
@@ -1017,8 +1129,11 @@ to fixed identities. Unavailable pinned identities cause reproduction errors.
 
 Error shape: {error:{code,message,details?}}. Invalid inputs 400; valid unsupported
 product/dates/season 422 unsupported_request with support details; unavailable
-snapshot/version 409; rate limit 429; source failure 502; unavailable AI/not-ready
-service 503. Short records/unsupported inference return normal Investigations with
+snapshot/version 409; an explanation whose investigation is not on record, has
+missing retained evidence or rebuilds to another ID 409 `investigation_unavailable`;
+rate limit or AI budget/turn/busy limits 429 `rate_limited`; source failure 502;
+unavailable AI/not-ready service 503 `ai_unavailable`. An over-8-KiB or invalid AI
+request body is 400 `bad_request`. Short records/unsupported inference return normal Investigations with
 honest verdicts. No raw exceptions. Quote CSV and protect filenames from labels.
 
 If AI streaming is added, define step/case_plan/case/text/error/done payloads first.

@@ -1,0 +1,12 @@
+Variables in Trend Detective: Surface air pressure (PS)
+Publisher: Trend Detective project
+
+Surface air pressure (PS): The pressure of the air at the height of the ground in the grid cell, averaged over the month. It is lower on high ground, so it differs from the pressure on a weather map.
+
+- Catalogue ID: surface_pressure
+- NASA POWER parameter code: PS
+- Units: kPa
+- Rate of change shown in: kPa per decade
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.

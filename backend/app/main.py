@@ -19,7 +19,7 @@ from starlette.requests import ClientDisconnect
 from starlette.routing import Match
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from app.adapters import chat, planner, rest
+from app.adapters import chat, discover, explain, planner, rest
 from app.adapters import mcp_server as mcp_adapter
 from app.config import FRONTEND_DIST_DIR, Settings, get_settings
 from app.errors import RateLimitedError
@@ -90,6 +90,8 @@ def create_app(services: Services | None = None, static_dir: Path | None = None)
     app.include_router(rest.router)
     app.include_router(chat.router)
     app.include_router(planner.router)
+    app.include_router(discover.router)
+    app.include_router(explain.router)
     app.add_api_route(HEALTHZ_PATH, healthz, methods=["GET"])
     app.add_api_route("/readyz", readyz, methods=["GET"])
     _add_mcp(app, services.settings if services is not None else get_settings())

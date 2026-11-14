@@ -9,6 +9,7 @@ from urllib.parse import urlsplit
 
 import pytest
 
+from app.catalogue import load_catalogue
 from scripts.build_corpus import (
     CORPUS_DIR,
     MANIFEST_FILE,
@@ -402,3 +403,15 @@ def test_committed_manifest_matches_its_section_files() -> None:
         assert hashlib.sha256(content).hexdigest() == section["sha256"]
     listed = {Path(section["path"]).name for section in manifest["sections"]}
     assert {path.name for path in (CORPUS_DIR / "sections").iterdir()} == listed
+
+
+def test_variables_note_copies_every_catalogue_variable() -> None:
+    note = (CORPUS_DIR / "project" / "variables.md").read_text(encoding="utf-8")
+
+    for entry in load_catalogue():
+        assert f"## {entry.name} ({entry.code})" in note
+        assert f"{entry.name} ({entry.code}): {entry.definition}" in note
+        assert f"- Catalogue ID: {entry.id}" in note
+        assert f"- Units: {entry.units}" in note
+        if entry.trend_note:
+            assert f"Caution: {entry.trend_note}" in note

@@ -1,0 +1,12 @@
+Variables in Trend Detective: Surface (skin) temperature (TS)
+Publisher: Trend Detective project
+
+Surface (skin) temperature (TS): How warm the very top of the ground or of the sea is, averaged over the month. Over open sea this is the sea-surface temperature, which the model is given rather than calculates.
+
+- Catalogue ID: surface_temp
+- NASA POWER parameter code: TS
+- Units: °C
+- Rate of change shown in: °C per decade
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.

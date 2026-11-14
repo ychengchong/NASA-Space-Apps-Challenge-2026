@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
-import { getCapabilities, getCase, getExamples, getVariables, proposeCase } from "./api";
-import type { ExampleCase, Investigation, VariableSummary } from "./api";
+import { discover, explain, getCapabilities, getCase, getExamples, getVariables, proposeCase } from "./api";
+import type { ExampleCase, Investigation, Proposal, VariableSummary } from "./api";
 import {
   applyPlaceAction,
   caseFromDraft,
@@ -15,6 +15,8 @@ import type { CaseDraft, PlaceAction } from "./caseDraft";
 import { buildCaseQuery, buildMapQuery, parseCaseQuery } from "./caseUrl";
 import type { CaseParams, CasePlace } from "./caseUrl";
 import type { ChatResult } from "./chat";
+import { AskPanel } from "./components/AskPanel";
+import type { Explain } from "./components/AskPanel";
 import { CopyLink, ExploreFurther } from "./components/CaseActions";
 import type { RegionLink } from "./components/CaseActions";
 import { CaseLayout } from "./components/CaseLayout";
@@ -33,7 +35,7 @@ import { PickedPoint } from "./components/PickedPoint";
 import { PlaceLegend } from "./components/PlaceLegend";
 import { ProgressLine } from "./components/ProgressLine";
 import { QuestionBar } from "./components/QuestionBar";
-import type { AiAnswer, AiHelper, ReadyCase } from "./components/QuestionBar";
+import type { AiAnswer, AiHelper, DiscoveryHelper, ReadyCase } from "./components/QuestionBar";
 import { PlaceOverviewView } from "./components/PlaceOverviewView";
 import { RecordYears } from "./components/RecordYears";
 import { RegionView } from "./components/RegionView";
@@ -47,6 +49,13 @@ import type { PreloadedMap } from "./components/RegionView";
 import { TrendChart } from "./components/TrendChart";
 import { VerdictCard } from "./components/VerdictCard";
 import { VerdictLine } from "./components/VerdictLine";
+import {
+  applyChoice,
+  draftFromAiProposal,
+  draftWithSuggestion,
+  proposalIsReady,
+  toDiscoveryDraft,
+} from "./discovery";
 import { formatCoordinates } from "./format";
 import {
   GLOBE_LOADING,
@@ -231,6 +240,59 @@ export default function App(): JSX.Element {
       setAiWorking(false);
     }
   };
+  // The settings a question builds on: those waiting for "Run this case", or the open case's.
+  const currentDraft = (): CaseDraft =>
+    pendingDraft ?? (route.kind === "case" ? draftFromCase(route.params) : EMPTY_DRAFT);
+  // Settings from the AI wait for "Run this case": a whole case is offered under the question,
+  // and an incomplete one, when the user asked for it, sends focus to the settings.
+  const fillFromAi = (next: CaseDraft, ready: boolean, focusIfIncomplete: boolean): void => {
+    showSettingsPage();
+    setPendingDraft(next);
+    setReadyFromQuestion(ready);
+    if (!ready && focusIfIncomplete) setSettingsFocusRequest((count) => count + 1);
+  };
+  const askDiscovery: DiscoveryHelper["discover"] = async (question, choice, signal) => {
+    let draft = currentDraft();
+    if (choice !== null) {
+      draft = applyChoice(draft, choice);
+      if (choice.place != null) regionTypes.remember([choice.place]);
+      fillFromAi(draft, false, false);
+    }
+    const response = await discover(question, toDiscoveryDraft(draft), signal);
+    // A screen change cancels the question; its answer must not fill the settings of a page left.
+    signal.throwIfAborted();
+    const { proposal } = response;
+    if (response.status === "ready" && proposal != null) {
+      regionTypes.remember(proposal.places);
+      const next = draftFromAiProposal(draft, proposal);
+      fillFromAi(next, proposalIsReady(proposal, next), false);
+    }
+    return response;
+  };
+  const discoveryHelper: DiscoveryHelper | undefined =
+    aiFailure === null &&
+    capabilities.state.status === "done" &&
+    capabilities.state.value.ai_discovery_available === true
+      ? {
+          discover: askDiscovery,
+          onUseVariable: (variable, response) => {
+            const { draft: next, ready } = draftWithSuggestion(currentDraft(), response, variable.id);
+            fillFromAi(next, ready, true);
+          },
+          onManual: () => {
+            showSettingsPage();
+            setSettingsFocusRequest((count) => count + 1);
+          },
+          onFailure: setAiFailure,
+        }
+      : undefined;
+  // Spec 8: the "Ask about this investigation" panel shows only once the server says so.
+  const explanationAvailable =
+    capabilities.state.status === "done" && capabilities.state.value.ai_explanation_available === true;
+  const loadExplanationProposal = (proposal: Proposal): void => {
+    regionTypes.remember(proposal.places);
+    fillFromAi(draftFromAiProposal(currentDraft(), proposal), false, true);
+  };
   const ai: AiHelper | undefined =
     aiFailure === null &&
     capabilities.state.status === "done" &&
@@ -330,6 +392,7 @@ export default function App(): JSX.Element {
             <QuestionBar
               onProposal={handleProposal}
               ai={ai}
+              discovery={discoveryHelper}
               aiNotice={aiFailure === null ? null : { message: aiFailure, onRetry: () => setAiFailure(null) }}
               firstScreen={route.kind === "home" || route.kind === "bad_link"}
               ready={readyCase}
@@ -348,6 +411,7 @@ export default function App(): JSX.Element {
                 notes={notes}
                 catalogue={catalogue}
                 regionTypes={regionTypes.known}
+                ask={explanationAvailable ? { explain, onProposal: loadExplanationProposal } : undefined}
                 onOpenCase={openCase}
                 onOpenPage={openPage}
                 onNormalised={showNormalisedCase}
@@ -509,6 +573,12 @@ function StartView(props: StartViewProps): JSX.Element {
   );
 }
 
+/** "Ask about this investigation", when the server offers explanations (spec 8). */
+interface CaseAsk {
+  explain: Explain;
+  onProposal: (proposal: Proposal) => void;
+}
+
 interface CaseViewProps {
   params: CaseParams;
   settings: JSX.Element;
@@ -522,6 +592,8 @@ interface CaseViewProps {
   /** The catalogue, empty until it loads. */
   catalogue: readonly VariableSummary[];
   regionTypes: RegionTypes;
+  /** The panel for questions about the case; left out while explanations are unavailable. */
+  ask?: CaseAsk;
   onOpenCase: (params: CaseParams) => void;
   onOpenPage: (url: string) => void;
   onNormalised: (params: CaseParams) => void;
@@ -611,6 +683,14 @@ function CaseView(props: CaseViewProps): JSX.Element {
                         variable={shown.variable}
                         showNames={shown.results.length > 1}
                       />
+                      {!loading && props.ask !== undefined ? (
+                        <AskPanel
+                          key={shown.id}
+                          investigation={shown}
+                          explain={props.ask.explain}
+                          onProposal={props.ask.onProposal}
+                        />
+                      ) : null}
                       {!loading ? <CopyLink key={key} subject="case" /> : null}
                     </>
                   ),

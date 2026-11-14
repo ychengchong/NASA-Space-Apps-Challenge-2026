@@ -12,7 +12,7 @@ from app import ai
 from app.adapters.rest import get_services
 from app.catalogue import load_catalogue, to_summary
 from app.errors import AiUnavailableError, BadRequestError
-from app.models import ExtractedPlan, FindPlaceInput, PlannerRequest, Proposal
+from app.models import ExtractedPlan, FindPlaceInput, PlaceCandidate, PlannerRequest, Proposal
 from app.services import Services
 from app.tools.places import find_place
 
@@ -27,12 +27,9 @@ def resolve_plan(plan: ExtractedPlan, cutoff: int) -> Proposal:
     notices = ["Review the variable, grid cell and dates, then select Run this case to confirm."]
     places = []
     for query in plan.place_queries:
-        candidates = find_place(FindPlaceInput(query=query))
-        exact = [
-            candidate for candidate in candidates if candidate.name.casefold() == query.casefold()
-        ]
-        if len(exact) == 1:
-            places.append(exact[0])
+        place = resolve_place_query(query)
+        if place is not None:
+            places.append(place)
         else:
             notices.append(f"Choose the intended location for '{query}' in the place search.")
     if plan.ambiguous or entry is None:
@@ -60,6 +57,15 @@ def resolve_plan(plan: ExtractedPlan, cutoff: int) -> Proposal:
         places=places,
         **{"from": first, "to": last, "season": plan.season, "notices": notices},
     )
+
+
+def resolve_place_query(query: str) -> PlaceCandidate | None:
+    """The one reviewed place whose name equals `query`, ignoring case; None when there is no
+    such place or more than one, so the user chooses in the place search.
+    """
+    candidates = find_place(FindPlaceInput(query=query))
+    exact = [candidate for candidate in candidates if candidate.name.casefold() == query.casefold()]
+    return exact[0] if len(exact) == 1 else None
 
 
 @router.post("/api/plan")

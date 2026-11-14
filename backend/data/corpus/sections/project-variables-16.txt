@@ -1,0 +1,13 @@
+Variables in Trend Detective: Snow cover (FRSNO)
+Publisher: Trend Detective project
+
+Snow cover (FRSNO): How much of the land is covered by snow, from 0 for none to 1 for all of it, averaged over the month. Snow-free land reads zero, and over open sea POWER has no value.
+
+- Catalogue ID: snow_cover
+- NASA POWER parameter code: FRSNO
+- Units: fraction, 0 to 1
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.
+
+Caution: Snow trends from this model are less reliable than temperature trends.

@@ -1,0 +1,12 @@
+Variables in Trend Detective: Maximum temperature (T2M_MAX)
+Publisher: Trend Detective project
+
+Maximum temperature (T2M_MAX): The highest hourly air temperature two metres above the ground during the month.
+
+- Catalogue ID: max_temp
+- NASA POWER parameter code: T2M_MAX
+- Units: °C
+- Rate of change shown in: °C per decade
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.

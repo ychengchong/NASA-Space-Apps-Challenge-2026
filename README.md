@@ -149,8 +149,11 @@ credits or calls NASA. Docker and a public HTTPS deployment require separate ver
 
 The [Draft 5 technical spec](docs/technical-spec.md) plans OpenAI-assisted variable
 discovery and RAG explanations using a reviewed documentation corpus. The corpus,
-its upload, the retrieval settings and the response contracts exist; the
-/api/discover and /api/explain endpoints are not yet implemented or evaluated. No
+its upload, the retrieval settings, the response contracts, the /api/discover and
+/api/explain endpoints and their interface (guided discovery in the question bar and the
+"Ask about this investigation" panel) exist. They are unit-tested with fake providers and
+were given one local live smoke check; their held-out evaluation, a user study and a
+deployment are not yet done. No
 local model is required for that plan. The retrieval settings are described under
 "Retrieval settings" below; the rest of this section describes the planner.
 Without an enabled provider, the question box matches keywords and fills settings;
@@ -203,6 +206,22 @@ off only discovery and explanation. While explanations are available, each pinne
 is recorded in the operations database (investigation ID, case query including place
 labels, analysis version) so an explanation can rebuild it from retained snapshots; a
 record is kept 24 hours and at most 10,000 are kept.
+
+### Discovery and explanation endpoints
+
+Both answer 503 `ai_unavailable` until their flags above are set, accept a body of at most
+8 KiB with one question of at most 2,000 characters, share the planner's single generation
+slot, daily turn limit and budget (429 `rate_limited` when any is exhausted), make one
+vector-store search (at most four passages) and at most one generation of at most 1,024
+output tokens, and finish within 30 seconds. Citations are built on the server from the
+manifest and the retrieved passages; provider text that fails the checks in
+`backend/app/ai_guard.py` (unknown or unretrieved sources, numbers, URLs, markup, verdict
+contradictions, causes, forecasts and more) is never returned.
+
+| Endpoint | Request | Response |
+| --- | --- | --- |
+| `POST /api/discover` | `{"question": ..., "draft": {...}?}` | `DiscoveryResponse`: status `ready`/`clarify`/`unsupported` (with a `reason`), up to three cited variable suggestions, a proposal to confirm, missing fields and a clarification with typed choices. Nothing runs. |
+| `POST /api/explain` | `{"question": ..., "investigation_id": "<64 hex>"}` | `ExplanationResponse`: status `answered`/`insufficient_evidence` (with a `reason`)/`new_investigation_required`, cited blocks with result-field references, and an optional proposal. 409 `investigation_unavailable` when the ID is not on record, its retained evidence is missing or it rebuilds to another ID; NASA is never called. |
 
 The corpus is built and uploaded by the owner, from `backend/`:
 
@@ -314,6 +333,22 @@ and capability flags, the investigation lookup, the corpus build and upload scri
 project method notes in the corpus, and their tests. It also fixed the review findings on
 that work (typed failure reasons, cited passages and sections, the upload byte cap and
 attempt history, robots.txt errors and the bounded investigation lookup).
+
+Claude Code (model Claude Opus 5.5) also wrote the /api/discover and /api/explain endpoints
+on 15 November 2026: the corpus manifest reader, the provider-output checks in
+`backend/app/ai_guard.py`, the offline rebuild of a recorded investigation, the
+`investigation_unavailable` error and their fake-provider tests.
+
+Claude Code (model Claude Opus 5.5) also wrote the Draft 5 interface on 15 November 2026:
+guided discovery in the question bar, the suggestion cards, the "Ask about this
+investigation" panel, citation rendering (`DiscoveryResult`, `AskPanel`, `CitationList`,
+`discovery.ts`, `explanation.ts`, `citations.ts`) and their tests. It then applied a review
+of that stage: the explanation proposal keeps the investigation's own settings, the
+provider no longer sees the verdict sentence, retrieval uses the bare question, retrieved
+text must match the reviewed section files, the text checks gained direction, significance,
+cause, forecast, number and URL rules and checks of model-written place queries, and the
+interface shows proposal notices and catalogue facts, announces finished answers, keeps
+focus after a choice and cancels a discovery question when the page changes.
 
 Educational impact and the >=90% semantic planner target are not established by
 unit tests. Run the recorded evaluation protocol with target users and the selected

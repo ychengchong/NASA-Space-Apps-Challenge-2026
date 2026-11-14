@@ -108,7 +108,7 @@
       "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/",
       "version": null,
       "accessed": "2026-11-15",
-      "sha256": "d99b75e222372f4996ee954698a15b1fae78474c83cdb57e9e27d21a014b99d7"
+      "sha256": "0b3d699c828e1093c9e6c1abb4dac152fb0da8bce9813aa67e75a34fa9754384"
     },
     {
       "source_id": "merra2-system-characteristics",
@@ -118,7 +118,7 @@
       "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/system-characteristics_merra-2/",
       "version": null,
       "accessed": "2026-11-15",
-      "sha256": "7f0c26c5100e2d4a21b77978836b082aebf377544ab3628a861a32f652b7efcc"
+      "sha256": "906ad76511c7a44f9fbc34d2628bbbd13d5a43556967e20658105215c64c0b70"
     },
     {
       "source_id": "merra2-faq",
@@ -128,7 +128,7 @@
       "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/faq_merra-2/",
       "version": null,
       "accessed": "2026-11-15",
-      "sha256": "7fcdd0dce0b0f4271a03fbda69067a8fb443491b61147d2cf4250322ff7830b1"
+      "sha256": "9534fe9dc873b60ef6ede67e25d9772fc7b527a22b348a25729d22bdfac19603"
     },
     {
       "source_id": "project-sen-slope",
@@ -209,6 +209,16 @@
       "version": null,
       "accessed": "2026-11-15",
       "sha256": "35798e6e71691563dcbef4e36599f11a71806e94d595ba76e5c66f39161501c6"
+    },
+    {
+      "source_id": "project-variables",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Variables in Trend Detective",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/variables.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "3adb386a28c74d46aeb56a855e517c96ab3d7aa64b1a66293ca429f36f969d06"
     }
   ],
   "sections": [
@@ -1355,7 +1365,175 @@
       "path": "sections/project-record-years-02.txt",
       "chars": 610,
       "sha256": "46ebff126443b6caa50139c85ae1a82d43481eebda6cbe2d44bcb19c2ae2a137"
+    },
+    {
+      "section_id": "project-variables-01",
+      "source_id": "project-variables",
+      "title": "Variables in Trend Detective",
+      "path": "sections/project-variables-01.txt",
+      "chars": 509,
+      "sha256": "fb3b286659b7c592741b25c3590b01c2204408d0f6e64b83ce6a54c75dd459d5"
+    },
+    {
+      "section_id": "project-variables-02",
+      "source_id": "project-variables",
+      "title": "Air temperature (T2M)",
+      "path": "sections/project-variables-02.txt",
+      "chars": 559,
+      "sha256": "3cc91ca58be9c734ef0b811f7adfe6f49c02f48dced9c77df09b9f19460db71b"
+    },
+    {
+      "section_id": "project-variables-03",
+      "source_id": "project-variables",
+      "title": "Maximum temperature (T2M_MAX)",
+      "path": "sections/project-variables-03.txt",
+      "chars": 586,
+      "sha256": "2672104e48a7bf5b9570a2ccc3c0bd95ca45ce8a03a62152b7b6ff04f98429c0"
+    },
+    {
+      "section_id": "project-variables-04",
+      "source_id": "project-variables",
+      "title": "Minimum temperature (T2M_MIN)",
+      "path": "sections/project-variables-04.txt",
+      "chars": 585,
+      "sha256": "8d7f32230c2df9e370d58852e06d33bf276889ecc257e90c359c5c5eaae16872"
+    },
+    {
+      "section_id": "project-variables-05",
+      "source_id": "project-variables",
+      "title": "Surface (skin) temperature (TS)",
+      "path": "sections/project-variables-05.txt",
+      "chars": 687,
+      "sha256": "f7904b120fce5889360f8061adc3e693eb0c87d606d78013cbcad6e07b33d0f7"
+    },
+    {
+      "section_id": "project-variables-06",
+      "source_id": "project-variables",
+      "title": "Precipitation (PRECTOTCORR)",
+      "path": "sections/project-variables-06.txt",
+      "chars": 685,
+      "sha256": "135381a36b5c67efcedcf67bd08dfcf08c9a8dbcd91b3dd3e1664aad7aaa9ce2"
+    },
+    {
+      "section_id": "project-variables-07",
+      "source_id": "project-variables",
+      "title": "Relative humidity (RH2M)",
+      "path": "sections/project-variables-07.txt",
+      "chars": 729,
+      "sha256": "8b1233098cf3340b95b31559433581aca76931f767133f4ad1065085fbf87d98"
+    },
+    {
+      "section_id": "project-variables-08",
+      "source_id": "project-variables",
+      "title": "Specific humidity (QV2M)",
+      "path": "sections/project-variables-08.txt",
+      "chars": 702,
+      "sha256": "4c7d8eb69690216a3dc040973d454a5c2e57654fe25ab3c0a28ef6be0e26af1c"
+    },
+    {
+      "section_id": "project-variables-09",
+      "source_id": "project-variables",
+      "title": "Wind speed at 10 m (WS10M)",
+      "path": "sections/project-variables-09.txt",
+      "chars": 660,
+      "sha256": "8ffec868d63eb9124f79b9ce21d7495d8a140670470057aa4d441e2e65bdf240"
+    },
+    {
+      "section_id": "project-variables-10",
+      "source_id": "project-variables",
+      "title": "Surface soil wetness (GWETTOP)",
+      "path": "sections/project-variables-10.txt",
+      "chars": 734,
+      "sha256": "bbbbe6a1bbd3a14b519986781025098319661acd7fae84109c7ab54d4891f239"
+    },
+    {
+      "section_id": "project-variables-11",
+      "source_id": "project-variables",
+      "title": "Root-zone soil wetness (GWETROOT)",
+      "path": "sections/project-variables-11.txt",
+      "chars": 763,
+      "sha256": "1f08bd8ee2b0cb6c97786a08ccc0635bd47f516a07363cedba47f3842eb90db9"
+    },
+    {
+      "section_id": "project-variables-12",
+      "source_id": "project-variables",
+      "title": "Sunlight reaching the surface (ALLSKY_SFC_SW_DWN)",
+      "path": "sections/project-variables-12.txt",
+      "chars": 851,
+      "sha256": "6c5070970e116303959ddaff704c80bdc60d9a0682310bdfd94ff0e4f4c5e2e5"
+    },
+    {
+      "section_id": "project-variables-13",
+      "source_id": "project-variables",
+      "title": "Cloud cover (CLOUD_AMT)",
+      "path": "sections/project-variables-13.txt",
+      "chars": 770,
+      "sha256": "8be28ccdb96b68a73588d85131311e9b3dfd573175789b2b75ba1954222351ae"
+    },
+    {
+      "section_id": "project-variables-14",
+      "source_id": "project-variables",
+      "title": "Snow depth (SNODP)",
+      "path": "sections/project-variables-14.txt",
+      "chars": 696,
+      "sha256": "b52a018aa21a6fe8edc041ade89bfb30ef3a34425a0df59ce75d78734e89443d"
+    },
+    {
+      "section_id": "project-variables-15",
+      "source_id": "project-variables",
+      "title": "Snowfall (PRECSNOLAND)",
+      "path": "sections/project-variables-15.txt",
+      "chars": 746,
+      "sha256": "b39c0fdd6808fb492e72111ba4fe6864ee947a93575f623b27b9cebf37a5566d"
+    },
+    {
+      "section_id": "project-variables-16",
+      "source_id": "project-variables",
+      "title": "Snow cover (FRSNO)",
+      "path": "sections/project-variables-16.txt",
+      "chars": 704,
+      "sha256": "f8a4bb4c13265de7492742aeb13e71c1d10035c7b1090323af23c278145a198a"
+    },
+    {
+      "section_id": "project-variables-17",
+      "source_id": "project-variables",
+      "title": "Sea ice (FRSEAICE)",
+      "path": "sections/project-variables-17.txt",
+      "chars": 921,
+      "sha256": "101d75376c084987ea7a6110f8b10d9f71df72576d37ea55bbb5de7a814a7a7f"
+    },
+    {
+      "section_id": "project-variables-18",
+      "source_id": "project-variables",
+      "title": "Surface air pressure (PS)",
+      "path": "sections/project-variables-18.txt",
+      "chars": 675,
+      "sha256": "a32623b5fef7f9f4bef204518a722ee59bbbde8e874225f6cbb96566886a14e8"
+    },
+    {
+      "section_id": "project-variables-19",
+      "source_id": "project-variables",
+      "title": "Water vapour in the air column (TQV)",
+      "path": "sections/project-variables-19.txt",
+      "chars": 746,
+      "sha256": "3d8a273370e9aff99349b19f07a088d0faea0158e47d657c4c456a994389ff91"
+    },
+    {
+      "section_id": "project-variables-20",
+      "source_id": "project-variables",
+      "title": "Strongest wind (WS10M_MAX)",
+      "path": "sections/project-variables-20.txt",
+      "chars": 743,
+      "sha256": "3fd3cfafbe612f092862642247095ff6c73f03f9a4ca3d1b95d6373b659f5742"
+    },
+    {
+      "section_id": "project-variables-21",
+      "source_id": "project-variables",
+      "title": "Haze (AOD_55_ADJ)",
+      "path": "sections/project-variables-21.txt",
+      "chars": 969,
+      "sha256": "7b890cab4297f47cc124f5b3cfe9b21a2dfd6cb83540ca10f98f6177eb5fb660"
     }
   ],
-  "corpus_version": "17c64a90c665a37e429fc896d69a232e745e78fe03f8a908d9c8b163938c6f35"
+  "corpus_version": "cc397f969e22f9d69e390df8777432d46cfcbc1f6ba682c03e07330644166422"
 }

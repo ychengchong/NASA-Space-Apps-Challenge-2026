@@ -194,6 +194,15 @@
       "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/record-years.md",
       "path": "project/record-years.md",
       "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    },
+    {
+      "source_id": "project-variables",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Variables in Trend Detective",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/variables.md",
+      "path": "project/variables.md",
+      "notes": "Copied by the project from backend/data/catalogue.json (ID, name, POWER parameter code, definition, units, grid, trend note and source-change caution of every variable), because the POWER parameter dictionary is disallowed to crawlers by robots.txt; not a NASA source."
     }
   ]
 }

@@ -51,6 +51,15 @@ export type SourceRef = Models.SourceRef;
 export type Investigation = Models.Investigation;
 export type MapCell = Models.MapCell;
 export type TrendMap = Models.TrendMap;
+export type Citation = Models.Citation;
+export type ClarificationChoice = Models.ClarificationChoice;
+export type DiscoveryDraft = Models.DiscoveryDraft;
+export type DiscoveryResponse = Models.DiscoveryResponse;
+export type VariableSuggestion = Models.VariableSuggestion;
+export type ExplanationBlock = Models.ExplanationBlock;
+export type ExplanationResponse = Models.ExplanationResponse;
+export type ResultReference = Models.ResultReference;
+export type UnansweredReason = NonNullable<ExplanationResponse["reason"]>;
 
 // Other endpoint shapes (spec 10)
 
@@ -74,6 +83,7 @@ const ERROR_CODES = [
   "rate_limited",
   "source_unavailable",
   "ai_unavailable",
+  "investigation_unavailable",
   "not_found",
   "internal_error",
 ] as const;
@@ -248,6 +258,20 @@ function withQuery(path: string, query: string): string {
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await send(path, { headers: { Accept: "application/json" }, signal });
+  return readJson<T>(response);
+}
+
+async function postJson<T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
+  const response = await send(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+  return readJson<T>(response);
+}
+
+async function readJson<T>(response: Response): Promise<T> {
   try {
     const body: unknown = await response.json();
     return body as T;
@@ -269,6 +293,31 @@ export async function proposeCase(question: string, signal?: AbortSignal): Promi
   });
   const body: unknown = await response.json();
   return body as Proposal;
+}
+
+/**
+ * Asks guided discovery (spec 8) for variables to investigate, with the settings as they stand.
+ * Nothing runs: the caller fills the settings, and the user confirms them before getCase.
+ */
+export function discover(
+  question: string,
+  draft: DiscoveryDraft | null,
+  signal?: AbortSignal,
+): Promise<DiscoveryResponse> {
+  return postJson<DiscoveryResponse>("/api/discover", { question, draft }, signal);
+}
+
+/** Asks about the investigation on screen (spec 8); the server loads it by its ID. */
+export function explain(
+  question: string,
+  investigationId: string,
+  signal?: AbortSignal,
+): Promise<ExplanationResponse> {
+  return postJson<ExplanationResponse>(
+    "/api/explain",
+    { question, investigation_id: investigationId },
+    signal,
+  );
 }
 
 export function getCapabilities(signal?: AbortSignal): Promise<Capabilities> {

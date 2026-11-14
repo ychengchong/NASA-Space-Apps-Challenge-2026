@@ -1,0 +1,4 @@
+Variables in Trend Detective
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project from the app's variable catalogue. It lists every variable the app can test for a trend: the catalogue ID, the name shown in the app, the NASA POWER parameter code the app requests, the app's plain-language definition, the units, the grid and the cautions the app attaches to the variable. The definitions and cautions are the project's own wording, not NASA definitions or NASA statements.

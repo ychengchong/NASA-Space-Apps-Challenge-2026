@@ -2540,6 +2540,157 @@ details > summary::-webkit-details-marker {
   overflow-wrap: anywhere;
 }
 
+/* Guided discovery under the question: a clarification, the suggested variables, and their
+   sources. Each suggestion is a card on the page's paper, like the "Ready to test" card. */
+.discovery {
+  display: grid;
+  gap: 10px;
+}
+
+.discovery > .ai-label {
+  justify-self: start;
+  margin: 0;
+}
+
+.discovery-clarify > .ai-body {
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestion-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.suggestion-card {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  padding: 10px 12px;
+  border: 1px solid var(--ink);
+  border-left: 3px solid var(--ink);
+  background: var(--grain), var(--sheet);
+}
+
+.suggestion-card > * {
+  margin: 0;
+}
+
+.suggestion-name {
+  font-size: 1.02rem;
+}
+
+/* What the catalogue says about the variable, set apart from the AI's reason. */
+.suggestion-catalogue {
+  display: grid;
+  gap: 2px;
+  font-size: 0.88rem;
+}
+
+.suggestion-catalogue > p {
+  margin: 0;
+}
+
+/* The sources of an AI text: a link to each reviewed document, and its passage on request. */
+.citation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.88rem;
+}
+
+.citation {
+  overflow-wrap: anywhere;
+}
+
+.citation-kind {
+  color: var(--ink-muted);
+}
+
+.citation-passage {
+  margin-top: 2px;
+}
+
+.citation-text {
+  margin: 6px 0 4px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--line-strong);
+  background: var(--field);
+  white-space: pre-line;
+}
+
+/* "Ask about this investigation", in the "Answer" tab after the record years. */
+.ask-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.ask-panel > h2,
+.ask-panel > .panel-note {
+  margin: 0;
+}
+
+.ask-form {
+  display: grid;
+  gap: 6px;
+}
+
+/* The status line stays in the page while empty, for screen readers, but takes no row. */
+.ask-panel > .status-text:empty {
+  margin-top: -10px;
+}
+
+.ask-block + .ask-block {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.ask-block > .ai-body {
+  margin-bottom: 6px;
+}
+
+.ask-references {
+  display: grid;
+  gap: 2px;
+  margin: 4px 0 8px;
+  font-size: 0.92rem;
+}
+
+.ask-reference {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+
+.ask-reference dt {
+  color: var(--ink-muted);
+}
+
+.ask-reference dt::after {
+  content: ":";
+}
+
+.ask-reference dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.ask-answer .ready-card {
+  margin-top: 12px;
+}
+
 .unverified-number {
   text-decoration: underline wavy var(--error-line);
   text-decoration-thickness: 1px;

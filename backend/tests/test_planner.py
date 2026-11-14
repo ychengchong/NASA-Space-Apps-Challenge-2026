@@ -244,3 +244,10 @@ async def test_remote_ollama_endpoint_is_not_contacted(services):
     services.settings = replace(services.settings, ollama_url="https://unapproved.example")
     with pytest.raises(AiUnavailableError, match="loopback"):
         await planner.extract("test", services)
+
+
+def test_a_place_query_resolves_only_to_one_exact_reviewed_match():
+    helsinki = planner.resolve_place_query("helsinki")
+    assert helsinki is not None and helsinki.name == "Helsinki"
+    assert planner.resolve_place_query("Helsin") is None
+    assert planner.resolve_place_query("Qqqzzx") is None
