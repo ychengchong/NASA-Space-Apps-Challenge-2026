@@ -1,7 +1,9 @@
 ﻿# Resource integration assessment
 
 Current release scope and integration order are controlled by
-[technical specification Draft 3](technical-spec.md), sections 1, 6 and 12.
+[technical specification Draft 5](technical-spec.md), sections 1, 6 and 12.
+This assessment records earlier resource research; Draft 5 controls the current
+delivery order and adds OpenAI discovery/RAG to the target scope.
 This research informs optional extensions, not thirteen mandatory integrations.
 
 Research date: 13 November 2026. Prepared with AI assistance from the team's
