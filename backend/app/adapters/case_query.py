@@ -19,7 +19,9 @@ from app.models import (
     ComparePlacesInput,
     MapTrendsInput,
     PlaceInput,
+    PlaceOverviewInput,
     Season,
+    WorldTrendInput,
 )
 
 # Parameter name -> every value given for it, in order, as `parse_qs` returns them.
@@ -61,6 +63,35 @@ def parse_case_query(query: QueryValues) -> AnalyzeTrendInput | ComparePlacesInp
         )
     except ValidationError as error:
         raise BadRequestError("The case parameters are not valid.") from error
+
+
+def parse_overview_query(query: QueryValues) -> PlaceOverviewInput:
+    """The tool input for a place's overview: one place, an optional label and the period.
+
+    Raises `BadPlaceError` for a missing or malformed place, or more than one, and
+    `BadRequestError` for any other invalid parameter.
+    """
+    places = _places(query)
+    if len(places) != 1:
+        raise BadPlaceError("The overview is for one place: give p only once.")
+    period = _period(query)
+    try:
+        return PlaceOverviewInput.model_validate({"place": places[0], **period})
+    except ValidationError as error:
+        raise BadRequestError("The overview parameters are not valid.") from error
+
+
+def parse_world_query(query: QueryValues) -> WorldTrendInput:
+    """The tool input for the whole world: the variable and the period, without a place.
+
+    Raises `BadRequestError` for a missing variable or any invalid parameter.
+    """
+    variable = _required_single(query, "v")
+    period = _period(query)
+    try:
+        return WorldTrendInput.model_validate({"variable": variable, **period})
+    except ValidationError as error:
+        raise BadRequestError("The world parameters are not valid.") from error
 
 
 def parse_map_query(query: QueryValues) -> MapTrendsInput:

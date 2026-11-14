@@ -1,5 +1,5 @@
 {
-  "attribution": "Cities (kind 'city'): GeoNames (https://www.geonames.org/), file cities15000 from https://download.geonames.org/export/dump/, downloaded 2026-11-13, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Changed: only places of 100,000 people or more are kept, with fewer fields and coordinates rounded to 4 decimals. Natural regions (kind 'region', marked hand_picked) were picked by hand with an AI coding assistant; each point is a representative spot on land inside the region, not a boundary.",
+  "attribution": "Cities (kind 'city'): GeoNames (https://www.geonames.org/), file cities15000 from https://download.geonames.org/export/dump/, downloaded 2026-11-13, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Changed: only places of 100,000 people or more are kept, with fewer fields and coordinates rounded to 4 decimals. Natural regions (kind 'region', marked hand_picked) were picked by hand with an AI coding assistant; each point is a representative spot inside the region, on land or at sea for an ocean, not a boundary.",
   "places": [
     {"name": "Shanghai", "country": "China", "lat": 31.2222, "lon": 121.4581, "population": 24874500, "kind": "city", "region_type": "megacity"},
     {"name": "Chongqing", "country": "China", "lat": 29.5603, "lon": 106.5577, "population": 22000000, "kind": "city", "region_type": "megacity"},
@@ -6308,6 +6308,8 @@
     {"name": "Alps", "alt_names": ["The Alps"], "lat": 46.5, "lon": 8.5, "kind": "region", "region_type": "mountains", "hand_picked": true},
     {"name": "Altiplano", "alt_names": ["Andean Plateau"], "lat": -18.0, "lon": -67.5, "kind": "region", "region_type": "plateau", "hand_picked": true},
     {"name": "Kalahari Desert", "lat": -22.5, "lon": 23.5, "kind": "region", "region_type": "desert", "hand_picked": true},
-    {"name": "Svalbard", "alt_names": ["Longyearbyen"], "country": "Norway", "lat": 78.22, "lon": 15.65, "kind": "region", "region_type": "tundra", "hand_picked": true}
+    {"name": "Svalbard", "alt_names": ["Longyearbyen"], "country": "Norway", "lat": 78.22, "lon": 15.65, "kind": "region", "region_type": "tundra", "hand_picked": true},
+    {"name": "Gulf of Maine", "lat": 43.0, "lon": -68.0, "kind": "region", "region_type": "ocean", "hand_picked": true},
+    {"name": "Equatorial Pacific", "alt_names": ["Pacific Ocean"], "lat": 0.0, "lon": -145.0, "kind": "region", "region_type": "ocean", "hand_picked": true}
   ]
 }

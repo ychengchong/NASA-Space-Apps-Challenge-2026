@@ -2,6 +2,12 @@
 
 This record distinguishes development assistance from runtime AI.
 
+On 15 November 2026, Codex fixed the new-stats review findings and added regression
+tests: visible settings for keyword/LLM proposals and picked-point choices from
+overview/world pages, Python-rendered overview cautions, rejection of differing
+same-cell evidence, and a no-common-years message instead of a claimed zero gap.
+It updated the shared generated types, technical spec and README for these fixes.
+
 Codex assisted with scientific/provenance fixes, planner integration, tests,
 documentation, UI review fixes and repository/submission preparation. Claude Code
 contributions reported by contributors are preserved below. The model names and
@@ -46,3 +52,25 @@ here were later retired on `main`, as described above):
   settings changes on an open case wait for "Run this case"; and the region map's key no
   longer shows a mark for cells passing a stricter test.
 
+- On 14 and 15 November 2026 the same assistant (Claude Code, model Claude Opus 5.5) built
+  descriptive additions from a team brief, one at a time, with their tests and the matching
+  specification text: record years (`Records` in `models.py`, `rank_years` and
+  `first_and_last_means` in `stats.py`, the sentences in `verdict.py`, the record facts under
+  each verdict and the rings on the chart); the seasons panel (`season_rates`, `GET
+  /api/seasons`, `SeasonsPanel`, `seasonRows.ts`); the fourth example and its title and
+  teaser, with three more cache rows from one live call; the place overview
+  (`place_overview`, `GET /api/overview`, the /place page, `PlaceOverviewView`,
+  `overviewRows.ts`); the gap between two places (`Gap`, `gap_sentence`, `GapChart`); the
+  whole world (`scripts/build_world_mean.py`, `data/world-mean.json` from 324 live calls the
+  team approved, `world_trend`, `GET /api/world`, `WorldView`);
+  eight catalogue variables and two sea places,
+  after 18 live POWER calls that confirmed their grids and their values over land and sea,
+  a new saved fixture and 35 rows added to the shipped example cache. The team chose the
+  additions and their limits; the assistant chose the details the brief left open, listed
+  in its reports, such as the first-ten against last-ten-years rule, the units word "optical
+  depth" for haze and the region types "ocean", "tundra" and "mountains" for the new
+  variables.
+- On 15 November 2026 the same assistant merged `main` (Draft 5 plan and submission documents)
+  into the `new-stats` branch. It kept `main`'s plan, submission text and hidden answer actions
+  while a case loads, and added the new links ("What is changing here?", "The whole world")
+  and the additions' facts to the merged specification and README.

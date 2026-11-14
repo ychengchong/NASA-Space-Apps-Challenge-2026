@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import { SIGNIFICANCE_DEFINITION } from "../definitions";
-import { investigation, SIGNIFICANT_RISE } from "./testData";
+import { investigation, RECORDS, SIGNIFICANT_RISE } from "./testData";
 import { VerdictCard } from "./VerdictCard";
 
 describe("VerdictCard", () => {
@@ -81,5 +81,21 @@ describe("VerdictCard", () => {
     const verdict = { ...SIGNIFICANT_RISE, kind: "too_few_years" as const, direction: null };
     const html = renderToStaticMarkup(<VerdictCard investigation={investigation(verdict)} />);
     expect(html).not.toContain(SIGNIFICANCE_DEFINITION.definition);
+  });
+
+  test("lists a place's record years under its verdict, with the note that they are not tests", () => {
+    const base = investigation(SIGNIFICANT_RISE);
+    const withRecords = { ...base, results: base.results.map((result) => ({ ...result, records: RECORDS })) };
+    const html = renderToStaticMarkup(<VerdictCard investigation={withRecords} />);
+    for (const sentence of RECORDS.sentences) expect(html).toContain(sentence);
+    expect(html).toContain(RECORDS.note);
+    expect(html.indexOf(RECORDS.sentences[0] ?? "")).toBeGreaterThan(
+      html.indexOf('class="verdict-sentence"'),
+    );
+  });
+
+  test("shows no record facts for a result without records", () => {
+    const html = renderToStaticMarkup(<VerdictCard investigation={investigation(SIGNIFICANT_RISE)} />);
+    expect(html).not.toContain("record-facts");
   });
 });

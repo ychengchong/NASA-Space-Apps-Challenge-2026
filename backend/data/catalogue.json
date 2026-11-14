@@ -13,6 +13,7 @@
     "theme": "temperature",
     "related": ["surface_temp", "precipitation"],
     "region_types": ["ice sheet", "mountains", "plateau", "tundra"],
+    "world_mean": true,
     "source": "NASA POWER (MERRA-2)"
   },
   {
@@ -29,6 +30,7 @@
     "theme": "temperature",
     "related": ["air_temp", "min_temp"],
     "region_types": ["desert", "megacity"],
+    "world_mean": true,
     "source": "NASA POWER (MERRA-2)"
   },
   {
@@ -45,14 +47,15 @@
     "theme": "temperature",
     "related": ["air_temp", "max_temp"],
     "region_types": ["megacity"],
+    "world_mean": true,
     "source": "NASA POWER (MERRA-2)"
   },
   {
     "id": "surface_temp",
     "code": "TS",
     "name": "Surface (skin) temperature",
-    "definition": "How warm the very top of the ground or sea surface is, averaged over the month.",
-    "keywords": ["surface", "skin", "ground", "land", "sea", "temperature", "warm", "warmer"],
+    "definition": "How warm the very top of the ground or of the sea is, averaged over the month. Over open sea this is the sea-surface temperature, which the model is given rather than calculates.",
+    "keywords": ["surface", "skin", "ground", "land", "sea", "temperature", "warm", "warmer", "ocean", "oceans", "seas", "marine", "sst", "warming"],
     "units": "°C",
     "rate_units": "°C",
     "decimals": 2,
@@ -60,7 +63,8 @@
     "grid": { "height": 0.5, "width": 0.625, "alignment": "centred_on_multiples" },
     "theme": "temperature",
     "related": ["air_temp", "sunlight"],
-    "region_types": ["ice sheet", "tundra"],
+    "region_types": ["ice sheet", "tundra", "ocean"],
+    "world_mean": true,
     "source": "NASA POWER (MERRA-2)"
   },
   {
@@ -78,6 +82,7 @@
     "related": ["root_zone_soil_wetness", "cloud_cover"],
     "region_types": ["delta", "desert", "grassland", "mountains", "plateau", "rainforest", "savanna"],
     "trend_note": "Rainfall trends from this model are less reliable than temperature trends.",
+    "world_mean": true,
     "source": "NASA POWER (MERRA-2)"
   },
   {
@@ -95,6 +100,7 @@
     "related": ["specific_humidity", "air_temp"],
     "region_types": ["rainforest"],
     "trend_note": "Humidity trends from this model are less reliable than temperature trends.",
+    "world_mean": true,
     "source": "NASA POWER (MERRA-2)"
   },
   {
@@ -112,6 +118,7 @@
     "related": ["relative_humidity", "air_temp"],
     "region_types": ["delta"],
     "trend_note": "Humidity trends from this model are less reliable than temperature trends.",
+    "world_mean": true,
     "source": "NASA POWER (MERRA-2)"
   },
   {
@@ -129,6 +136,7 @@
     "related": ["air_temp"],
     "region_types": [],
     "trend_note": "Wind trends from this model are less reliable than temperature trends.",
+    "world_mean": true,
     "source": "NASA POWER (MERRA-2)"
   },
   {
@@ -180,6 +188,7 @@
     "related": ["cloud_cover", "surface_temp"],
     "region_types": ["megacity"],
     "source_changes": [2001],
+    "world_mean": true,
     "source": "NASA POWER (GEWEX SRB to 2000, CERES from 2001)"
   },
   {
@@ -197,6 +206,142 @@
     "related": ["sunlight", "precipitation"],
     "region_types": [],
     "source_changes": [2001],
+    "world_mean": true,
     "source": "NASA POWER (GEWEX SRB to 2000, CERES from 2001)"
+  },
+  {
+    "id": "snow_depth",
+    "code": "SNODP",
+    "name": "Snow depth",
+    "definition": "How deep the snow lying on the ground is, averaged over the month. Snow-free land reads zero, and over open sea POWER has no value.",
+    "keywords": ["snow", "snowy", "snowier", "snowpack", "depth", "deep", "drifts"],
+    "units": "cm",
+    "rate_units": "cm",
+    "decimals": 2,
+    "record_start": 1981,
+    "grid": { "height": 0.5, "width": 0.625, "alignment": "centred_on_multiples" },
+    "theme": "snow and ice",
+    "related": ["snow_cover", "snowfall", "air_temp"],
+    "region_types": ["mountains", "tundra"],
+    "trend_note": "Snow trends from this model are less reliable than temperature trends.",
+    "source": "NASA POWER (MERRA-2)"
+  },
+  {
+    "id": "snowfall",
+    "code": "PRECSNOLAND",
+    "name": "Snowfall",
+    "definition": "How much snow falls on land, given as the average amount of melted water per day over the month. Snow-free land reads zero, and over open sea POWER has no value.",
+    "keywords": ["snowfall", "snowing", "snows", "snowstorm", "blizzard", "flakes"],
+    "units": "mm/day",
+    "rate_units": "mm/day",
+    "decimals": 3,
+    "record_start": 1981,
+    "grid": { "height": 0.5, "width": 0.625, "alignment": "centred_on_multiples" },
+    "theme": "snow and ice",
+    "related": ["precipitation", "snow_depth"],
+    "trend_note": "Snow trends from this model are less reliable than temperature trends.",
+    "source": "NASA POWER (MERRA-2)"
+  },
+  {
+    "id": "snow_cover",
+    "code": "FRSNO",
+    "name": "Snow cover",
+    "definition": "How much of the land is covered by snow, from 0 for none to 1 for all of it, averaged over the month. Snow-free land reads zero, and over open sea POWER has no value.",
+    "keywords": ["cover", "covered", "snowcover", "white", "blanket"],
+    "units": "fraction, 0 to 1",
+    "rate_units": "",
+    "decimals": 3,
+    "record_start": 1981,
+    "grid": { "height": 0.5, "width": 0.625, "alignment": "centred_on_multiples" },
+    "theme": "snow and ice",
+    "related": ["snow_depth", "air_temp"],
+    "region_types": ["tundra"],
+    "trend_note": "Snow trends from this model are less reliable than temperature trends.",
+    "source": "NASA POWER (MERRA-2)"
+  },
+  {
+    "id": "sea_ice",
+    "code": "FRSEAICE",
+    "name": "Sea ice",
+    "definition": "How much of the sea in the grid cell is covered by ice, from 0 for open water to 1 for full cover, averaged over the month. Inland places and seas that never freeze read zero.",
+    "keywords": ["ice", "icy", "frozen", "freeze", "floes", "arctic"],
+    "units": "fraction, 0 to 1",
+    "rate_units": "",
+    "decimals": 3,
+    "record_start": 1981,
+    "grid": { "height": 0.5, "width": 0.625, "alignment": "centred_on_multiples" },
+    "theme": "snow and ice",
+    "related": ["surface_temp", "air_temp"],
+    "trend_note": "The model takes sea ice from satellite-based ocean analyses. Near Helsinki and Longyearbyen the record shows ice in months that should be ice-free until about 2005 and steps down in 2005 to 2007, so a trend or record year can be an artefact of the data, not a change in the ice.",
+    "source": "NASA POWER (MERRA-2)"
+  },
+  {
+    "id": "surface_pressure",
+    "code": "PS",
+    "name": "Surface air pressure",
+    "definition": "The pressure of the air at the height of the ground in the grid cell, averaged over the month. It is lower on high ground, so it differs from the pressure on a weather map.",
+    "keywords": ["pressure", "barometer", "barometric", "atmospheric", "kpa", "hpa"],
+    "units": "kPa",
+    "rate_units": "kPa",
+    "decimals": 3,
+    "record_start": 1981,
+    "grid": { "height": 0.5, "width": 0.625, "alignment": "centred_on_multiples" },
+    "theme": "air",
+    "related": ["wind_speed", "air_temp"],
+    "world_mean": true,
+    "source": "NASA POWER (MERRA-2)"
+  },
+  {
+    "id": "water_vapour",
+    "code": "TQV",
+    "name": "Water vapour in the air column",
+    "definition": "How much water vapour the whole column of air above the ground holds, as kilograms over each square metre, averaged over the month.",
+    "keywords": ["vapour", "vapor", "water", "column", "precipitable", "steamy", "moist"],
+    "units": "kg/m²",
+    "rate_units": "kg/m²",
+    "decimals": 2,
+    "record_start": 1981,
+    "grid": { "height": 0.5, "width": 0.625, "alignment": "centred_on_multiples" },
+    "theme": "water",
+    "related": ["specific_humidity", "precipitation"],
+    "region_types": ["ocean"],
+    "trend_note": "Water vapour trends from this model are less reliable than temperature trends.",
+    "world_mean": true,
+    "source": "NASA POWER (MERRA-2)"
+  },
+  {
+    "id": "max_wind_speed",
+    "code": "WS10M_MAX",
+    "name": "Strongest wind",
+    "definition": "The highest hourly wind speed ten metres above the ground in each month; a yearly value averages the months' highest winds. It is not a count of storms.",
+    "keywords": ["strongest", "gust", "gusts", "gale", "gales", "storms", "stormy"],
+    "units": "m/s",
+    "rate_units": "m/s",
+    "decimals": 2,
+    "record_start": 1981,
+    "grid": { "height": 0.5, "width": 0.625, "alignment": "centred_on_multiples" },
+    "theme": "wind",
+    "related": ["wind_speed", "surface_pressure"],
+    "region_types": ["ocean"],
+    "trend_note": "Wind trends from this model are less reliable than temperature trends.",
+    "world_mean": true,
+    "source": "NASA POWER (MERRA-2)"
+  },
+  {
+    "id": "haze",
+    "code": "AOD_55_ADJ",
+    "name": "Haze",
+    "definition": "How much dust, smoke and other particles in the air dim the sunlight, as aerosol optical depth at 550 nm, averaged over the month: 0 is perfectly clear and 1 is very hazy. It comes from CERES SYN1deg, which blends MODIS satellite aerosol data into a model, not from the MODIS Aqua product shown in Giovanni.",
+    "keywords": ["haze", "hazy", "hazier", "smoke", "smoky", "dust", "dusty", "aerosol", "aerosols", "smog", "pollution", "particles", "wildfire", "wildfires"],
+    "units": "optical depth",
+    "rate_units": "",
+    "decimals": 3,
+    "record_start": 2001,
+    "grid": { "height": 1.0, "width": 1.0, "alignment": "bounded_by_multiples" },
+    "theme": "air",
+    "related": ["sunlight", "cloud_cover"],
+    "trend_note": "POWER documents no change of source for haze since 2001, but changes in the satellite data its model takes in could not be ruled out.",
+    "world_mean": true,
+    "source": "NASA POWER (CERES SYN1deg, from 2001)"
   }
 ]

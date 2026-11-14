@@ -48,7 +48,8 @@ Temperature is the primary inferential demonstration. Precipitation is the plann
 water demonstration with verified quantity/units/coverage. Seasons and maps already
 have descriptive prototype paths; broader inference, a second product, additional
 connectors, period scanning and MCP are outside the new critical path. The existing
-twelve-variable catalogue is not twelve scientifically validated release promises.
+twenty-variable catalogue (section 6, "Catalogue additions") is descriptive outside annual T2M,
+not twenty scientifically validated release promises.
 
 OpenAI is the selected implementation path for new AI work: Responses for language
 tasks and a hosted vector store for document retrieval. No local model, Ollama,
@@ -118,7 +119,7 @@ investigation in the demo (Presentation). These are evidence requirements, not s
 
 ## 3. User experience
 
-The current first visit shows a question box, manual settings and saved examples.
+The current first visit shows a question box, manual settings and four saved examples.
 The planned journey adds two guided walkthroughs and a water case. Choose examples
 transparently before inspecting outcomes; never force a desired result.
 
@@ -139,6 +140,10 @@ measure?", "What are the limitations here?", "What can't we conclude?" and "What
 I investigate next?" AI explanations sit below the chart and never delay the result.
 Show source passages/links, an AI label and a useful unsupported-answer state.
 On navigation, cancel or discard explanations for the old investigation.
+
+Keyword/LLM proposals and picked-point choices from /map, /place or /world open
+the home settings page before filling the draft, so the user can review and run it.
+On /case, proposals continue to use that case's visible pending-settings form.
 
 A short lesson asks users to interpret evidence before showing guidance. Predefine
 tasks before user testing. Rate, statistical evidence, data quality and causation
@@ -173,11 +178,11 @@ This section and "The globe" describe the delivered interface: an atlas page wit
 | Chart | The evidence at a glance | A sheet right under the verdict: yearly values and the trend line, one pair per place; monthly values on request. Under the plot, one line says what a point is, and a summary in words gives each trend line's ends, its rate and, where the evidence panel has one, the rate's 95% confidence interval, in the evidence panel's numbers, because the plot draws the line without its uncertainty |
 | Globe | Show where, and let the user pick a place | The Earth behind the page ("The globe" below): a marker per place and, closer in, the outline of its grid cell; on the first screen, a pin for each example case; in region view, grid cells coloured by trend |
 | Key to the globe | Name what the globe shows, so nothing is told by colour or position alone | The "On the globe" panel: each place with its marker and the grid cell its values describe, how to pick a point, and "Zoom in to the grid cell" |
-| Verdict card | The answer in one sentence | The first sheet of the case file, tabbed "Case file". Each verdict's stamp, then the verdict sentence and the most important caution; for a comparison, the summary sentence first. A significant trend also shows its rate as a large figure above the sentence, such as "+0.79 °C per decade", with the digits and sign of the evidence panel; the sign is set in the text face, whose strokes are sturdier than the display face's. A trend that is not significant gets no figure, so a rate that year-to-year variation alone could produce is not read as the answer |
-| Answer actions | Share the answer, and take it further | A row under the verdict, on a case under the verdict's chart. Actions are hidden while a new case or map loads, including while the previous answer remains visible. "Copy link" copies the page's address and answers "Link copied. Anyone who opens it sees this case." (or "this map"); where the browser has no clipboard or refuses, it answers "The link could not be copied. Copy the address from the address bar instead." On a case, "Map this region" opens the region map of a 10° by 10° box around the first place. Its explanation says the map shows rates of change and does not assess significance |
+| Verdict card | The answer in one sentence | The first sheet of the case file, tabbed "Case file". Each verdict's stamp, then the verdict sentence and the most important caution; for a comparison, the summary sentence first. A significant trend also shows its rate as a large figure above the sentence, such as "+0.79 °C per decade", with the digits and sign of the evidence panel; the sign is set in the text face, whose strokes are sturdier than the display face's. A trend that is not significant gets no figure, so a rate that year-to-year variation alone could produce is not read as the answer. Under each place's verdict, its record years and the note that they are not tests (section 7, "Record years") |
+| Answer actions | Share the answer, and take it further | A row under the verdict, on a case under the verdict's chart. Actions are hidden while a new case or map loads, including while the previous answer remains visible. "Copy link" copies the page's address and answers "Link copied. Anyone who opens it sees this case." (or "this map"); where the browser has no clipboard or refuses, it answers "The link could not be copied. Copy the address from the address bar instead." On a case, "Map this region" opens the region map of a 10° by 10° box around the first place. Its explanation says the map shows rates of change and does not assess significance. "What is changing here?" opens that place's overview, and "The whole world" the same variable, period and season in the world sample when it covers the variable; one line says what each does |
 | Evidence panel | Let anyone check the method | Rate with its 95% interval, tests and p-values, number of years, every caution, data source, grid cell, a link to download the values, the steps taken |
 | Dig deeper | Suggest the next variable to test | A panel under the verdict and the notes, with the note "Each link tests another variable with the same places, period and season." Under "Cross-check with a related variable", links to the variable's `related` entries. Under "Worth testing here", one line "{place names} · {region type}" for each region type known among the case's places, then links to the catalogue variables whose `region_types` include it, without the case's own variable. The panel is left out when it would hold neither |
-| Example cases | Teach by showing | Three ready investigations that open instantly, numbered "Case 1" to "Case 3" in the list and on the globe |
+| Example cases | Teach by showing | Four ready investigations that open instantly, numbered "Case 1" to "Case 4" in the list and on the globe |
 
 
 - Detective words appear in labels only: case, case file, evidence, verdict.
@@ -189,7 +194,7 @@ This section and "The globe" describe the delivered interface: an atlas page wit
 - The case file has one tab. The verdict card of a case carries a typed tab, "Case file", which is the first thing read in its sheet. The case's `id` (section 5) is not shown: it names the case in data, and a reader can do nothing with it. No other sheet has a tab, because each has a heading that says what it holds.
 - Seasons are named by their months, because "winter" means different months in each hemisphere.
 - The page has exactly one `h1`: the app's name, which links to the first screen.
-- An open case and the region view hold the answer first, then the settings, then the evidence, in one column at every width. On a case the answer is the verdict, its chart, the answer actions, the AI proposal and the Dig deeper panel, and the evidence is the key to the globe, the period explorer and the evidence panel. The chart follows the verdict directly, so the proof is seen with the claim: at 1440 by 900 pixels and at 1280 by 720 the chart of a single place starts on the first screen. The chart lies outside the live region that announces the verdict. In the region view the answer is the verdict for the whole box and the AI proposal, and the evidence is the "Trend in each grid cell" panel with its legend, and the map's evidence. The verdict for the whole box gives its sentence first and the note on how the box was averaged last. The page holds the parts in that order and shows them in that order, so the order on screen, the Tab order and the screen-reader order agree.
+- An open case and the region view hold the answer first, then the settings, then the evidence, in one column at every width. On a case the answer is the verdict, its chart, the answer actions, the AI proposal and the Dig deeper panel, and the evidence is the key to the globe, the period explorer, the gap between two compared places, the seasons panel and the evidence panel. A place's overview (section 7, "What is changing here?") holds its answer, the variables by theme, then its data sources. The chart follows the verdict directly, so the proof is seen with the claim: at 1440 by 900 pixels and at 1280 by 720 the chart of a single place starts on the first screen. The chart lies outside the live region that announces the verdict. In the region view the answer is the verdict for the whole box and the AI proposal, and the evidence is the "Trend in each grid cell" panel with its legend, and the map's evidence. The verdict for the whole box gives its sentence first and the note on how the box was averaged last. The page holds the parts in that order and shows them in that order, so the order on screen, the Tab order and the screen-reader order agree.
 - Once a case or a map is on screen, its settings are folded behind one button, "Change this case" or "Change this map", so the evidence follows the answer closely. The settings stay in the page while folded. Every change in them waits for "Run this case", so no case runs before the user confirms it. They are shown unfolded, without the button, while the user has something to do in them: on the first screen, while settings wait for "Run this case", when a case or a map could not be made, and before a map has a box.
 - The verdict leads an open case or a map: it is the first sheet on the page. There the question bar steps back: its label is set smaller, and its line on who reads the question is kept for screen readers only. Below 640px the app's tagline is left out there too. On the first screen the question bar's label is the largest line under the app's name.
 - Under the question bar the first screen says "Or set up a case by hand: choose the variable, the place and the period yourself." The words "set up a case by hand" are a link to the case settings further down the page.
@@ -266,6 +271,9 @@ no external mutation of user resources, not that cache writes never occur.
 | analyze_trend | Variable/place/dates/snapshot/version -> Investigation |
 | compare_places | Same variable/dates, two places -> aligned descriptive comparison |
 | get_series | Same case, monthly/yearly resolution -> values, units and provenance |
+| season_rates | Same case parameters -> SeasonRates: every place's descriptive rate for all months and each season (section 7, "All seasons at once") |
+| place_overview | One place and a period -> PlaceOverview: every catalogue variable's descriptive rate there (section 7, "What is changing here?") |
+| world_trend | Variable and period -> WorldTrend: the trend of the frozen whole-world sample mean (section 7, "The whole world") |
 
 No arbitrary URLs, generated POWER codes or unchecked coordinates. Annual
 temperature is the inferential core; other supported seasons remain descriptive
@@ -279,13 +287,15 @@ The executable contract is defined in `backend/app/models.py` and its generated
 | Contract | Implemented fields/semantics |
 | --- | --- |
 | AnalyzeTrendInput / ComparePlacesInput | Variable ID; one place or 2-4 places; finite coordinates; optional plain-text labels <=40 characters; from/to/season; optional snapshot_ids and analysis_version; descriptive scan option |
-| VariableSummary | ID, definition, units/rate_units, catalogue record start, related variables, spatial/source cautions; grid support is in Place.cell |
+| VariableSummary | ID, definition, units/rate_units, catalogue record start, related variables, spatial/source cautions, whether the world-mean sample covers it (`world_mean`); grid support is in Place.cell |
 | SourceRef | Service name, API version and access date; source/query URL; product identity or explicit unknown release; snapshot_id, nullable raw_sha256 and provenance_status |
 | Coverage | Original requested range, source series with missing years as null, each result's analysis_years and the comparison's common_years; excluded years are the difference |
 | Trend | Actual n/first/last; Sen rate per decade; line/total change; nullable p/interval/ci_method/OLS p; method_id, inference_status/reason, aggregation and assumptions |
 | Verdict | kind, direction or null, canonical sentence and ordered cautions |
-| PlaceResult | Requested place plus resolved cell, source annual series, analysis_years, snapshot_id, nullable Trend and Verdict |
-| Investigation | Content-derived 64-hex id; analysis_version; original supported requested range; results; source references; steps; pinned app_url; optional common_years and descriptive summary |
+| PlaceResult | Requested place plus resolved cell, source annual series, analysis_years, snapshot_id, nullable Trend and Verdict, nullable Records |
+| Records | Descriptive record years of the analysis years (section 7, "Record years"): highest/lowest with their ties, first_ten/last_ten means and their change, fixed sentences and a fixed note; null when there is no rate |
+| Investigation | Content-derived 64-hex id; analysis_version; original supported requested range; results; source references; steps; pinned app_url; optional common_years, descriptive summary and descriptive gap of a two-place comparison (not part of the ID) |
+| Gap | First place's yearly value minus the second's over the common years; n, first/last year, Sen rate per decade, total change, line, same_cell and a fixed sentence (section 7, "The gap between two places") |
 
 Verdict kinds: significant, not_significant, too_few_years, no_data and
 inference_unavailable. Comparisons explicitly state that they are descriptive and
@@ -295,7 +305,9 @@ constructed. A zero median rate does not override valid rank-test evidence.
 The investigation ID binds requested settings, ordered places, frozen evidence,
 actual analysis years, aggregation, method configuration and analysis version.
 A place's snapshot ID identifies its immutable normalized evidence. Rendering
-clocks and descriptive scan display options do not change the investigation ID.
+clocks, descriptive scan display options and record years do not change the investigation ID:
+record years are derived from evidence and analysis years the ID already binds, so adding them
+needed no new analysis version and leaves existing IDs and pinned links unchanged.
 Omitted pins resolve the current cached data into fixed evidence IDs before sharing.
 The runtime version must be bumped when changing the method or analysis contract.
 
@@ -411,6 +423,80 @@ in links; rounding must not move a point into another cell. Labels do not change
 - Cache-hit target: <=10 seconds on the named demo host, to be measured. Source
   misses have separate budgets/progress; two 20-second attempts cannot be called
   ten-second total latency.
+
+### Catalogue additions
+
+Eight descriptive variables answer the challenge video's list (snow, the sea, pressure,
+water vapour, wind and haze). Each gets a chart, rate, total change and record years; its
+verdict is inference_unavailable with the standing reason, which is the intended result.
+
+| id | POWER code | Units | Record | Grid | Theme |
+| --- | --- | --- | --- | --- | --- |
+| snow_depth | SNODP | cm | 1981 | MERRA-2 0.5° x 0.625° | snow and ice |
+| snowfall | PRECSNOLAND | mm/day (water) | 1981 | MERRA-2 | snow and ice |
+| snow_cover | FRSNO | fraction 0-1 | 1981 | MERRA-2 | snow and ice |
+| sea_ice | FRSEAICE | fraction 0-1 | 1981 | MERRA-2 | snow and ice |
+| surface_pressure | PS | kPa | 1981 | MERRA-2 | air |
+| water_vapour | TQV | kg/m² | 1981 | MERRA-2 | water |
+| max_wind_speed | WS10M_MAX | m/s | 1981 | MERRA-2 | wind |
+| haze | AOD_55_ADJ | optical depth | 2001 | 1° x 1°, bounded by whole degrees | air |
+
+Live checks on 14 November 2026 (18 POWER calls for these variables):
+- Grids: one regional response per MERRA-2 code (POWER's regional endpoint takes one
+  parameter per request) over 60-62°N, 24-26°E returned points on the 0.5° x 0.625° grid.
+  Haze came back on 1° cells centred on half degrees in a team-saved regional response, and
+  is in `CODES_ON_ONE_DEGREE_GRID`, so a haze box is never answered from MERRA-2 cache points.
+- Point calls: the 17 MERRA-2 codes go in one call, the three 1° codes in another; POWER's
+  limit is 20 codes per point call. A 20-code response at Helsinki is the test fixture
+  `power_point_all_codes.json`; its twelve older codes equal the earlier fixture exactly.
+- Land-only and sea-only quantities: over open sea (Gulf of Maine, equatorial Pacific) POWER
+  sends its fill value for snow depth, snowfall and snow cover, so a snow case at sea is
+  no_data. Snow over snow-free land (Nairobi) is a real zero. Sea ice is a real zero inland
+  (Nairobi) and over the ice-free Gulf of Maine. A constant record gives a zero rate and the
+  record-years sentence "Every year used has the same value".
+- Sea ice has an artificial step. At coastal Helsinki it reads about 0.2 in every May until
+  2004 (and 0.25 in July 2006), then about zero; Longyearbyen shows ice in August 2005 and
+  2006 only. This fits a change in the satellite-based ocean analyses MERRA-2 takes sea ice
+  (and sea-surface temperature) from, but the documented switch year was not verified here,
+  so `source_changes` stays empty and the sea-ice trend note states what the data show. It is
+  the caution of every sea-ice case. Whether to keep sea ice is a question for the team.
+- Strongest wind is each month's highest hourly 10 m wind; the yearly value is the
+  day-weighted mean of those monthly highs, not POWER's own annual maximum and not a storm count.
+- Haze is CERES SYN1deg Ed4.2 aerosol optical depth at 550 nm, from MODIS retrievals
+  assimilated by the MATCH transport model and adjusted toward AERONET. It starts in 2001
+  and POWER documents no source change or provisional tail for it, so `source_changes` is
+  empty; its trend note says changes in the assimilated satellite data could not be ruled
+  out. It is not the MODIS Aqua (MYD08_M3) product Giovanni shows.
+- Snow, water vapour and wind carry the standing model caution. Surface pressure is at the
+  ground's height in the grid cell, so it differs from a weather map's pressure.
+- New region-type suggestions: snow depth for mountains and tundra, snow cover for tundra,
+  and water vapour, strongest wind and surface (sea) temperature for "ocean". Haze is not
+  suggested: a "Worth testing here" link keeps the case's period, and haze starts in 2001.
+- Surface temperature (TS) over open sea is the sea-surface temperature the model is given;
+  its definition says so and its keywords include ocean, sea and SST. Two sea places,
+  Gulf of Maine (43.0, -68.0) and Equatorial Pacific (0.0, -145.0), region type "ocean",
+  were added to REGIONS and places.json without re-downloading the city file.
+- The shipped seed gained the seven new MERRA-2 codes at its five example grid points
+  (35 rows from five live calls), so the examples still open offline. Its 50 earlier rows
+  are byte-identical. Like the earlier rows, the new ones are normalized values without the
+  response bytes, so they are labelled as legacy cache evidence. At startup the app adds any
+  seed row its state cache lacks (never replacing one), so a state copied from an older seed
+  still opens the examples offline.
+
+The fourth example is the challenge video's own question, summer haze in Wisconsin. An
+example must be a frozen case query that opens without NASA, and a map is a latest-data view
+that cannot be pinned (a haze box is never answered from the cache), so the example is the
+brief's fallback: a one-place haze case at Madison (43.07, -89.40), June to August, 2001-2025,
+whose 1° cell (43.5, -89.5) is in the shipped seed (three rows, one live call). It is
+descriptive: rate +0.004 per decade, haziest summers 2023, 2021 and 2025. Its teaser says it
+is descriptive and not the video's chart, because the video uses MODIS Aqua through Giovanni.
+The regional form remains available as a map: 42.5-47°N, 93-87°W (30 cells) for June to
+August gives an area-mean rate of +0.014 per decade and the same three haziest summers.
+
+Left out and raised as questions: FROST_DAYS (a count per month needs its own aggregation
+and units), T2M_MAX_AVG and T2M_MIN_AVG (temperature extremes are deferred until defined;
+today's maximum temperature is the month's single hottest hour), GDD10 (POWER answered with
+an error), IMERG_PRECTOT and RZMC (no data).
 
 ### Source continuity and additional resources
 
@@ -559,6 +645,143 @@ establish different rates. A future difference test must handle paired dependenc
 Period scans are deferred; if added, label selection/multiple-testing effects and
 never promote a favourable scan to confirmation. Regional maps need valid cell
 p-values and justified spatial/FDR/coverage policies. FDR cannot fix invalid inputs.
+
+### Record years
+
+Every PlaceResult with a rate (ten or more analysis years) carries Records: plain
+descriptions of the years the analysis used, never tests. In a comparison these are the
+common years; for an area mean, the area-mean series.
+
+- Highest and lowest: up to three years with the highest yearly values, highest first, and up
+  to three with the lowest, lowest first. Values are compared at nine decimals, as the trend
+  test compares them. Only years above the record's lowest value can be among the highest,
+  and only years below its highest value among the lowest, so a record that is zero in most
+  years (snow, sea ice) never calls its minimum a high. The lowest list skips the years
+  already listed as highest, so no year is in both lists, even when many years share a
+  middle value. Equal values are listed earliest year first;
+  `highest_tied` and `lowest_tied` count the years neither listed nor skipped whose value
+  equals the last one listed, and the sentence adds "1 more year has" or "N more years have
+  the same value as {year}". When every year used has the same value nothing is ranked and one
+  sentence says so: "Every year used has the same value ({units}): {value}." A value that is
+  not zero but rounds to zero at the variable's decimals gets more digits, as a rate does.
+- First and last ten: with at least twenty analysis years, the plain mean of the first ten
+  analysis years and of the last ten, and their change (last minus first) in the rate units.
+  The windows never share a year. A missing year is skipped, so a window then spans more than
+  ten calendar years; its sentence names its first and last year. Fewer than twenty years
+  leaves this comparison out. A fixed 1981-2010 baseline was rejected because records such
+  as aerosol optical depth start in 2001 and a requested period may start later.
+- Sentences come from verdict.py: "Highest yearly values used ({units}): {value} in {year},
+  ...", the same for lowest, and "The mean of the last ten years used, {a} to {b}, was
+  {change} {higher|lower} than the mean of the first ten, {c} to {d}." (or "was the same as"
+  when the two means are equal at nine decimals). The fixed note reads: "These facts describe the yearly values used.
+  They are not tests, and their significance was not assessed."
+- The chart rings the listed years, drawn from the API's lists, and says so in its text. In a
+  comparison the chart plots each place's whole series while the rings and sentences cover
+  the common years, and the chart text says so.
+
+### All seasons at once
+
+A folded "Compare the seasons" panel on an open case asks GET /api/seasons with the case's own
+parameters and pins. The tool `season_rates` analyses each place exactly as the case would
+for all months, December to February, March to May, June to August and September to
+November, from the same evidence (the same snapshots for a pinned case; in a comparison,
+each season's common complete years). It needs no NASA call beyond the case's own fetch.
+
+- Each row (`SeasonRate`) gives the season, the complete years used (n, first, last), the
+  Sen rate per decade and the total change, the verdict kind, whether the row was assessed,
+  and a fixed sentence from verdict.py. No interval, p-value or test of the difference
+  between seasons is returned.
+- Only the all-months row of annual T2M can be assessed, as the inference gate allows; it
+  names that test's verdict ("The trend test for all months finds it significant."). Every
+  other row with a rate ends "Significance was not assessed." A season with fewer than ten
+  complete years has no rate ("{season}: N complete years, too few for a rate.").
+- The fixed note reads: "Each rate is descriptive. Rates for different seasons can differ by
+  chance alone, and no difference between seasons was tested."
+- The panel draws the five rates against a zero line, lists the sentences as its text, and
+  links every other season as an ordinary case. The default answer of /api/case is unchanged.
+
+### What is changing here?
+
+A person usually arrives with a place, not a variable. GET /api/overview (tool
+`place_overview`) gives every catalogue variable at one place, on the /place page, reached
+from the picked point on the globe ("What is changing here?") and from an open case's
+actions (its first place, over the case's period).
+
+- Each variable runs over its own record within the requested period: from the later of
+  `from` and its record start, to `to`. A missing `from` is the earliest record start (1981)
+  and a missing `to` the last complete year. A variable whose record starts after `to` gets a
+  row without years ("Its record starts in {year}, after the period ends.").
+- Each row (`OverviewRow`) gives the variable, its grid cell, the complete years used, the
+  rate per decade, the total change, the verdict kind, whether it was assessed, its highest
+  and lowest year (from section 7, "Record years") and one fixed sentence: "{rate} per decade
+  from {first} to {last}, {total} in all, over {n} complete years; highest in {year}, lowest
+  in {year}." followed by "Significance was not assessed." or, for annual T2M alone, "The trend
+  test finds it {significant|not significant}."
+- Each row also carries `caution_sentences`, a list of fixed Python-rendered texts
+  for every applicable verdict caution, in priority order. Display them beside the
+  row, including variable notes and source changes crossed by the actual analysis
+  years. The general descriptive-view note does not replace these cautions.
+- Rows keep the catalogue's order, grouped by theme on the page; nothing is sorted by rate
+  and no combined score exists, because rates in different units cannot be compared.
+- The fixed note reads: "This view cannot say which of these changes are real. Every rate is
+  descriptive, except that annual air temperature reports its trend test. Rates in different
+  units cannot be compared by size, so the variables keep the catalogue's order."
+- One fetch per grid serves every variable on it: a new place costs one call per grid (two),
+  a cached place none. The overview is a latest-data view that pins no snapshots; each
+  variable's name opens it as an ordinary, pinned case.
+
+### The gap between two places
+
+A comparison of exactly two places carries `gap`: the first place's yearly value minus the
+second's in each common complete year, the years the comparison already uses. Its Sen rate
+per decade, total change and line come from the gap series itself, not from subtracting the
+two places' rates (the two differ). Ten or more common years are needed for a rate.
+
+- Sentence: "The difference between {A} and {B}, {A} minus {B}, changed by about {rate}
+  per decade from {first} to {last}, over {n} common years. A positive rate means {A} rose
+  compared with {B}. The difference was not tested; this is a description." It holds for
+  every combination of signs, including both places falling.
+- Two places in the same grid cell with consistent retained values read: "{A} and {B}
+  are in the same grid cell, so the difference between them is zero in every year."
+  Same-cell snapshots that differ on any common complete year are rejected with
+  bad_request (HTTP 400): differing evidence versions are not a spatial contrast.
+  No common complete years uses the no-data gap sentence, never the zero-difference
+  sentence. Too few common years otherwise retains its fixed sentence.
+- No difference p-value is constructed (section 5). The existing summary sentence is
+  unchanged; the gap's sentence follows it on the verdict card, and a small chart draws the
+  API's gap series, its trend line and a zero line. Comparisons of three or four places have
+  no gap. The gap is an Investigation field, outside the hashed evidence, so IDs and pinned
+  links are unchanged.
+
+### The whole world
+
+POWER's regional call takes a 10° box at most, so the whole world is a frozen sample. The
+script `scripts/build_world_mean.py` reads 162 points, one every 20° of latitude from 80°S to
+80°N and of longitude from 180°W, each on every variable's grid as a case would read a place
+(one call per point and grid, 324 calls, through the app's POWER client, resumable from its
+cache file in state/). For each variable it writes the monthly mean of the sample cells,
+weighted by the cosine of latitude, with the fixed footprint of an area mean (a month missing
+at any point is missing), to `data/world-mean.json` with the sample, API versions, access
+dates and build date. It was built on 14 November 2026 from POWER API v2.10.0, through 2025.
+World air temperature gives +0.17 °C per decade over 1981-2025, near published estimates of
+about 0.2 °C; a sample that stops at 80° misses the fastest-warming polar caps.
+
+- Cloud cover is missing in the polar-night months of 1984-2000 at 79.5°S, so under the
+  fixed footprint the world cloud cover has complete years only from 2001; haze starts in 2001.
+- Covered: the fourteen catalogue entries marked `world_mean`. Snow depth, snowfall, snow
+  cover, sea ice and both soil wetness variables are left out, because they exist only on
+  land or only at sea; asking for them gives 422 unsupported_request.
+- GET /api/world (tool `world_trend`) reads the file, never NASA, and analyses the series like
+  an area mean: Sen rate, total change, record years, no p-value, verdict kind
+  inference_unavailable. Its sentence names the sample instead of a grid cell: "The estimated
+  change in {variable} averaged over a sample of {N} grid points across the whole world is
+  {rate} per decade over {first}-{last}. This is an estimate from a sample, and significance has
+  not been assessed."
+- The page, the steps and the source line say it is an estimate from a sample of {N} points.
+  The fixed note adds: "A sample describes world temperature far better than world rainfall or
+  wind, which change over short distances." Its source is marked `prepared_sample_mean`.
+- An open case links "The whole world" for the same variable, period and season when the
+  sample covers the variable. The chart offers no monthly values, which no place stands behind.
 
 ## 8. Built-in AI
 
@@ -739,6 +962,11 @@ explanation and their new contracts below are planned until implemented and test
 | GET /api/places | Reviewed matches |
 | GET /api/case | One/two-place Investigation |
 | GET /api/series | JSON/CSV with units, coverage and provenance |
+| GET /api/seasons | SeasonRates for the case query; /api/case and its ID are unchanged |
+| GET /api/overview | PlaceOverview for p (one place), optional label, from, to and s |
+| /place | A place's overview page: what is changing here |
+| GET /api/world | WorldTrend for v, from, to and s; 422 unsupported_request for a variable the sample does not cover |
+| /world | A variable's whole-world page |
 | GET /api/examples | Frozen example titles and pinned queries |
 | GET /api/capabilities | Existing planner availability; planned separate discovery/explanation readiness |
 | POST /api/plan | Existing bounded question-to-settings proposal; user confirms |
@@ -984,6 +1212,16 @@ and simulation claims lacking artifacts are leads to verify, not validation.
 - Annual and seasonal means use calendar-day weights, including leap years and DJF.
 - Fewer than ten complete values yields too_few_years and no fitted rate. Ten to
   nineteen yields a descriptive rate with unavailable inference.
+- GET /api/world and the /world page (section 7, "The whole world") read a frozen 162-point
+  world-mean sample, descriptive only, built by scripts/build_world_mean.py.
+- A two-place comparison carries a descriptive gap (section 7, "The gap between two
+  places"), never tested; the summary sentence is unchanged.
+- GET /api/overview and the /place page (section 7, "What is changing here?") list every
+  variable's descriptive rate at one place, unranked, with only annual T2M assessed.
+- GET /api/seasons (section 7, "All seasons at once") gives every season's descriptive rate
+  beside all months; only the annual T2M row can carry an assessed verdict.
+- Record years (section 7) list the three highest and lowest yearly values and compare the
+  last ten analysis years with the first ten; they are descriptive and leave IDs unchanged.
 - Period scans and regional maps show descriptive rates without p-values or significance
   marks. Area means require a fixed footprint: a missing cell-month makes that month missing.
 - /api/plan returns resolved catalogue settings for confirmation. It cannot run NASA

@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
-import { investigation, SIGNIFICANT_RISE } from "./testData";
+import { investigation, RECORDS, SIGNIFICANT_RISE } from "./testData";
 import { TrendChart } from "./TrendChart";
 
 function render(verdict = SIGNIFICANT_RISE): string {
@@ -38,5 +38,13 @@ describe("TrendChart", () => {
     const html = render();
     expect(html).toContain('<section class="panel sheet" aria-labelledby="chart-heading">');
     expect(html).not.toContain("Exhibit");
+  });
+
+  test("says the rings mark the record years when the API lists them, and not otherwise", () => {
+    const base = investigation(SIGNIFICANT_RISE);
+    const withRecords = { ...base, results: base.results.map((result) => ({ ...result, records: RECORDS })) };
+    const ringsNote = "Rings mark the highest and lowest of the yearly values used";
+    expect(renderToStaticMarkup(<TrendChart investigation={withRecords} />)).toContain(ringsNote);
+    expect(render()).not.toContain(ringsNote);
   });
 });

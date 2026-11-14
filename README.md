@@ -65,6 +65,24 @@ the backend; the app does not load `.env` automatically. Never commit credential
   from the viewed snapshot and downloadable checksum-verified evidence JSON.
 - An interpretation question that gives guidance after a learner chooses an answer.
 - Optional confirmed AI planning, CLI, REST and MCP tools using the same analysis layer.
+- Twenty catalogue variables, including snow depth, snowfall, snow cover, sea ice, surface
+  pressure, water vapour, the strongest wind and haze, and two sea places for the
+  sea-surface temperature. All but annual air temperature are descriptive.
+- A fourth example, "Are Wisconsin summers getting hazier?": the challenge video's question
+  as a descriptive one-place haze case at Madison, frozen in the shipped cache.
+- The whole world: a variable's trend in a frozen world-mean sample of 162 grid points (every
+  20°), built once by `scripts/build_world_mean.py` and read without calling NASA. It is an
+  estimate from a sample, describes temperature far better than rainfall or wind, and leaves
+  out land-only and sea-only variables.
+- The gap between two compared places: the first place's yearly value minus the second's,
+  with its own descriptive rate and a sentence saying the difference was not tested.
+- "What is changing here?": every variable's descriptive rate, total change, years and
+  record years at one place, grouped by theme and never ranked, from the globe's picked point
+  or an open case.
+- A "Compare the seasons" panel: the rate for all months and for each season side by side,
+  from the case's own evidence, with only the annual air-temperature row ever assessed.
+- Record years for each place: the three highest and three lowest yearly values, and the mean
+  of the last ten years used against the first ten, as plain descriptions, not tests.
 - Period explorer and regional maps as descriptive views; neither reports significance.
   Regional area means keep a fixed footprint rather than averaging a changing set of cells.
 - One globe behind every screen (MapLibre GL JS on OpenFreeMap tiles): it turns to the places
@@ -199,7 +217,10 @@ intentional changes from the older specification; no failures are hidden with sk
 NASA POWER monthly values provide the time series behind charts, rates and eligible
 significance results. T2M is two-metre air temperature from MERRA-2 reanalysis;
 it describes a grid cell, not a city weather station. Additional catalogue variables
-are exploratory/descriptive. Source documentation:
+are exploratory/descriptive: snow, sea ice, surface pressure, water vapour and the
+strongest wind also come from MERRA-2, and haze is CERES SYN1deg aerosol optical depth
+(MODIS aerosol assimilated by the MATCH model) from 2001, not the MODIS Aqua product in Giovanni.
+[Clouds and aerosols sources](https://power.larc.nasa.gov/docs/methodology/data/sources_clds_aerosols/). Source documentation:
 [NASA POWER](https://power.larc.nasa.gov/),
 [processing and quantity semantics](https://power.larc.nasa.gov/docs/methodology/data/processing/),
 [radiation sources and continuity](https://power.larc.nasa.gov/docs/methodology/data/sources_fluxes/).
@@ -243,8 +264,14 @@ plan, consideration/resource mapping, evaluation gates and delivery checklist. T
 documentation update does not implement or enable the planned AI features.
 Codex also prepared submission text, refreshed verification/evaluation records and
 organized the contribution history during repository cleanup.
+Codex fixed the new-stats review findings with regression tests: proposals from the
+new pages open visible settings, overview rows retain their source/variable cautions,
+and inconsistent same-cell snapshots are rejected instead of described as a zero gap.
 
-The detailed [AI contribution record](docs/ai-disclosure.md) preserves contributor-reported development history separately from current runtime behaviour.
+Claude Code (model Claude Opus 5.5) built the descriptive additions of a team brief on 14 and
+15 November 2026: record years, eight catalogue variables and two sea places, the seasons
+panel, a fourth example, the place overview, the gap between two places and the whole-world
+sample. The detailed [AI contribution record](docs/ai-disclosure.md) preserves contributor-reported development history separately from current runtime behaviour.
 
 Educational impact and the >=90% semantic planner target are not established by
 unit tests. Run the recorded evaluation protocol with target users and the selected

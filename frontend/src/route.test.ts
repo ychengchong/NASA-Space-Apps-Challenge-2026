@@ -1,6 +1,14 @@
 import { describe, expect, test } from "vitest";
 import type { CaseParams } from "./caseUrl";
-import { casePageUrl, examplePageUrl, parseRoute, sameCase, withRequestedPeriod } from "./route";
+import {
+  casePageUrl,
+  examplePageUrl,
+  parseRoute,
+  placePageUrl,
+  sameCase,
+  withRequestedPeriod,
+  worldPageUrl,
+} from "./route";
 
 const HELSINKI_CASE: CaseParams = {
   variable: "air_temp",
@@ -98,5 +106,32 @@ describe("sameCase", () => {
 
   test("tells apart cases with different periods", () => {
     expect(sameCase({ ...HELSINKI_CASE, from: 1990 }, HELSINKI_CASE)).toBe(false);
+  });
+});
+
+describe("place overview routes", () => {
+  test("reads /place as a place's overview and builds the same address back", () => {
+    const route = parseRoute("/place", "?p=60.17,24.94&label=Helsinki&from=1981&to=2025&s=annual");
+    expect(route.kind).toBe("place");
+    if (route.kind !== "place") return;
+    expect(route.params.place).toEqual({ lat: 60.17, lon: 24.94, name: "Helsinki" });
+    expect(placePageUrl(route.params)).toBe("/place?p=60.17,24.94&label=Helsinki&from=1981&to=2025&s=annual");
+  });
+
+  test("calls an overview of two places a link the app cannot read", () => {
+    expect(parseRoute("/place", "?p=60.17,24.94&p=1,2").kind).toBe("bad_link");
+  });
+});
+
+describe("whole world routes", () => {
+  test("reads /world as a variable's world trend and builds the same address back", () => {
+    const route = parseRoute("/world", "?v=air_temp&from=1981&to=2025&s=annual");
+    expect(route.kind).toBe("world");
+    if (route.kind !== "world") return;
+    expect(worldPageUrl(route.params)).toBe("/world?v=air_temp&from=1981&to=2025&s=annual");
+  });
+
+  test("calls a world link without a variable a link the app cannot read", () => {
+    expect(parseRoute("/world", "?from=1981").kind).toBe("bad_link");
   });
 });

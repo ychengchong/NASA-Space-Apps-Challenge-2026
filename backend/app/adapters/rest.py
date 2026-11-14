@@ -23,7 +23,9 @@ from app.adapters.case_query import (
     QueryValues,
     parse_case_query,
     parse_map_query,
+    parse_overview_query,
     parse_query_string,
+    parse_world_query,
 )
 from app.config import DATA_DIR
 from app.errors import AppError, BadPlaceError, BadRequestError
@@ -37,17 +39,28 @@ from app.models import (
     Model,
     PlaceCandidate,
     PlaceInput,
+    PlaceOverview,
     Resolution,
     SearchVariablesInput,
+    SeasonRates,
+    SeasonRatesInput,
     Series,
     TrendMap,
     VariableSummary,
+    WorldTrend,
 )
 from app.render import render_case_png
 from app.services import Services
 from app.tools.places import find_place, round_link_coordinate
 from app.tools.series import get_series
-from app.tools.trends import analyze_trend, compare_places, map_trends
+from app.tools.trends import (
+    analyze_trend,
+    compare_places,
+    map_trends,
+    place_overview,
+    season_rates,
+    world_trend,
+)
 from app.tools.variables import search_variables
 
 EXAMPLES_PATH = DATA_DIR / "examples.json"
@@ -126,6 +139,29 @@ async def api_places(request: Request) -> list[PlaceCandidate]:
 @router.get("/case")
 async def api_case(request: Request, services: ServicesDep) -> Investigation:
     return await _run_case(parse_case_query(_query_values(request)), services)
+
+
+@router.get("/seasons")
+async def api_seasons(request: Request, services: ServicesDep) -> SeasonRates:
+    """Every season's descriptive rate for the case in the query (spec 7, "All seasons at once").
+
+    It takes the parameters of /api/case, so a pinned case gives the seasons of its evidence.
+    """
+    return await season_rates(_seasons_input(_query_values(request)), services.tool_context())
+
+
+@router.get("/overview")
+async def api_overview(request: Request, services: ServicesDep) -> PlaceOverview:
+    """Every variable's descriptive rate at one place (spec 7, "What is changing here?")."""
+    return await place_overview(
+        parse_overview_query(_query_values(request)), services.tool_context()
+    )
+
+
+@router.get("/world")
+async def api_world(request: Request, services: ServicesDep) -> WorldTrend:
+    """A variable's trend in the frozen world-mean sample (spec 7, "The whole world")."""
+    return await world_trend(parse_world_query(_query_values(request)), services.tool_context())
 
 
 @router.get("/series")
@@ -208,6 +244,15 @@ def _series_input(query: QueryValues, resolution: str) -> GetSeriesInput:
         raise BadPlaceError("A series is for one place: give p only once.")
     return GetSeriesInput.model_validate(
         {**case.model_dump(exclude={"scan"}), "resolution": resolution}
+    )
+
+
+def _seasons_input(query: QueryValues) -> SeasonRatesInput:
+    """The seasons of a case take the case's own parameters; the scan is not part of them."""
+    case = parse_case_query(query)
+    places = [case.place] if isinstance(case, AnalyzeTrendInput) else case.places
+    return SeasonRatesInput.model_validate(
+        {**case.model_dump(exclude={"scan", "place", "places"}), "places": places}
     )
 
 

@@ -6,37 +6,64 @@ import asyncio
 import hashlib
 import json
 from collections.abc import Sequence
+from functools import lru_cache
+from pathlib import Path
+from typing import TypedDict, cast
 from urllib.parse import quote, urlencode
 
-from app.catalogue import CatalogueEntry, GridAlignment, get_entry, to_summary
-from app.errors import BadPlaceError, BadRequestError
+from app.catalogue import CatalogueEntry, GridAlignment, get_entry, load_catalogue, to_summary
+from app.config import DATA_DIR
+from app.errors import (
+    BadPlaceError,
+    BadRequestError,
+    SourceUnavailableError,
+    UnsupportedRequestError,
+)
 from app.models import (
     AnalyzeTrendInput,
     Box,
     Cell,
     ComparePlacesInput,
     Contrast,
+    Gap,
     Investigation,
     MapCell,
     MapTrendsInput,
+    OverviewRow,
     Place,
     PlaceInput,
+    PlaceOverview,
+    PlaceOverviewInput,
     PlaceResult,
+    PlaceSeasons,
+    Records,
+    RecordYear,
     Requested,
     ScanPoint,
     Season,
+    SeasonRate,
+    SeasonRates,
+    SeasonRatesInput,
     SourceRef,
     Trend,
     TrendMap,
     Verdict,
+    WorldTrend,
+    WorldTrendInput,
+    YearsMean,
     YearValue,
 )
 from app.sources.base import MonthlyValues, PointSeries
 from app.stats import (
     FALSE_DISCOVERY_RATE,
     MIN_YEARS_FOR_TEST,
+    all_equal,
     benjamini_hochberg,
+    compute_trend,
     cos_lat_weighted_mean,
+    first_and_last_means,
+    rank_years,
+    to_trend,
     yearly_values,
 )
 from app.tools.context import ToolContext
@@ -48,7 +75,21 @@ from app.tools.places import (
     round_link_coordinate,
 )
 from app.tools.series import fetch_point_series, resolve_period
-from app.verdict import build_verdict, compare_places_summary
+from app.verdict import (
+    OVERVIEW_NOTE,
+    RECORDS_NOTE,
+    SEASONS_NOTE,
+    build_verdict,
+    caution_text,
+    compare_places_summary,
+    gap_sentence,
+    overview_before_record_sentence,
+    overview_sentence,
+    records_sentences,
+    season_rate_sentence,
+    world_sample_note,
+    world_verdict,
+)
 
 # Spec 5: the id is a short hash of the normalised inputs; this many hex digits of SHA-256.
 CASE_ID_HEX_DIGITS = 12
@@ -56,6 +97,8 @@ CASE_ID_HEX_DIGITS = 12
 CASE_PATH = "/case"
 # Spec 10: the web app's page for a trend map.
 MAP_PATH = "/map"
+# Spec 10: the web app's page for what is changing at one place.
+OVERVIEW_PATH = "/place"
 # Spec 5 and spec 7, "Region view": the area mean is analysed like a place with this name. It is
 # lower case because it stands inside the verdict sentence: "Air temperature in the selected
 # area has risen by about ...".
@@ -111,9 +154,380 @@ async def compare_places(inp: ComparePlacesInput, ctx: ToolContext) -> Investiga
         entry, inp.places, requested, inp.scan, ctx, inp.snapshot_ids
     )
     contrast, summary = compare_places_summary(entry, results)
+    gap = _gap(entry, results) if len(results) == GAP_PLACES else None
     return _investigation(
-        entry, inp.places, requested, results, sources, ctx, contrast=contrast, summary=summary
+        entry,
+        inp.places,
+        requested,
+        results,
+        sources,
+        ctx,
+        contrast=contrast,
+        summary=summary,
+        gap=gap,
     )
+
+
+def _gap(entry: CatalogueEntry, results: Sequence[PlaceResult]) -> Gap:
+    """The first place's yearly values minus the second's over their common years, and the
+    descriptive Sen rate of that gap (spec 7, "The gap between two places").
+
+    The common years are the analysis years both results share. Fewer than ten give no rate.
+    Same-cell snapshots with differing common-year values are rejected: their versions
+    must not be presented as a spatial contrast. Consistent same-cell values have zero gap.
+    """
+    first, second = results
+    years = [year for year in first.analysis_years if year in set(second.analysis_years)]
+    first_values = {point.year: point.value for point in first.series}
+    second_values = {point.year: point.value for point in second.series}
+    differences = [_difference(first_values[year], second_values[year]) for year in years]
+    trend = (
+        to_trend(compute_trend(years, differences)) if len(years) >= MIN_YEARS_FOR_TEST else None
+    )
+    same_cell = first.place.cell == second.place.cell
+    if same_cell and any(value != 0.0 for value in differences):
+        raise BadRequestError(
+            "These locations share a grid cell but their snapshots contain different retained "
+            "values. Choose consistent evidence before making a spatial comparison."
+        )
+    return Gap(
+        first_place=first.place.name,
+        second_place=second.place.name,
+        series=[
+            YearValue(year=year, value=value)
+            for year, value in zip(years, differences, strict=True)
+        ],
+        n=len(years),
+        first_year=years[0] if years else None,
+        last_year=years[-1] if years else None,
+        sen_slope=trend.sen_slope if trend is not None else None,
+        total_change=trend.total_change if trend is not None else None,
+        line=trend.line if trend is not None else None,
+        same_cell=same_cell,
+        sentence=gap_sentence(
+            entry, first.place.name, second.place.name, len(years), trend, same_cell
+        ),
+    )
+
+
+def _difference(first: float | None, second: float | None) -> float:
+    # Common years have a value at both places, so neither is None here.
+    if first is None or second is None:
+        raise ValueError("A common year needs a value at both places.")
+    return first - second
+
+
+# Spec 7, "The whole world": the frozen sample, its page, and the place its case stands for.
+WORLD_MEAN_PATH = DATA_DIR / "world-mean.json"
+WORLD_MEAN_SCHEMA = "world_mean_v1"
+WORLD_PATH = "/world"
+WORLD_NAME = "the whole world"
+WORLD_HEIGHT_DEGREES = 180.0
+WORLD_WIDTH_DEGREES = 360.0
+
+
+class WorldSample(TypedDict):
+    step_degrees: int
+    latitudes: list[int]
+    longitudes: list[int]
+    points: int
+
+
+class WorldMeanDocument(TypedDict):
+    schema: str
+    built: str
+    end_year: int
+    sample: WorldSample
+    api_versions: list[str]
+    accessed: list[str]
+    variables: dict[str, dict[str, float | None]]
+
+
+# Spec 7, "The gap between two places": a comparison of exactly this many places has a gap.
+GAP_PLACES = 2
+# Spec 7, "All seasons at once": the rows of the seasons panel, in this order.
+SEASON_ORDER: tuple[Season, ...] = ("annual", "DJF", "MAM", "JJA", "SON")
+
+
+async def season_rates(inp: SeasonRatesInput, ctx: ToolContext) -> SeasonRates:
+    """The descriptive rate of each season, and of all months, at every place of a case.
+
+    Each season is analysed exactly as the case would be with that season, from the same
+    evidence: the same snapshots when the case is pinned, and in a comparison the common
+    complete years of that season. Rates are per decade in the variable's rate units. No
+    interval or p-value is returned. Only the all-months row of annual T2M can carry an
+    assessed verdict, as the inference gate allows; every other row is descriptive. A season
+    with fewer than ten complete years has no rate, and one with none has neither rate nor
+    years. Raises the same errors as `analyze_trend`.
+    """
+    entry = get_entry(inp.variable)
+    requested = resolve_period(entry, inp, ctx.last_complete_year)
+    rows: list[list[SeasonRate]] = [[] for _ in inp.places]
+    places: list[Place] = []
+    # One season after another: every season reads the same cached or pinned series.
+    for season in SEASON_ORDER:
+        period = Requested.model_validate(
+            {"from": requested.from_, "to": requested.to, "season": season}
+        )
+        results, _ = await _analyse_places(entry, inp.places, period, False, ctx, inp.snapshot_ids)
+        places = [result.place for result in results]
+        for place_rows, result in zip(rows, results, strict=True):
+            place_rows.append(_season_rate(entry, season, result))
+    return SeasonRates(
+        variable=to_summary(entry),
+        requested=requested,
+        places=[
+            PlaceSeasons(place=place, rates=place_rows)
+            for place, place_rows in zip(places, rows, strict=True)
+        ],
+        note=SEASONS_NOTE,
+    )
+
+
+def _season_rate(entry: CatalogueEntry, season: Season, result: PlaceResult) -> SeasonRate:
+    trend = result.trend
+    n_years = len(result.analysis_years)
+    return SeasonRate(
+        season=season,
+        n=n_years,
+        first_year=result.analysis_years[0] if result.analysis_years else None,
+        last_year=result.analysis_years[-1] if result.analysis_years else None,
+        sen_slope=trend.sen_slope if trend is not None else None,
+        total_change=trend.total_change if trend is not None else None,
+        verdict_kind=result.verdict.kind,
+        assessed=trend is not None and trend.inference_status == "assessed",
+        sentence=season_rate_sentence(
+            entry,
+            season,
+            n_years,
+            trend,
+            result.verdict.kind,
+            has_values=any(point.value is not None for point in result.series),
+        ),
+    )
+
+
+async def place_overview(inp: PlaceOverviewInput, ctx: ToolContext) -> PlaceOverview:
+    """Every catalogue variable's descriptive rate at one place (spec 7, "What is changing
+    here?").
+
+    Each variable runs over its own record within the requested period: from the later of
+    `from` and its record start, to `to`. A missing `from` is the earliest record start and a
+    missing `to` the last complete year. Rows keep the catalogue's order and are never ranked,
+    since rates in different units cannot be compared. Rates are per decade in each variable's
+    rate units; only annual T2M can carry an assessed verdict. One fetch per grid serves every
+    variable on it, so a new place costs one call per grid and a cached place none. A variable
+    whose record starts after `to` gets a row without years. This is a latest-data view: it
+    pins no snapshots, and each row opens as an ordinary case that does. Raises
+    `BadPeriodError` for an unsupported period and `SourceUnavailableError` when data is
+    neither cached nor available.
+    """
+    catalogue = load_catalogue()
+    earliest = min(catalogue, key=lambda entry: entry.record_start)
+    requested = resolve_period(
+        earliest,
+        inp.model_copy(
+            update={"from_": inp.from_ if inp.from_ is not None else earliest.record_start}
+        ),
+        ctx.last_complete_year,
+    )
+    rows: list[OverviewRow] = []
+    sources: list[SourceRef] = []
+    for entry in catalogue:
+        place = resolve_place(inp.place, entry)
+        if entry.record_start > requested.to:
+            rows.append(_before_record_row(entry, place))
+            continue
+        period = Requested.model_validate(
+            {
+                "from": max(requested.from_, entry.record_start),
+                "to": requested.to,
+                "season": requested.season,
+            }
+        )
+        series = await fetch_point_series(entry, place, ctx)
+        result = _place_result(entry, place, series.monthly, period, scan=False)
+        rows.append(_overview_row(entry, result))
+        sources += [source for source in _sources(entry, [series]) if source not in sources]
+    return PlaceOverview(
+        name=_label(inp.place) or format_coordinates(inp.place.lat, inp.place.lon),
+        lat=inp.place.lat,
+        lon=inp.place.lon,
+        requested=requested,
+        rows=rows,
+        note=OVERVIEW_NOTE,
+        sources=sources,
+        app_url=_overview_url(ctx, inp.place, requested),
+    )
+
+
+def _overview_row(entry: CatalogueEntry, result: PlaceResult) -> OverviewRow:
+    trend = result.trend
+    records = result.records
+    highest_year = records.highest[0].year if records and records.highest else None
+    lowest_year = records.lowest[0].year if records and records.lowest else None
+    return OverviewRow(
+        variable=to_summary(entry),
+        cell=result.place.cell,
+        n=len(result.analysis_years),
+        first_year=result.analysis_years[0] if result.analysis_years else None,
+        last_year=result.analysis_years[-1] if result.analysis_years else None,
+        sen_slope=trend.sen_slope if trend is not None else None,
+        total_change=trend.total_change if trend is not None else None,
+        verdict_kind=result.verdict.kind,
+        assessed=trend is not None and trend.inference_status == "assessed",
+        highest_year=highest_year,
+        lowest_year=lowest_year,
+        sentence=overview_sentence(
+            entry,
+            len(result.analysis_years),
+            trend,
+            result.verdict.kind,
+            highest_year,
+            lowest_year,
+        ),
+        caution_sentences=[
+            caution_text(caution, entry, trend) for caution in result.verdict.cautions
+        ],
+    )
+
+
+def _before_record_row(entry: CatalogueEntry, place: Place) -> OverviewRow:
+    return OverviewRow(
+        variable=to_summary(entry),
+        cell=place.cell,
+        n=0,
+        first_year=None,
+        last_year=None,
+        sen_slope=None,
+        total_change=None,
+        verdict_kind="no_data",
+        assessed=False,
+        highest_year=None,
+        lowest_year=None,
+        sentence=overview_before_record_sentence(entry),
+    )
+
+
+def _overview_url(ctx: ToolContext, place_input: PlaceInput, requested: Requested) -> str:
+    return f"{ctx.public_base_url or ''}{OVERVIEW_PATH}?{_overview_query(place_input, requested)}"
+
+
+def _overview_query(place_input: PlaceInput, requested: Requested) -> str:
+    """The overview parameters in their order: p, label when given, from, to, s."""
+    params = [("p", _link_point(place_input))]
+    if _label(place_input):
+        params.append(("label", _label(place_input)))
+    params += [("from", str(requested.from_)), ("to", str(requested.to)), ("s", requested.season)]
+    return urlencode(params, safe=",", quote_via=quote)
+
+
+def load_world_mean(path: Path = WORLD_MEAN_PATH) -> WorldMeanDocument | None:
+    """The frozen world-mean file (spec 7, "The whole world"), or None when it is missing or
+    not of the expected schema. Read once per path.
+    """
+    return _read_world_mean(path)
+
+
+@lru_cache(maxsize=2)
+def _read_world_mean(path: Path) -> WorldMeanDocument | None:
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(document, dict) or document.get("schema") != WORLD_MEAN_SCHEMA:
+        return None
+    return cast(WorldMeanDocument, document)
+
+
+async def world_trend(inp: WorldTrendInput, ctx: ToolContext) -> WorldTrend:
+    """The trend of one variable in the frozen world-mean sample (spec 7, "The whole world").
+
+    The series is read from data/world-mean.json, never from NASA: the cosine-weighted monthly
+    mean of a fixed sample of grid points. It is analysed like an area mean: rates per decade,
+    record years, no p-value and no assessed verdict. Missing months stay missing. Raises
+    `UnsupportedRequestError` for a variable the sample does not cover, `BadPeriodError` for an
+    unsupported period and `SourceUnavailableError` when the file cannot be read.
+    """
+    entry = get_entry(inp.variable)
+    if not entry.world_mean:
+        raise UnsupportedRequestError(
+            f"The whole-world mean covers no {entry.name.lower()}: it exists only on land or "
+            "only at sea, so a world average of it would mean little."
+        )
+    requested = resolve_period(entry, inp, ctx.last_complete_year)
+    document = load_world_mean()
+    if document is None or entry.id not in document["variables"]:
+        raise SourceUnavailableError("The whole-world mean is not available on this server.")
+    monthly: MonthlyValues = {
+        (int(key[:4]), int(key[5:])): value
+        for key, value in document["variables"][entry.id].items()
+    }
+    points = document["sample"]["points"]
+    place = Place(
+        name=WORLD_NAME,
+        lat=0.0,
+        lon=0.0,
+        cell=Cell(lat=0.0, lon=0.0, height=WORLD_HEIGHT_DEGREES, width=WORLD_WIDTH_DEGREES),
+    )
+    result = _place_result(entry, place, monthly, requested, scan=False, allow_inference=False)
+    result = result.model_copy(
+        update={"verdict": world_verdict(entry, result.verdict, result.trend, points)}
+    )
+    return WorldTrend(
+        variable=to_summary(entry),
+        requested=requested,
+        result=result,
+        points=points,
+        sample_note=world_sample_note(points, document["sample"]["step_degrees"]),
+        steps=_world_steps(entry, requested, result, document),
+        sources=[
+            SourceRef(
+                name=entry.source,
+                version=", ".join(document["api_versions"]),
+                accessed=", ".join(document["accessed"]),
+                product=(
+                    f"World mean of a {points}-point sample, prepared by "
+                    f"scripts/build_world_mean.py on {document['built']}"
+                ),
+                provenance_status="prepared_sample_mean",
+            )
+        ],
+        app_url=f"{ctx.public_base_url or ''}{WORLD_PATH}?{_world_query(entry.id, requested)}",
+    )
+
+
+def _world_steps(
+    entry: CatalogueEntry, requested: Requested, result: PlaceResult, document: WorldMeanDocument
+) -> list[str]:
+    sample = document["sample"]
+    return [
+        _variable_step(entry),
+        (
+            f"Used a fixed sample of {sample['points']} grid points, one every "
+            f"{sample['step_degrees']}° of latitude from {_edge(sample['latitudes'][0], 'N', 'S')} "
+            f"to {_edge(sample['latitudes'][-1], 'N', 'S')} and of longitude from "
+            f"{_edge(sample['longitudes'][0], 'E', 'W')}, read from data/world-mean.json, which "
+            f"was prepared on {document['built']}. No NASA service is called for it."
+        ),
+        _period_step(requested),
+        (
+            "Averaged the sample points into one value per month, weighting each by the cosine "
+            "of its latitude; a month missing at any point is missing."
+        ),
+        _capitalised(_test_step(result)),
+    ]
+
+
+def _world_query(variable_id: str, requested: Requested) -> str:
+    """The world parameters in their order: v, from, to, s."""
+    params = [
+        ("v", variable_id),
+        ("from", str(requested.from_)),
+        ("to", str(requested.to)),
+        ("s", requested.season),
+    ]
+    return urlencode(params, safe=",", quote_via=quote)
 
 
 async def _analyse_places(
@@ -207,6 +621,55 @@ def _place_result(
         trend=trend,
         verdict=verdict,
         analysis_years=years,
+        records=_records(entry, years, values) if trend is not None else None,
+    )
+
+
+def _records(entry: CatalogueEntry, years: list[int], values: list[float]) -> Records:
+    """The record years of the years the analysis used (spec 7, "Record years").
+
+    Descriptive only: the highest and lowest yearly values, and the mean of the last ten years
+    used against the first ten when there are at least twenty. When every year has the same
+    value nothing is ranked.
+    """
+    windows = first_and_last_means(years, values)
+    first_ten = (
+        YearsMean(years=list(windows.first_years), mean=windows.first_mean) if windows else None
+    )
+    last_ten = (
+        YearsMean(years=list(windows.last_years), mean=windows.last_mean) if windows else None
+    )
+    change = windows.change if windows else None
+    if all_equal(values):
+        return Records(
+            highest=[],
+            lowest=[],
+            highest_tied=0,
+            lowest_tied=0,
+            first_ten=first_ten,
+            last_ten=last_ten,
+            change=change,
+            sentences=records_sentences(
+                entry, [], [], 0, 0, first_ten, last_ten, change, same_value=values[0]
+            ),
+            note=RECORDS_NOTE,
+        )
+    top = rank_years(years, values, highest=True)
+    bottom = rank_years(years, values, highest=False, exclude=top.years)
+    highest = [RecordYear(year=y, value=v) for y, v in zip(top.years, top.values, strict=True)]
+    lowest = [RecordYear(year=y, value=v) for y, v in zip(bottom.years, bottom.values, strict=True)]
+    return Records(
+        highest=highest,
+        lowest=lowest,
+        highest_tied=top.tied,
+        lowest_tied=bottom.tied,
+        first_ten=first_ten,
+        last_ten=last_ten,
+        change=change,
+        sentences=records_sentences(
+            entry, highest, lowest, top.tied, bottom.tied, first_ten, last_ten, change
+        ),
+        note=RECORDS_NOTE,
     )
 
 
@@ -248,12 +711,15 @@ def _investigation(
     ctx: ToolContext,
     contrast: Contrast | None = None,
     summary: str | None = None,
+    gap: Gap | None = None,
 ) -> Investigation:
     query = _case_query(entry.id, place_inputs, requested)
     identities = [result.snapshot_id for result in results]
     params = [("snap", identity) for identity in identities if identity is not None]
     query += "&" + urlencode([*params, ("av", ANALYSIS_VERSION)])
-    normalized = [result.model_dump(mode="json") for result in results]
+    # Spec 5: the scan and the record years are descriptive displays derived from the evidence
+    # and the analysis years already bound here, so they leave the investigation ID unchanged.
+    normalized = [result.model_dump(mode="json", exclude={"records"}) for result in results]
     for result in normalized:
         if result["trend"] is not None:
             result["trend"].pop("scan", None)
@@ -273,6 +739,7 @@ def _investigation(
         analysis_version=ANALYSIS_VERSION,
         common_years=results[0].analysis_years if len(results) > 1 else None,
         pinned=all(identity is not None for identity in identities),
+        gap=gap,
     )
 
 

@@ -104,6 +104,19 @@ class ComparePlacesInput(PeriodInput):
     scan: bool = Field(default=False, description="Include the period scan (spec 7, step 10).")
 
 
+class SeasonRatesInput(PeriodInput):
+    variable: str = Field(description="A catalogue variable id, such as 'air_temp'.")
+    places: list[PlaceInput] = Field(min_length=1, max_length=MAX_COMPARE_PLACES)
+
+
+class PlaceOverviewInput(PeriodInput):
+    place: PlaceInput
+
+
+class WorldTrendInput(PeriodInput):
+    variable: str = Field(description="A catalogue variable id, such as 'air_temp'.")
+
+
 class GetSeriesInput(PeriodInput):
     variable: str = Field(description="A catalogue variable id, such as 'air_temp'.")
     place: PlaceInput
@@ -131,6 +144,7 @@ class VariableSummary(Model):
     region_types: list[str] = Field(default_factory=list)
     trend_note: str | None = None
     source_changes: list[int] | None = None
+    world_mean: bool = False
 
 
 class PlaceCandidate(Model):
@@ -214,6 +228,30 @@ class Verdict(Model):
     cautions: list[Caution]
 
 
+class RecordYear(Model):
+    year: int
+    value: float
+
+
+class YearsMean(Model):
+    years: list[int]
+    mean: float
+
+
+class Records(Model):
+    """Spec 7, "Record years": descriptive facts about the years the analysis used; not tests."""
+
+    highest: list[RecordYear]
+    lowest: list[RecordYear]
+    highest_tied: int
+    lowest_tied: int
+    first_ten: YearsMean | None
+    last_ten: YearsMean | None
+    change: float | None
+    sentences: list[str]
+    note: str
+
+
 class PlaceResult(Model):
     place: Place
     series: list[YearValue]
@@ -221,6 +259,51 @@ class PlaceResult(Model):
     verdict: Verdict
     analysis_years: list[int] = Field(default_factory=list)
     snapshot_id: str | None = None
+    records: Records | None = None
+
+
+class SeasonRate(Model):
+    """Spec 7, "All seasons at once": one season's descriptive rate at one place."""
+
+    season: Season
+    n: int
+    first_year: int | None
+    last_year: int | None
+    sen_slope: float | None
+    total_change: float | None
+    verdict_kind: VerdictKind
+    assessed: bool
+    sentence: str
+
+
+class PlaceSeasons(Model):
+    place: Place
+    rates: list[SeasonRate]
+
+
+class SeasonRates(Model):
+    variable: VariableSummary
+    requested: Requested
+    places: list[PlaceSeasons]
+    note: str
+
+
+class OverviewRow(Model):
+    """Spec 7, "What is changing here?": one variable's descriptive rate at the place."""
+
+    variable: VariableSummary
+    cell: Cell
+    n: int
+    first_year: int | None
+    last_year: int | None
+    sen_slope: float | None
+    total_change: float | None
+    verdict_kind: VerdictKind
+    assessed: bool
+    highest_year: int | None
+    lowest_year: int | None
+    sentence: str
+    caution_sentences: list[str] = Field(default_factory=list)
 
 
 class SourceRef(Model):
@@ -232,6 +315,24 @@ class SourceRef(Model):
     snapshot_id: str | None = None
     raw_sha256: str | None = None
     provenance_status: str = "legacy_normalized_cache"
+
+
+class Gap(Model):
+    """Spec 7, "The gap between two places": the first place's yearly value minus the second's,
+    over the comparison's common years. Descriptive; the difference is never tested.
+    """
+
+    first_place: str
+    second_place: str
+    series: list[YearValue]
+    n: int
+    first_year: int | None
+    last_year: int | None
+    sen_slope: float | None
+    total_change: float | None
+    line: tuple[float, float] | None
+    same_cell: bool
+    sentence: str
 
 
 class Investigation(Model):
@@ -247,6 +348,31 @@ class Investigation(Model):
     analysis_version: str = "td-2026-11-v1"
     common_years: list[int] | None = None
     pinned: bool = False
+    gap: Gap | None = None
+
+
+class PlaceOverview(Model):
+    name: str
+    lat: float
+    lon: float
+    requested: Requested
+    rows: list[OverviewRow]
+    note: str
+    sources: list[SourceRef]
+    app_url: str
+
+
+class WorldTrend(Model):
+    """Spec 7, "The whole world": a variable's trend in a frozen world-mean sample."""
+
+    variable: VariableSummary
+    requested: Requested
+    result: PlaceResult
+    points: int
+    sample_note: str
+    steps: list[str]
+    sources: list[SourceRef]
+    app_url: str
 
 
 class MapCell(Model):

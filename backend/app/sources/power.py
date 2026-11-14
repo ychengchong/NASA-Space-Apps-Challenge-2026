@@ -49,8 +49,9 @@ CODES_SATURATED_OVER_OCEAN = frozenset({"GWETTOP"})
 OCEAN_SATURATION_VALUE = 1.0
 # Spec 6, "Limits we observed": these codes sit on 1° cells bounded by whole degrees and centred
 # on half degrees, not on the MERRA-2 grid. A cached box is looked up by its MERRA-2 grid points,
-# which are not these cells, so a box of either code is never answered from the cache.
-CODES_ON_ONE_DEGREE_GRID = frozenset({"ALLSKY_SFC_SW_DWN", "CLOUD_AMT"})
+# which are not these cells, so a box of any of them is never answered from the cache. Haze
+# (AOD_55_ADJ) came back on these cells in a regional response saved on 14 November 2026.
+CODES_ON_ONE_DEGREE_GRID = frozenset({"ALLSKY_SFC_SW_DWN", "CLOUD_AMT", "AOD_55_ADJ"})
 
 # Spec 6, "How the app behaves toward POWER".
 CALL_TIMEOUT_SECONDS = 20.0  # each call, from sending the request to reading the whole body

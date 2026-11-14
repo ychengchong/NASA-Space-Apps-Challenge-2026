@@ -28,10 +28,12 @@ const MID_MONTH_DAY = "15";
 
 interface TrendChartProps {
   investigation: Investigation;
+  /** False for a series that no place's monthly values stand behind, such as a world mean. */
+  monthly?: boolean;
 }
 
 /** The yearly values and the trend line of each place, with the monthly values on request. */
-export function TrendChart({ investigation }: TrendChartProps): JSX.Element {
+export function TrendChart({ investigation, monthly: withMonthly = true }: TrendChartProps): JSX.Element {
   const [showMonthly, setShowMonthly] = useState(false);
   const monthly = useRequest(showMonthly ? `monthly:${investigation.id}` : null, (signal) =>
     loadMonthly(investigation, signal),
@@ -46,14 +48,16 @@ export function TrendChart({ investigation }: TrendChartProps): JSX.Element {
     <section className="panel sheet" aria-labelledby="chart-heading">
       <div className="panel-heading-row">
         <h2 id="chart-heading">Yearly values and trend</h2>
-        <button
-          type="button"
-          className="button button-secondary"
-          aria-pressed={showMonthly}
-          onClick={() => setShowMonthly((shown) => !shown)}
-        >
-          {showMonthly ? "Hide monthly values" : "Show monthly values"}
-        </button>
+        {withMonthly ? (
+          <button
+            type="button"
+            className="button button-secondary"
+            aria-pressed={showMonthly}
+            onClick={() => setShowMonthly((shown) => !shown)}
+          >
+            {showMonthly ? "Hide monthly values" : "Show monthly values"}
+          </button>
+        ) : null}
       </div>
       <p className="status-text" role="status">
         {monthly.state.status === "loading" ? "Loading the monthly values…" : null}
@@ -68,6 +72,11 @@ export function TrendChart({ investigation }: TrendChartProps): JSX.Element {
         Each point is {seasonAverageText(investigation.requested.season)} in one year, from{" "}
         {investigation.requested.from} to {investigation.requested.to}. A gap means a year with a missing
         month.
+        {investigation.results.some((result) => recordMarks(result).length > 0)
+          ? investigation.results.length > 1
+            ? " Rings mark the highest and lowest of the yearly values used, as listed under the verdict; in a comparison those are the years every place has."
+            : " Rings mark the highest and lowest of the yearly values used, as listed under the verdict."
+          : null}
       </p>
       <ul className="chart-summary">
         {investigation.results.map((result, index) => (
@@ -163,6 +172,27 @@ function chartTraces(investigation: Investigation, monthly: Series[] | null): Sc
         line: { color: SURFACE, width: 1 },
       },
     });
+    const records = recordMarks(result);
+    if (records.length > 0) {
+      traces.push({
+        type: "scatter",
+        mode: "markers",
+        name: `${name}: record years`,
+        legendgroup: name,
+        x: records.map((mark) => yearDate(mark.year, requested.season)),
+        y: records.map((mark) => mark.value),
+        text: records.map(
+          (mark) => `${name}<br>${mark.label} in ${mark.year}: ${valueText(mark.value, variable)}`,
+        ),
+        hovertemplate: HOVER_TEXT_ONLY,
+        marker: {
+          color: style.color,
+          size: 17,
+          symbol: "circle-open",
+          line: { color: style.color, width: 2 },
+        },
+      });
+    }
     const trend = result.trend;
     if (trend !== null) {
       const ends: [number, number][] = [
@@ -183,6 +213,22 @@ function chartTraces(investigation: Investigation, monthly: Series[] | null): Sc
     }
   });
   return traces;
+}
+
+interface RecordMark {
+  year: number;
+  value: number;
+  label: "Listed among the highest" | "Listed among the lowest";
+}
+
+/** The years the API lists as a place's highest and lowest values, to ring on the chart. */
+function recordMarks(result: PlaceResult): RecordMark[] {
+  const records = result.records;
+  if (records === null || records === undefined) return [];
+  return [
+    ...records.highest.map((item) => ({ ...item, label: "Listed among the highest" as const })),
+    ...records.lowest.map((item) => ({ ...item, label: "Listed among the lowest" as const })),
+  ];
 }
 
 function chartLayout(variable: VariableSummary): Layout {

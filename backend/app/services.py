@@ -41,6 +41,10 @@ def build_services(settings: Settings) -> Services:
         publish_once(settings.cache_path, (DATA_DIR / "cache.sqlite").read_bytes())
     snapshots = SnapshotStore(settings.snapshot_path)
     cache = Cache(settings.cache_path, snapshots)
+    if (DATA_DIR / "cache.sqlite").exists():
+        # A newer seed's rows reach a state cache copied from an older one, so the frozen
+        # examples keep opening without NASA after an upgrade.
+        cache.add_missing_rows(DATA_DIR / "cache.sqlite")
     operations = Cache(settings.operational_path)
     return Services(
         settings=settings,

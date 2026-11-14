@@ -33,6 +33,13 @@ class BadPeriodError(AppError):
     http_status = 400
 
 
+class UnsupportedRequestError(AppError):
+    """Spec 10: a valid request the app does not support, such as a world mean of snow."""
+
+    code = "unsupported_request"
+    http_status = 422
+
+
 class BadRequestError(AppError):
     code = "bad_request"
     http_status = 400

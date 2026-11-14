@@ -5,8 +5,14 @@
  * is `field?: T | null`; a required field that may be missing data is `T | null`.
  */
 
-import { buildCaseQuery, buildMapQuery, buildSeriesQuery } from "./caseUrl";
-import type { CaseParams, MapParams, SeriesParams } from "./caseUrl";
+import {
+  buildCaseQuery,
+  buildMapQuery,
+  buildOverviewQuery,
+  buildSeriesQuery,
+  buildWorldQuery,
+} from "./caseUrl";
+import type { CaseParams, MapParams, OverviewParams, SeriesParams, WorldParams } from "./caseUrl";
 
 import type * as Models from "./generatedModels";
 
@@ -32,6 +38,15 @@ export type ScanPoint = Models.ScanPoint;
 export type Trend = Models.Trend;
 export type Verdict = Models.Verdict;
 export type PlaceResult = Models.PlaceResult;
+export type Records = Models.Records;
+export type SeasonRates = Models.SeasonRates;
+export type PlaceOverview = Models.PlaceOverview;
+export type Gap = Models.Gap;
+export type WorldTrend = Models.WorldTrend;
+export type OverviewRow = Models.OverviewRow;
+export type SeasonRate = Models.SeasonRate;
+export type PlaceSeasons = Models.PlaceSeasons;
+export type RecordYear = Models.RecordYear;
 export type SourceRef = Models.SourceRef;
 export type Investigation = Models.Investigation;
 export type MapCell = Models.MapCell;
@@ -55,6 +70,7 @@ const ERROR_CODES = [
   "bad_place",
   "bad_period",
   "bad_request",
+  "unsupported_request",
   "rate_limited",
   "source_unavailable",
   "ai_unavailable",
@@ -149,6 +165,21 @@ export function getPlaces(query: string, signal?: AbortSignal): Promise<PlaceCan
 /** Runs a case for one to four places. */
 export function getCase(params: CaseParams, signal?: AbortSignal): Promise<Investigation> {
   return getJson<Investigation>(`/api/case?${buildCaseQuery(params)}`, signal);
+}
+
+/** Every variable's descriptive rate at one place (spec 7, "What is changing here?"). */
+export function getOverview(params: OverviewParams, signal?: AbortSignal): Promise<PlaceOverview> {
+  return getJson<PlaceOverview>(`/api/overview?${buildOverviewQuery(params)}`, signal);
+}
+
+/** A variable's trend in the frozen whole-world sample (spec 7, "The whole world"). */
+export function getWorld(params: WorldParams, signal?: AbortSignal): Promise<WorldTrend> {
+  return getJson<WorldTrend>(`/api/world?${buildWorldQuery(params)}`, signal);
+}
+
+/** Every season's descriptive rate for a case (spec 7, "All seasons at once"). */
+export function getSeasons(params: CaseParams, signal?: AbortSignal): Promise<SeasonRates> {
+  return getJson<SeasonRates>(`/api/seasons?${buildCaseQuery(params)}`, signal);
 }
 
 /** The address of a place's raw values, for a download link. */

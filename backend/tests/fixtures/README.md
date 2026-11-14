@@ -1,8 +1,8 @@
 # Saved NASA POWER responses
 
-Real responses from the NASA POWER monthly API (API version `v2.10.0`), fetched on 13 November 2026 with plain GET requests. The tests serve them through `httpx.MockTransport`, so no test touches the network. Data: NASA Langley Research Center (LaRC) POWER Project, <https://power.larc.nasa.gov/>.
+Real responses from the NASA POWER monthly API (API version `v2.10.0`), fetched on 13 November 2026 with plain GET requests, and on 14 November 2026 for `power_point_all_codes.json`. The tests serve them through `httpx.MockTransport`, so no test touches the network. Data: NASA Langley Research Center (LaRC) POWER Project, <https://power.larc.nasa.gov/>.
 
-Only `power_point_gap.json` is edited, as described below. The other two files are byte-for-byte what POWER sent.
+Only `power_point_gap.json` is edited, as described below. The other files are byte-for-byte what POWER sent.
 
 ## `power_point_full.json`
 
@@ -19,6 +19,21 @@ GET https://power.larc.nasa.gov/api/temporal/monthly/point
 - `header.fill_value` is `-999.0`, `header.api.version` is `"v2.10.0"`, and `header.sources` is `["SYN1DEG", "SRB", "MERRA2", "POWER"]`.
 - `geometry.coordinates` is `[25.0, 60.0, 9.17]`: longitude, latitude, elevation.
 - The call took about 2 seconds.
+
+## `power_point_all_codes.json`
+
+The full record of all twenty catalogue codes at the same grid point, fetched on 14 November 2026. Twenty is POWER's limit for one point call.
+
+```text
+GET https://power.larc.nasa.gov/api/temporal/monthly/point
+    ?parameters=T2M,T2M_MAX,T2M_MIN,TS,PRECTOTCORR,RH2M,QV2M,WS10M,GWETTOP,GWETROOT,SNODP,PRECSNOLAND,FRSNO,FRSEAICE,PS,TQV,WS10M_MAX,ALLSKY_SFC_SW_DWN,CLOUD_AMT,AOD_55_ADJ
+    &community=AG&latitude=60.0&longitude=25.0&start=1981&end=2025&format=JSON
+```
+
+- All twelve codes of `power_point_full.json` are in this file too, with identical values in every month.
+- `AOD_55_ADJ` is `-999.0` for every month of 1981 to 2000; `ALLSKY_SFC_SW_DWN` and `CLOUD_AMT` for 1981 to 1983. No other value is missing.
+- `header.sources` is `["SRB", "SYN1DEG", "MERRA2", "POWER"]`; `header.api.version` is `"v2.10.0"`.
+- The call took about 3 seconds.
 
 ## `power_point_gap.json`
 

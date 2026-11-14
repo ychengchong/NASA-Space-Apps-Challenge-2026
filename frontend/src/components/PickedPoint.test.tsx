@@ -8,7 +8,14 @@ const HELSINKI: CasePlace = { lat: 60.17, lon: 24.94, name: "Helsinki" };
 
 function renderPoint(places: readonly CasePlace[]): string {
   return renderToStaticMarkup(
-    <PickedPoint point={POINT} places={places} onChoose={() => undefined} onDismiss={() => undefined} />,
+    <PickedPoint
+      point={POINT}
+      places={places}
+      onChoose={() => undefined}
+      onDismiss={() => undefined}
+      overviewUrl="/place?p=-1.29,36.82&s=annual"
+      onOpenPage={() => undefined}
+    />,
   );
 }
 
@@ -37,5 +44,11 @@ describe("PickedPoint", () => {
 
   test("can always be dismissed", () => {
     expect(renderPoint([HELSINKI])).toContain("Dismiss");
+  });
+
+  test("offers what is changing at the point, as a link to its overview", () => {
+    const html = renderPoint([]);
+    expect(html).toContain('href="/place?p=-1.29,36.82&amp;s=annual"');
+    expect(html).toContain("What is changing here?");
   });
 });

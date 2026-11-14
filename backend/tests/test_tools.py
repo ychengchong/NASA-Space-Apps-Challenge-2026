@@ -52,8 +52,15 @@ MERRA2_CODES = (
     "WS10M",
     "GWETTOP",
     "GWETROOT",
+    "SNODP",
+    "PRECSNOLAND",
+    "FRSNO",
+    "FRSEAICE",
+    "PS",
+    "TQV",
+    "WS10M_MAX",
 )
-ONE_DEGREE_CODES = ("ALLSKY_SFC_SW_DWN", "CLOUD_AMT")
+ONE_DEGREE_CODES = ("ALLSKY_SFC_SW_DWN", "CLOUD_AMT", "AOD_55_ADJ")
 
 
 def saved_t2m(name: str) -> dict[MonthKey, float | None]:
@@ -545,7 +552,7 @@ async def test_steps_say_december_counts_toward_the_following_year() -> None:
 
 
 def power_client(cache: Cache, requests: list[httpx.Request]) -> PowerClient:
-    payload = json.loads((FIXTURES / "power_point_full.json").read_text(encoding="utf-8"))
+    payload = json.loads((FIXTURES / "power_point_all_codes.json").read_text(encoding="utf-8"))
 
     def answer(request: httpx.Request) -> httpx.Response:
         requests.append(request)
@@ -721,3 +728,49 @@ async def test_series_period_without_years_raises_bad_period() -> None:
         await get_series(
             series_input(resolution="yearly", **{"from": 2030}), context(FakeSource(RISING))
         )
+
+
+# The variables of the challenge video (spec 6, "Catalogue additions"): descriptive cases
+
+
+async def test_haze_case_is_descriptive_on_its_one_degree_cell_from_2001() -> None:
+    source = FakeSource(monthly_from_yearly(line(0.001, first_year=2001)))
+
+    investigation = await analyze_trend(trend_input(variable="haze", season="JJA"), context(source))
+
+    (result,) = investigation.results
+    assert investigation.requested.from_ == 2001
+    assert (result.place.cell.lat, result.place.cell.lon) == HELSINKI_ONE_DEGREE_CENTRE
+    assert result.verdict.kind == "inference_unavailable"
+    assert result.trend is not None
+    assert result.trend.mk_p is None
+    assert "Significance has not been assessed" in result.verdict.sentence
+
+
+async def test_haze_before_2001_is_refused_without_changing_the_dates() -> None:
+    with pytest.raises(BadPeriodError):
+        await analyze_trend(
+            trend_input(variable="haze", **{"from": 1981}), context(FakeSource(RISING))
+        )
+
+
+async def test_snow_on_snow_free_land_is_a_zero_rate_with_every_year_equal() -> None:
+    source = FakeSource(monthly_from_yearly(dict.fromkeys(range(1981, 2026), 0.0)))
+
+    (result,) = (await analyse(source, variable="snow_depth")).results
+
+    assert result.verdict.kind == "inference_unavailable"
+    assert result.trend is not None
+    assert result.trend.sen_slope == 0.0
+    assert result.records is not None
+    assert result.records.sentences == ["Every year used has the same value (cm): 0.00."]
+
+
+async def test_snow_over_open_sea_has_no_data() -> None:
+    # Spec 6: over open sea POWER sends its fill value for snow, which the client turns into None.
+    source = FakeSource(monthly_from_yearly(dict.fromkeys(range(1981, 2026), None)))
+
+    (result,) = (await analyse(source, variable="snow_depth")).results
+
+    assert result.verdict.kind == "no_data"
+    assert result.verdict.sentence == "There is no snow depth data for this location."

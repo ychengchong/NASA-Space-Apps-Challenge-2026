@@ -130,3 +130,30 @@ def test_counter_counts_every_increment_from_many_threads(cache: Cache) -> None:
     for thread in threads:
         thread.join()
     assert cache.get_counter("ai_turns", "2026-11-14") == threads_count * increments_per_thread
+
+
+def test_rows_of_a_newer_seed_are_added_and_existing_rows_kept(tmp_path: Path) -> None:
+    seed = Cache(tmp_path / "seed.sqlite")
+    seed.write_point_series(
+        "power",
+        [
+            PointSeries("T2M", 60.0, 25.0, {(2000, 1): 1.0}, "v-seed", "2026-11-13"),
+            PointSeries("SNODP", 60.0, 25.0, {(2000, 1): 5.0}, "v-seed", "2026-11-14"),
+        ],
+        2025,
+    )
+    seed.close()
+    state = Cache(tmp_path / "state.sqlite")
+    state.write_point_series(
+        "power", [PointSeries("T2M", 60.0, 25.0, {(2000, 1): 2.0}, "v-state", "2026-11-01")], 2025
+    )
+
+    added = state.add_missing_rows(tmp_path / "seed.sqlite")
+    rows = state.read_point_series("power", 60.0, 25.0, ["T2M", "SNODP"], 2025)
+    again = state.add_missing_rows(tmp_path / "seed.sqlite")
+    state.close()
+
+    assert added == 1
+    assert again == 0
+    assert rows["T2M"].version == "v-state"
+    assert rows["SNODP"].monthly == {(2000, 1): 5.0}

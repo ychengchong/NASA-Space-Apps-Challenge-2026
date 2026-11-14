@@ -50,6 +50,16 @@ export interface MapParams extends PeriodParams {
   box: Box;
 }
 
+/** A place's overview: every variable at one place (spec 7, "What is changing here?"). */
+export interface OverviewParams extends PeriodParams {
+  place: CasePlace;
+}
+
+/** The whole world: a variable's world-mean sample (spec 7, "The whole world"). */
+export interface WorldParams extends PeriodParams {
+  variable: string;
+}
+
 export interface SeriesParams extends PeriodParams {
   variable: string;
   place: { lat: number; lon: number };
@@ -103,6 +113,41 @@ export function parseCaseQuery(query: string): ParseResult<CaseParams> {
 }
 
 /** Writes `v`, `from` and `to` when known, `s`, and `box=south,west,north,east`. */
+/** The overview parameters of spec 10 in their order: p, label when named, from, to, s. */
+export function buildOverviewQuery(params: OverviewParams): string {
+  const entries: QueryEntry[] = [["p", pointParam(params.place)]];
+  if (hasName(params.place)) entries.push(["label", params.place.name ?? ""]);
+  entries.push(...periodEntries(params));
+  return encodeQuery(entries);
+}
+
+/** Reads an overview page's query string, with or without its leading "?". */
+export function parseOverviewQuery(query: string): ParseResult<OverviewParams> {
+  const search = new URLSearchParams(query);
+  const places = parsePlaces(search);
+  if (!places.ok) return places;
+  const [place] = places.value;
+  if (place === undefined || places.value.length !== 1) return invalid("The overview is for one place.");
+  const period = parsePeriod(search);
+  if (!period.ok) return period;
+  return valid({ place, ...period.value });
+}
+
+/** The world parameters in their order: v, from, to, s. */
+export function buildWorldQuery(params: WorldParams): string {
+  return encodeQuery([["v", params.variable], ...periodEntries(params)]);
+}
+
+/** Reads a world page's query string, with or without its leading "?". */
+export function parseWorldQuery(query: string): ParseResult<WorldParams> {
+  const search = new URLSearchParams(query);
+  const variable = parseVariable(search);
+  if (!variable.ok) return variable;
+  const period = parsePeriod(search);
+  if (!period.ok) return period;
+  return valid({ variable: variable.value, ...period.value });
+}
+
 export function buildMapQuery(params: MapParams): string {
   const { south, west, north, east } = params.box;
   const box = [south, west, north, east].map(roundCoordinate).join(",");
