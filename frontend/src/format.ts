@@ -34,6 +34,15 @@ export function formatSignedRate(perDecade: number, decimals: number): string {
   return size;
 }
 
+/**
+ * A signed rate as its sign and its digits, so the two can be set in different type: ["+", "0.79"]
+ * for "+0.79", and ["", "0.00"] for a rate without a sign. Nothing is added or taken away.
+ */
+export function splitSign(signedRate: string): [sign: string, digits: string] {
+  const sign = signedRate.charAt(0);
+  return sign === "+" || sign === "-" ? [sign, signedRate.slice(1)] : ["", signedRate];
+}
+
 /** A p-value with three decimals, or "< 0.001" when it is smaller than that. */
 export function formatPValue(p: number | null): string {
   if (p === null) return "Not assessed";

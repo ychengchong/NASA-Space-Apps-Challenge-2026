@@ -10,8 +10,6 @@ import { AIR_TEMP, TREND_MAP } from "./testData";
 // The map's request answers with whatever the test sets here, so nothing touches the network.
 const request = vi.hoisted((): { state: RequestState<TrendMap> } => ({ state: { status: "idle" } }));
 vi.mock("../useRequest", () => ({ useRequest: () => ({ state: request.state, retry: () => undefined }) }));
-// Leaflet needs a browser, and the map itself is not under test.
-vi.mock("./RegionMap", () => ({ default: () => null }));
 
 const QUERY = "v=air_temp&box=55,20,65,30&from=1981&to=2025&s=annual";
 const EXAMPLES: ExampleCase[] = [
@@ -42,6 +40,13 @@ beforeEach(() => {
 });
 
 describe("RegionView", () => {
+  test("withholds sharing while the previous map is shown during loading", () => {
+    request.state = { status: "loading", stale: TREND_MAP };
+    const html = renderRegionView();
+    expect(html).toContain("Verdict for the whole box");
+    expect(html).not.toContain("Copy link");
+  });
+
   test("defines the words its verdict and table use, as the case evidence does", () => {
     request.state = { status: "done", value: TREND_MAP };
     const html = renderRegionView();
@@ -58,6 +63,33 @@ describe("RegionView", () => {
     expect(verdict).toBeGreaterThanOrEqual(0);
     expect(verdict).toBeLessThan(settings);
     expect(settings).toBeLessThan(map);
+  });
+
+  test("gives the verdict sentence before the note on how the box was averaged", () => {
+    request.state = { status: "done", value: TREND_MAP };
+    const html = renderRegionView();
+    const sentence = html.indexOf(TREND_MAP.area_mean.verdict.sentence);
+    expect(sentence).toBeGreaterThanOrEqual(0);
+    expect(html.indexOf("All the grid cells averaged into one series")).toBeGreaterThan(sentence);
+  });
+
+  test("folds the map settings behind a button once a map is on screen", () => {
+    request.state = { status: "done", value: TREND_MAP };
+    const html = renderRegionView();
+    expect(html).toContain("Change this map");
+    expect(html).toContain('aria-expanded="false"');
+  });
+
+  test("shows the map settings unfolded when the map cannot be made", () => {
+    request.state = { status: "failed", error: new ApiError("bad_place", "The box is too large.", 400) };
+    expect(renderRegionView()).not.toContain("Change this map");
+  });
+
+  test("says that the globe draws the cells", () => {
+    request.state = { status: "done", value: TREND_MAP };
+    expect(renderRegionView()).toContain(
+      "Air temperature from 1981 to 2025, all months, coloured on the globe. Click a cell to open it as a case.",
+    );
   });
 
   test("offers the saved example cases when NASA's data service is not answering", () => {

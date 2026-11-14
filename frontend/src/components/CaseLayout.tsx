@@ -1,11 +1,11 @@
 import type { JSX, ReactNode } from "react";
 
 interface CaseLayoutProps {
-  /** The verdict and the AI's notes: across the top on a wide screen. */
+  /** The verdict, on a case its chart, and the AI's notes, first on the page. */
   answer: ReactNode;
-  /** The settings: the left column under the answer on a wide screen. */
+  /** The settings, under the answer. */
   side: ReactNode;
-  /** The chart, the map and the evidence: the right column under the answer on a wide screen. */
+  /** The rest of the evidence, such as the key to the globe and the evidence panel, under the settings. */
   main: ReactNode;
 }
 

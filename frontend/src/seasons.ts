@@ -3,7 +3,7 @@
  * months, because "winter" means different months in each hemisphere.
  */
 
-import type { Season } from "./api";
+import type { Requested, Season } from "./api";
 
 export const SEASON_LABELS: Readonly<Record<Season, string>> = {
   annual: "Every month",
@@ -18,6 +18,16 @@ export const SEASON_ORDER: readonly Season[] = ["annual", "DJF", "MAM", "JJA", "
 
 export function seasonLabel(season: Season): string {
   return SEASON_LABELS[season];
+}
+
+/** The months a season covers, as they read after a period: "all months" or "June to August". */
+export function seasonMonthsText(season: Season): string {
+  return season === "annual" ? "all months" : SEASON_LABELS[season];
+}
+
+/** The years and months a case or a map tests, such as "1981 to 2025, all months". */
+export function periodText(requested: Requested): string {
+  return `${requested.from} to ${requested.to}, ${seasonMonthsText(requested.season)}`;
 }
 
 /** What one yearly value averages, as it reads inside a sentence. */

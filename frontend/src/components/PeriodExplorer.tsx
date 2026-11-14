@@ -5,7 +5,7 @@ import { getCase } from "../api";
 import type { Investigation, ScanPoint, VariableSummary } from "../api";
 import { buildCaseQuery } from "../caseUrl";
 import type { CaseParams } from "../caseUrl";
-import { AXIS_STYLE, BASE_LAYOUT, HOVER_TEXT_ONLY, plotlyText } from "../chartStyle";
+import { AXIS_LINE, AXIS_STYLE, BASE_LAYOUT, HOVER_TEXT_ONLY, plotlyText } from "../chartStyle";
 import { PERIOD_CAUTION } from "../definitions";
 import { formatPValue, formatSignedRate, withUnits } from "../format";
 import { caseFromFirstYear, isSignificant, yearRuns } from "../periodScan";
@@ -16,7 +16,7 @@ import { ShapeSwatch } from "./ShapeSwatch";
 const PlotlyChart = lazy(() => import("./PlotlyChart"));
 
 const CHART_HEIGHT_PX = 320;
-const CURRENT_START_COLOUR = "#4a5360";
+const CURRENT_START_COLOUR = "#6b5846";
 
 interface PeriodExplorerProps {
   /** The case on screen. */
@@ -225,7 +225,7 @@ function scanLayout(variable: VariableSummary, to: number, currentStart: number)
     yaxis: {
       ...AXIS_STYLE,
       zeroline: true,
-      zerolinecolor: "#9aa3ad",
+      zerolinecolor: AXIS_LINE,
       // The units go on a second line, so a long title such as "percentage points per decade"
       // still fits the height of the chart.
       title: { text: `Rate of change<br>(${rateUnits})` },

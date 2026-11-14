@@ -2,6 +2,8 @@ import type { JSX } from "react";
 import type { Investigation, PlaceResult, Verdict, VariableSummary } from "../api";
 import { cautionText } from "../cautions";
 import { MORE_YEARS_NOTE, SIGNIFICANCE_DEFINITION } from "../definitions";
+import { formatSignedRate, splitSign } from "../format";
+import { FileTab } from "./FileTab";
 import { ShapeSwatch } from "./ShapeSwatch";
 
 interface VerdictCardProps {
@@ -9,14 +11,16 @@ interface VerdictCardProps {
 }
 
 /**
- * The answer in words: for a comparison the summary sentence first, then each place's verdict
- * sentence with its direction and its most important caution (spec 3). Sentences come from the
- * API as they are. The caller places it in a live region that is in the page before it.
+ * The answer in words, as the first sheet of the case file, under its tab: for a comparison the
+ * summary sentence first, then each place's verdict sentence with its stamp and its most
+ * important caution (spec 3). Sentences come from the API as they are. The caller places it in a
+ * live region that is in the page before it.
  */
 export function VerdictCard({ investigation }: VerdictCardProps): JSX.Element {
   const { results, summary, variable } = investigation;
   return (
     <section className="panel verdict-card" aria-labelledby="verdict-heading">
+      <FileTab label="Case file" />
       <h2 id="verdict-heading">Verdict</h2>
       {summary ? <p className="verdict-summary">{summary}</p> : null}
       <ul className="verdict-list">
@@ -37,11 +41,20 @@ interface PlaceVerdictProps {
   showName: boolean;
 }
 
-/** One place's verdict: its direction and kind, the sentence, a note and the first caution. */
+/**
+ * One place's verdict: its stamp, the rate of a significant trend as a key figure, the sentence,
+ * a note and the first caution.
+ */
 export function PlaceVerdict({ result, index, variable, showName }: PlaceVerdictProps): JSX.Element {
   const { verdict, trend } = result;
   const [firstCaution] = verdict.cautions;
   const caution = firstCaution === undefined ? null : cautionText(firstCaution, variable, trend);
+  // Only a significant trend gets the large figure: a rate that year-to-year variation alone
+  // could produce is not to be read as the answer.
+  const figure =
+    verdict.kind === "significant" && trend !== null
+      ? splitSign(formatSignedRate(trend.sen_slope, variable.decimals))
+      : null;
   return (
     <>
       {showName ? (
@@ -49,7 +62,18 @@ export function PlaceVerdict({ result, index, variable, showName }: PlaceVerdict
           <ShapeSwatch index={index} /> {result.place.name}
         </h3>
       ) : null}
-      <VerdictBadges verdict={verdict} />
+      <VerdictStamp verdict={verdict} />
+      {figure !== null ? (
+        <p className="verdict-figure">
+          <span className="verdict-figure-number">
+            {figure[0] !== "" ? <span className="verdict-figure-sign">{figure[0]}</span> : null}
+            {figure[1]}
+          </span>{" "}
+          <span className="verdict-figure-units">
+            {variable.rate_units === "" ? "per decade" : `${variable.rate_units} per decade`}
+          </span>
+        </p>
+      ) : null}
       <p className="verdict-sentence">{verdict.sentence}</p>
       {verdict.kind === "significant" || verdict.kind === "not_significant" ? <SignificanceHelp /> : null}
       <VerdictNote verdict={verdict} />
@@ -70,32 +94,50 @@ const KIND_LABELS: Readonly<Record<Verdict["kind"], string>> = {
   inference_unavailable: "Significance unavailable",
 };
 
-/** The direction as an arrow and a word, never by colour alone (spec 3), and the kind. */
-function VerdictBadges({ verdict }: { verdict: Verdict }): JSX.Element {
-  return (
-    <p className="verdict-badges">
-      <DirectionBadge verdict={verdict} />
-      <span className={`badge badge-${verdict.kind}`}>{KIND_LABELS[verdict.kind]}</span>
-    </p>
-  );
+/** A verdict's direction as the stamp prints it: an arrow, a word, and the word's own style. */
+interface StampDirection {
+  arrow: string;
+  word: string;
+  tone: "rising" | "falling" | "level";
 }
 
-function DirectionBadge({ verdict }: { verdict: Verdict }): JSX.Element | null {
-  if (verdict.direction === "rising") return <Direction arrow="↑" word="Rising" />;
-  if (verdict.direction === "falling") return <Direction arrow="↓" word="Falling" />;
+function stampDirection(verdict: Verdict): StampDirection | null {
+  if (verdict.direction === "rising") return { arrow: "↑", word: "Rising", tone: "rising" };
+  if (verdict.direction === "falling") return { arrow: "↓", word: "Falling", tone: "falling" };
   // Spec 7: a zero Sen's slope is a test with no direction.
-  if (verdict.kind === "not_significant") return <Direction arrow="→" word="Zero estimated slope" />;
+  if (verdict.kind === "not_significant") {
+    return { arrow: "→", word: "Zero estimated slope", tone: "level" };
+  }
   return null;
 }
 
-function Direction({ arrow, word }: { arrow: string; word: string }): JSX.Element {
+/**
+ * The ink of the stamp (spec 3): the red or the blue of the region map's scale for a significant
+ * rise or fall, and a faded ink for every other verdict, whose direction the test did not settle.
+ */
+function stampInk(verdict: Verdict): "rising" | "falling" | "faded" {
+  if (verdict.kind !== "significant" || verdict.direction === null) return "faded";
+  return verdict.direction;
+}
+
+/**
+ * The verdict's stamp: the direction as an arrow and a word, never by colour alone (spec 3),
+ * over the kind of verdict.
+ */
+function VerdictStamp({ verdict }: { verdict: Verdict }): JSX.Element {
+  const direction = stampDirection(verdict);
+  const level = direction?.tone === "level" ? " stamp-level" : "";
   return (
-    <span className="badge badge-direction">
-      <span aria-hidden="true" className="badge-arrow">
-        {arrow}
-      </span>{" "}
-      {word}
-    </span>
+    <p className={`stamp stamp-${stampInk(verdict)}${level}`}>
+      {direction !== null ? (
+        <>
+          <span className="stamp-direction">
+            <span aria-hidden="true">{direction.arrow}</span> {direction.word}
+          </span>{" "}
+        </>
+      ) : null}
+      <span className="stamp-kind">{KIND_LABELS[verdict.kind]}</span>
+    </p>
   );
 }
 

@@ -6,6 +6,7 @@ import {
   formatRate,
   formatRatePerDecade,
   formatSignedRate,
+  splitSign,
   withUnits,
 } from "./format";
 
@@ -38,6 +39,20 @@ describe("formatRate", () => {
   test("rounds an exact tie to a whole number to the even number", () => {
     expect(formatRate(2.5, 0)).toBe("2");
     expect(formatRate(3.5, 0)).toBe("4");
+  });
+});
+
+describe("splitSign", () => {
+  test("parts the sign of a rising rate from its digits", () => {
+    expect(splitSign("+0.79")).toEqual(["+", "0.79"]);
+  });
+
+  test("parts the sign of a falling rate from its digits", () => {
+    expect(splitSign("-1.3")).toEqual(["-", "1.3"]);
+  });
+
+  test("gives a rate without a sign an empty sign and all its digits", () => {
+    expect(splitSign("0.000")).toEqual(["", "0.000"]);
   });
 });
 

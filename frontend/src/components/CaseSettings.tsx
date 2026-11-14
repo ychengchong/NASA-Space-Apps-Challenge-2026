@@ -5,10 +5,10 @@ import { applyPlaceAction, caseFromDraft, parseYearText, placeName, removePlace 
 import type { CaseDraft, PlaceAction } from "../caseDraft";
 import type { CasePlace } from "../caseUrl";
 import { PERIOD_CAUTION } from "../definitions";
-import { formatCoordinates } from "../format";
+import { useGlobe } from "../globeContext";
 import { isSeason, SEASON_LABELS, SEASON_ORDER } from "../seasons";
 import type { RequestState } from "../useRequest";
-import { PlaceActions, PlaceSearch } from "./PlaceSearch";
+import { PlaceSearch } from "./PlaceSearch";
 import { ShapeSwatch } from "./ShapeSwatch";
 
 interface CaseSettingsProps {
@@ -16,9 +16,6 @@ interface CaseSettingsProps {
   variables: RequestState<VariableSummary[]>;
   /** True when edits wait for "Run this case"; false when each edit reloads the open case. */
   pending: boolean;
-  /** A point picked on the map, offered like a search result. */
-  pickedPoint: CasePlace | null;
-  onDismissPickedPoint: () => void;
   /** Called with a place chosen from the place search, before the draft changes. */
   onPickCandidate: (candidate: PlaceCandidate) => void;
   onChange: (draft: CaseDraft) => void;
@@ -33,8 +30,6 @@ export function CaseSettings({
   draft,
   variables,
   pending,
-  pickedPoint,
-  onDismissPickedPoint,
   onPickCandidate,
   onChange,
   onRun,
@@ -69,20 +64,6 @@ export function CaseSettings({
       <fieldset className="field">
         <legend className="field-label">Places</legend>
         <PlaceList draft={draft} pending={pending} onRemove={removePlaceAt} />
-        {pickedPoint !== null ? (
-          <PickedPoint
-            point={pickedPoint}
-            places={draft.places}
-            onChoose={(action, place) => {
-              choosePlace(action, place);
-              onDismissPickedPoint();
-            }}
-            onDismiss={() => {
-              onDismissPickedPoint();
-              focusSearch();
-            }}
-          />
-        ) : null}
         <PlaceSearch
           places={draft.places}
           onChoose={(action, place, candidate) => {
@@ -227,8 +208,15 @@ function PlaceList({
   pending: boolean;
   onRemove: (index: number) => void;
 }): JSX.Element {
+  const globe = useGlobe();
   if (draft.places.length === 0) {
-    return <p className="field-hint">No place yet. Search for one below, or click the map.</p>;
+    return (
+      <p className="field-hint">
+        {globe.status === "unavailable"
+          ? "No place yet. Search for one below."
+          : "No place yet. Search for one below, or click the globe."}
+      </p>
+    );
   }
   // An open case needs a place, so its last place can only be replaced, not removed.
   const canRemove = pending || draft.places.length > 1;
@@ -246,29 +234,6 @@ function PlaceList({
         </li>
       ))}
     </ul>
-  );
-}
-
-function PickedPoint({
-  point,
-  places,
-  onChoose,
-  onDismiss,
-}: {
-  point: CasePlace;
-  places: readonly CasePlace[];
-  onChoose: (action: PlaceAction, place: CasePlace) => void;
-  onDismiss: () => void;
-}): JSX.Element {
-  const name = `The point you picked, ${formatCoordinates(point.lat, point.lon)}`;
-  return (
-    <div className="candidate picked-point">
-      <span className="candidate-name">{name}</span>
-      <PlaceActions name={name} place={point} places={places} onChoose={onChoose} />
-      <button type="button" className="button button-small button-quiet" onClick={onDismiss}>
-        Dismiss<span className="visually-hidden"> the picked point</span>
-      </button>
-    </div>
   );
 }
 

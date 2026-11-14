@@ -39,6 +39,10 @@ export const DEFINITIONS: readonly Definition[] = [
   },
 ];
 
+// Spec 7, "Region view": the legend says exactly this.
+export const REGION_MAP_NOTE =
+  "Regional maps show descriptive rates. Significance is not assessed. This is a latest-data view; open a cell to freeze its individual evidence.";
+
 // Spec 6, "Caveats shown to users"; the spec's caution code is written out in words.
 export const DATA_CAVEATS: readonly string[] = [
   "MERRA-2 is a reanalysis: a weather model steered by observations. Changes in the observing " +

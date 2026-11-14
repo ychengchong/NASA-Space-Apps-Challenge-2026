@@ -4,8 +4,8 @@ import type { JSX } from "react";
 import { getSeries } from "../api";
 import type { Investigation, PlaceResult, Season, Series, VariableSummary } from "../api";
 import { joinWords } from "../cautions";
-import { AXIS_STYLE, BASE_LAYOUT, HOVER_TEXT_ONLY, plotlyText } from "../chartStyle";
-import { formatNumber, withUnits } from "../format";
+import { AXIS_STYLE, BASE_LAYOUT, HOVER_TEXT_ONLY, plotlyText, SURFACE } from "../chartStyle";
+import { formatNumber, formatRatePerDecade, formatSignedRate, withUnits } from "../format";
 import { placeStyle } from "../placeStyles";
 import { seasonAverageText } from "../seasons";
 import { useRequest } from "../useRequest";
@@ -43,7 +43,7 @@ export function TrendChart({ investigation }: TrendChartProps): JSX.Element {
   const summary = chartSummary(investigation);
 
   return (
-    <section className="panel" aria-labelledby="chart-heading">
+    <section className="panel sheet" aria-labelledby="chart-heading">
       <div className="panel-heading-row">
         <h2 id="chart-heading">Yearly values and trend</h2>
         <button
@@ -55,11 +55,6 @@ export function TrendChart({ investigation }: TrendChartProps): JSX.Element {
           {showMonthly ? "Hide monthly values" : "Show monthly values"}
         </button>
       </div>
-      <p className="panel-intro">
-        Each point is {seasonAverageText(investigation.requested.season)} in one year, from{" "}
-        {investigation.requested.from} to {investigation.requested.to}. A gap means a year with a missing
-        month.
-      </p>
       <p className="status-text" role="status">
         {monthly.state.status === "loading" ? "Loading the monthly values…" : null}
         {monthly.state.status === "failed"
@@ -69,6 +64,11 @@ export function TrendChart({ investigation }: TrendChartProps): JSX.Element {
       <Suspense fallback={<div className="chart-placeholder">Loading the chart…</div>}>
         <PlotlyChart data={data} layout={layout} description={summary.join(" ")} />
       </Suspense>
+      <p className="panel-intro">
+        Each point is {seasonAverageText(investigation.requested.season)} in one year, from{" "}
+        {investigation.requested.from} to {investigation.requested.to}. A gap means a year with a missing
+        month.
+      </p>
       <ul className="chart-summary">
         {investigation.results.map((result, index) => (
           <li key={index}>
@@ -160,7 +160,7 @@ function chartTraces(investigation: Investigation, monthly: Series[] | null): Sc
         color: style.color,
         size: 8,
         symbol: style.plotlySymbol,
-        line: { color: "#ffffff", width: 1 },
+        line: { color: SURFACE, width: 1 },
       },
     });
     const trend = result.trend;
@@ -210,6 +210,13 @@ function placeSummary(result: PlaceResult, variable: VariableSummary): string {
     parts.push(
       `The trend line runs from ${valueText(start, variable)} in ${trend.first_year} ` +
         `to ${valueText(end, variable)} in ${trend.last_year}.`,
+      // The chart draws one line; how sure its rate is, the words say, in the evidence panel's numbers.
+      trend.sen_ci95 === null
+        ? `Its rate is ${formatRatePerDecade(trend.sen_slope, variable)}; no 95% confidence interval ` +
+            "is given, because its coverage under serial dependence has not been validated."
+        : `Its rate is ${formatRatePerDecade(trend.sen_slope, variable)}; the 95% confidence interval ` +
+            `of the rate runs from ${formatSignedRate(trend.sen_ci95[0], variable.decimals)} ` +
+            `to ${formatRatePerDecade(trend.sen_ci95[1], variable)}.`,
     );
   } else if (verdict.kind === "too_few_years") {
     parts.push("There is no trend line, because there are too few complete years to test.");

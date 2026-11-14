@@ -1,5 +1,5 @@
 /**
- * The outline of a place's grid cell on the place map, and the part of the map that holds the places
+ * The outline of a place's grid cell on the globe, and the part of the Earth that holds the places
  * and their cells (spec 6, "Places and grid cells").
  */
 
@@ -28,11 +28,16 @@ export function cellOutline(cell: Cell): [Corner, Corner] {
 
 const FULL_TURN_DEG = 360;
 
-/** A place on the place map: its point and, once a case has run, the grid cell the API analysed. */
+/** A place on the globe: its point and, once a case has run, the grid cell the API analysed. */
 export interface PlaceOnMap {
   lat: number;
   lon: number;
   cell?: Cell;
+}
+
+/** A place to show with its name; `cell` is absent before a case runs. */
+export interface MapPlace extends PlaceOnMap {
+  name: string;
 }
 
 /**
@@ -51,7 +56,7 @@ export function placeCellOutline(place: PlaceOnMap): [Corner, Corner] | undefine
 /**
  * The south-west and north-east corners of the smallest box that holds every place's point and
  * the outline of its cell, or undefined when there are no places. A 1° cell can reach a whole
- * degree beyond its place, so the map fits the cells as well as the points.
+ * degree beyond its place, so the globe fits the cells as well as the points.
  */
 export function placesExtent(places: readonly PlaceOnMap[]): [Corner, Corner] | undefined {
   const corners = places.flatMap((place): Corner[] => [

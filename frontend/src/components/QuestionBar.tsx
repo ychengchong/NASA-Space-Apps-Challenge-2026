@@ -4,6 +4,8 @@ import { getPlaces, getVariables } from "../api";
 import { joinWords } from "../cautions";
 import { matchQuestion } from "../keywordMatch";
 import type { KeywordLookups, KeywordProposal } from "../keywordMatch";
+import { afterScreenChange } from "../questionBarState";
+import type { QuestionStatus } from "../questionBarState";
 import { toApiError } from "../useRequest";
 
 // Spec 3, "What each part of the screen is for": the question bar offers example prompts.
@@ -41,13 +43,6 @@ export interface AiNotice {
   onRetry: () => void;
 }
 
-type Status =
-  | { kind: "idle" }
-  | { kind: "working" }
-  | { kind: "found"; proposal: KeywordProposal }
-  | { kind: "failed"; message: string }
-  | { kind: "ai_answered" };
-
 interface QuestionBarProps {
   /** Called with what keyword mode found, for the user to confirm in the case settings. */
   onProposal: (proposal: KeywordProposal) => void;
@@ -58,15 +53,38 @@ interface QuestionBarProps {
   ai?: AiHelper;
   /** Shown in keyword mode after the AI failed. */
   aiNotice?: AiNotice | null;
-  /** Shows example prompts; an open case leaves them out to keep its verdict near the top. */
-  showPrompts: boolean;
+  /**
+   * True on the first screen, where the bar leads the page: it offers example prompts and wears
+   * its accent. On a case or a map it steps back, so the verdict leads.
+   */
+  firstScreen: boolean;
+  /**
+   * Rises each time the screen moves on from the last question: a page opens, the browser goes
+   * back or forward, or the settings a keyword match filled in are cancelled.
+   */
+  screenChanges: number;
 }
 
 /** The entry point: a question in plain words becomes a case, through the AI or keywords. */
-export function QuestionBar({ onProposal, ai, aiNotice, showPrompts }: QuestionBarProps): JSX.Element {
+export function QuestionBar({
+  onProposal,
+  ai,
+  aiNotice,
+  firstScreen,
+  screenChanges,
+}: QuestionBarProps): JSX.Element {
   const [question, setQuestion] = useState("");
-  const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const [status, setStatus] = useState<QuestionStatus>({ kind: "idle" });
+  const [seenScreenChanges, setSeenScreenChanges] = useState(screenChanges);
   const controllerRef = useRef<AbortController | null>(null);
+
+  // Spec 3: a keyword match is dropped once it no longer describes what is on screen.
+  if (screenChanges !== seenScreenChanges) {
+    setSeenScreenChanges(screenChanges);
+    const bar = afterScreenChange({ question, status });
+    setQuestion(bar.question);
+    setStatus(bar.status);
+  }
 
   const matchKeywords = (text: string): void => {
     controllerRef.current?.abort();
@@ -113,7 +131,10 @@ export function QuestionBar({ onProposal, ai, aiNotice, showPrompts }: QuestionB
 
   const working = ai?.working === true;
   return (
-    <section className="question-bar" aria-labelledby="question-label">
+    <section
+      className={firstScreen ? "question-bar" : "question-bar is-quiet"}
+      aria-labelledby="question-label"
+    >
       <form className="question-form" onSubmit={handleSubmit}>
         <label id="question-label" htmlFor="question" className="question-label">
           Ask a question about the Earth
@@ -138,7 +159,7 @@ export function QuestionBar({ onProposal, ai, aiNotice, showPrompts }: QuestionB
           ) : null}
         </div>
       </form>
-      {showPrompts ? (
+      {firstScreen ? (
         <div className="prompt-row">
           <span className="prompt-label">Try:</span>
           {EXAMPLE_PROMPTS.map((prompt) => (
@@ -179,7 +200,7 @@ export function QuestionBar({ onProposal, ai, aiNotice, showPrompts }: QuestionB
   );
 }
 
-function statusText(status: Status): string {
+function statusText(status: QuestionStatus): string {
   switch (status.kind) {
     case "idle":
       return "";

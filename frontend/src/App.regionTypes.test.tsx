@@ -9,9 +9,8 @@ vi.mock("./useRequest", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./useRequest")>()),
   useRequest: () => ({ state: { status: "idle" }, retry: () => undefined }),
 }));
-// Leaflet needs a browser, and the maps are not under test.
-vi.mock("./components/PlaceMap", () => ({ default: () => null }));
-vi.mock("./components/RegionMap", () => ({ default: () => null }));
+// The globe needs WebGL, and it is not under test.
+vi.mock("./components/GlobeCanvas", () => ({ default: () => null }));
 
 // The stand-ins keep the handlers App gives the question bar and the case settings, so a test can
 // call them as a keyword match or a pick from the place search would, and see what App remembers.
