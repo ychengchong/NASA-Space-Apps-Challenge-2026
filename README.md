@@ -49,6 +49,24 @@ the backend; the app does not load `.env` automatically. Never commit credential
   from the viewed snapshot and downloadable checksum-verified evidence JSON.
 - An interpretation question that gives guidance after a learner chooses an answer.
 - Optional confirmed AI planning, CLI, REST and MCP tools using the same analysis layer.
+- Twenty catalogue variables, including snow depth, snowfall, snow cover, sea ice, surface
+  pressure, water vapour, the strongest wind and haze, and two sea places for the
+  sea-surface temperature. All but annual air temperature are descriptive.
+- A fourth example, "Are Wisconsin summers getting hazier?": the challenge video's question
+  as a descriptive one-place haze case at Madison, frozen in the shipped cache.
+- The whole world: a variable's trend in a frozen world-mean sample of 162 grid points (every
+  20°), built once by `scripts/build_world_mean.py` and read without calling NASA. It is an
+  estimate from a sample, describes temperature far better than rainfall or wind, and leaves
+  out land-only and sea-only variables.
+- The gap between two compared places: the first place's yearly value minus the second's,
+  with its own descriptive rate and a sentence saying the difference was not tested.
+- "What is changing here?": every variable's descriptive rate, total change, years and
+  record years at one place, grouped by theme and never ranked, from the globe's picked point
+  or an open case.
+- A "Compare the seasons" panel: the rate for all months and for each season side by side,
+  from the case's own evidence, with only the annual air-temperature row ever assessed.
+- Record years for each place: the three highest and three lowest yearly values, and the mean
+  of the last ten years used against the first ten, as plain descriptions, not tests.
 - Period explorer and regional maps as descriptive views; neither reports significance.
   Regional area means keep a fixed footprint rather than averaging a changing set of cells.
 - One globe behind every screen (MapLibre GL JS on OpenFreeMap tiles): it turns to the places
@@ -176,7 +194,10 @@ intentional changes from the older specification; no failures are hidden with sk
 NASA POWER monthly values provide the time series behind charts, rates and eligible
 significance results. T2M is two-metre air temperature from MERRA-2 reanalysis;
 it describes a grid cell, not a city weather station. Additional catalogue variables
-are exploratory/descriptive. Source documentation:
+are exploratory/descriptive: snow, sea ice, surface pressure, water vapour and the
+strongest wind also come from MERRA-2, and haze is CERES SYN1deg aerosol optical depth
+(MODIS aerosol assimilated by the MATCH model) from 2001, not the MODIS Aqua product in Giovanni.
+[Clouds and aerosols sources](https://power.larc.nasa.gov/docs/methodology/data/sources_clds_aerosols/). Source documentation:
 [NASA POWER](https://power.larc.nasa.gov/),
 [processing and quantity semantics](https://power.larc.nasa.gov/docs/methodology/data/processing/),
 [radiation sources and continuity](https://power.larc.nasa.gov/docs/methodology/data/sources_fluxes/).
@@ -236,6 +257,24 @@ here were later retired on `main`, as described above):
   `GET /api/capabilities` instead of the `ui` branch's `GET /api/ai`, which was dropped;
   settings changes on an open case wait for "Run this case"; and the region map's key no
   longer shows a mark for cells passing a stricter test.
+- On 14 and 15 November 2026 the same assistant (Claude Code, model Claude Opus 5.5) built
+  descriptive additions from a team brief, one at a time, with their tests and the matching
+  specification text: record years (`Records` in `models.py`, `rank_years` and
+  `first_and_last_means` in `stats.py`, the sentences in `verdict.py`, the record facts under
+  each verdict and the rings on the chart); the seasons panel (`season_rates`, `GET
+  /api/seasons`, `SeasonsPanel`, `seasonRows.ts`); the fourth example and its title and
+  teaser, with three more cache rows from one live call; the place overview
+  (`place_overview`, `GET /api/overview`, the /place page, `PlaceOverviewView`,
+  `overviewRows.ts`); the gap between two places (`Gap`, `gap_sentence`, `GapChart`); the
+  whole world (`scripts/build_world_mean.py`, `data/world-mean.json` from 324 live calls the
+  team approved, `world_trend`, `GET /api/world`, `WorldView`);
+  eight catalogue variables and two sea places,
+  after 18 live POWER calls that confirmed their grids and their values over land and sea,
+  a new saved fixture and 35 rows added to the shipped example cache. The team chose the
+  additions and their limits; the assistant chose the details the brief left open, listed
+  in its reports, such as the first-ten against last-ten-years rule, the units word "optical
+  depth" for haze and the region types "ocean", "tundra" and "mountains" for the new
+  variables.
 
 Educational impact and the >=90% semantic planner target are not established by
 unit tests. Run the recorded evaluation protocol with target users and the selected

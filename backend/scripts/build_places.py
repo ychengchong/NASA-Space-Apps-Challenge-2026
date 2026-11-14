@@ -42,8 +42,8 @@ COUNTRY_INFO_CODE_COLUMN = 0
 COUNTRY_INFO_NAME_COLUMN = 4
 
 # Hand-picked natural regions, chosen with an AI coding assistant. Each point is a representative
-# spot on land inside the region, not a boundary. A country is named only when the whole region
-# lies in that one country.
+# spot inside the region, not a boundary: on land, or at sea for an ocean region. A country is
+# named only when the whole region lies in that one country.
 REGIONS: tuple[dict[str, Any], ...] = (
     {
         "name": "Sahara",
@@ -160,6 +160,16 @@ REGIONS: tuple[dict[str, Any], ...] = (
         "lon": 15.65,
         "region_type": "tundra",
     },
+    # Open sea, where surface temperature is the sea-surface temperature. Both points answered
+    # with real, varying sea values in live POWER calls on 14 November 2026.
+    {"name": "Gulf of Maine", "lat": 43.0, "lon": -68.0, "region_type": "ocean"},
+    {
+        "name": "Equatorial Pacific",
+        "alt_names": ["Pacific Ocean"],
+        "lat": 0.0,
+        "lon": -145.0,
+        "region_type": "ocean",
+    },
 )
 
 
@@ -228,7 +238,7 @@ def attribution(downloaded: date) -> str:
         f"of {MIN_CITY_POPULATION:,} people or more are kept, with fewer fields and coordinates "
         f"rounded to {COORDINATE_DECIMALS} decimals. Natural regions (kind 'region', marked "
         "hand_picked) were picked by hand with an AI coding assistant; each point is a "
-        "representative spot on land inside the region, not a boundary."
+        "representative spot inside the region, on land or at sea for an ocean, not a boundary."
     )
 
 

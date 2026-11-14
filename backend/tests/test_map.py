@@ -328,7 +328,7 @@ async def test_case_opened_at_a_one_degree_map_cell_reads_the_values_the_map_cac
     assert trend.method_id is None
 
 
-async def test_case_opened_at_a_one_degree_map_cell_asks_only_for_the_other_one_degree_code(
+async def test_case_opened_at_a_one_degree_map_cell_asks_only_for_the_other_one_degree_codes(
     tmp_path: Path,
 ) -> None:
     _, _, requests = await open_cloud_map_cell(tmp_path)
@@ -341,7 +341,7 @@ async def test_case_opened_at_a_one_degree_map_cell_asks_only_for_the_other_one_
             request.url.params["parameters"],
         )
         for request in point_requests
-    ] == [("60.5", "24.5", "ALLSKY_SFC_SW_DWN")]
+    ] == [("60.5", "24.5", "ALLSKY_SFC_SW_DWN,AOD_55_ADJ")]
 
 
 # Area mean (spec 7, "Region view")

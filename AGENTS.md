@@ -123,6 +123,7 @@ These are set up in stage 1. Keep this table current.
 | Run the backend locally | `backend/` | `uv run uvicorn app.main:app --reload` |
 | Print a verdict | `backend/` | `uv run python -m app.cli air_temp 60.17,24.94 --label Helsinki` |
 | Rebuild the example cache | `backend/` | `uv run python -m scripts.warm_cache` |
+| Rebuild the world-mean sample (324 NASA calls, resumable) | `backend/` | `uv run python -m scripts.build_world_mean` |
 | Install frontend dependencies | `frontend/` | `npm ci` |
 | Run the frontend locally | `frontend/` | `npm run dev` |
 | Frontend lint | `frontend/` | `npm run lint` |

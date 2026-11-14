@@ -13,6 +13,15 @@ export const SEASON_LABELS: Readonly<Record<Season, string>> = {
   SON: "September to November",
 };
 
+/** Short names for a chart's axis, where the full names would not fit side by side. */
+export const SEASON_SHORT_LABELS: Readonly<Record<Season, string>> = {
+  annual: "All months",
+  DJF: "Dec–Feb",
+  MAM: "Mar–May",
+  JJA: "Jun–Aug",
+  SON: "Sep–Nov",
+};
+
 /** The seasons in the order the season picker lists them. */
 export const SEASON_ORDER: readonly Season[] = ["annual", "DJF", "MAM", "JJA", "SON"];
 

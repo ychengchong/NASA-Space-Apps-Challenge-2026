@@ -1,6 +1,6 @@
 /** Small answers in the shapes of spec 5, for rendering components in tests. */
 
-import type { Investigation, PlaceResult, TrendMap, VariableSummary, Verdict } from "../api";
+import type { Investigation, PlaceResult, Records, TrendMap, VariableSummary, Verdict } from "../api";
 
 export const AIR_TEMP: VariableSummary = {
   id: "air_temp",
@@ -41,6 +41,31 @@ export function placeResult(verdict: Verdict): PlaceResult {
     verdict,
   };
 }
+
+/** Record years as the API sends them (spec 7, "Record years"). */
+export const RECORDS: Records = {
+  highest: [
+    { year: 2020, value: 8.26 },
+    { year: 2025, value: 7.87 },
+    { year: 2024, value: 7.68 },
+  ],
+  lowest: [
+    { year: 1987, value: 2.88 },
+    { year: 1985, value: 3.01 },
+    { year: 1986, value: 4.18 },
+  ],
+  highest_tied: 0,
+  lowest_tied: 0,
+  first_ten: { years: [1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990], mean: 4.8 },
+  last_ten: { years: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025], mean: 7.2 },
+  change: 2.4,
+  sentences: [
+    "Highest yearly values used (°C): 8.26 in 2020, 7.87 in 2025 and 7.68 in 2024.",
+    "Lowest yearly values used (°C): 2.88 in 1987, 3.01 in 1985 and 4.18 in 1986.",
+    "The mean of the last ten years used, 2016 to 2025, was 2.40 °C higher than the mean of the first ten, 1981 to 1990.",
+  ],
+  note: "These facts describe the yearly values used. They are not tests, and their significance was not assessed.",
+};
 
 export const SIGNIFICANT_RISE: Verdict = {
   kind: "significant",

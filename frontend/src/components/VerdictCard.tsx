@@ -1,5 +1,5 @@
 import type { JSX } from "react";
-import type { Investigation, PlaceResult, Verdict, VariableSummary } from "../api";
+import type { Investigation, PlaceResult, Records, Verdict, VariableSummary } from "../api";
 import { cautionText } from "../cautions";
 import { MORE_YEARS_NOTE, SIGNIFICANCE_DEFINITION } from "../definitions";
 import { formatSignedRate, splitSign } from "../format";
@@ -23,6 +23,7 @@ export function VerdictCard({ investigation }: VerdictCardProps): JSX.Element {
       <FileTab label="Case file" />
       <h2 id="verdict-heading">Verdict</h2>
       {summary ? <p className="verdict-summary">{summary}</p> : null}
+      {investigation.gap ? <p className="verdict-note">{investigation.gap.sentence}</p> : null}
       <ul className="verdict-list">
         {results.map((result, index) => (
           <li key={index} className="verdict-place">
@@ -82,7 +83,28 @@ export function PlaceVerdict({ result, index, variable, showName }: PlaceVerdict
           <strong>Caution:</strong> {caution}
         </p>
       ) : null}
+      {result.records !== null && result.records !== undefined ? (
+        <RecordFacts records={result.records} />
+      ) : null}
     </>
+  );
+}
+
+/**
+ * A place's record years and its last ten years against its first ten (spec 7, "Record years"),
+ * with the note that they are not tests. The sentences come from the API as they are.
+ */
+function RecordFacts({ records }: { records: Records }): JSX.Element | null {
+  if (records.sentences.length === 0) return null;
+  return (
+    <div className="record-facts">
+      <ul className="plain-list">
+        {records.sentences.map((sentence, index) => (
+          <li key={index}>{sentence}</li>
+        ))}
+      </ul>
+      <p className="panel-note">{records.note}</p>
+    </div>
   );
 }
 

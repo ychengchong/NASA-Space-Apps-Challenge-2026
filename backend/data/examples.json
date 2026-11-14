@@ -13,5 +13,10 @@
     "title": "Rain in Athens and Helsinki",
     "teaser": "Climate studies often expect the Mediterranean to get drier and northern Europe to get wetter. We chose these two cities for that reason before looking at any result, and kept them whatever the data showed.",
     "query": "v=precipitation&p=37.98,23.73&p=60.17,24.94&label=Athens&label=Helsinki&from=1981&to=2025&s=annual"
+  },
+  {
+    "title": "Are Wisconsin summers getting hazier?",
+    "teaser": "Summer haze over Madison, Wisconsin, from 2001 to 2025: how much smoke and dust dim the sunlight. The challenge video asks about haze over Wisconsin too, with a different NASA dataset, so this is not its chart. Haze is descriptive here: no significance test is run.",
+    "query": "v=haze&p=43.07,-89.4&label=Madison&from=2001&to=2025&s=JJA"
   }
 ]

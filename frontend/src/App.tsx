@@ -16,6 +16,7 @@ import { CrossChecks } from "./components/CrossChecks";
 import { EvidencePanel } from "./components/EvidencePanel";
 import { EvidenceLesson } from "./components/EvidenceLesson";
 import { ExampleCases } from "./components/ExampleCases";
+import { GapChart } from "./components/GapChart";
 import { GlobeStage } from "./components/GlobeStage";
 import type { StageHint } from "./components/GlobeStage";
 import { PeriodExplorer } from "./components/PeriodExplorer";
@@ -24,7 +25,10 @@ import { PlaceLegend } from "./components/PlaceLegend";
 import { ProgressLine } from "./components/ProgressLine";
 import { QuestionBar } from "./components/QuestionBar";
 import type { AiAnswer, AiHelper } from "./components/QuestionBar";
+import { PlaceOverviewView } from "./components/PlaceOverviewView";
 import { RegionView } from "./components/RegionView";
+import { WorldView } from "./components/WorldView";
+import { SeasonsPanel } from "./components/SeasonsPanel";
 import { SettingsFold } from "./components/SettingsFold";
 import { ChartSkeleton, VerdictSkeleton } from "./components/Skeleton";
 import { StageCaption } from "./components/StageCaption";
@@ -46,7 +50,16 @@ import { followInApp } from "./links";
 import type { MapPlace } from "./mapCell";
 import { boxAroundPlace } from "./regionBox";
 import type { RegionTypes } from "./regionTypes";
-import { casePageUrl, HOME_PATH, mapPageUrl, parseRoute, sameCase, withRequestedPeriod } from "./route";
+import {
+  casePageUrl,
+  HOME_PATH,
+  mapPageUrl,
+  placePageUrl,
+  parseRoute,
+  sameCase,
+  withRequestedPeriod,
+  worldPageUrl,
+} from "./route";
 import type { Route } from "./route";
 import { useRegionTypes } from "./useRegionTypes";
 import { useRequest } from "./useRequest";
@@ -314,6 +327,17 @@ export default function App(): JSX.Element {
                 onNormalised={showNormalisedPage}
               />
             ) : null}
+            {route.kind === "place" ? (
+              <PlaceOverviewView
+                params={route.params}
+                pickedPoint={pickedPoint}
+                onOpenPage={openPage}
+                onPick={setPickedPoint}
+              />
+            ) : null}
+            {route.kind === "world" ? (
+              <WorldView params={route.params} pickedPoint={pickedPoint} onPick={setPickedPoint} />
+            ) : null}
             {route.kind === "home" || route.kind === "bad_link" ? (
               <StartView
                 badLinkReason={route.kind === "bad_link" ? route.reason : null}
@@ -337,6 +361,8 @@ export default function App(): JSX.Element {
                   places={draft.places}
                   onChoose={choosePickedPoint}
                   onDismiss={dismissPickedPoint}
+                  overviewUrl={placePageUrl({ place: pickedPoint, season: "annual" })}
+                  onOpenPage={openPage}
                 />
               )
             }
@@ -539,7 +565,13 @@ function CaseView(props: CaseViewProps): JSX.Element {
           ) : null}
           {shown !== null ? (
             <>
-              <CaseActions key={key} subject="case" region={regionLink(params, props.onOpenPage)} />
+              <CaseActions
+                key={key}
+                subject="case"
+                region={regionLink(params, props.onOpenPage)}
+                overview={overviewLink(params, props.onOpenPage)}
+                world={worldLink(params, props.catalogue, props.onOpenPage)}
+              />
               <StageNote>
                 <StageCaption investigation={shown} />
               </StageNote>
@@ -561,6 +593,8 @@ function CaseView(props: CaseViewProps): JSX.Element {
           <div className={resultsClass} aria-busy={loading}>
             <PlaceLegend places={mapPlaces} pickedPoint={props.pickedPoint} />
             <PeriodExplorer params={params} investigation={shown} onOpenCase={props.onOpenCase} />
+            <GapChart investigation={shown} />
+            <SeasonsPanel params={params} investigation={shown} onOpenPage={props.onOpenPage} />
             <EvidencePanel investigation={shown} />
             <EvidenceLesson />
           </div>
@@ -597,6 +631,31 @@ function regionLink(params: CaseParams, onOpenPage: (url: string) => void): Regi
     season: params.season,
     box: boxAroundPlace(first),
   });
+  return { url, placeName: first.name ?? formatCoordinates(first.lat, first.lon), onOpenPage };
+}
+
+/** "The whole world": the case's variable, period and season in the world sample, when it covers it. */
+function worldLink(
+  params: CaseParams,
+  catalogue: readonly VariableSummary[],
+  onOpenPage: (url: string) => void,
+): RegionLink | undefined {
+  const variable = catalogue.find((item) => item.id === params.variable);
+  if (variable?.world_mean !== true) return undefined;
+  const url = worldPageUrl({
+    variable: params.variable,
+    from: params.from,
+    to: params.to,
+    season: params.season,
+  });
+  return { url, placeName: "the whole world", onOpenPage };
+}
+
+/** "What is changing here?": every variable at the case's first place, over the case's period. */
+function overviewLink(params: CaseParams, onOpenPage: (url: string) => void): RegionLink | undefined {
+  const [first] = params.places;
+  if (first === undefined) return undefined;
+  const url = placePageUrl({ place: first, from: params.from, to: params.to, season: params.season });
   return { url, placeName: first.name ?? formatCoordinates(first.lat, first.lon), onOpenPage };
 }
 

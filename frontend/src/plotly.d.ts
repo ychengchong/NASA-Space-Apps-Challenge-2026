@@ -29,7 +29,7 @@ declare module "plotly.js-basic-dist-min" {
 
   export interface Axis {
     title?: { text: string };
-    type?: "date" | "linear";
+    type?: "date" | "linear" | "category";
     gridcolor?: string;
     linecolor?: string;
     zeroline?: boolean;

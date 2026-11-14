@@ -436,3 +436,24 @@ def test_build_places_output_is_valid_json(geonames_files: tuple[Path, Path]) ->
     document = build_places(*geonames_files, downloaded=date(2026, 11, 13))
 
     assert json.loads(to_json(document)) == document
+
+
+# Sea places (spec 6, "Catalogue additions"): open water, where surface temperature is the
+# sea-surface temperature.
+
+
+@pytest.mark.parametrize(
+    ("query", "name"),
+    [("Gulf of Maine", "Gulf of Maine"), ("Pacific Ocean", "Equatorial Pacific")],
+)
+def test_find_place_offers_sea_places_as_ocean_regions(query: str, name: str) -> None:
+    (sea,) = [candidate for candidate in find(query) if candidate.region_type == "ocean"]
+
+    assert sea.name == name
+    assert sea.kind == "region"
+
+
+def test_sea_places_are_the_two_points_confirmed_live() -> None:
+    oceans = [(record.lat, record.lon) for record in load_places() if record.region_type == "ocean"]
+
+    assert oceans == [(43.0, -68.0), (0.0, -145.0)]

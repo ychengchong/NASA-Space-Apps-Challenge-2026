@@ -59,6 +59,9 @@ class CatalogueEntry(BaseModel):
     region_types: tuple[str, ...] = ()
     trend_note: str | None = None
     source_changes: tuple[int, ...] = ()
+    # Spec 7, "The whole world": whether the frozen world-mean sample covers this variable. Land-
+    # only and sea-only quantities are left out, since a world mean of them means nothing.
+    world_mean: bool = False
     source: str
 
 
@@ -90,4 +93,5 @@ def to_summary(entry: CatalogueEntry) -> VariableSummary:
         region_types=list(entry.region_types),
         trend_note=entry.trend_note,
         source_changes=list(entry.source_changes) or None,
+        world_mean=entry.world_mean,
     )

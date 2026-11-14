@@ -57,6 +57,12 @@ _TIE_DECIMALS = 9
 # median averages two opposite slopes, rounding leaves a residue near 1e-17 instead of zero.
 _ZERO_SEN_SLOPE = 10.0**-_TIE_DECIMALS
 
+# Spec 7, "Record years": how many of the highest and of the lowest yearly values are listed.
+RECORD_COUNT = 3
+# Spec 7, "Record years": the length of the first and of the last window of years compared. The
+# sentences in verdict.py say "ten".
+WINDOW_YEARS = 10
+
 
 def yearly_values(
     monthly: MonthlyValues, season: Season, first_year: int, last_year: int
@@ -268,6 +274,109 @@ def period_scan(years: Sequence[int], values: Sequence[float]) -> list[ScanPoint
         tail = compute_trend(years[k:], values[k:])
         points.append(ScanPoint(start=years[k], sen_slope=tail.sen_slope * PER_DECADE, mk_p=None))
     return points
+
+
+@dataclass(frozen=True)
+class RankedYears:
+    """Spec 7, "Record years": the years of the most extreme yearly values, most extreme first."""
+
+    years: tuple[int, ...]
+    values: tuple[float, ...]
+    tied: int  # years left out whose value equals the last value listed
+
+
+def rank_years(
+    years: Sequence[int],
+    values: Sequence[float],
+    *,
+    highest: bool,
+    count: int = RECORD_COUNT,
+    exclude: Sequence[int] = (),
+) -> RankedYears:
+    """Up to `count` years with the highest values, or with the lowest, most extreme first.
+
+    `years` and `values` are the years the analysis used and their yearly values, in the
+    values' units; missing years are already left out. Values are compared at `_TIE_DECIMALS`
+    decimals, as the trend test compares them, so rounding residue never separates equal values.
+    Only years above the lowest value can be among the highest, and only years below the
+    highest value among the lowest, so a record with many equal values, such as snow that is
+    zero in most years, never calls its minimum a high. Years in `exclude`, such as those
+    already listed as the highest, are never listed, so the caller can keep a year out of both
+    lists. Equal values are listed in year order, earliest first, and `tied` counts the years
+    neither listed nor excluded whose value equals the last one listed. The values returned are
+    unrounded. Raises ValueError when the two lengths differ.
+    """
+    if len(years) != len(values):
+        raise ValueError("rank_years needs one value per year")
+    rounded = np.round(np.asarray(values, dtype=float), _TIE_DECIMALS)
+    other_extreme = float(rounded.min() if highest else rounded.max()) if len(values) else 0.0
+    sign = -1.0 if highest else 1.0
+    left_out = set(exclude)
+    order = sorted(
+        (
+            k
+            for k in range(len(values))
+            if float(rounded[k]) != other_extreme and years[k] not in left_out
+        ),
+        key=lambda k: (sign * float(rounded[k]), years[k]),
+    )
+    listed = order[:count]
+    tied = sum(1 for k in order[count:] if rounded[k] == rounded[listed[-1]]) if listed else 0
+    return RankedYears(
+        years=tuple(int(years[k]) for k in listed),
+        values=tuple(float(values[k]) for k in listed),
+        tied=tied,
+    )
+
+
+def all_equal(values: Sequence[float]) -> bool:
+    """True when every value is equal at `_TIE_DECIMALS` decimals, as the trend test sees them.
+
+    An empty sequence counts as all equal.
+    """
+    if not values:
+        return True
+    return bool(np.ptp(np.round(np.asarray(values, dtype=float), _TIE_DECIMALS)) == 0)
+
+
+@dataclass(frozen=True)
+class WindowMeans:
+    """Spec 7, "Record years": the mean of the first and of the last window of years used."""
+
+    first_years: tuple[int, ...]
+    first_mean: float
+    last_years: tuple[int, ...]
+    last_mean: float
+    change: float  # last_mean - first_mean, in the values' units
+
+
+def first_and_last_means(
+    years: Sequence[int], values: Sequence[float], size: int = WINDOW_YEARS
+) -> WindowMeans | None:
+    """The plain mean of the first `size` yearly values and of the last `size`, with their years.
+
+    `years` and `values` are the years the analysis used and their values; missing years are
+    already left out, so a window can span more calendar years than `size`. Returns None when
+    there are fewer than 2 * `size` values, so the two windows never share a year. `change` is
+    in the values' units, and is exactly zero when the two means are equal at `_TIE_DECIMALS`
+    decimals. Raises ValueError when the two lengths differ.
+    """
+    if len(years) != len(values):
+        raise ValueError("first_and_last_means needs one value per year")
+    if len(values) < 2 * size:
+        return None
+    first_mean = math.fsum(values[:size]) / size
+    last_mean = math.fsum(values[-size:]) / size
+    change = last_mean - first_mean
+    if round(first_mean, _TIE_DECIMALS) == round(last_mean, _TIE_DECIMALS):
+        change = 0.0
+    return WindowMeans(
+        first_years=tuple(int(year) for year in years[:size]),
+        first_mean=first_mean,
+        last_years=tuple(int(year) for year in years[-size:]),
+        last_mean=last_mean,
+        change=change,
+    )
 
 
 def benjamini_hochberg(p_values: Sequence[float], q: float = FALSE_DISCOVERY_RATE) -> list[bool]:

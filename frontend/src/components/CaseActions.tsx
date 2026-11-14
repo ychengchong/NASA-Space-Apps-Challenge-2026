@@ -14,6 +14,10 @@ interface CaseActionsProps {
   /** What the page shows, as its link is described: a case or a map. */
   subject: "case" | "map";
   region?: RegionLink;
+  /** "What is changing here?": every variable at the case's first place. */
+  overview?: RegionLink;
+  /** "The whole world": the same variable, period and season in the world sample. */
+  world?: RegionLink;
 }
 
 type CopyState = "idle" | "copied" | "failed";
@@ -23,7 +27,7 @@ type CopyState = "idle" | "copied" | "failed";
  * map, and, for a case, map the region around its first place. Give it the case or the map as
  * its key, so a new answer starts without the last one's "Link copied".
  */
-export function CaseActions({ subject, region }: CaseActionsProps): JSX.Element {
+export function CaseActions({ subject, region, overview, world }: CaseActionsProps): JSX.Element {
   const [copy, setCopy] = useState<CopyState>("idle");
   const copyLink = (): void => {
     void copyText(window.location.href).then((copied) => setCopy(copied ? "copied" : "failed"));
@@ -43,6 +47,24 @@ export function CaseActions({ subject, region }: CaseActionsProps): JSX.Element 
             Map this region
           </a>
         ) : null}
+        {overview !== undefined ? (
+          <a
+            className="button button-secondary"
+            href={overview.url}
+            onClick={(event) => followInApp(event, overview.url, overview.onOpenPage)}
+          >
+            What is changing here?
+          </a>
+        ) : null}
+        {world !== undefined ? (
+          <a
+            className="button button-secondary"
+            href={world.url}
+            onClick={(event) => followInApp(event, world.url, world.onOpenPage)}
+          >
+            The whole world
+          </a>
+        ) : null}
       </p>
       <p className="status-text" role="status">
         {copyStatusText(copy, subject)}
@@ -51,6 +73,17 @@ export function CaseActions({ subject, region }: CaseActionsProps): JSX.Element 
         <p className="field-hint">
           “Map this region” runs the same test in every grid cell of a 10° by 10° box around{" "}
           {region.placeName}.
+        </p>
+      ) : null}
+      {overview !== undefined ? (
+        <p className="field-hint">
+          “What is changing here?” lists the descriptive rate of every variable at {overview.placeName}.
+        </p>
+      ) : null}
+      {world !== undefined ? (
+        <p className="field-hint">
+          “The whole world” shows the same variable, period and season averaged over a fixed sample of grid
+          points across the world.
         </p>
       ) : null}
     </div>

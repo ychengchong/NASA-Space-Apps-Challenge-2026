@@ -148,6 +148,13 @@ describe("JSON endpoints", () => {
     expect(error).toMatchObject({ code: "unknown_variable", message: "No such variable.", status: 400 });
   });
 
+  test("reads an unsupported request, such as a world mean of snow, with its message", async () => {
+    const message = "The whole-world mean covers no snow depth.";
+    fetchMock.mockResolvedValue(jsonResponse({ error: { code: "unsupported_request", message } }, 422));
+    const error: unknown = await getVariables("snow").catch((caught: unknown) => caught);
+    expect(error).toMatchObject({ code: "unsupported_request", message, status: 422 });
+  });
+
   test("reads the not_found and internal_error codes the service adds to spec 10", async () => {
     fetchMock.mockResolvedValue(
       jsonResponse({ error: { code: "internal_error", message: "Something went wrong." } }, 500),

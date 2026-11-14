@@ -153,3 +153,29 @@ def test_query_words_match_whole_words_only(use_catalogue: InstallCatalogue) -> 
     use_catalogue(make_entry("warming", "Heat", "Air.", keywords=("warmer",)))
 
     assert search_ids("warm") == []
+
+
+# The variables of the challenge video (spec 6, "Catalogue additions")
+
+
+@pytest.mark.parametrize(
+    ("query", "first"),
+    [
+        ("snow", "snow_depth"),
+        ("sea ice", "sea_ice"),
+        ("haze", "haze"),
+        ("Is the air getting hazier?", "haze"),
+        ("smoke", "haze"),
+        ("pressure", "surface_pressure"),
+        ("ocean", "surface_temp"),
+        ("Is the ocean warming?", "surface_temp"),
+        ("sea surface temperature", "surface_temp"),
+        ("water vapour", "water_vapour"),
+        ("strongest wind", "max_wind_speed"),
+        ("snowfall", "snowfall"),
+        ("snow cover", "snow_cover"),
+        ("Is the sea level rising?", "surface_temp"),
+    ],
+)
+def test_words_of_the_challenge_video_find_their_variable_first(query: str, first: str) -> None:
+    assert search_ids(query)[0] == first

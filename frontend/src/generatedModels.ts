@@ -61,6 +61,20 @@ export interface FindPlaceInput {
   "query": string;
 }
 
+export interface Gap {
+  "first_place": string;
+  "second_place": string;
+  "series": (YearValue)[];
+  "n": number;
+  "first_year": (number | null);
+  "last_year": (number | null);
+  "sen_slope": (number | null);
+  "total_change": (number | null);
+  "line": ([number, number] | null);
+  "same_cell": boolean;
+  "sentence": string;
+}
+
 export interface GetSeriesInput {
   "snapshot_ids"?: (string)[];
   "analysis_version"?: (string | null);
@@ -85,6 +99,7 @@ export interface Investigation {
   "analysis_version"?: string;
   "common_years"?: ((number)[] | null);
   "pinned"?: boolean;
+  "gap"?: (Gap | null);
 }
 
 export interface MapCell {
@@ -103,6 +118,21 @@ export interface MapTrendsInput {
   "season"?: "annual" | "DJF" | "MAM" | "JJA" | "SON";
   "variable": string;
   "box": Box;
+}
+
+export interface OverviewRow {
+  "variable": VariableSummary;
+  "cell": Cell;
+  "n": number;
+  "first_year": (number | null);
+  "last_year": (number | null);
+  "sen_slope": (number | null);
+  "total_change": (number | null);
+  "verdict_kind": "significant" | "not_significant" | "too_few_years" | "no_data" | "inference_unavailable";
+  "assessed": boolean;
+  "highest_year": (number | null);
+  "lowest_year": (number | null);
+  "sentence": string;
 }
 
 export interface PeriodInput {
@@ -135,6 +165,26 @@ export interface PlaceInput {
   "name"?: (string | null);
 }
 
+export interface PlaceOverview {
+  "name": string;
+  "lat": number;
+  "lon": number;
+  "requested": Requested;
+  "rows": (OverviewRow)[];
+  "note": string;
+  "sources": (SourceRef)[];
+  "app_url": string;
+}
+
+export interface PlaceOverviewInput {
+  "snapshot_ids"?: (string)[];
+  "analysis_version"?: (string | null);
+  "from"?: (number | null);
+  "to"?: (number | null);
+  "season"?: "annual" | "DJF" | "MAM" | "JJA" | "SON";
+  "place": PlaceInput;
+}
+
 export interface PlaceResult {
   "place": Place;
   "series": (YearValue)[];
@@ -142,6 +192,12 @@ export interface PlaceResult {
   "verdict": Verdict;
   "analysis_years"?: (number)[];
   "snapshot_id"?: (string | null);
+  "records"?: (Records | null);
+}
+
+export interface PlaceSeasons {
+  "place": Place;
+  "rates": (SeasonRate)[];
 }
 
 export interface PlannerRequest {
@@ -156,6 +212,23 @@ export interface Proposal {
   "season": "annual" | "DJF" | "MAM" | "JJA" | "SON";
   "notices": (string)[];
   "written_by_ai"?: boolean;
+}
+
+export interface RecordYear {
+  "year": number;
+  "value": number;
+}
+
+export interface Records {
+  "highest": (RecordYear)[];
+  "lowest": (RecordYear)[];
+  "highest_tied": number;
+  "lowest_tied": number;
+  "first_ten": (YearsMean | null);
+  "last_ten": (YearsMean | null);
+  "change": (number | null);
+  "sentences": (string)[];
+  "note": string;
 }
 
 export interface Requested {
@@ -173,6 +246,35 @@ export interface ScanPoint {
 export interface SearchVariablesInput {
   "query"?: (string | null);
   "theme"?: (string | null);
+}
+
+export interface SeasonRate {
+  "season": "annual" | "DJF" | "MAM" | "JJA" | "SON";
+  "n": number;
+  "first_year": (number | null);
+  "last_year": (number | null);
+  "sen_slope": (number | null);
+  "total_change": (number | null);
+  "verdict_kind": "significant" | "not_significant" | "too_few_years" | "no_data" | "inference_unavailable";
+  "assessed": boolean;
+  "sentence": string;
+}
+
+export interface SeasonRates {
+  "variable": VariableSummary;
+  "requested": Requested;
+  "places": (PlaceSeasons)[];
+  "note": string;
+}
+
+export interface SeasonRatesInput {
+  "snapshot_ids"?: (string)[];
+  "analysis_version"?: (string | null);
+  "from"?: (number | null);
+  "to"?: (number | null);
+  "season"?: "annual" | "DJF" | "MAM" | "JJA" | "SON";
+  "variable": string;
+  "places": (PlaceInput)[];
 }
 
 export interface Series {
@@ -244,6 +346,7 @@ export interface VariableSummary {
   "region_types"?: (string)[];
   "trend_note"?: (string | null);
   "source_changes"?: ((number)[] | null);
+  "world_mean"?: boolean;
 }
 
 export interface Verdict {
@@ -253,7 +356,32 @@ export interface Verdict {
   "cautions": ("source_change" | "variable_note" | "short_record" | "autocorrelated" | "methods_disagree" | "borderline")[];
 }
 
+export interface WorldTrend {
+  "variable": VariableSummary;
+  "requested": Requested;
+  "result": PlaceResult;
+  "points": number;
+  "sample_note": string;
+  "steps": (string)[];
+  "sources": (SourceRef)[];
+  "app_url": string;
+}
+
+export interface WorldTrendInput {
+  "snapshot_ids"?: (string)[];
+  "analysis_version"?: (string | null);
+  "from"?: (number | null);
+  "to"?: (number | null);
+  "season"?: "annual" | "DJF" | "MAM" | "JJA" | "SON";
+  "variable": string;
+}
+
 export interface YearValue {
   "year": number;
   "value": (number | null);
+}
+
+export interface YearsMean {
+  "years": (number)[];
+  "mean": number;
 }

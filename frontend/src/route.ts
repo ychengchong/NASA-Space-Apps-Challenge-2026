@@ -1,21 +1,36 @@
 /**
  * The mapping between the address bar and what the app shows (spec 10, "Case parameters").
- * `/case?...` opens a case, `/map?...` the region view, and every other path the first screen.
+ * `/case?...` opens a case, `/map?...` the region view, `/place?...` a place's overview, `/world?...`
+ * the whole world, and every other path the first screen.
  */
 
 import type { Requested } from "./api";
-import { buildCaseQuery, buildMapQuery, parseCaseQuery } from "./caseUrl";
-import type { CaseParams, MapParams } from "./caseUrl";
+import {
+  buildCaseQuery,
+  buildMapQuery,
+  buildOverviewQuery,
+  buildWorldQuery,
+  parseCaseQuery,
+  parseOverviewQuery,
+  parseWorldQuery,
+} from "./caseUrl";
+import type { CaseParams, MapParams, OverviewParams, WorldParams } from "./caseUrl";
 
 export const HOME_PATH = "/";
 export const CASE_PATH = "/case";
 export const MAP_PATH = "/map";
+export const PLACE_PATH = "/place";
+export const WORLD_PATH = "/world";
 
 export type Route =
   | { kind: "home" }
   | { kind: "case"; params: CaseParams }
   /** `query` is the map's parameter string, without the leading "?". */
   | { kind: "map"; query: string }
+  /** What is changing at one place: every variable's descriptive rate. */
+  | { kind: "place"; params: OverviewParams }
+  /** A variable's trend in the frozen whole-world sample. */
+  | { kind: "world"; params: WorldParams }
   /** A case link the app cannot read; `reason` is a sentence for the user. */
   | { kind: "bad_link"; reason: string };
 
@@ -28,12 +43,32 @@ export function parseRoute(pathname: string, search: string): Route {
     return { kind: "case", params: withoutScan(parsed.value) };
   }
   if (path === MAP_PATH) return { kind: "map", query: search.replace(/^\?/, "") };
+  if (path === PLACE_PATH) {
+    const parsed = parseOverviewQuery(search);
+    if (!parsed.ok) return { kind: "bad_link", reason: parsed.reason };
+    return { kind: "place", params: parsed.value };
+  }
+  if (path === WORLD_PATH) {
+    const parsed = parseWorldQuery(search);
+    if (!parsed.ok) return { kind: "bad_link", reason: parsed.reason };
+    return { kind: "world", params: parsed.value };
+  }
   return { kind: "home" };
 }
 
 /** The page address of a case. */
 export function casePageUrl(params: CaseParams): string {
   return `${CASE_PATH}?${buildCaseQuery(withoutScan(params))}`;
+}
+
+/** The page address of a place's overview. */
+export function placePageUrl(params: OverviewParams): string {
+  return `${PLACE_PATH}?${buildOverviewQuery(params)}`;
+}
+
+/** The page address of a variable's whole-world trend. */
+export function worldPageUrl(params: WorldParams): string {
+  return `${WORLD_PATH}?${buildWorldQuery(params)}`;
 }
 
 /** The page address of a map. */

@@ -53,6 +53,12 @@ ON CONFLICT (source, lat, lon, code) DO UPDATE SET
 WHERE excluded.end_year >= point_series.end_year
 """
 
+# Rows of the read-only seed that the state cache does not hold; existing rows are kept.
+_ADD_MISSING_SEED_ROWS = """
+INSERT OR IGNORE INTO point_series (source, lat, lon, code, monthly, version, accessed, end_year)
+SELECT source, lat, lon, code, monthly, version, accessed, end_year FROM seed.point_series
+"""
+
 _INCREMENT_COUNTER = """
 INSERT INTO counters (key, day, value) VALUES (?, ?, 1)
 ON CONFLICT (key, day) DO UPDATE SET value = value + 1
@@ -117,6 +123,24 @@ class Cache:
             )
             for code, monthly, version, accessed, raw_sha256, query_url, product in rows
         }
+
+    def add_missing_rows(self, seed: Path) -> int:
+        """Copy the seed file's series rows that this cache lacks, and return how many were added.
+
+        Spec 11: the shipped seed is copied into the state cache once. A newer seed can hold
+        rows the state lacks, such as the codes of new catalogue variables at the example
+        places, so they are added at startup; a row the state already holds is never replaced,
+        and the seed file itself is only read.
+        """
+        with self._lock:
+            # ATTACH and DETACH cannot run inside a transaction, so only the insert is in one.
+            self._connection.execute("ATTACH DATABASE ? AS seed", (str(seed),))
+            try:
+                with self._connection:
+                    added = self._connection.execute(_ADD_MISSING_SEED_ROWS).rowcount
+            finally:
+                self._connection.execute("DETACH DATABASE seed")
+        return added
 
     def write_point_series(self, source: str, series: Iterable[PointSeries], end_year: int) -> None:
         """Store each series under its own grid point and code, as fetched up to `end_year`.

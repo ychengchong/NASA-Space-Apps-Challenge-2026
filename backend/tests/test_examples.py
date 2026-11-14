@@ -19,13 +19,14 @@ import pytest
 from app.adapters.case_query import parse_case_query, parse_query_string
 from app.cache import Cache
 from app.catalogue import get_entry, load_catalogue
-from app.config import DATA_DIR
+from app.config import DATA_DIR, Settings
 from app.models import (
     AnalyzeTrendInput,
     ComparePlacesInput,
     FindPlaceInput,
     Investigation,
 )
+from app.services import build_services
 from app.sources.power import PowerClient
 from app.tools.context import ToolContext
 from app.tools.places import find_place, snap_to_grid
@@ -44,7 +45,7 @@ LAST_COMPLETE_YEAR = 2025
 # Spec 10: /api/examples returns a list of { title, teaser, query }.
 EXAMPLE_FIELDS = {"title", "teaser", "query"}
 # Spec 12, "Example cases": the idea each example teaches, in the order of examples.json.
-CLEAR_TREND, NOT_SIGNIFICANT, COMPARISON = range(3)
+CLEAR_TREND, NOT_SIGNIFICANT, COMPARISON, DESCRIPTIVE_HAZE = range(4)
 NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
 
 EXAMPLES: list[dict[str, Any]] = json.loads(EXAMPLES_PATH.read_text(encoding="utf-8"))
@@ -97,6 +98,16 @@ def committed_rows(tmp_path: Path) -> set[tuple[float, float, str]]:
     return {(lat, lon, code) for lat, lon, code in rows}
 
 
+def rows_of(path: Path) -> set[tuple[float, float, str]]:
+    """The (lat, lon, code) of every series row in a cache file."""
+    connection = sqlite3.connect(path)
+    try:
+        rows = connection.execute("SELECT lat, lon, code FROM point_series").fetchall()
+    finally:
+        connection.close()
+    return {(lat, lon, code) for lat, lon, code in rows}
+
+
 def committed_grid_points(tmp_path: Path) -> set[tuple[float, float]]:
     """The grid points that the committed cache holds rows for."""
     return {(lat, lon) for lat, lon, _ in committed_rows(tmp_path)}
@@ -121,8 +132,8 @@ def grid_points(investigations: Sequence[Investigation]) -> set[tuple[float, flo
     }
 
 
-def test_examples_file_lists_three_cases_with_title_teaser_and_query() -> None:
-    assert len(EXAMPLES) == 3
+def test_examples_file_lists_four_cases_with_title_teaser_and_query() -> None:
+    assert len(EXAMPLES) == 4
     for example in EXAMPLES:
         assert set(example) == EXAMPLE_FIELDS
         assert all(isinstance(text, str) and text.strip() for text in example.values())
@@ -245,3 +256,61 @@ def test_suggested_prompt_case_is_at_the_grid_point_of_nairobi_as_find_place_giv
 
     assert isinstance(inp, AnalyzeTrendInput)
     assert snap_to_grid(inp.place.lat, inp.place.lon) == snap_to_grid(nairobi.lat, nairobi.lon)
+
+
+@pytest.mark.anyio
+async def test_haze_example_is_a_descriptive_summer_case_with_its_record_years(
+    tmp_path: Path,
+) -> None:
+    # Spec 12: the challenge video's own question, as a one-place case, since a map cannot be
+    # frozen. Only the shape of the answer is checked.
+    investigations, _ = await run_examples_offline(tmp_path)
+    haze = investigations[DESCRIPTIVE_HAZE]
+    (result,) = haze.results
+
+    assert haze.variable.id == "haze"
+    assert haze.requested.season == "JJA"
+    assert result.verdict.kind == "inference_unavailable"
+    assert result.trend is not None
+    assert result.trend.mk_p is None
+    assert result.records is not None
+
+
+def test_haze_example_says_it_is_descriptive_and_not_the_video_chart() -> None:
+    teaser = EXAMPLES[DESCRIPTIVE_HAZE]["teaser"]
+
+    assert "descriptive" in teaser
+    assert "not its chart" in teaser
+
+
+@pytest.mark.anyio
+async def test_examples_open_offline_from_a_state_cache_copied_from_an_older_seed(
+    tmp_path: Path,
+) -> None:
+    # Spec 11: a state cache copied from an older seed lacks the newer seed's rows; startup adds
+    # them, so the frozen examples still open without NASA after an upgrade.
+    state_path = tmp_path / "state" / "power.sqlite"
+    state_path.parent.mkdir()
+    shutil.copyfile(COMMITTED_CACHE, state_path)
+    connection = sqlite3.connect(state_path)
+    with connection:
+        connection.execute("DELETE FROM point_series WHERE code IN ('SNODP', 'AOD_55_ADJ')")
+    connection.close()
+    settings = Settings(
+        anthropic_api_key=None,
+        ai_enabled=False,
+        ai_model="",
+        ai_daily_turns=0,
+        ai_rate_per_minute=1,
+        rate_limit_per_minute=1,
+        public_base_url=None,
+        cache_path=state_path,
+        operational_path=tmp_path / "state" / "operations.sqlite",
+        snapshot_path=tmp_path / "state" / "snapshots",
+    )
+    services = build_services(settings)
+    services.cache.close()
+    services.operations.close()
+    await services.source.aclose()
+
+    assert committed_rows(tmp_path) <= rows_of(state_path)
