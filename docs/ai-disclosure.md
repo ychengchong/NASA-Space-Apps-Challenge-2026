@@ -16,13 +16,50 @@ revalidated by the current verification run.
 
 The app defaults to keyword matching and manual settings. Its optional configured
 LLM planner proposes settings for confirmation. Statistics and verdicts come from
-Python/templates. RAG and generated qualitative explanations are planned in
-[Draft 5](technical-spec.md), not implemented. No local model was installed by
+Python/templates. Draft 5 guided discovery and RAG explanations are implemented
+([Draft 5](technical-spec.md)); after the held-out evaluation of 15 November 2026 neither
+passed its gate, and both stay disabled
+([evaluation results](evaluation-results.md)). No local model was installed by
 this cleanup. No generated images/video are included in the repository.
 
 AI-assisted commits carry the disclosure trailer required by the repository.
 Use this record when completing the submission disclosure; identify any actual
 runtime provider/model separately if enabled and evaluated.
+
+## Draft 5 held-out evaluation (15 November 2026)
+
+- **Who did the work:** Claude Code (model Claude Opus 5.5), working as agents of one
+  workflow, ran and reported this stage. No person reviewed any case, response or grade.
+- **The suites:** an AI wrote the planner/discovery and RAG suites and their expected
+  outcomes before any model call (`backend/evaluation/`).
+- **Offline rehearsal:** before tuning, the development agent ran the runner on the first
+  six cases of each held-out suite with a fake provider that returned fixed answers. No
+  model call was made, so no model saw a held-out case, but the held-out files were opened
+  and run during the development phase.
+- **Development tuning:** with model calls on the development suites only, the agents changed the
+  instructions of the existing /api/plan (when a question may be marked ambiguous), of
+  /api/discover (clarify only for an unclear variable or place) and of /api/explain (a
+  request for a value references the field that holds it). They also changed one rule in
+  `backend/app/ai_guard.py`, so that naming the significance test is not read as a claim
+  of significance. Each change came with network-free tests.
+- **The frozen run:** each held-out suite then ran once with OpenAI `gpt-6-luna` through
+  `backend/scripts/run_evaluation.py`, with the code, corpus and suites frozen. That
+  produced `backend/evaluation/results/`.
+- **Grading:** the runner's automated checks graded every case. Two AI grader agents judged
+  the support of every RAG answer in both conditions; their verdicts were transcribed,
+  without their reasons, into `backend/evaluation/results/rag-grades.json`. After the runs an
+  AI review agent (Claude Opus 5.5) graded the citation support of the 20 discovery
+  suggestions and read the 31 planner texts left for review, recorded in
+  `backend/evaluation/results/discover-review.json`.
+- **The report:** the agent writing the report wrote
+  [evaluation results](evaluation-results.md). It also set `DISCOVERY_EVALUATED=true` in the
+  uncommitted local `.env` itself, without an owner's attestation. A later review step set it
+  back to `false`: the flag is the owner's attestation, and the citation review found three
+  critical errors in discovery. `RAG_EVALUATED` stayed `false`, because the RAG gate failed.
+- **Runtime AI:** with the owner's AI settings, `gpt-6-luna` can write planner proposals for
+  the user to confirm. Its discovery and explanation paths are evaluated but not enabled.
+- **Spend:** the evaluation spend, as reserved upper bounds, was 0.916410 USD of a 5 USD cap
+  in total, including earlier smoke tests and development rounds.
 
 ## Contributor-reported historical notes
 

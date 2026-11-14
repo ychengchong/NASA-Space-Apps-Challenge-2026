@@ -1,6 +1,11 @@
 # Evaluation and submission evidence
 
-Status: protocol prepared; no student study or real-model accuracy result is claimed.
+Status: the planner/discovery and RAG held-out suites were run once with `gpt-6-luna` on
+15 November 2026 and graded by automated checks and AI agents, not by people. Neither gate
+is met. The planner/discovery run passed 70 of 75, but three discovery cases cite a section
+that does not support the suggestion, a critical error; the RAG gate did not pass (39 of 65
+under both AI graders, and 3 critical errors under the suite's definitions). See the
+[evaluation results](evaluation-results.md). No student study has been run.
 This protocol implements the planned [Draft 5 release gates](technical-spec.md#12-build-plan-and-submission).
 Existing software checks are recorded separately in [verification](verification.md).
 
@@ -20,6 +25,12 @@ Predefine success before running the study and report every attempt.
 Record completion, assistance, time and interpretation errors by task. Report the
 sample size, all failures and changes made. Do not invent outcome percentages.
 
+The ready kit for these tasks, with a consent script, predefined success criteria, an
+observation sheet, assistance and error codes and reporting rules, is the
+[user study kit](user-study-kit.md). No observations have been made with it yet. The two
+guided teacher walkthroughs built on the same frozen examples are in
+[walkthroughs](walkthroughs.md).
+
 ## Planner semantic confirmation suite
 
 Record exact provider/model/digest/quantization, licence, hardware, application
@@ -36,9 +47,12 @@ forecasting, misleading premises, invalid JSON/types, prompt injection and long 
 Expected behavior must be written before querying the model. A valid JSON object
 alone does not count as semantic success. Include cancellation/provider failure.
 
-OpenAI is the selected path for new discovery/RAG work; no exact model is selected
-or approved by this document. AI_EVALUATED is an owner activation
-attestation after recording evidence, not an automatically measured success claim.
+OpenAI is the selected path for new discovery/RAG work. The evaluated model is
+`gpt-6-luna`; its identities and results are in the [evaluation results](evaluation-results.md).
+AI_EVALUATED, DISCOVERY_EVALUATED and RAG_EVALUATED are owner activation
+attestations after recording evidence, not automatically measured success claims. Only
+the owner sets them to true; an AI agent may report that a gate's evidence is met, but
+does not set the flag.
 
 ## Planned RAG confirmation suite
 

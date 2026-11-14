@@ -1161,16 +1161,12 @@ fieldset {
   padding-inline: 20px;
 }
 
-/* On a phone the prompts share one row that scrolls sideways, so the case file starts higher up
-   the screen. The padding is room for a prompt's focus ring, which a scrolling row would clip. */
+/* The prompts wrap onto more rows, so none is cut off at a phone's right edge. */
 .prompt-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px 14px;
-  margin: -5px;
-  padding: 5px;
-  overflow-x: auto;
-  scrollbar-width: thin;
 }
 
 .prompt-label {
@@ -1178,8 +1174,10 @@ fieldset {
 }
 
 /* A prompt is set as a link in the text, not as a button. */
+/* A prompt longer than the row wraps inside itself instead of running past the edge. */
 .prompt-chip {
-  flex: none;
+  flex: 0 1 auto;
+  max-width: 100%;
   min-height: 32px;
   padding: 0 2px;
   border: 0;
@@ -1189,6 +1187,7 @@ fieldset {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+  text-align: left;
   cursor: pointer;
 }
 
@@ -1210,13 +1209,6 @@ fieldset {
 /* The status line stays in the page while empty, for screen readers, but takes no row. */
 .question-bar > .status-text:empty {
   margin-top: calc(-1 * var(--bar-gap));
-}
-
-@media (min-width: 640px) {
-  .prompt-row {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
 }
 
 /* Case settings */
@@ -2815,6 +2807,12 @@ details > summary::-webkit-details-marker {
   .stage-button {
     width: 44px;
     height: 44px;
+  }
+
+  .citation-source a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 }
 

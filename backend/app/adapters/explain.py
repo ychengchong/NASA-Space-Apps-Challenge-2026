@@ -90,6 +90,11 @@ INSTRUCTIONS = (
     "within the investigation's period or when a passage names it. To point at a value of "
     "the result, add a reference with one of referable_fields and the place index; the app "
     "shows the value. Reference verdict.sentence instead of restating the verdict.\n"
+    "- When the question asks for a value, such as a rate, an amount of change or a p-value, "
+    "even one demanding the number itself, answer with a block that references the field "
+    "holding it (sen_slope for the rate, total_change for the change over the period, mk_p "
+    "for the p-value, verdict.sentence for the verdict) and says in words what that field "
+    "means, citing the passage that explains it when one is given.\n"
     "- Never contradict the canonical verdict kind of a place: do not call a result "
     "significant unless its kind is significant, and never say a result shows no change. "
     "Never claim what caused a result, and never forecast.\n"
@@ -201,7 +206,12 @@ async def _run_case(
 
 
 async def explain(
-    question: str, investigation: Investigation, corpus: Corpus, services: Services
+    question: str,
+    investigation: Investigation,
+    corpus: Corpus,
+    services: Services,
+    *,
+    retrieval: bool = True,
 ) -> ExplanationResponse:
     """One retrieval with the question as asked and, when it finds citable passages, one
     generation; then the checks.
@@ -210,16 +220,23 @@ async def explain(
     an incomplete output, or an output that fails parsing or `ai_guard.check_explanation`
     gives `insufficient_evidence` with its reason, never the provider's text. Raises
     `httpx.HTTPError` or `KeyError`/`TypeError` for a failed call.
+
+    `retrieval=False` is the no-retrieval condition of the matched RAG evaluation (spec 12),
+    used only by `scripts.run_evaluation`; the endpoint always retrieves. It skips the search
+    and makes the generation with no passages, under the same instructions, schema and checks,
+    so an answer can cite nothing and only an abstention or a new plan can pass.
     """
-    # Spec 8: the bare question, as discovery searches. Prefixing the variable's name pulled
-    # in that variable's catalogue sections and crowded out notes on interpretation, and the
-    # corpus has no attribute that ties a source to a variable to filter on.
-    retrieved = await ai.openai_vector_search(
-        question, services.settings.rag_vector_store_id, MAX_PASSAGES, None, services
-    )
-    passages = corpus.citable(retrieved)
-    if not passages:
-        return _unanswered("no_evidence", investigation, corpus)
+    passages: list[RetrievedPassage] = []
+    if retrieval:
+        # Spec 8: the bare question, as discovery searches. Prefixing the variable's name
+        # pulled in that variable's catalogue sections and crowded out notes on interpretation,
+        # and the corpus has no attribute that ties a source to a variable to filter on.
+        retrieved = await ai.openai_vector_search(
+            question, services.settings.rag_vector_store_id, MAX_PASSAGES, None, services
+        )
+        passages = corpus.citable(retrieved)
+        if not passages:
+            return _unanswered("no_evidence", investigation, corpus)
     try:
         text = await ai.openai_json(
             INSTRUCTIONS,
@@ -352,20 +369,27 @@ def _response(
 def _proposal(plan: ExtractedPlan, investigation: Investigation, cutoff: int) -> Proposal:
     """The plan as a proposal that changes only what the plan names (spec 3: no silent
     substitution). A variable or a year the plan leaves open is the investigation's own. A plan
-    naming no place, or one of the investigation's own place labels, keeps those places with
-    their exact coordinates; only other place queries go to find_place.
+    naming no place, or naming a place of the investigation, keeps those places with their
+    exact coordinates and labels; only other place queries go to find_place.
     """
     requested = investigation.requested
-    own = {result.place.name.casefold(): result.place for result in investigation.results}
+    own_places = [result.place for result in investigation.results]
     queries = plan.place_queries
-    kept = [own[query.casefold()] for query in queries if query.casefold() in own]
+    kept: list[Place] = []
+    others: list[str] = []
+    for query in queries:
+        place = _own_place(query, own_places)
+        if place is None:
+            others.append(query)
+        elif place not in kept:
+            kept.append(place)
     if not queries:
-        kept = [result.place for result in investigation.results]
+        kept = own_places
     resolved = resolve_plan(
         ExtractedPlan.model_validate(
             {
                 "variable": plan.variable or investigation.variable.id,
-                "place_queries": [query for query in queries if query.casefold() not in own],
+                "place_queries": others,
                 "from": plan.from_ if plan.from_ is not None else requested.from_,
                 "to": plan.to if plan.to is not None else requested.to,
                 "season": plan.season,
@@ -378,13 +402,31 @@ def _proposal(plan: ExtractedPlan, investigation: Investigation, cutoff: int) ->
     return resolved.model_copy(update={"places": places[:MAX_COMPARE_PLACES]})
 
 
+def _own_place(query: str, own_places: Sequence[Place]) -> Place | None:
+    """The investigation's place that `query` names: the one with that label, ignoring case,
+    or the one at the exact coordinates of the reviewed place of that name. A case labelled
+    "Longyearbyen" lies at the reviewed place "Svalbard", so a plan naming either keeps it.
+    """
+    for place in own_places:
+        if place.name.casefold() == query.casefold():
+            return place
+    reviewed = resolve_place_query(query)
+    if reviewed is None:
+        return None
+    for place in own_places:
+        if (place.lat, place.lon) == (reviewed.lat, reviewed.lon):
+            return place
+    return None
+
+
 def _candidate(place: Place) -> PlaceCandidate:
-    """A place of the investigation as a candidate at its exact coordinates: the reviewed place
-    of that name when it lies there, else a point, as a place picked on the globe is.
+    """A place of the investigation as a candidate at its exact coordinates and with its label:
+    the reviewed place of that name when it lies there, else a point, as a place picked on the
+    globe is.
     """
     reviewed = resolve_place_query(place.name)
     if reviewed is not None and (reviewed.lat, reviewed.lon) == (place.lat, place.lon):
-        return reviewed
+        return reviewed.model_copy(update={"name": place.name})
     return PlaceCandidate(name=place.name, lat=place.lat, lon=place.lon, kind="city")
 
 

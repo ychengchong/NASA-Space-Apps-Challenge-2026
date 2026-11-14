@@ -5,10 +5,14 @@ Draft 5 - 14 November 2026 - Working title - Prepared with AI assistance.
 Status: the implementation baseline on `main` at 1fa0cf1 includes core manual workflows, immutable evidence,
 bounded confirmed AI planner integration and globe interface. Draft 5 defines the
 approved next plan on `new-plan`: OpenAI-assisted discovery, documentation retrieval/RAG and
-cited qualitative explanations. Their endpoints and interface are implemented, unit-tested
-with fake providers and given one local live smoke check; their held-out evaluation, a user
-study and a deployment are still planned. Provider tests use fakes; no live-model accuracy is
-established.
+cited qualitative explanations. Their endpoints and interface are implemented and unit-tested
+with fake providers. One held-out evaluation with `gpt-6-luna` was run on 15 November 2026 and
+graded by automated checks and AI agents, not by people
+([results](evaluation-results.md)): neither gate is met. Planner/discovery met its pass-rate
+target but has three critical citation errors, and the RAG gate failed, so discovery and
+explanations stay disabled. A user study and a deployment are still planned.
+Unit tests use fake providers; the suite results are sample results, not a general accuracy
+guarantee.
 The statistical study is retained in
 [the preregistered plan](../research/inference-plan.md) and
 [all confirmation results](../research/inference-results.json). Automated checks
@@ -206,9 +210,9 @@ This section and "The globe" describe the delivered interface: an atlas page wit
 - The verdict leads an open case or a map: it is the first sheet on the page. There the question bar steps back: its label is set smaller, and its line on who reads the question is kept for screen readers only. Below 640px the app's tagline is left out there too. On the first screen the question bar's label is the largest line under the app's name.
 - Under the question bar the first screen says "Or set up a case by hand: choose the variable, the place and the period yourself." The words "set up a case by hand" are a link to the case settings further down the page.
 - A panel's label is set at 0.875rem, so it is never the smallest text in its panel.
-- On a touch screen every button, input and disclosure row is at least 44px high, the stage's three buttons included. An example's pin is 17px across and takes a click or a tap within 45px.
+- On a touch screen every button, input, disclosure row, example prompt and cited source's link is at least 44px high, the stage's three buttons included. An example's pin is 17px across and takes a click or a tap within 45px.
 - The page holds the header, the question bar and the case file, and then the globe's stage. From 640px, which covers tablets and phones held sideways, the case file is a column on the left and the stage fills the rest of the screen beside it. The column is 22rem to 26rem wide below 960px and 26rem to 37rem wide from 960px, which keeps its lines near 70 characters or under. From 640px to 959px, where the stage is a narrow strip, the plate takes the top of it, 1.3 times as tall as it is wide and never taller than the screen, so the Earth fills it; the view's caption or key lies on the paper under the plate. Below 640px the first screen shows the stage between the question bar and the case file, as a window 30% of the screen high and never under 12.5rem, so the start of the case file shows on the first screen of an ordinary phone. On every page with an answer (a case, a map, an overview, the whole world) the stage follows the case file instead, so the answer comes straight after the question bar. There the globe is seen only through the stage: the header and the question bar above it, and the case file below it, lie on the page's own paper, so no text is drawn over the map. In the page the stage always comes after the case file, so Tab and screen readers meet the verdict before the globe's controls.
-- Below 640px the question bar's example prompts share one row that scrolls sideways.
+- The example prompts of the question bar and of the "Ask" panel wrap onto more rows, so none is cut off at a phone's right edge.
 - A keyword match belongs to the screen it was made on. The question bar drops its question and its result line when another page opens, when the browser goes back or forward, and when the settings the match filled in are cancelled. A question that is still being typed or matched stays, and so does the line that says the AI has answered.
 - The globe works by keyboard too. With the globe focused, the arrow keys turn it, + and - zoom, and Enter picks the point at its centre, which a crosshair marks while the globe has keyboard focus; a ring around the stage shows the focus. Place markers are not tab stops; the key to the globe names every place. Its note reads: "Click the globe to pick a point, or search for a place in the case settings. With a keyboard, focus the globe, turn it with the arrow keys and press Enter to pick the point at its centre."
 - Opening a page from inside the app, such as an example case, a map cell, or a link under "Explore further", moves focus to the start of the main content. Choosing, removing or dismissing a place in the case settings moves focus to the place search.
@@ -858,11 +862,17 @@ the investigation lookup, and the owner-run corpus build and upload scripts. The
 has uploaded the reviewed corpus to an OpenAI vector store. The /api/discover and
 /api/explain endpoints and their interface (guided discovery in the question bar and
 the "Ask about this investigation" panel) are implemented, unit-tested with fake
-providers and given one local live smoke check. Planned: their held-out evaluation, a
-user study and a deployment. No discovery or explanation quality or live provider
-evaluation is claimed by this document. The target is OpenAI-only for these new
-features; existing Ollama/Anthropic planner support is an alternative, not a required
-installation. Choose an exact model after semantic, latency and cost evaluation.
+providers and given one local live smoke check. The selected model is OpenAI
+`gpt-6-luna` (the requested name; the served model version was not recorded). One frozen
+held-out run on 15 November 2026, graded by automated checks and AI agents (no person), met
+neither gate. Planner/discovery passed 70 of 75 (Wilson 95% 0.85-0.97), but a citation
+review after the run found 3 cases whose suggestions cite a section that does not support
+them, a fabricated citation under section 12. The RAG gate failed (39 of 65 under both
+graders, Wilson 95% 0.48-0.71, and 3 critical errors under the suite's definitions); see
+[evaluation results](evaluation-results.md). DISCOVERY_EVALUATED and RAG_EVALUATED stay
+false, so discovery and explanations remain disabled; only the owner sets either flag. Planned: a user study and a
+deployment. The target is OpenAI-only for these new features; existing Ollama/Anthropic
+planner support is an alternative, not a required installation.
 
 ### Planner and provider boundary
 
@@ -945,8 +955,10 @@ scores are ranking signals, not probabilities that an answer is correct.
 Both endpoints search with the question as asked and no attribute filter: the corpus has
 no attribute that ties a source to a variable, and prefixing the variable's name pulled
 in that variable's catalogue sections ahead of the notes on interpretation in a local
-development check (a causal-premise question then found no project note). Revisit this on
-development questions before the held-out evaluation. A retrieved passage is citable only
+development check (a causal-premise question then found no project note). The development
+rounds left this unchanged and it was frozen for the held-out run, where several answers,
+among them answers to questions asking for a value, cited a variable's catalogue note
+instead of the project notes that answer the question. A retrieved passage is citable only
 when its whitespace-normalised text is part of the reviewed section file that the
 manifest lists by path and SHA-256 (checked when the manifest is read), so a stale or
 foreign file in the vector store carrying a section's attributes is never shown or cited.
@@ -1008,11 +1020,17 @@ returns a status, blocks of text with cited passage IDs and field references, an
 "new_investigation_required" a plan that resolve_plan turns into a proposal awaiting
 confirmation. The proposal changes only what the plan names (no silent substitution): a
 variable or year the plan leaves open is the investigation's own, and a plan that names
-no place, or one of the investigation's own place labels, keeps those places at their
-exact coordinates; only other place queries go to find_place. The plan's season is
+no place, or names a place of the investigation (one of its labels, or a reviewed place
+lying at its exact coordinates, as "Svalbard" for a case labelled "Longyearbyen"), keeps
+those places with their labels and exact coordinates; only other place queries go to
+find_place. The plan's season is
 always given by the model. Every block of an answer must cite a
 retrieved passage. A model abstention returns no_evidence; refusals, incomplete
 output and failed checks return their reasons; no provider text is returned then.
+For the matched no-RAG evaluation only, `scripts/run_evaluation.py` runs the same
+endpoint code with the adapter's internal `retrieval=False`: no search, no passages,
+the same instructions, schema and checks, so an answer that cites anything is withheld.
+The public endpoint always retrieves.
 
 User and retrieved text are untrusted evidence, never instructions authorizing
 tools, URLs, uploads, secret access or source changes. Render plain text and curated
@@ -1260,6 +1278,26 @@ Acceptance evidence:
   link in a fresh session, exports, NASA/OpenAI/tile outages, cancellation, rate and
   budget exhaustion, Linux container build and persistent-volume replacement.
 
+Acceptance evidence status of the AI gates (15 November 2026; details in
+[evaluation results](evaluation-results.md)). Grading was done by automated checks and AI
+graders; no person reviewed cases or grades, and no user has been observed.
+
+- AI planner/discovery: run on 75 held-out cases with `gpt-6-luna`; 70 passed (93.3%,
+  Wilson 95% 0.85-0.97) against the predeclared 90% target, on the point estimate; the
+  interval's lower end is below 90%. The automated checks and the text reading found no
+  critical error, but 4 of the 20 discovery suggestions, in 3 cases, cite a section that
+  does not support them (an AI review after the run, not predeclared for this suite). Gate
+  not met.
+- RAG: run on 65 held-out questions with a matched no-RAG run. 39 passed under both AI
+  graders (60.0%, Wilson 95% 0.48-0.71); without retrieval 30 passed. Retrieval relevance
+  was not measured separately from answer support. Gate not passed.
+- Critical AI gate: no invented number, verdict change, cause, forecast, URL or successful
+  injection was observed. Three RAG answers cited a section that does not support a claim
+  in the block, which the RAG suite defines as critical, and three discovery cases cite a
+  section that does not support the suggestion. The gate is not met for either path.
+- Performance: latency and reserved cost were recorded per run from the development
+  machine, not on a named deployment host. Impact and deployment evidence are not started.
+
 No outcome is claimed until run. Full significance scope remains incomplete if
 only descriptive fallback exists. Label illustrative screens and unbuilt features.
 
@@ -1297,11 +1335,27 @@ remain unavailable until independently coverage-tested. No extra source is manda
 
 Draft 5 additionally requires implementation and held-out evaluation of discovery,
 corpus ingestion/retrieval, cited explanation contracts/UI and expanded cost
-accounting. Open decisions: exact OpenAI model and current prices; reviewed corpus
-sections/version; content retention/redistribution; relevant retrieval thresholds;
-precipitation product/aggregation; practical latency/cost limits; and deployment
-resources. Resolve these using recorded checks before enabling the affected path.
-No paid API calls, document uploads or new connectors are performed by this spec update.
+accounting. Resolved by the recorded held-out run of 15 November 2026
+([evaluation results](evaluation-results.md)):
+
+- Model and prices: OpenAI `gpt-6-luna`, at the standard prices of $0.10 per 1M input
+  tokens and $0.50 per 1M output tokens (as checked on OpenAI's pricing page on
+  15 November 2026), and $2.50 per 1,000 vector-store searches. The configured
+  reservation rates are 100,000 and 500,000 microUSD per 1M tokens and 2,500 microUSD
+  per search.
+- Corpus: version `cc397f969e22f9d69e390df8777432d46cfcbc1f6ba682c03e07330644166422`
+  (22 sources, 164 sections) in vector store `vs_6af8b41c338081919920d534cc76a7cf`.
+- Retrieval bounds, frozen for the held-out run: one search with the bare question, no
+  attribute filter and no score threshold, at most four passages of at most 1,200
+  characters; 1,024 output tokens for discover and explain, 512 for plan, and a
+  30-second deadline.
+
+Still open: content retention/redistribution; precipitation product/aggregation;
+practical latency/cost limits beyond the 30-second deadline and the USD 5 evaluation
+cap; whether to lower the model's reasoning effort or raise the output caps, since
+hidden reasoning tokens cut off 2 of 75 held-out discovery outputs; how to bring the
+discovery path (citation support) and the RAG path to their gates; and deployment resources. Resolve these using recorded checks
+before enabling the affected path.
 
 Main risks are invalid inference sounding authoritative, mismatched quantities,
 data revisions, unsupported local hosting, overstated comparison, weak user
@@ -1384,15 +1438,19 @@ and simulation claims lacking artifacts are leads to verify, not validation.
 These boxes remain unchecked until implementation and observed evidence exist.
 Specification approval alone does not activate AI or complete a release gate.
 
-- [ ] Implement guided clarification/discovery and source-backed variable suggestions.
+- [x] Implement guided clarification/discovery and source-backed variable suggestions.
 - [ ] Select and evaluate an exact OpenAI model; retain manual confirmation/fallback.
+  (`gpt-6-luna` selected and evaluated by name; the served model version was not recorded,
+  so the exact version is not identified. Results in [evaluation results](evaluation-results.md).)
 - [ ] Review/version the corpus, ingest/index it and verify retrieval/source mapping.
 - [ ] Implement cited qualitative explanations bound to server-loaded investigations.
 - [ ] Render numerical references from Python fields; reject invalid citations/claims.
 - [ ] Verify ingestion/retrieval/storage accounting and independent capability flags.
 - [ ] Prepare two walkthroughs and a truthful water-related demonstration.
 - [ ] Record a decision for every consideration and listed resource.
-- [ ] Run >=50 planner/discovery and >=40 RAG held-out cases plus matched no-RAG cases.
+- [x] Run >=50 planner/discovery and >=40 RAG held-out cases plus matched no-RAG cases.
+  (75 and 65 cases run; neither gate is met: planner/discovery has three critical
+  citation errors, and the RAG gate failed.)
 - [ ] Observe >=5 target users and report completion, assistance and interpretation errors.
 - [ ] Verify public HTTPS, browser/mobile/keyboard, outages and persistent redeploy.
 - [ ] Publish accurate NASA/AI credits and complete the demo/submission requirements.

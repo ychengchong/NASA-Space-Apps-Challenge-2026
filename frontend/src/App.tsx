@@ -302,7 +302,7 @@ export default function App(): JSX.Element {
   const notes =
     plannerNotices.length > 0 ? (
       <section className="panel" aria-label="AI proposal">
-        <h2>Proposed settings ? Written with AI</h2>
+        <h2>Proposed settings · Written with AI</h2>
         <ul>
           {plannerNotices.map((notice, index) => (
             <li key={index}>{notice}</li>

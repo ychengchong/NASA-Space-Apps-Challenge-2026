@@ -348,6 +348,44 @@ def test_saying_significance_was_not_assessed_fits_any_verdict_without_inference
 
 @pytest.mark.parametrize(
     "text",
+    [
+        "The app assesses significance only for eligible annual records.",
+        "This seasonal result is descriptive rather than a significance test.",
+        "The record is tested for statistical significance with the Mann-Kendall test.",
+        "A test of significance needs at least twenty years.",
+    ],
+)
+@pytest.mark.parametrize("kind", ["inference_unavailable", "not_significant", "significant"])
+def test_naming_the_significance_test_fits_any_verdict(text: str, kind: VerdictKind) -> None:
+    assert reasons(text, rules(kind)) == []
+    assert reasons(text, rules()) == []
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The test found significance in this record.",
+        "The trend tested significant.",
+        "The assessment shows the warming is significant.",
+        "The trend passes the significance test.",
+        "A significance test confirms the warming.",
+        "The p-value is below the significance level.",
+    ],
+)
+def test_a_claim_next_to_the_test_still_contradicts_a_verdict_that_is_not_significant(
+    text: str,
+) -> None:
+    assert "contradicts_verdict" in reasons(text, rules("not_significant"))
+
+
+def test_failing_the_significance_test_contradicts_a_significant_verdict() -> None:
+    assert "contradicts_verdict" in reasons(
+        "The trend fails the significance test.", rules("significant")
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
     ["The trend is not significant.", "This is an insignificant change.", "No significance here."],
 )
 def test_denying_significance_contradicts_a_significant_verdict(text: str) -> None:

@@ -554,3 +554,7 @@ def test_a_failed_provider_call_falls_back_to_manual_controls(
     assert response.status_code == 503
     assert "manual" in response.json()["error"]["message"].lower()
     assert not services.planner_busy
+
+
+def test_instructions_leave_open_years_and_season_to_their_defaults() -> None:
+    assert "Never ask about years or the season" in discover.INSTRUCTIONS

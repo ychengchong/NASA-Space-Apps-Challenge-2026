@@ -416,6 +416,21 @@ _NOT_ASSESSED = re.compile(
     r"|cannot|can't)\s+(?:been\s+|be\s+)?(?:assessed|tested|evaluated|computed|judged"
     r"|determined)|(?:is\s+|was\s+)?unavailable)\b"
 )
+# Naming the test itself ("a significance test", "the app tests for significance only in
+# annual records") describes the method, not this result, so it neither claims nor denies.
+_SIGNIFICANCE_METHOD = re.compile(
+    r"\bsignificance\s+(?:tests?|testing|levels?|thresholds?|checks?|assessments?)\b"
+    r"|\b(?:assess\w*|test\w*|check\w*|evaluat\w*|judg\w*)\s+(?:for\s+)?(?:statistical\s+)?"
+    r"significance\b"
+    r"|\b(?:a|the)\s+test\s+of\s+(?:statistical\s+)?significance\b"
+)
+# A sentence that gives the test an outcome ("passes the significance test", "a significance
+# test confirms the warming") states a result, so naming the test there is not neutral.
+_TEST_OUTCOME = re.compile(
+    r"\b(?:pass\w*|fail\w*|meets?|met|clear(?:s|ed|ing)?|reach\w*|surviv\w*|below|under"
+    r"|beneath|above|exceed\w*|confirm\w*|show\w*|found|finds?|prov(?:e|es|ed|en|ing)"
+    r"|support\w*|detect\w*|indicat\w*|reveal\w*|demonstrat\w*|establish\w*)\b"
+)
 # Claims of significance in other words, for a verdict that is not significant.
 _EVIDENCE_CLAIM = re.compile(
     r"\b(?:strong|clear|convincing|solid|compelling|robust)\s+evidence"
@@ -631,12 +646,17 @@ def _hides_a_stem(lower: str) -> bool:
 def _contradicts_verdicts(lower: str, kinds: Sequence[VerdictKind]) -> bool:
     """Text claims significance where no place's verdict is significant, or denies it where
     every place's verdict is, or asserts "no change", which no verdict ever means (spec 3).
-    Saying that significance was not assessed is neutral, and so is a denial in a conditional
-    clause or the trend test's null hypothesis.
+    Saying that significance was not assessed is neutral, and so are naming the significance
+    test in a sentence that gives it no outcome, a denial in a conditional clause and the trend
+    test's null hypothesis.
     """
     any_significant = "significant" in kinds
     all_significant = bool(kinds) and all(kind == "significant" for kind in kinds)
-    not_assessed = [match.span() for match in _NOT_ASSESSED.finditer(lower)]
+    not_assessed = [match.span() for match in _NOT_ASSESSED.finditer(lower)] + [
+        match.span()
+        for match in _SIGNIFICANCE_METHOD.finditer(lower)
+        if not _TEST_OUTCOME.search(_sentence(lower, match))
+    ]
     for match in _SIGNIFICANCE.finditer(lower):
         if any(start <= match.start() < end for start, end in not_assessed):
             continue
@@ -721,6 +741,13 @@ def _claims_cause(lower: str) -> bool:
 
 def _claims_forecast(lower: str) -> bool:
     return any(not _negated(lower, match.start()) for match in _FORECAST.finditer(lower))
+
+
+def _sentence(text: str, match: re.Match[str]) -> str:
+    """The whole sentence that holds the match."""
+    start = max((brk.end() for brk in _SENTENCE_BREAK.finditer(text, 0, match.start())), default=0)
+    following = _SENTENCE_BREAK.search(text, match.end())
+    return text[start : following.start() if following else len(text)]
 
 
 def _clause(text: str, match: re.Match[str]) -> str:

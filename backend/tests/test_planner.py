@@ -251,3 +251,22 @@ def test_a_place_query_resolves_only_to_one_exact_reviewed_match():
     assert helsinki is not None and helsinki.name == "Helsinki"
     assert planner.resolve_place_query("Helsin") is None
     assert planner.resolve_place_query("Qqqzzx") is None
+
+
+@pytest.mark.anyio
+async def test_instructions_say_open_dates_and_shared_place_names_are_not_ambiguous(
+    services, monkeypatch
+):
+    services.settings = replace(services.settings, ai_provider="openai", openai_api_key="test")
+    sent = []
+
+    async def capture(instructions, question, schema, schema_name, max_output_tokens, services):
+        sent.append(instructions)
+        return json.dumps(PLAN)
+
+    monkeypatch.setattr(planner.ai, "openai_json", capture)
+    await planner.extract("Is Mexico City getting cloudier?", services)
+
+    (instructions,) = sent
+    assert planner.AMBIGUITY_EXCLUSIONS in instructions
+    assert "missing dates have defaults" in instructions

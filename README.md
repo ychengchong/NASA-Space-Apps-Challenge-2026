@@ -151,10 +151,12 @@ The [Draft 5 technical spec](docs/technical-spec.md) plans OpenAI-assisted varia
 discovery and RAG explanations using a reviewed documentation corpus. The corpus,
 its upload, the retrieval settings, the response contracts, the /api/discover and
 /api/explain endpoints and their interface (guided discovery in the question bar and the
-"Ask about this investigation" panel) exist. They are unit-tested with fake providers and
-were given one local live smoke check; their held-out evaluation, a user study and a
-deployment are not yet done. No
-local model is required for that plan. The retrieval settings are described under
+"Ask about this investigation" panel) exist and are unit-tested with fake providers. One
+held-out evaluation with OpenAI `gpt-6-luna`, graded by automated checks and AI agents
+(no person), met neither gate: discovery met its pass-rate target but three of its cases
+cite a section that does not support the suggestion, a critical error, and the explanation
+(RAG) gate failed; see the [evaluation results](docs/evaluation-results.md). A user study and a deployment are not yet
+done. No local model is required for that plan. The retrieval settings are described under
 "Retrieval settings" below; the rest of this section describes the planner.
 Without an enabled provider, the question box matches keywords and fills settings;
 it does not generate conversational explanations.
@@ -197,8 +199,8 @@ all off by default (see `.env.example`):
 | `RAG_VECTOR_STORE_ID` | The `vs_...` store the upload script printed; any other shape keeps retrieval off |
 | `RAG_CORPUS_VERSION` | The uploaded corpus version; must equal `corpus_version` in `backend/data/corpus/manifest.json` |
 | `RAG_SEARCH_MICROUSD_PER_CALL` | Owner-supplied integer microdollar price of one vector-store search |
-| `RAG_EVALUATED` | Set only after the explanation suite is run and reviewed; enables explanations |
-| `DISCOVERY_EVALUATED` | Set only after the discovery suite is run and reviewed; enables discovery |
+| `RAG_EVALUATED` | Enables explanations. Only the owner sets it, as an attestation after the explanation suite has passed its gate. Keep it `false`: the held-out run of 15 November 2026 did not pass |
+| `DISCOVERY_EVALUATED` | Enables discovery. Only the owner sets it, as an attestation after the discovery suite has passed its gate. Keep it `false`: the held-out run of 15 November 2026 met the pass-rate target but not the zero-critical-error target |
 
 `/api/capabilities` reports `ai_planner_available`, `ai_discovery_available` and
 `ai_explanation_available` separately; a missing or mismatched retrieval setting turns
@@ -350,10 +352,24 @@ cause, forecast, number and URL rules and checks of model-written place queries,
 interface shows proposal notices and catalogue facts, announces finished answers, keeps
 focus after a choice and cancels a discovery question when the page changes.
 
-Educational impact and the >=90% semantic planner target are not established by
-unit tests. Run the recorded evaluation protocol with target users and the selected
-model, verify the public deployment and finish the required demonstration before
-claiming those criteria. A prototype cannot guarantee an award or global ranking.
+On 15 November 2026 Claude Code (model Claude Opus 5.5) ran the Draft 5 held-out
+evaluation with OpenAI `gpt-6-luna` and wrote the [evaluation results](docs/evaluation-results.md).
+Before the frozen run it tuned, with model calls on development questions only, the
+instructions of /api/plan (when a question may be marked ambiguous), /api/discover and
+/api/explain and one guard rule in `backend/app/ai_guard.py`, with tests. Before that tuning
+it had also rehearsed the runner offline, with a fake provider and no model call, on the
+first six cases of each held-out suite. The suites and their expectations were written by
+AI. Two AI grader agents judged RAG answer support, and an AI review agent graded the
+citation support of the discovery suggestions; no person reviewed any case or grade. The
+planner/discovery run passed 70 of 75 but has three critical citation errors, and the RAG
+gate did not pass (39 of 65 under both graders). The agent that wrote the results first set
+`DISCOVERY_EVALUATED=true` in the local `.env` itself; a review step set it back to `false`,
+because that flag is the owner's attestation. Both discovery and explanations are off.
+
+Educational impact is not established: no user observations have been made. The
+>=90% planner/discovery pass-rate target was met on one AI-graded suite run, which is a
+sample result, and its zero-critical-error target was not. Run the user study, verify the public deployment and finish the required
+demonstration before claiming those criteria. A prototype cannot guarantee an award or global ranking.
 
 The team has not selected a project licence. NASA/GeoNames/OpenStreetMap/OpenFreeMap,
 the typefaces and software dependencies retain their own applicable terms.

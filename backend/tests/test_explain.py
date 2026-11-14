@@ -1,5 +1,6 @@
 """POST /api/explain through a fake OpenAI: a pinned case rebuilt offline, checks, failures."""
 
+import asyncio
 import json
 import time
 from collections.abc import Iterator
@@ -260,6 +261,29 @@ def test_a_plan_naming_the_investigations_own_place_keeps_its_coordinates(
 
 
 @pytest.mark.parametrize(
+    "queries",
+    [
+        pytest.param([], id="no-place"),
+        pytest.param(["Longyearbyen"], id="own-label"),
+        # The reviewed place at Longyearbyen's coordinates is the Svalbard region.
+        pytest.param(["Svalbard"], id="reviewed-name-at-the-same-point"),
+    ],
+)
+def test_a_plan_naming_the_same_place_keeps_the_investigations_label_and_coordinates(
+    services: Services, fake: FakeOpenAI, queries: list[str]
+) -> None:
+    case = pinned_case(services, p="78.22,15.65", label="Longyearbyen")
+    summer = {**PLAN, "variable": None, "place_queries": queries, "season": "JJA"}
+    fake.output = answer(case.id, status="new_investigation_required", blocks=[], plan=summer)
+
+    proposal = ask(services, case, "What about summer only?").json()["proposal"]
+
+    (place,) = proposal["places"]
+    assert (place["name"], place["lat"], place["lon"]) == ("Longyearbyen", 78.22, 15.65)
+    assert not any("Choose the intended location" in notice for notice in proposal["notices"])
+
+
+@pytest.mark.parametrize(
     "query",
     [
         pytest.param("Helsinki, warmed by emissions", id="cause"),
@@ -334,6 +358,32 @@ def test_no_retrieval_hit_is_insufficient_evidence_without_a_generation(
     assert body["investigation_id"] == investigation.id
     assert fake.generations == []
     assert budget_used(services) == SEARCH_PRICE
+
+
+def test_the_no_retrieval_condition_generates_without_a_search_or_passages(
+    services: Services, investigation: Investigation, fake: FakeOpenAI
+) -> None:
+    fake.output = answer(investigation.id, status="insufficient_evidence", blocks=[])
+
+    response = asyncio.run(
+        explain.explain(QUESTION, investigation, explain.load_corpus(), services, retrieval=False)
+    )
+
+    assert fake.searches == []
+    (generation,) = fake.generations
+    assert generation["instructions"] == explain.INSTRUCTIONS
+    assert json.loads(generation["input"])["passages"] == []
+    assert (response.status, response.reason) == ("insufficient_evidence", "no_evidence")
+
+
+def test_the_no_retrieval_condition_withholds_an_answer_citing_a_passage(
+    services: Services, investigation: Investigation, fake: FakeOpenAI
+) -> None:
+    response = asyncio.run(
+        explain.explain(QUESTION, investigation, explain.load_corpus(), services, retrieval=False)
+    )
+
+    assert (response.reason, response.blocks) == ("validation_failed", [])
 
 
 def test_the_model_may_abstain(
@@ -626,3 +676,9 @@ def test_a_budget_that_cannot_fund_retrieval_is_rate_limited(
     assert response.status_code == 429
     assert fake.searches == []
     assert not services.planner_busy
+
+
+@pytest.mark.parametrize("field", ["sen_slope", "total_change", "mk_p", "verdict.sentence"])
+def test_instructions_point_a_request_for_a_value_at_a_referable_field(field: str) -> None:
+    assert field in explain.RESULT_FIELDS
+    assert field in explain.INSTRUCTIONS
