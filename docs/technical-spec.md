@@ -328,8 +328,9 @@ that intersection. Report excluded years. Gaps still block inference under secti
 
 ### Planned discovery and explanation contracts
 
-These contracts are design requirements, not current models or generated types.
-Define them once in models.py and generate client types during implementation.
+These contracts are implemented once in models.py and generated into
+frontend/src/generatedModels.ts. The /api/discover and /api/explain endpoints that
+return them, and their held-out evaluation, are still planned.
 
 | Planned contract | Required semantics |
 | --- | --- |
@@ -337,14 +338,19 @@ Define them once in models.py and generate client types during implementation.
 | DiscoveryResponse | Status ready/clarify/unsupported; up to three supported variable suggestions with cited qualitative reasons; optional resolved Proposal; explicit missing fields/clarification question |
 | ExplanationRequest | One question <=2,000 characters and a 64-hex investigation ID; never trust client-supplied statistics |
 | ExplanationResponse | Status answered/insufficient_evidence/new_investigation_required; investigation ID; corpus version; qualitative blocks, validated citation IDs and allowlisted result-field references; optional proposal awaiting confirmation |
-| DocumentSource | Stable source ID, publisher, title, canonical URL, section, accessed date, available version and content SHA-256; project notes distinguished from agency sources |
-| RetrievedPassage | Source ID, passage text, provider file/passage identity, content hash and retrieval score; not itself a claim of factual support |
+| DocumentSource | Stable source ID and section ID, publisher, title, canonical URL, section title, accessed date, available version and content SHA-256; project notes distinguished from agency sources |
+| RetrievedPassage | Source ID, section ID, passage text (<=1,200 characters), provider file identity, content hash and retrieval score; not itself a claim of factual support |
+| Citation | Built by the server from one retrieved passage and its manifest section: source and section IDs, title, publisher, HTTPS URL, section title, kind and the cited passage text; never from model text |
 
 Reject unknown source IDs, mismatched investigation IDs, invalid result-field
 references and unsupported variable IDs. Citation URLs come from the reviewed
 manifest, never model-generated URLs. A provider response failing these checks is
-not displayed as an answer. Planned schemas must distinguish retrieval absence,
-provider refusal/incomplete output and unsupported questions from a valid finding.
+not displayed as an answer. The schemas distinguish retrieval absence, provider
+refusal/incomplete output and unsupported questions from a valid finding with a
+typed `reason`: no_evidence, provider_refused, provider_incomplete (also an empty
+output), validation_failed or unsupported_question. An insufficient_evidence
+explanation and an unsupported discovery must carry a reason; every other status
+carries null.
 
 ## 6. Data
 
@@ -792,9 +798,13 @@ about 0.2 °C; a sample that stops at 80° misses the fastest-warming polar caps
 ### Status and selected path
 
 Existing: question-to-settings extraction and manual confirmation; AI is disabled
-by default. Planned: OpenAI guided discovery, hosted document retrieval and cited
-qualitative explanations. No RAG ingestion, live provider evaluation or explanation
-endpoint is claimed by this document. The target is OpenAI-only for these new
+by default. Implemented for retrieval: the discovery/explanation contracts, the
+retrieval settings and separate capability flags, the bounded vector-store search,
+the investigation lookup, and the owner-run corpus build and upload scripts; the
+owner has uploaded the reviewed corpus to an OpenAI vector store. Planned: the
+/api/discover and /api/explain endpoints, their interface and their held-out
+evaluation. No discovery or explanation answer or live provider evaluation is
+claimed by this document. The target is OpenAI-only for these new
 features; existing Ollama/Anthropic planner support is an alternative, not a required
 installation. Choose an exact model after semantic, latency and cost evaluation.
 
@@ -872,7 +882,12 @@ result is unavailable, fail explicitly instead of analysing fresh data. Navigati
 cancels/discards the old response; the numerical result never waits for AI.
 Implement a server-owned result lookup/manifest as part of this path; an ID alone
 is not assumed to reconstruct settings. Bind it to retained snapshots and analysis
-version without storing user questions or model responses.
+version without storing user questions or model responses. Implemented as the
+`investigations` table of the operations database: investigation ID, pinned case
+query (with `snap=` and `av=`), analysis version and record time. GET /api/case
+records a pinned case only while explanations are available. Because a case query
+holds user-typed place labels, a record is kept for 24 hours and the table keeps at
+most the newest 10,000 rows; opening the case again records it afresh.
 
 Render canonical verdicts and numbers directly. Generated blocks explain concepts,
 dataset context, limitations and evidence-supported next questions. They must not
@@ -921,15 +936,24 @@ the operational generation lease/rate limits. No automatic retry or agent loop.
 The typed current draft and server-loaded investigation are separately size-bounded.
 Future changes to these limits need recorded latency/cost evaluation.
 
-Proposed configuration: RAG_ENABLED, RAG_EVALUATED, RAG_VECTOR_STORE_ID and
-RAG_CORPUS_VERSION, plus an exact evaluated generation model and retrieval limits.
-These are planned names, not current environment variables. Capabilities report
-planner, discovery and explanation availability separately after implementation.
-Absent or mismatched corpus/model/configuration disables only the affected AI path.
+Configuration (all off by default): RAG_ENABLED, RAG_VECTOR_STORE_ID (must have
+the shape of an OpenAI vector store ID, `vs_` and up to 128 letters, digits, `_`
+or `-`), RAG_CORPUS_VERSION (must equal the manifest's corpus_version),
+RAG_SEARCH_MICROUSD_PER_CALL (owner-supplied integer price per search call),
+RAG_EVALUATED (enables explanations) and DISCOVERY_EVALUATED (enables discovery),
+on top of the planner's hosted OpenAI settings. /api/capabilities reports
+ai_planner_available, ai_discovery_available and ai_explanation_available
+separately. Absent or mismatched corpus/model/configuration disables only the
+affected AI path.
 
 Extend the existing atomic budget accounting before activating RAG: reserve model
 and retrieval charges, separately cap ingestion/indexing and storage costs, define
-vector-store expiry/cleanup, and reconcile actual usage. Daily turn counts are not
+vector-store expiry/cleanup, and reconcile actual usage. The upload script takes a
+required owner-supplied `--max-bytes` cap and refuses, before any call, a corpus
+whose section files exceed it. It records the uploaded bytes, the store's reported
+usage bytes and every attempt (earlier attempts at a version under `superseded`)
+in state/corpus-files.json, and the store expires 30 days after its last use.
+Uploaded files do not expire; delete them from the IDs in that state file. Daily turn counts are not
 spend controls. Unknown prices or insufficient durable budget state disable paid
 operations. Owner-run ingestion is separate from public requests and is not enabled
 merely by setting a runtime AI flag. Keep credentials server-side and inform users

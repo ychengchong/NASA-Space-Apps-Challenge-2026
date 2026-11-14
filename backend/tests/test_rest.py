@@ -1,4 +1,5 @@
 from collections.abc import Iterator, Sequence
+from dataclasses import replace
 from pathlib import Path
 from typing import NoReturn
 
@@ -204,6 +205,144 @@ def test_case_with_scan_includes_the_period_scan(client: TestClient) -> None:
     response = client.get(f"/api/case?{HELSINKI_CASE}&scan=1")
 
     assert response.json()["results"][0]["trend"]["scan"] is not None
+
+
+def with_explanation(services: Services) -> Services:
+    """`services` with hosted OpenAI explanations available (spec 8)."""
+    services.settings = replace(
+        services.settings,
+        ai_enabled=True,
+        ai_evaluated=True,
+        ai_provider="openai",
+        ai_model="test-model",
+        openai_api_key="test-key",
+        ai_budget_durable=True,
+        ai_daily_budget_microusd=1_000_000,
+        ai_input_microusd_per_million=100_000,
+        ai_output_microusd_per_million=500_000,
+        rag_enabled=True,
+        rag_evaluated=True,
+        rag_vector_store_id="vs_test",
+        rag_corpus_version="v1",
+        rag_manifest_version="v1",
+        rag_search_microusd_per_call=2500,
+    )
+    assert services.settings.explanation_available
+    return services
+
+
+def test_pinned_case_is_recorded_for_later_explanation(services: Services, tmp_path: Path) -> None:
+    operations = Cache(tmp_path / "operations.sqlite")
+    services = with_explanation(services)
+    services.operations = operations
+
+    body = client_for(services, tmp_path).get(f"/api/case?{HELSINKI_CASE}").json()
+
+    record = operations.find_investigation(body["id"])
+    operations.close()
+    assert body["pinned"] is True
+    assert record is not None
+    assert BASE_URL + "/case?" + record.case_query == body["app_url"]
+    assert "snap=" in record.case_query and "av=" in record.case_query
+    assert record.analysis_version == body["analysis_version"]
+
+
+def test_recorded_case_query_rebuilds_the_same_investigation(
+    services: Services, tmp_path: Path
+) -> None:
+    operations = Cache(tmp_path / "operations.sqlite")
+    services = with_explanation(services)
+    services.operations = operations
+    client = client_for(services, tmp_path)
+    first = client.get(f"/api/case?{HELSINKI_CASE}").json()
+    record = operations.find_investigation(first["id"])
+    assert record is not None
+
+    again = client.get(f"/api/case?{record.case_query}").json()
+
+    operations.close()
+    assert again["id"] == first["id"]
+
+
+def test_unpinned_case_is_not_recorded(
+    services: Services, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    operations = Cache(tmp_path / "operations.sqlite")
+    services = with_explanation(services)
+    services.operations = operations
+    inp = parse_case_query(parse_query_string(HELSINKI_CASE))
+    unpinned = tool_investigation(inp, services).model_copy(update={"pinned": False})
+
+    async def run_unpinned(
+        inp: AnalyzeTrendInput | ComparePlacesInput, services: Services
+    ) -> Investigation:
+        return unpinned
+
+    monkeypatch.setattr(rest, "_run_case", run_unpinned)
+
+    body = client_for(services, tmp_path).get(f"/api/case?{HELSINKI_CASE}").json()
+
+    record = operations.find_investigation(body["id"])
+    operations.close()
+    assert body["pinned"] is False
+    assert record is None
+
+
+def test_case_is_not_recorded_while_explanations_are_off(
+    services: Services, tmp_path: Path
+) -> None:
+    operations = Cache(tmp_path / "operations.sqlite")
+    services.operations = operations
+    assert not services.settings.explanation_available
+
+    body = client_for(services, tmp_path).get(f"/api/case?{HELSINKI_CASE}").json()
+
+    record = operations.find_investigation(body["id"])
+    operations.close()
+    assert body["pinned"] is True
+    assert record is None
+
+
+# /api/capabilities
+
+
+def test_capabilities_report_each_ai_path_separately(client: TestClient) -> None:
+    assert client.get("/api/capabilities").json() == {
+        "ai_planner_available": False,
+        "ai_discovery_available": False,
+        "ai_explanation_available": False,
+    }
+
+
+def test_capabilities_follow_the_settings_of_each_path(services: Services, tmp_path: Path) -> None:
+    # Hosted OpenAI with retrieval ready, but only the retrieval suite evaluated.
+    services.settings = replace(
+        services.settings,
+        ai_enabled=True,
+        ai_evaluated=True,
+        ai_provider="openai",
+        ai_model="test-model",
+        openai_api_key="test-key",
+        ai_budget_durable=True,
+        ai_daily_budget_microusd=1_000_000,
+        ai_input_microusd_per_million=100_000,
+        ai_output_microusd_per_million=500_000,
+        rag_enabled=True,
+        rag_evaluated=True,
+        rag_vector_store_id="vs_test",
+        rag_corpus_version="v1",
+        rag_manifest_version="v1",
+        rag_search_microusd_per_call=2500,
+        discovery_evaluated=False,
+    )
+
+    body = client_for(services, tmp_path).get("/api/capabilities").json()
+
+    assert body == {
+        "ai_planner_available": True,
+        "ai_discovery_available": False,
+        "ai_explanation_available": True,
+    }
 
 
 # /api/series

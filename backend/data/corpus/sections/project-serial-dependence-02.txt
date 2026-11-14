@@ -1,0 +1,4 @@
+Serial dependence and the retired lag-one correction: The retired correction
+Publisher: Trend Detective project
+
+An earlier draft of the project corrected for dependence with a multiplier based on the lag-one autocorrelation of the residuals, (1 + r1) / (1 - r1), applied to the Mann-Kendall test, the least squares slope and the interval. That multiplier has been retired as a universal correction. The earlier draft's reported false-positive rates and corrected fixture results had no reproducible evidence and are not accepted as validation. The retired multiplier must not be used to claim interval coverage.

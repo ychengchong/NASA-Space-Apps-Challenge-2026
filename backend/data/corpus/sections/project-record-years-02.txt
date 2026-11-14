@@ -1,0 +1,8 @@
+Record years: First and last ten years
+Publisher: Trend Detective project
+
+With at least twenty analysis years, the app compares the plain mean of the first ten years used with the mean of the last ten, and gives the change between them. The two windows never share a year. A missing year is skipped, so a window can then span more than ten calendar years. With fewer than twenty years this comparison is left out.
+
+These are not tests
+
+These facts describe the yearly values used. They are not tests, and their significance was not assessed. In a comparison of places the record years cover the common years.

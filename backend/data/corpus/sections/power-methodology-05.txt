@@ -1,0 +1,16 @@
+POWER Data Methodology: Components
+Publisher: NASA Langley Research Center, POWER Project
+
+While many of the sources of POWER data contain parameters that cross these boundaries of component type, the following links give overviews of the sources and parameters:
+
+Component | Description
+
+Energy Fluxes | Solar and thermal-IR radiative fluxes (CERES SYN1deg, FLASHFlux, GEWEX SRB R4-IP).
+
+Meteorology | Surface meteorological parameters (MERRA-2, GEOS-IT).
+
+Clouds and Aerosols | Auxiliary parameters like cloud amount and atmospheric aerosols. (CERES SYN1deg, TEMPO)
+
+Hydrology | Surface water-cycle data (GWM, SMAP, HydroSCS, MERRA-2, GEOS-IT,!--IMERG→).
+
+Future Projections | Downscaled CMIP6 future projections curated by NASA's RASI workgroup (NEX-GDDP).

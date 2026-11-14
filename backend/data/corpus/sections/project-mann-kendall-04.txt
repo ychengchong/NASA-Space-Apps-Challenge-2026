@@ -1,0 +1,4 @@
+The Mann-Kendall trend test in Trend Detective: When the test is run
+Publisher: Trend Detective project
+
+Formal inference runs only for an individual, complete annual record of two-metre air temperature (T2M) with 20 to 45 contiguous complete years and no change of data source within the period. Every other variable, every season, regional maps and area averages are descriptive: they report a rate, but significance is not assessed. Ten to nineteen complete years give a descriptive rate only, and fewer than ten give too few years for a rate. These are conservative policies of this application, not universal scientific minimums. When the test cannot be justified, the p-value is left empty; an unrun test never reports a p-value of one.

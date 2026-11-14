@@ -1,0 +1,8 @@
+POWER Hydrology Data Sources: Satellite Missions and Repeat Frequencies
+Publisher: NASA Langley Research Center, POWER Project
+
+Each radar altimetry mission is placed in a short-repeat orbit with a fixed exact repeat period. A reservoir is observable by a given mission only if the mission's ground track passes directly over it — if the track does not cross the water body, that reservoir is unobservable by that mission. A summary table of the missions is available at the GWM web site.
+
+Why Timelines Vary
+
+The period of observation for a given reservoir depends on which mission's ground track crosses it. At 10-day resolution, the NASA continuity series (TOPEX/Poseidon through Sentinel-6) has the potential to record variations from 1992 onward. At 27-day resolution, only measurements from 2016 or 2018 are available. A complete table of mission details, frequencies, and observation periods is maintained on the GWM website.

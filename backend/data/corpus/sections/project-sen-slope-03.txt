@@ -1,0 +1,4 @@
+Sen's slope and the total change: Ordinary least squares is only a sensitivity check
+Publisher: Trend Detective project
+
+The app also shows an ordinary least squares (OLS) slope. It is descriptive information about how sensitive the rate is to the choice of estimator. It is not a second significance test, and it does not vote on the verdict. Annual aggregation does not make the year-to-year errors independent.

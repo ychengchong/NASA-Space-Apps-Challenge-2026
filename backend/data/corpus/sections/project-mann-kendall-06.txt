@@ -1,0 +1,4 @@
+The Mann-Kendall trend test in Trend Detective: What the checks show, and what they do not
+Publisher: Trend Detective project
+
+Before release the procedure was checked in predeclared simulation studies at a nominal 5% threshold, with an engineering guardrail on the false-positive rate in every declared setting; every declared setting met it. This is evidence only for the declared simulation family. It does not establish validity for all climate noise, for intermediate correlation values, for structural breaks or for arbitrary dependence, and it is not exact 5% calibration. Being conservative also costs power, especially for short records: a real trend can go undetected. Real series can violate the assumptions, and a significant result does not certify them.

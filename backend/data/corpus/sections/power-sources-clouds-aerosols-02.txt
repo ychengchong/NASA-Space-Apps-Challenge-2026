@@ -1,0 +1,26 @@
+POWER Cloud and Aerosol Data Sources: SYN1deg
+Publisher: NASA Langley Research Center, POWER Project
+
+Cloud Amount and Cloud Optical Visible Depth are derived from NASA's CERES SYN1deg and are available to users at the Hourly, Daily, Monthly, Annual, and Climatology temporal levels.The CERES SYN1deg synoptic product combines CERES broadband measurements with cloud properties retrieved from MODIS and from geostationary imagers, the latter supplying the diurnal sampling that polar-orbiting satellites alone cannot provide, to produce temporally complete, globally gridded cloud and flux fields Rutan et al., 2015; CERES, 2024. As with the solar data, the cloud cover information is available in its original source spatial resolution. Cloud Optical Visible Depth is the vertical optical thickness between the top and bottom of a cloud as computed in the CERES algorithm. Cloud optical depth in CERES is retrieved from imager radiances using the CERES cloud-property algorithm, which derives optical thickness alongside cloud phase and effective particle size Minnis et al., 2011; Minnis et al., 2021.
+
+The percentage of cloud cover is computed in the CERES algorithm. The percentage of cloud cover is computed on 1-hourly time increments for a given month and then averaged over the day to yield the daily averaged percentage for each temporal level. Additionally, the system provides hour-based cloud cover values for each temporal level for all GMT times.
+
+Averaged Frequencies:
+
+Name | Definition
+
+Daytime | Daytime hours only
+
+Nighttime | Nighttime hours only
+
+Clear Skies | Cloud Cover less than or equal to 10%
+
+Broken-cloud Skies | Cloud Cover 10 – 70%
+
+Near-overcast Skies | Cloud Cover greater than or equal to 70%
+
+The AOD parameters available through POWER are derived from NASA's CERES SYN1deg Edition 4.2 product. CERES SYN1deg incorporates MODIS-derived aerosol properties into its radiative transfer calculations, providing globally gridded AOD estimates at 1° latitude by 1° longitude spatial resolution. The MODIS aerosol retrievals underlying these calculations come from the Dark Target algorithm over land and ocean Levy et al., 2013 and the Deep Blue algorithm over bright surfaces Hsu et al., 2006. These merged retrievals are assimilated at 550 nm by the Model for Atmospheric Transport and Chemistry (MATCH), which supplies the aerosol field to the SYN1deg radiative transfer calculation. Fillmore et al., 2022
+
+Source | Spatial Resolution | Temporal Start | Temporal End
+
+CERES SYN1deg Ed4.2 | 1° x 1° | January 1, 2001 | Near Real Time

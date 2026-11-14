@@ -1,0 +1,28 @@
+POWER Meteorological Derived Parameters: Equation
+Publisher: NASA Langley Research Center, POWER Project
+
+\begin{align} T_{min} = max(T_{min},T_{base}) \tag {Minimum Daily Temperature adjustment} \end{align}
+
+\begin{align} T_{i} = (T_{max} + T_{min})/2 \tag {Equation 1} \end{align}
+
+\begin{align} GDD = max(T_{i}-T_{base},0) \tag {Equation 2} \end{align}
+
+\begin{align} Where: \\ T_{i}: & \text{ The base temperature, dependent on plant/insect type. }\\ T_{base}: & \text{ The daily mean temperature from the 24 hourly components. }\\ T_{max}: & \text{ The daily maximum temperature from the 24 hourly components. }\\ T_{min}: & \text{ The daily minimum temperature from the 24 hourly components. } \end{align}
+
+Available Growing Degree Day Base Temperatures
+
+Crop | Temp (°C) | Temp (°F) | Parameter Name
+
+Cotton | 15.6 | 60.0 | GDD15_6
+
+Peanut | 13.3 | 56.0 | GDD13_3
+
+Corn, sweet corn, sorghum, rice, soybeans, beans | 10.0 | 50.0 | GDD10
+
+Potato, sunflower | 7.2 | 45.0 | GDD7_2
+
+Wheat, barley, rye, oats, canola, lettuce | 4.4 | 40.0 | GDD4_4
+
+References
+
+Murphy and Koop, 2005 crops

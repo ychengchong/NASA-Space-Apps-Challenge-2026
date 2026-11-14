@@ -1,0 +1,4 @@
+Grid cells, reanalysis and data sources: Changes of data source
+Publisher: Trend Detective project
+
+Some records change their source part way through. POWER's solar and cloud records come from one source up to 2000 and another from 2001, and NASA warns about source changes in radiation trend analysis. The app keeps solar and cloud records that cross the 2001 transition descriptive and shows a caution when the analysis years cross a source change.

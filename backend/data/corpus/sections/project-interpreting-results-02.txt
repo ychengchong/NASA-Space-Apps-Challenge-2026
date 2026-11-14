@@ -1,0 +1,4 @@
+Reading a result: what significance does and does not say: Significant is not cause or importance
+Publisher: Trend Detective project
+
+A significant verdict means the evidence for a monotonic trend meets the stated threshold under the method's assumptions. Significance is not practical importance: a statistically significant change can be small. Significance is not cause: the test says nothing about why the series changed, and it does not attribute a change to any process or activity. A significant result also does not certify that the method's assumptions hold for the real series.

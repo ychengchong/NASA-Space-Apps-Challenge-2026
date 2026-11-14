@@ -1,0 +1,4 @@
+POWER Validation Data Sources: Processing
+Publisher: NASA Langley Research Center, POWER Project
+
+For temperature, dew point, wind speed, and precipitation, the actual data values are read directly from ISD lite, divided by 10, and converted to the correct units. Wind direction remains the same without dividing by 10. Air Pressure requires on-the-fly reprocessing.

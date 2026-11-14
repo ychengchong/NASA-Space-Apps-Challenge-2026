@@ -1,0 +1,4 @@
+The Mann-Kendall trend test in Trend Detective: What the Mann-Kendall test asks
+Publisher: Trend Detective project
+
+The Mann-Kendall (MK) test asks whether a yearly series tends to rise or to fall over time, without assuming the change is a straight line. It compares every pair of years: a later value higher than an earlier one counts plus one, a lower one minus one, and a tie zero. The sum of these signs is the MK score. A score far from zero, in either direction, is evidence for a monotonic trend. The app uses the two-sided test, so a rise and a fall are treated alike.

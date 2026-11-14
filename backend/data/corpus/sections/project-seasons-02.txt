@@ -1,0 +1,4 @@
+Seasons in Trend Detective: Seasonal rates are descriptive
+Publisher: Trend Detective project
+
+Each season's rate is a descriptive Sen's slope from the season's complete years. Only the all-months row of annual two-metre air temperature can be assessed with the trend test; every other row with a rate says that significance was not assessed. A season with fewer than ten complete years has no rate.

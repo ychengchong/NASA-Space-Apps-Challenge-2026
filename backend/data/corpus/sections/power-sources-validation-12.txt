@@ -1,0 +1,4 @@
+POWER Validation Data Sources: Processing
+Publisher: NASA Langley Research Center, POWER Project
+
+Precipitable Water are copied simply aggregated before being converted to the correct units on the fly. The Aerosol Optical Depth (AOD) parameters, on the other hand, need additional processing to be suitable for validation.

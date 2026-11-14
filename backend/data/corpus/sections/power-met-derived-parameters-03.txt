@@ -1,0 +1,30 @@
+POWER Meteorological Derived Parameters: Equation
+Publisher: NASA Langley Research Center, POWER Project
+
+Following Murphy and Koop, 2005 Relative humidity is calculated by:
+
+\begin{align} RH = (e_a/e_{sat}) \times 100 \text{[%]} \tag {Equation 1} \end{align}
+
+\begin{align} Where: \\ e_a: & \text{ the water vapor pressure }\\ e_{sat}: & \text{ the saturation water vapor pressure at the ambient temperature $T_a$.}\\ \end{align}
+
+\begin{align} \text{The 100 has been added to cast RH in terms of percent.} \end{align}
+
+\begin{align} e_a = (10 \times P_a \times w)/(\varepsilon + w) \text{ } [hPa] \tag {Equation 2} \end{align}
+
+\begin{align} Where: \\ w: & \text{ mixing ratio define as the ratio of mass of water to dry air }\\ \end{align}
+
+\begin{align} ϵ = \frac{R'}{R_v} = \frac{287.05}{461.5} ≃ 0.622 \tag {Equation 3} \end{align}
+
+\begin{align} Where: \\ R': & \text{ Dry vapor gas constant }\\ R_v: & \text{ Water vapor gas constant } \end{align}
+
+\begin{align} w = q / (1-q) \text{ } [kg/kg] \tag {Equation 4} \end{align}
+
+Combining Equation 2 and Equation 4 leads to the following expression for e in terms of q:
+
+\begin{align} e_a = q \times 10 \times P_a / [\varepsilon + q \times (1- \varepsilon)] \text{ } [hPa] \tag {Equation 5} \end{align}
+
+An eighth-order polynomial fit (Flatau et al., 1992) to measurements of vapor pressure over ice and over water provides an expression to calculate the saturated water vapor pressure. The eighth-order fit for e_{wsat} is given by:
+
+\begin{align} e_{wsat} & = A_{1w} + A_{2w}×(T_a) + …+ A_{(n-1)w}×(T_a)^n \tag {Equation 6} \\ e_{isat} & = A_{li} + A_{2i}×(T_a) + …+ A_{(n-1)i}×(T_a)^n \tag {Equation 7} \end{align}
+
+\begin{align} Where: \\ e_{wsat}: & \text{ Saturated vapor pressure over water in [hPa = mb] }\\ e_{isat}: & \text{ Saturated vapor pressure over ice [hPa = mb] }\\ T_a: & \text{ Ambient dry bulb temperature in °C } \end{align}

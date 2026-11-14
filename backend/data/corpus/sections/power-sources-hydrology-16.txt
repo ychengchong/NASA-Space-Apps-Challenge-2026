@@ -1,0 +1,8 @@
+POWER Hydrology Data Sources: Caveats
+Publisher: NASA Langley Research Center, POWER Project
+
+- No cross-calibration — POWER does not adjust MERRA-2 or SMAP values to force agreement across the 2015 boundary. Users building long time series that span both sources should apply their own bias correction.
+
+- Resolution mixing — requesting soil moisture alongside ½° meteorological fields in a single API call will return data at different effective resolutions depending on the parameter. The grid coordinates are interpolated, but the information content differs.
+
+- Frozen ground — both sources report reduced skill over frozen or snow-covered soils. SMAP brightness temperatures over frozen ground are excluded from assimilation.

@@ -1,0 +1,4 @@
+The Mann-Kendall trend test in Trend Detective
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project. It describes the project's own significance procedure. The procedure was designed and checked by the project; it is not a NASA method and NASA has not reviewed it.

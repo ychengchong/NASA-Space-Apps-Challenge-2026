@@ -1,0 +1,34 @@
+POWER Cloud and Aerosol Data Sources: Parameters
+Publisher: NASA Langley Research Center, POWER Project
+
+Parameter | Definition | Units
+
+Tropospheric Nitrogen Dioxide Vertical Column | Tropospheric nitrogen dioxide vertical column from the TEMPO NO2 V04 Level 3 product | molecules/cm²
+
+Tropospheric Nitrogen Dioxide Vertical Column Uncertainty | Uncertainty of the TEMPO tropospheric nitrogen dioxide vertical column | molecules/cm²
+
+Tropospheric Nitrogen Dioxide Quality Flag | Main data quality flag from the TEMPO NO2 V04 Level 3 product | Dimensionless
+
+Formaldehyde Vertical Column | Formaldehyde vertical column from the TEMPO HCHO V04 Level 3 product | molecules/cm²
+
+Formaldehyde Vertical Column Uncertainty | Uncertainty of the TEMPO formaldehyde vertical column | molecules/cm²
+
+Formaldehyde Quality Flag | Main data quality flag from the TEMPO HCHO V04 Level 3 product | Dimensionless
+
+Surface Ozone Profile | TEMPO O3PROF V04 ozone profile selected at the lowest altitude layer | Dobsons
+
+Surface Ozone Profile Precision | Precision of the TEMPO O3PROF V04 ozone profile at the lowest altitude layer | Dobsons
+
+Surface Ozone Profile Error | Error of the TEMPO O3PROF V04 ozone profile at the lowest altitude layer | Dobsons
+
+Cloud Amount | The average percent of cloud amount during the temporal period | %
+
+Surface Pressure | The atmospheric pressure at the surface of the earth | hPa
+
+Surface Albedo | Surface albedo from the TEMPO V04 Level 3 support data | Dimensionless
+
+Solar Zenith Angle | The angle between the geodetic zenith vector and a vector from the earth point to the sun integrated over the period | Degrees
+
+Cloud Pressure | Cloud pressure from the TEMPO CLDO4 V04 Level 3 product | hPa
+
+Note on Usage: Users should note that while Surface Ozone (O3_SFC) and Surface Pressure represent surface conditions, parameters like NO2_VCD and HCHO_VCD represent total quantities in the atmospheric column. While these column densities are strong indicators of localized surface emission patterns, they do not directly equate to surface-level mixing ratios (e.g., parts per billion) typically measured by ground sensors. For nitrogen dioxide, POWER distributes the tropospheric column, which excludes the stratospheric contribution and so isolates the portion of the atmosphere influenced by surface emissions.

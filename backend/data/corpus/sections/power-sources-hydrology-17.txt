@@ -1,0 +1,14 @@
+POWER Hydrology Data Sources: SMAP Selection Logic
+Publisher: NASA Langley Research Center, POWER Project
+
+POWER applies a straightforward priority when resolving a soil-moisture request:
+
+- If the user has enabled high-resolution mode and the request falls within the SMAP spatial and temporal domain (2015–present, land, ±84.66°), return SMAP.
+
+- Otherwise, return MERRA-2.
+
+Users requesting long climate records (pre-2015) will always receive MERRA-2 values regardless of resolution toggle state.
+
+Validation
+
+POWER has not independently validated SMAP parameters. Please see documentation at SMAP for quality assessments.

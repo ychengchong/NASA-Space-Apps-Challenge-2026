@@ -1,0 +1,34 @@
+POWER Meteorological Data Sources: Corrected Wind Speed
+Publisher: NASA Langley Research Center, POWER Project
+
+In addition to the wind speed parameters available at set heights above surface, the POWER API allows the user to request a wind speed at a user defined height (between 10 and 300 m) for a particular surface type. The height adjustment applies a surface-roughness power-law (Hellmann/power-law profile), a widely used engineering approximation for the near-surface wind profile under neutral stability (Peterson, 1978).
+
+Equation: Corrected Wind Speed (Adjusted for Elevation)
+
+\begin{align}\ WSC_{hgt} = WS_{50m} \times \left(\frac{hgt}{50. }\right) ^{\alpha} \end{align}
+
+\begin{align} Where&: \\ &WSC_{hgt} : \text{ Corrected wind speed at user supplied height and surface type} \\ &hgt : \text{ User supplied height above surface in meters} \\ &WS_{50m} : \text{ Wind speed at 50 meters } \\ &\alpha: \text{ Surface roughness for user supplied surface type } \\ \end{align}
+
+Surface | Definition | Surface | Definition
+
+vegtype_1 | 35 m broadleaf-evergreen trees (70% coverage) | vegtype_7 | 0.6 m perennial ground cover (100%)
+
+vegtype_2 | 20 m broadleaf-deciduous trees (75% coverage) | vegtype_8 | 0.5 m broadleaf shrubs (variable %) and ground cover
+
+vegtype_3 | 20 m broadleaf and needleleaf trees (75% coverage) | vegtype_9 | 0.5 m broadleaf shrubs (10%) with bare soil
+
+vegtype_4 | 17 m needleleaf-evergreen trees (75% coverage) | vegtype_10 | Tundra: 0.6 m trees/shrubs (variable %) and ground cover
+
+vegtype_5 | 14 m needleleaf-deciduous trees (50% coverage) | vegtype_11 | Rough bare soil
+
+vegtype_6 | Savanna: 18 m broadleaf trees (30%) and ground cover | vegtype_12 | Crop: 20 m broadleaf-deciduous trees (10%) and wheat
+
+vegtype_20 | Rough glacial snow/ice | seaice | Smooth sea ice
+
+openwater | Open water | airportice | Airport: flat ice/snow
+
+airportgrass | Airport: flat rough grass | |
+
+Reference
+
+Chandler, William S., C.H. Whitlock, P.W. Stackhouse, Jr., 2005: Determining Wind Resources as a Function of Surface Roughness and Height from NASA Global Assimilation Analysis. Proceedings of the International Solar Energy Society 2005 Solar World Congress, August 6–12, Orlando, Florida

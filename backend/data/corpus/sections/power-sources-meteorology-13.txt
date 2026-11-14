@@ -1,0 +1,8 @@
+POWER Meteorological Data Sources: Wind
+Publisher: NASA Langley Research Center, POWER Project
+
+Wind parameters available through the POWER API and DAV include wind speed and direction at various heights above the surface. The user community selection determines the exact height availability. MERRA-2 provides wind components at standard heights (e.g., 2 m, 10 m, and 50 m) from which POWER derives speed and direction.
+
+Mean Wind Speed and Wind Direction Parameters
+
+The wind speed and wind direction parameters are to be used to determine the mean wind flow of a region rather than local area due to effects of buildings and local topography.

@@ -1,0 +1,22 @@
+POWER Meteorological Data Sources: Surface Pressure (part 2)
+Publisher: NASA Langley Research Center, POWER Project
+
+Solving the hypsometric equation for p1 and substituting the known values for z1, z2, p1, R, and g, gives the adjusted MERRA-2 surface pressure (p1) at the elevation of the NCEI surface site.
+
+Hourly Surface Pressure (Adjusted)
+
+Density plot of the 2-D histograms comparing MERRA-2 hourly adjusted surface pressure with station observations from the selected NCEI ISD files for the years 2001–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.
+
+The hourly validation for the adjusted surface pressure shows good agreement with clustering around the 1:1 correlation line, especially for values above 700 hPa.
+
+The daily mean surface pressure is taken directly from the re-gridded MERRA-2 data. It represents estimates of atmospheric pressure at 2 m above the local surface averaged from the original source spatial resolution.
+
+Daily Surface Pressure (Adjusted)
+
+Density plot of the 2-D histograms comparing MERRA-2 daily adjusted surface pressure with station observations from the NCEI GSOD files for 1981–2020.
+
+Plot Notes
+
+- The legend on each density plot gives the site observation mean, bias with MERRA-2, root mean squared error (RMSE), equation of the line for the linear least squares fit, coefficient of determination, and number of data pairs to the plotted values.
+
+- The color bar along the right side of the density plot provides a measure of the frequency of the data pairs per bin in plot.

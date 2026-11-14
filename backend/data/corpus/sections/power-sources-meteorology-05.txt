@@ -1,0 +1,26 @@
+POWER Meteorological Data Sources: Daily Average Overview
+Publisher: NASA Langley Research Center, POWER Project
+
+Comparison statistics for the daily assessment are based upon comparisons of the given parameter for 1981–2020. The same set of sites from the hourly assessment are used here.
+
+Daily Average Surface Validation Summary
+
+Presented here are the results of comparing MERRA-2 daily meteorological parameters to corresponding surface observation reported in the National Center for Environmental Information (NCEI) (formerly National Climatic Data Center) Global Summary of the Day (GSOD) files. The Slope, Intercept, and R-squared (Rsqrd) listed in this table are associated with a linear least squares fit of daily observations at each surface station to the corresponding MERRA-2 values for the overlapping grid cell. The Mean Bias Error (MBE) and Root Mean Square Error (RMSE) represent mean values over the comparison years.
+
+Parameter | MBE | RMSE | Slope | Intercept | Rsqrd
+
+Average Temperature (°C) | -0.53 | 2.10 | 1.00 | -0.58 | 0.97
+
+Minimum Temperature (°C) | 0.32 | 3.15 | 0.98 | 0.46 | 0.87
+
+Maximum Temperature (°C) | -1.23 | 3.10 | 0.99 | -1.01 | 0.87
+
+Dew Point Temperature (°C) | 0.21 | 2.34 | 0.95 | 0.51 | 0.95
+
+Precipitation (mm/day) | 0.55 | 3.69 | 0.64 | 1.05 | 0.39
+
+Elevation Corrected Surface Pressure (hPa) | 0.30 | 1.82 | 0.98 | 16.73 | 0.72
+
+Wind Speed (m/s) | 0.33 | 1.45 | 0.79 | 1.09 | 0.60
+
+- The height above the surface over the entire grid box area is 2 m for each parameter, except for the wind which is 10 m.

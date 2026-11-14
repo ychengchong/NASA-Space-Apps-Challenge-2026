@@ -1,0 +1,24 @@
+MERRA-2 Frequently Asked Questions: FAQ (part 5)
+Publisher: NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)
+
+- From land based surface meteorology stations, only surface pressure is assimilated. Radiosonde stations may contribute to the lower level analysis (T, Qv, U, V). Likewise, commercial aircraft can provide lower level data on ascent and descent (T, U, V). There are also wind profilers (U,V). Over ocean, ships and buoys may provide PS, T, Qv, U and V. See the MERRA-2 Observations Tech Memo for more details.
+
+- https://gmao.gsfc.nasa.gov/gmao-products/merra-2/documentation_merra-2
+
+Why does downward shortwave (SWGDN) output differ between the radiation (RAD) and land forcing (LFO) collections?
+
+- Output of the surface incoming shortwave flux (SWGDN) is available in two sets of file collections: (1) tavg[*]_2d_lfo_Nx Land Surface Forcings (M2T[*]NXLFO, hereinafter LFO) and (2) tavg[*]_2d_rad_Nx Radiation Diagnostics (M2T[*]NXRAD, hereinafter RAD), but their values can differ. The SWGDN values in RAD reflect the flux averaged across all surfaces (ocean, land, landice, and lake), whereas the values in LFO reflect the flux over land only. This makes SWGDN in LFO appropriate for use in conjunction with the net shortwave land (SWLAND) flux, which is also available in LFO and similarly restricted to land only.
+
+In the MERRA-2 model, SWGDN is first calculated on the model’s native cube-sphere grid, and all tiles (or sub-grid computational elements) within a given cube-sphere grid cell see the same SWGDN value, regardless of surface type. To write the RAD output, SWGDN is simply interpolated from the model’s native cube-sphere grid to the regular latitude-longitude grid of the MERRA-2 file collections. To write the LFO output, SWGDN is first masked to land tiles and then interpolated to the regular latitude-longitude grid. Along coastlines, lake shores, or land-landice boundaries, this different interpolation approach results in SWGDN values in LFO that differ from those in RAD.
+
+For grid cells without land (FRLAND=0), SWGDN in LFO is set to the MERRA-2 no-data-value (1e+15).
+
+Where the entire grid cell consists of land (i.e., FRLAND=1), small differences in SWGDN between LFO and RAD occur because a lossy compression is applied to RAD but not LFO.
+
+In the MERRA-2 model, additional small differences in SWGDN between LFO and RAD are caused by small inconsistencies in the radiation calculations between the “Radiation” and “Surface” model components. More recent GEOS model versions no longer have these inconsistencies in the radiation calculations.
+
+Why is there no interannual variability in leaf area index or greenness fraction?
+
+- easonally-varying climatologies were used for leaf area index and greenness fraction as the data available over the MERRA-2 period were not considered reliable enough to capture the relevant interannual variability. The approach to producing those climatologies can be found here, pages 33-35.
+
+- - Document

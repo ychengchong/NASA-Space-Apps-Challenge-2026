@@ -1,0 +1,8 @@
+POWER Hydrology Data Sources: POWER's HEP Reservoir Focus
+Publisher: NASA Langley Research Center, POWER Project
+
+POWER currently serves GWM data for approximately 340 reservoirs that have been identified as having Hydroelectric Power (HEP) stations in their basins. GWM publishes per-reservoir altimetry time series for hydroelectric and other major reservoirs through its lake/reservoir index. The identification process involves two steps:
+
+- Ground-track collocation — The GWM team examines satellite altimeter ground tracks in tools such as Google Earth and identifies which tracks cross an inland water body.
+
+- Hydroelectric classification — Reservoir catalogs and databases are used to determine whether the water body hosts an HEP station. Only those reservoirs with confirmed HEP infrastructure are included in the curated POWER subset.

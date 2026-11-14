@@ -1,0 +1,4 @@
+Seasons in Trend Detective: Comparing seasons
+Publisher: Trend Detective project
+
+Rates for different seasons can differ by chance alone, and no difference between seasons was tested. A season with a larger rate than another is not evidence that the seasons are changing differently.

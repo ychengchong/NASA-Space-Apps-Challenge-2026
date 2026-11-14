@@ -1,0 +1,20 @@
+POWER Hydrology Data Sources: Hydrology: Overview
+Publisher: NASA Langley Research Center, POWER Project
+
+The POWER hydrology component complements the existing solar (Energy Fluxes) and atmospheric (Meteorological) products with surface and subsurface water-cycle information. Soil moisture, inland water-body height, and precipitation are essential terrestrial water-cycle variables for monitoring land–atmosphere exchange and hydrologic state. Where the meteorology data describes the atmospheric state above a grid cell, the hydrology data describes the land and water-body state at or below the surface, i.e. the height of inland water bodies, the depth of soil moisture, and (via partial integration) the high-resolution precipitation that forces the hydrologic system. Satellite altimetry provides height for inland water bodies while passive microwave radiometry constrains near-surface soil moisture, two independent observing strategies for the land water store.
+
+Hydrologic data products differ from POWER's traditional gridded fluxes in several ways:
+
+- Feature-based, not gridded. NASA Global Water Measurements (GWM) products are tied to specific lakes, reservoirs, and rivers rather than a uniform global grid.
+
+- Mission-bounded. Most hydrology sources have hard temporal start dates tied to satellite launches. Soil Moisture Active Passive (SMAP) was launched on 31 January 2015 with science operations beginning later that year, while the Global Precipitation Measurement (GPM) Core Observatory launched on 27 February 2014 and anchors the IMERG record (Huffman et al., 2020). IMERG is reprocessed back to 2000 via the multi-satellite era with TRMM satellites.
+
+- Higher native resolution. Hydrology sources are typically delivered at spatial resolutions finer than POWER's ½° × ⅝° meteorological grid, which is why they are exposed via POWER's high-resolution data pathway. IMERG is provided at 0.1° and SMAP L4_SM at ~9 km, both finer than the MERRA-2-based POWER meteorological grid.
+
+Source | Domain | Spatial Resolution | Temporal Coverage
+
+GWM | Inland water bodies (lakes, reservoirs, rivers, wetlands) | Per-feature satellite altimetry | Mission-dependent
+
+SMAP | Surface and root-zone soil moisture | Native ~9 km (L3/L4) | 2015 – present
+
+IMERG | Precipitation forcing | 0.1° × 0.1° (~10 km) | 2001 – NRT

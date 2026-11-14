@@ -1,0 +1,14 @@
+POWER Hydrology Data Sources: Possible Use Cases
+Publisher: NASA Langley Research Center, POWER Project
+
+- Reservoir-storage monitoring for hydroelectric power planning.
+
+- Lake-level anomaly tracking for drought / flood early warning.
+
+- River-stage time series for transboundary basins lacking in-situ gauges.
+
+- Calibration / validation of land-surface and hydrologic models.
+
+Validation
+
+POWER has not independently validated GWM parameters. Please see FAQs, documents, and references at GWM for more information on accuracy and validation.

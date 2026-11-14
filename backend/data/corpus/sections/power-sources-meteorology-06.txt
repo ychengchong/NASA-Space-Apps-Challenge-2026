@@ -1,0 +1,20 @@
+POWER Meteorological Data Sources: Validation Details: Dry Bulb Temperature (T2M)
+Publisher: NASA Langley Research Center, POWER Project
+
+This section compares MERRA-2 2-meter air temperature to observations reported to the NCEI.
+
+Hourly Dry Bulb Temperature
+
+Density plot of the 2-D histograms comparing MERRA-2 hourly temperatures with station observations from the selected NCEI ISD files for the years 2001–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.
+
+Daily Average Dry Bulb Temperature
+
+Density plot of the 2-D histograms comparing MERRA-2 daily averaged temperatures with station observations from the NCEI GSOD files for 1981–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.
+
+Daily Maximum Dry Bulb Temperature
+
+Density plot of the 2-D histograms comparing MERRA-2 daily maximum temperatures with station observations from the NCEI GSOD files for 1981–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.
+
+Daily Minimum Dry Bulb Temperature
+
+Density plot of the 2-D histograms comparing MERRA-2 daily minimum temperatures with station observations from the NCEI GSOD files for 1981–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.

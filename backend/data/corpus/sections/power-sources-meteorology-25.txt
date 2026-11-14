@@ -1,0 +1,24 @@
+POWER Meteorological Data Sources: All Events
+Publisher: NASA Langley Research Center, POWER Project
+
+The Summary of Statistics below is associated with density scatter plots for all the data integration pairs.
+
+Accumulated | Bias | σ | RMSE | CC | Slope | Intercept | Rsqrd
+
+IMERG Weekly | 2.79 | 24.10 | 24.26 | 0.72 | 0.73 | 6.79 | 0.51
+
+MERRA-2 Weekly | 1.35 | 20.64 | 20.69 | 0.76 | 0.64 | 6.69 | 0.58
+
+IMERG - Weekly - All Events
+
+MERRA-2 - Weekly - All Events
+
+Accumulated | Bias | σ | RMSE | CC | Slope | Intercept | Rsqrd
+
+IMERG Monthly | 11.63 | 58.36 | 59.51 | 0.83 | 0.83 | 22.87 | 0.68
+
+MERRA-2 Monthly | 5.31 | 55.48 | 55.74 | 0.83 | 0.74 | 22.25 | 0.69
+
+IMERG - Monthly - All Events
+
+MERRA-2 - Monthly - All Events

@@ -1,0 +1,4 @@
+POWER Validation Data Sources: Migration to new surface site data
+Publisher: NASA Langley Research Center, POWER Project
+
+The Global Summary of the Day has been decommissioned since 29 August 2025. In the future, POWER will migrate to using the NCEI Synoptic Summary of the Day (SSODv2), which is NCEI's replacement daily observation summary. See official documentation here.

@@ -1,0 +1,8 @@
+POWER Validation Data Sources: Data Latency
+Publisher: NASA Langley Research Center, POWER Project
+
+The latency for individual sites varies, but the surface site data is never available near-real time due to the process of publishing monthly data sets with a DOI. Adding to the consistency is the decentralized nature of BSRN, with each site publishing data sets independently and on different timelines. The POWER team reviews all available BSRN data on an annual basis.
+
+Migration to new surface site data
+
+There is no plan to migrate to a new validation data set for solar irradiance as updates to BSRN are ongoing.

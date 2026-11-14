@@ -1,0 +1,4 @@
+POWER Validation Data Sources: NOAA NCEI GSOD: Data sourcing and processing
+Publisher: NASA Langley Research Center, POWER Project
+
+As the name suggests, NOAA NCEI summarizes weather station observation data to daily averages. For details regarding how that was done, please consult the GSOD documentation. The POWER Validation API reads the daily data values directly from the source, which is publicly available through the Registry of Open Data on AWS. The surface site data is converted to the correct units and compared against the nearest MERRA-2 data point.

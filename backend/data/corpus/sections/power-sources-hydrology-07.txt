@@ -1,0 +1,12 @@
+POWER Hydrology Data Sources: GWM Data Structure
+Publisher: NASA Langley Research Center, POWER Project
+
+Unlike POWER's primary energy-flux and meteorological products, GWM is not a uniform global grid. The native data are organized as time series per water-body feature (per reservoir) because:
+
+- Satellite altimeters do not produce a continuous gridded field over land — they produce point measurements along their orbital ground tracks.
+
+- Each water body is sampled at its own cadence (driven by repeat-orbit geometry and ground-track location).
+
+- Heights are most useful as feature-relative anomalies rather than absolute grid values.
+
+This means GWM data are available by feature identifier rather than by latitude/longitude grid lookup, and the temporal axis is irregular (per visit) rather than fixed (hourly/daily). The GWM system maintains a strict one time series per one ground track approach — it does not merge data sets from satellites of varying temporal resolution or combine multiple ground tracks of the same resolution over a single water body.

@@ -1,0 +1,4 @@
+Serial dependence and the retired lag-one correction: What the app does instead
+Publisher: Trend Detective project
+
+The current procedure, mk_mc_envelope_v1, allows for dependence by simulation. Its null distributions were built from lag-one autoregressive series with correlation 0, 0.2 or 0.5, with Gaussian or skewed shocks, and the app takes the largest tail probability across these scenarios. This protects against false positives for the declared kinds of dependence. It does not establish validity for every form of dependence: all climate noise, intermediate correlation values, structural breaks and arbitrary dependence are outside what was checked. The price of this protection is lower power, so short records or weak trends can fail to reach the threshold even when change occurred.

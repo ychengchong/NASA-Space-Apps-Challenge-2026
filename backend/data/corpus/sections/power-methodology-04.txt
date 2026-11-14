@@ -1,0 +1,12 @@
+POWER Data Methodology: High-Resolution Sources
+Publisher: NASA Langley Research Center, POWER Project
+
+POWER integrates several higher-resolution NASA sources alongside the primary archive. These are exposed through the High-Resolution toggle in the DAV and through dedicated parameter aliases in the API.
+
+Source | Domain | Resolution | Temporal Start | Temporal End
+
+IMERG | Precipitation | 0.1° (~10 km), daily UTC | June 1, 1998 | Near Real Time
+
+SMAP L4 | Soil Moisture | ~0.09° (~9 km), daily UTC | 31 March 2015 | Near Real Time
+
+NEX-GDDP-CMIP6 | Future Climate | ~0.25° (~25 km), daily | 2015 | 2100

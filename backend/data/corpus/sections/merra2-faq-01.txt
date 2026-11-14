@@ -1,0 +1,38 @@
+MERRA-2 Frequently Asked Questions: FAQ
+Publisher: NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)
+
+What are the MERRA-2 soil moisture variables and their units?
+
+- Soil moisture is available from MERRA-2 in two different kinds of units in the Land Surface Diagnostics file Collections (M2T1NXLND, M2TMNXLND, and M2TUNXLND).
+
+The first set of variables are ground wetness values (GWET*) in (dimensionless) units of relative saturation for different layer depths (more on that below). A value of 1 indicates a completely saturated soil, and a value of 0 indicates a completely water-free soil.
+
+The second set of variables are soil moisture contents (*MC) in volumetric units of m3/m3, i.e., the volume of water within the volume of bulk soil (including all solid material, water, and air).
+
+In both cases, the soil moisture variables are provided for three nested layers, the profile (PR) layer from the surface down to the bedrock, the 0-100 cm root zone (RZ) layer, and the 0-5 cm topmost or surface (SF) layer.
+
+- The layer depth associated with PRMC (and GWETPROF) is dzpr.
+
+- The layer depth associated with RZMC (and GWETROOT) is dzrz.
+
+- The layer depth associated with SFMC (and GWETTOP) is dzsf.
+
+These layer depths can be found in the Constant Land-Surface Parameters file (M2CONXLND). For example, SFMC is the volumetric soil moisture content in the 0-5 cm surface layer, and GWETROOT is the relative saturation in the 0-100 cm root zone layer.
+
+Volumetric moisture content (*MC) outputs can be converted from m3 m-3 into equivalent water depths (in length units) by multiplying the *MC value with the associated layer depth.
+
+Finally, the Constant Land-Surface Parameters file (M2CONXLND) also includes grid-cell average soil porosity (poros) values in volumetric units m3 m-3. Note that the MERRA-2 model computes land surface states and fluxes on a cube-sphere grid that is sub-divided into tiles, whereas values in the output data products are provided on a regular 576-by-361 lat/long grid. For each computational unit (or "tile"), the following equations hold:
+
+- PRMC = poros*GWETPROF
+
+- RZMC = poros*GWETROOT
+
+- SFMC = poros*GWETTOP
+
+These equations do not hold, however, for the gridded output on the lat/long output grid because the porosity and soil moisture values are not constant across each lat/long grid cell.
+
+Why is snow depth constant and similar (~0.17) across many times and locations?
+
+- Snow depth (SNODP) is recorded as the snow depth within the snow-covered portion only. Snow mass (SNOMAS), on the other hand, is recorded relative to the entire grid cell area, including the snow-covered and snow-free portions.
+
+The snow depth averaged across the entire grid cell (including the snow-covered and snow-free portions) can be computed by multiplying SNODP with FRSNO.

@@ -2,15 +2,18 @@
 
 Spec 6, "Caching": one row per source, grid point and code. Completed years do not change, so
 rows never expire. Spec 8, "Limits": the daily AI counters live in the same file, so a restart
-does not reset them.
+does not reset them. Spec 8, "Planned explanations": the operations file also maps each pinned
+investigation ID to the case query that rebuilds it, for a bounded time and number of rows.
 """
 
 import json
 import sqlite3
 import threading
 from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
+from app.config import INVESTIGATION_RETENTION_SECONDS, MAX_RECORDED_INVESTIGATIONS
 from app.snapshots import SnapshotStore
 from app.sources.base import MonthKey, MonthlyValues, PointSeries
 
@@ -39,6 +42,12 @@ CREATE TABLE IF NOT EXISTS counters (
 CREATE TABLE IF NOT EXISTS leases (
     key TEXT PRIMARY KEY, token TEXT NOT NULL, expires REAL NOT NULL
 );
+CREATE TABLE IF NOT EXISTS investigations (
+    id               TEXT PRIMARY KEY,  -- the Investigation's 64-hex content ID
+    case_query       TEXT NOT NULL,     -- the pinned case parameters, with snap= and av=
+    analysis_version TEXT NOT NULL,
+    created          REAL NOT NULL      -- seconds since the epoch
+);
 """
 
 # A newer fetch replaces a row; a fetch that ended in an earlier year never does.
@@ -64,6 +73,15 @@ INSERT INTO counters (key, day, value) VALUES (?, ?, 1)
 ON CONFLICT (key, day) DO UPDATE SET value = value + 1
 RETURNING value
 """
+
+
+@dataclass(frozen=True)
+class InvestigationRecord:
+    """Where a pinned investigation can be rebuilt from: its case query and analysis version."""
+
+    case_query: str
+    analysis_version: str
+    created: float
 
 
 class Cache:
@@ -225,6 +243,51 @@ class Cache:
         """Release only this request's lease; never release a newer owner's generation."""
         with self._lock, self._connection:
             self._connection.execute("DELETE FROM leases WHERE key=? AND token=?", (key, token))
+
+    def record_investigation(
+        self,
+        investigation_id: str,
+        case_query: str,
+        analysis_version: str,
+        created: float,
+        retention_seconds: float = INVESTIGATION_RETENTION_SECONDS,
+        max_rows: int = MAX_RECORDED_INVESTIGATIONS,
+    ) -> None:
+        """Remember how to rebuild a pinned investigation (spec 8, "Planned explanations").
+
+        Records older than `retention_seconds` before `created` are deleted first, and after
+        the insert only the newest `max_rows` records are kept. The ID is content-derived, so
+        a second record of the same ID describes the same evidence; the first record is kept
+        until it expires. No question or generated text is stored.
+        """
+        with self._lock, self._connection:
+            self._connection.execute(
+                "DELETE FROM investigations WHERE created < ?", (created - retention_seconds,)
+            )
+            self._connection.execute(
+                "INSERT INTO investigations(id,case_query,analysis_version,created) "
+                "VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING",
+                (investigation_id, case_query, analysis_version, created),
+            )
+            self._connection.execute(
+                "DELETE FROM investigations WHERE id IN (SELECT id FROM investigations "
+                "ORDER BY created DESC, id LIMIT -1 OFFSET ?)",
+                (max_rows,),
+            )
+
+    def find_investigation(self, investigation_id: str) -> InvestigationRecord | None:
+        """The stored record of `investigation_id`, or None when it was never recorded."""
+        with self._lock:
+            row = self._connection.execute(
+                "SELECT case_query, analysis_version, created FROM investigations WHERE id = ?",
+                (investigation_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        case_query, analysis_version, created = row
+        return InvestigationRecord(
+            case_query=case_query, analysis_version=analysis_version, created=float(created)
+        )
 
 
 def _coordinate(value: float) -> float:

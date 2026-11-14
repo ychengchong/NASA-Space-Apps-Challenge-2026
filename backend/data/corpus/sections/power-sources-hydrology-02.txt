@@ -1,0 +1,22 @@
+POWER Hydrology Data Sources: HY Parameter Groups
+Publisher: NASA Langley Research Center, POWER Project
+
+The Hydrology (HY) community groups parameters by subject and temporal availability. The catalog supports hourly, daily, monthly, and climatology metadata for HY parameters; individual parameters are available only at the temporal levels listed below.
+
+Group | Hourly | Daily | Monthly and climatology
+
+Precipitation and water | PRECTOT, PW | PRECTOT, PW, EVPTRNS, EVLAND | IMERG_PRECTOT, PW, EVPTRNS
+
+Temperatures | T2M, T2MDEW, TS, T2MWET | T2M, temperature and surface-temperature extrema, T2MDEW, T2MWET, FROST_DAYS, TSOIL1–TSOIL6, TSURF | T2M, temperature and surface-temperature extrema, T2MDEW, T2MWET, FROST_DAYS
+
+Humidity | RH2M, QV2M | RH2M, QV2M | RH2M, QV2M
+
+Wind | WS2M, U2M, V2M | Two-meter and 10-meter speed statistics, direction, and components | WS2M, speed statistics, U2M, V2M
+
+Radiation | ALLSKY_SFC_SW_DWN, ALLSKY_SFC_LW_DWN, ALLSKY_SFC_SW_UP | Downward and upward radiation, albedo, SWLAND, LWLAND | ALLSKY_SFC_SW_DWN, ALLSKY_SFC_LW_DWN, ALLSKY_SFC_SW_UP, ALLSKY_SRF_ALB
+
+Atmospheric | PS | PS | PS
+
+Reservoir and soil water | — | GWM_HEIGHT, wetness fractions, and volumetric surface, root-zone, and profile moisture | Wetness fractions
+
+GWETTOP, GWETROOT, and GWETPROF represent surface, root-zone, and full-profile soil wetness. SFMC, RZMC, and PRMC provide volumetric moisture content at those depths. EVPTRNS and EVLAND represent transpiration and land evaporation. Daily, monthly, and climatology energy-flux values use MJ/m^2/day; pressure uses kPa. Precipitation uses mm/hour at hourly resolution and mm/day for aggregate products.

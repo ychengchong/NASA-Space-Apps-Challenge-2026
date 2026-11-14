@@ -1,0 +1,48 @@
+MERRA-2 System Characteristics: System Characteristics (part 2)
+Publisher: NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)
+
+- Land use (and its evolution in time): Time invariant satellite land cover; (Reichle et al. 2017b)
+
+- Aerosols: Emissions (Section 2.2 of Randles et al. 2016); Aerosols are assimilated and interactive with the radiation.
+
+- Green House Gases: Follows RCP 4.5
+
+- Solar forcing: NOAA Climate Data Record (CDR) of Solar Spectral Irradiance (SSI), NRLSSI Version 2.1 (Coddington et al. 2017). There is lag in the release of latest data, so the near -real time analysis uses an extrapolation of the solar cycle.
+
+Details of model
+
+- Dynamical core (e.g., semi-Lagrangian): Finite Volume (Putman and Lin, 2007)
+
+- Grid structure: Cubed sphere (Putman and Lin, 2007)
+
+- Hydrostatic or nonhydrostatic: Hydrostatic (Putman and Lin, 2007)
+
+- Radiation parameterization: Chou-Suarez (Molod et al. 2015)
+
+- Boundary layer parameterization: Molod et al. (2015)
+
+- Convection parameterization: Molod et al. (2015)
+
+- Cloud parameterization scheme: Molod et al. (2015)
+
+- Land surface parameterization scheme: Catchment land surface model (Koster et al. 2000; Reichle et al. 2017b)
+
+Further information
+
+- Operational contact point: Michael.Bosilovich@nasa.gov
+
+- URL of the technical note/ reference paper: https://gmao.gsfc.nasa.gov/gmao-products/merra-2/documentation_merra-2/ Gelaro et al. (2017) - https://doi.org/10.1175/JCLI-D-16-0758.1
+
+- Document for list of products: MERRA-2 File Specification, Bosilovich et al (2016) https://gmao.gsfc.nasa.gov/pubs/docs/Bosilovich785.pdf
+
+Observational data used
+
+- Technical Memo with the list of observational data used in the reanalysis: McCarty et al. (2016), https://gmao.gsfc.nasa.gov/pubs/docs/McCarty885.pdf
+
+References
+
+- Bloom, S., L. Takacs, A. DaSilva, and D. Ledvina, 1996: Data assimilation using incremental analysis updates. Mon. Wea. Rev., 124, 1256–1271. doi:10.1175/1520-0493(1996)124,1256:DAUIAU.2.0.CO;2.
+
+- Bosilovich, Michael G., Santha Akella, Lawrence Coy, Richard Cullather, Clara Draper, Ronald Gelaro, Robin Kovach, Qing Liu, Andrea Molod, Peter Norris, Krzysztof Wargan, Winston Chao, Rolf Reichle, Lawrence Takacs, Yury Vikhliaev, Steve Bloom, Allison Collow, Stacey Firth, Gordon Labow, Gary Partyka, Steven Pawson, Oreste Reale, Siegfried D. Schubert, and Max Suárez, 2015. MERRA-2: Initial Evaluation of the Climate. NASA/TM–2015–104606, Vol. 43, 139 pp. Document link
+
+- Bosilovich, M. G., R. Lucchesi, and M. Suárez, 2016: MERRA-2: File Specification. GMAO Office Note No. 9 (Version 1.1), 73 pp. Document link

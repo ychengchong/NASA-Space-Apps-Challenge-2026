@@ -148,9 +148,11 @@ credits or calls NASA. Docker and a public HTTPS deployment require separate ver
 ## Optional AI planner
 
 The [Draft 5 technical spec](docs/technical-spec.md) plans OpenAI-assisted variable
-discovery and RAG explanations using a reviewed documentation corpus. These are
-planned additions, not current features; no local model is required for that plan.
-The configuration and limits below describe the existing planner only.
+discovery and RAG explanations using a reviewed documentation corpus. The corpus,
+its upload, the retrieval settings and the response contracts exist; the
+/api/discover and /api/explain endpoints are not yet implemented or evaluated. No
+local model is required for that plan. The retrieval settings are described under
+"Retrieval settings" below; the rest of this section describes the planner.
 Without an enabled provider, the question box matches keywords and fills settings;
 it does not generate conversational explanations.
 
@@ -180,6 +182,39 @@ Bounds: 8 KiB body, one question <=2,000 characters, one generation at a time ac
 workers sharing operational state, 512 output tokens and a 30-second operation
 deadline. Local context is capped at 8,192 tokens, with a conservative input bound.
 Daily request and per-address limits apply. Chat text is not stored server-side.
+
+### Retrieval settings
+
+Discovery and explanation need hosted OpenAI planning (above) plus these settings,
+all off by default (see `.env.example`):
+
+| Setting | Meaning |
+| --- | --- |
+| `RAG_ENABLED` | Turns retrieval on |
+| `RAG_VECTOR_STORE_ID` | The `vs_...` store the upload script printed; any other shape keeps retrieval off |
+| `RAG_CORPUS_VERSION` | The uploaded corpus version; must equal `corpus_version` in `backend/data/corpus/manifest.json` |
+| `RAG_SEARCH_MICROUSD_PER_CALL` | Owner-supplied integer microdollar price of one vector-store search |
+| `RAG_EVALUATED` | Set only after the explanation suite is run and reviewed; enables explanations |
+| `DISCOVERY_EVALUATED` | Set only after the discovery suite is run and reviewed; enables discovery |
+
+`/api/capabilities` reports `ai_planner_available`, `ai_discovery_available` and
+`ai_explanation_available` separately; a missing or mismatched retrieval setting turns
+off only discovery and explanation. While explanations are available, each pinned case
+is recorded in the operations database (investigation ID, case query including place
+labels, analysis version) so an explanation can rebuild it from retained snapshots; a
+record is kept 24 hours and at most 10,000 are kept.
+
+The corpus is built and uploaded by the owner, from `backend/`:
+
+```sh
+uv run python -I scripts/build_corpus.py --accessed YYYY-MM-DD --raw-dir EMPTY_DIR
+uv run --env-file ../.env python -m scripts.upload_corpus --max-bytes 1000000
+```
+
+The upload refuses a corpus over the `--max-bytes` cap before any call, records file
+IDs, uploaded bytes, the store's usage bytes and earlier attempts in
+`state/corpus-files.json`, and creates a store that expires 30 days after last use.
+Uploaded files do not expire: delete them by the IDs in that state file.
 
 ## Development checks
 
@@ -272,6 +307,13 @@ Claude Code (model Claude Opus 5.5) built the descriptive additions of a team br
 15 November 2026: record years, eight catalogue variables and two sea places, the seasons
 panel, a fourth example, the place overview, the gap between two places and the whole-world
 sample. The detailed [AI contribution record](docs/ai-disclosure.md) preserves contributor-reported development history separately from current runtime behaviour.
+
+Claude Code (model Claude Opus 5.5) wrote the Draft 5 retrieval groundwork on 15 November
+2026: the shared AI module, the discovery and explanation contracts, the retrieval settings
+and capability flags, the investigation lookup, the corpus build and upload scripts, the
+project method notes in the corpus, and their tests. It also fixed the review findings on
+that work (typed failure reasons, cited passages and sections, the upload byte cap and
+attempt history, robots.txt errors and the bounded investigation lookup).
 
 Educational impact and the >=90% semantic planner target are not established by
 unit tests. Run the recorded evaluation protocol with target users and the selected

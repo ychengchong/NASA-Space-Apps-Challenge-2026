@@ -1,0 +1,32 @@
+POWER Meteorological Derived Parameters: Coefficients
+Publisher: NASA Langley Research Center, POWER Project
+
+Coefficients for e_{sat} over water and over ice and the temperature range over which the coefficient are applicable
+
+Over Water
+
+(Valid: -85 °C to 70 °C) | Over Ice
+
+(Valid: -90 °C to 0 °C)
+
+A1w = 6.11583699 | A1i = 6.09868993
+
+A2w = 0.444606896 | A2i = 0.499320233
+
+A3w = 0.143177157E-1 | A3i = 0.184672631E-1
+
+A4w = 0.264224321E-3 | A4i = 0.402737184E-3
+
+A5w = 0.299291081E-5 | A5i = 0.565392987E-5
+
+A6w = 0.203154182E-7 | A6i = 0.521693933E-7
+
+A7w = 0.702620698E-10 | A7i = 0.307839583E-9
+
+A8w = 0.379534310E-13 | A8i = 0.105758160E-11
+
+A9w = -0.321582393E-15 | A9i = 0.161444444E-14
+
+Note
+
+Only the relative humidity over water is calculated and provided in the POWER Archive consistent with the values reported by the National Weather Service.

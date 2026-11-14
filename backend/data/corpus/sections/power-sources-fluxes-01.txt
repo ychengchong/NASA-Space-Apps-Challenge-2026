@@ -1,0 +1,18 @@
+POWER Solar Flux Data Sources: Energy Fluxes
+Publisher: NASA Langley Research Center, POWER Project
+
+The surface shortwave (SW) radiation (or solar insolation) and the longwave (LW) radiation (or thermal radiation) available from the POWER data archives are based upon observational data from satellites. The basic observational data is the amount of radiative energy emerging from the Earth’s atmosphere at certain ranges of wavelengths from the solar through the thermal infrared. The amount of radiation measured is affected by atmospheric absorption, emission, and scattering processes. Radiative transfer models and radiative transfer-based parameterizations using the observations and information about the atmospheric constituents, such as gaseous concentrations, aerosols, and clouds, are used for estimating the SW and LW radiative fluxes. This satellite-plus-radiative-transfer approach underpins both the GEWEX SRB and CERES surface flux products that supply POWER, which combine TOA radiance observations with assimilated atmospheric state to infer surface irradiance.
+
+Energy flux parameters (e.g. Solar Irradiance, Thermal IR, and Cloud Properties) are derived from NASA Langley Research Center's SRB Release 4-Integrated Product (R4-IP) archive in association with the GEWEX program and NASA's CERES SYN1deg and FLASHFlux (Kratz et al., 2014) projects. FLASHFlux data is processed by the POWER team on a daily basis and appended to the daily time series to provide low latency products which are generally ready within about four days of near real time. FLASHFlux is the dedicated low-latency CERES stream, applying fast radiative algorithms to the earliest instrument data to deliver fluxes within roughly a week of observation. Daily mean solar radiation data for the time period from January 1, 2001 to within approximately 3–4 months of current time, or real time, are taken from NASA’s CERES SYN1deg Edition 4.2. Filling in from that point to near real time (about 1 week) is CERES FLASHFlux Version 4A. CERES SYN1deg Edition 4 delivers climate-quality, fully calibrated hourly-to-monthly surface fluxes, whereas FLASHFlux trades some calibration accuracy for latency of about one week to support near-real-time applications.
+
+A summary of the time period and source of fluxes is presented in this table:
+
+Source | Temporal Start | Temporal End | Latency
+
+SRB 4.0-IP | January 1, 1984 | December 31, 2000 |
+
+CERES SYN1deg Edition 4.2 | January 1, 2001 | NRT minus ~3–4 months |
+
+CERES FLASHFlux Version 4A | NRT ~3–4 months | Near Real Time | 5–7 Days
+
+The POWER project provides data at the native source resolutions from the data providers; primary solar resolution is a global 1° latitude by 1° longitude grid from both CERES SYN1deg and GEWEX SRB. CERES SYN1deg is the primary global product used for POWER solar fluxes whose sub-daily fluxes are constructed through geostationary-augmented temporal interpolation between CERES observations (Doelling et al., 2013).

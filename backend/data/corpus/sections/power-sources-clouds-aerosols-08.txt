@@ -1,0 +1,4 @@
+POWER Cloud and Aerosol Data Sources: References
+Publisher: NASA Langley Research Center, POWER Project
+
+Gueymard, C.A. (2012) Sengupta et al., 2018 Evangelisti et al., 2019 Rutan et al., 2015 Su et al., 2007 Minnis et al., 2021 Mercado et al., 2009 Kanniah et al., 2012 Zhu et al., 2019 CERES SYN1deg CERES, 2024 Minnis et al., 2011 Levy et al., 2013 Hsu et al., 2006 Fillmore et al., 2022 AErosol RObotic NETwork (AERONET) Holben et al., 1998 Giles et al., 2019 Ångström, 1929 TEMPO Zoogman et al., 2017 Tropospheric Nitrogen Dioxide Vertical Column Formaldehyde Vertical Column Surface Ozone Profile Cloud Amount

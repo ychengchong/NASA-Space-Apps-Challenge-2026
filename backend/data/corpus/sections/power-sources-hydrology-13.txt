@@ -1,0 +1,10 @@
+POWER Hydrology Data Sources: SMAP Processing
+Publisher: NASA Langley Research Center, POWER Project
+
+- Source product: NASA produces the L4_SM global daily analysis on a 9 km Equal-Area Scalable Earth (EASE) grid.
+
+- Regridding: The POWER pipeline uses the standard latitude–longitude grid at approximately 0.09° spacing. Reichle et al., 2017 SMAP L4_SM, 2026
+
+- Temporal aggregation: POWER serves SMAP at the daily UTC temporal level. Monthly and annual aggregates are computed by averaging daily values.
+
+- Storage: Processed fields are stored as Zarr arrays in the POWER datastore on AWS (s3://nasa-power-smap/smap/).

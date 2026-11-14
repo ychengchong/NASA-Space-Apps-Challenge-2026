@@ -1,0 +1,34 @@
+MERRA-2 Frequently Asked Questions: FAQ (part 3)
+Publisher: NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)
+
+Sulfate requires a multiplication factor since the species tracer in MERRA-2 is the sulfate ion. Unlike with MERRAero, a multiplicative factor is not included for OCSMASS to convert organic carbon to organic matter since this is already handled within the model. For users of GEOS FP, please note that this equation is not applicable to FP as MERRA-2 does not include nitrate aerosol. For additional details, see Section 3.1 of document
+
+- - Document
+
+How do I obtain PM1 and PM10 concentrations in MERRA-2?
+
+- Unlike PM2.5 where the dust and sea-salt contributions are included in the 2D aer_Nx collections, there is no readily available PM1/PM10 diagnostic in MERRA-2. However, P1/PM10 concentrations can be calculated from the aerosol mass mixing ratios in the inst3_3d_aer_Nv collection. Start with the aerosol mass mixing ratios in lowest model layer 72 (recall: MERRA-2 vertical layers are arranged top-down) and compute the particulate matter concentration according to these formulas:
+
+PM1 = (1.375*SO4 + BCphobic + BCphilic + OCphobic + OCphilic + 0.7 * DU001 + SS001 + SS002) * AIRDENS
+
+PM10 = (1.375*SO4 + BCphobic + BCphilic + OCphobic + OCphilic + DU001 + DU002 + DU003 + 0.74 * DU004 + SS001 + SS002 + SS003 + SS004) * AIRDENS
+
+Unlike with MERRAero, a multiplicative factor is not included for OCphobic or OCphilic to convert organic carbon to organic matter since this is already handled within the model.
+
+References:
+
+- Buchard, V., Randles, C. A., DA SILVA, A. M., Darmenov, A., Colarco, P. R., Govindaraju, R., et al. (2017). The MERRA-2 Aerosol Reanalysis, 1980 Onward. Part II: Evaluation and Case Studies. Journal of Climate, 30(17), 6851–6872. http://doi.org/10.1175/JCLI-D-16-0613.1
+
+- Buchard, V., DA SILVA, A. M., Randles, C. A., Colarco, P., Ferrare, R., Hair, J., et al. (2016). Evaluation of the surface PM2.5 in Version 1 of the NASA MERRA Aerosol Reanalysis over the United States. Atmospheric Environment, 125, 100–111. http://doi.org/10.1016/j.atmosenv.2015.11.004
+
+- Provençal, S., Buchard, V., DA SILVA, A. M., & Leduc, R. (2017). Evaluation of PM2. 5 Surface Concentrations Simulated by Version 1 of NASA's MERRA Aerosol Reanalysis over Israel and Taiwan. Aerosol and Air Quality
+
+- Provençal, S., Buchard, V., DA SILVA, A. M., & Leduc, R. (2016). Evaluation of PM surface concentrations simulated by Version 1 of NASA's MERRA Aerosol Reanalysis over Europe. Atmospheric Pollution …, 8(2), 374–382. http://doi.org/10.1016/j.apr.2016.10.009
+
+When will data be available?
+
+- At the end of the month, monthly files are created, and the whole month is run through quality checking. On approval, the data are released to the GES DISC. So, each new month is available approximately between the 15th and 20th of the next month.
+
+However, if there is any disruption to the input observation stream or computing services, delays may occur.
+
+What is the difference between ASM and ANA data collections, and how do I choose?

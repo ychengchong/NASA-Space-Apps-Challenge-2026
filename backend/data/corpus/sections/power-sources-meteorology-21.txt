@@ -1,0 +1,14 @@
+POWER Meteorological Data Sources: IMERG
+Publisher: NASA Langley Research Center, POWER Project
+
+POWER also serves higher-resolution precipitation from NASA's GPM mission's IMERG product at 0.1° (~10 km). The 10 km resolution should allow for better representation of convective cells and other smaller scale precipitation events. Both Late and Final Runs include gauge adjustments, however it is possible that the Late Run is missing microwave satellite overpass data that is delivered after processing of the Late Run. These data are included in Final Runs. IMERG merges precipitation estimates from the GPM constellation passive-microwave and infrared sensors onto a 0.1° half-hourly grid, and the Final Run applies monthly gauge calibration from GPCC, whereas the Late Run uses climatological gauge adjustment (Huffman, 2020).
+
+Source | Temporal Start | Temporal End | Latency
+
+IMERG Final Run | June 1, 1998 | 3.5 Months Behind Near Real Time | 3.5 Months
+
+IMERG Late Run | End of IMERG Final Run | Near Real Time | 14 hours
+
+Warning
+
+IMERG is available at the daily temporal level in UTC only. The time series will include both Late and Final Run data within a few months of NRT; end the analysis 3.5 months behind NRT when assessing trends.

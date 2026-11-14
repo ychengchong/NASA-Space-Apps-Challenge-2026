@@ -1,0 +1,14 @@
+POWER Cloud and Aerosol Data Sources: AOD at 0.55 µm
+Publisher: NASA Langley Research Center, POWER Project
+
+AOD at 0.55 µm Validation
+
+Validation of CERES SYN1deg AOD at 0.55 µm against AERONET surface observations.
+
+Comparison of CERES SYN1deg AOD at 550 nm against AERONET Level 2.0 observations at Boulder, Colorado (BOU), 2001–2016. Left: Hexbin scatter plots of matched pairs. Right: SYN1deg − AERONET difference by calendar month.
+
+Plot Notes
+
+- Statistics include bias, root mean squared error (RMSE), Pearson's correlation coefficient, Mean Absolute Error and number of matched data pairs.
+
+- Validation comparisons utilize quality-assured Level 2.0 AERONET data matched spatially and temporally to the 1° SYN1deg grid.

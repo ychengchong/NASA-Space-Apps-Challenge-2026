@@ -1,0 +1,36 @@
+POWER Meteorological Data Sources: Validation Overview
+Publisher: NASA Langley Research Center, POWER Project
+
+Daily Average Surface Validation Summary With Comparison to MERRA-2
+
+Presented here are the results of comparing 2 years of GEOS-IT and MERRA-2 daily meteorological parameters (2024 and 2025) to corresponding surface observation reported in the NCEI Synoptic Summary of the Day (SSOD) files. The Slope, Intercept, and R-squared (Rsqrd) listed in this table are associated with a linear least squares fit of daily observations at each surface station to the corresponding model values for the overlapping grid cell. The MBE and RMSE represent mean values over the comparison years.
+
+Parameter | Model | MBE | RMSE | Slope | Intercept | Rsqrd
+
+Average Temperature (°C) | GEOS-IT | -0.26 | 2.08 | 1.00 | -0.26 | 0.98
+
+MERRA-2 | -0.47 | 2.17 | 1.01 | -0.63 | 0.98
+
+Minimum Temperature (°C) | GEOS-IT | 0.28 | 2.75 | 0.99 | 0.43 | 0.96
+
+MERRA-2 | -0.22 | 2.87 | 1.00 | -0.17 | 0.95
+
+Maximum Temperature (°C) | GEOS-IT | -0.71 | 2.66 | 1.00 | -0.63 | 0.97
+
+MERRA-2 | -0.54 | 2.70 | 1.01 | -0.69 | 0.96
+
+Dew Point Temperature (°C) | GEOS-IT | -0.20 | 2.45 | 0.94 | 0.27 | 0.96
+
+MERRA-2 | -0.06 | 2.50 | 0.95 | 0.38 | 0.96
+
+Precipitation (mm/day) | GEOS-IT | 0.47 | 7.77 | 0.47 | 2.06 | 0.29
+
+MERRA-2 | 0.17 | 7.17 | 0.50 | 1.68 | 0.37
+
+Wind Speed (m/s) | GEOS-IT | -0.01 | 1.51 | 0.69 | 1.00 | 0.55
+
+MERRA-2 | 0.62 | 1.66 | 0.71 | 1.57 | 0.56
+
+Wind Speed Max (m/s) | GEOS-IT | -1.11 | 2.74 | 0.53 | 1.68 | 0.41
+
+MERRA-2 | -0.18 | 2.57 | 0.55 | 2.49 | 0.41

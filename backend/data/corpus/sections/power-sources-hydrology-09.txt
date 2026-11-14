@@ -1,0 +1,16 @@
+POWER Hydrology Data Sources: Source Prioritization
+Publisher: NASA Langley Research Center, POWER Project
+
+The 10-day resolution product files may contain two elevation values on the same day (spaced approximately one minute apart) when continuity missions overlap. The GWM team does not automatically select one value over another; POWER's data pipeline applies the following mission-priority rules:
+
+Priority | Rule
+
+1 | Select TOPEX (or POSDN) over Jason-1
+
+2 | Select Jason-2 over both Jason-1 and Jason-3
+
+3 | Select Sentinel-6 (or SEN6A) over Jason-3
+
+4 | Select Sentinel-6A over Sentinel-6B (if both present)
+
+These rules are applied during POWER's ingest pipeline so that users receive a single, prioritized water-level value per reservoir per observation date.

@@ -1,0 +1,12 @@
+POWER Validation Data Sources: Pressure conversion from sea level pressure to station level pressure
+Publisher: NASA Langley Research Center, POWER Project
+
+The only available ISD pressure is sea level pressure (SLP). For POWER Surface Pressure validation, the ISD SLP is converted to station level pressure, accounting for surface elevation with the following equation.
+
+\begin{align} \text{PS} = \frac{\text{SLP}}{e^{\frac{\text{Elev} \times g}{R \times \text{Temp}}}} \end{align}
+
+\begin{align} Where: \\ Elev: & \text{ Elevation of the reporting surface site, in meters. } \\ Temp: & \text{ Temperature of reporting surface site, in Kelvin. } \\ PS: & \text{ Surface site pressure, in desired output unit(hPa, kPa). } \\ SLP: & \text{ Surface site sea level pressure. } \\ R: & \text{ Gas constant for dry air, 287.1 JK⁻¹kg⁻¹ } \\ g: & \text{ Gravitational constant, 9.81 } \text{m} \text{s}^{-2} \\ \end{align}
+
+Precipitation
+
+ISD Lite captures "trace" precipitation, which is interpreted as 1/10 millimeter per hour for DAV and API usage.

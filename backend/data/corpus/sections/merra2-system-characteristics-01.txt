@@ -1,0 +1,54 @@
+MERRA-2 System Characteristics: System Characteristics
+Publisher: NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)
+
+System
+
+- System name (version): Modern Era Retrospective-analysis for Research and Applications version 2 (MERRA-2) (using Goddard Earth Observing System version 5.12.4)
+
+- Date of implementation: Oct 12, 2015
+
+- Project overview paper: Gelaro et al. (2017)
+
+Configuration
+
+- Earth system components included in the analysis system (e.g., ocean, sea-ice, land, etc.): Catchment Land Surface Model with Observation Corrected Precipitation. Assimilated and Interactive Aerosols
+
+- Horizontal resolution of the model, with indication of grid spacing in km (for the different Earth system component included in the model): The model is run on a cubed sphere grid. Data are provided at 0.625° longitude 0.5° latitude by (576 by 361 gridpoints, approximately 50km2)
+
+- Number of levels in the different Earth system components (for the different Earth system component included in the model): 72 native model levels, also interpolated to 42 pressure levels
+
+- Frequency of the outputs: 2D variables at 1 hourly frequency, 3D variables at 3 hourly frequency, Analysis variables at 6 hourly frequency
+
+- Top of the atmospheric model: 0.01 hPa
+
+- Number of analysis cycle per day: 4
+
+- Earliest start date: 00Z 01 JAN 1980
+
+- Integration time step: 900sec
+
+- Length and frequency of the longest forecast: 6 hours, only for the analysis cycle
+
+- Dataset latency: Data is released monthly and usually available by the 15th of the following month
+
+- Documentation: https://gmao.gsfc.nasa.gov/gmao-products/merra-2/documentation_merra-2/
+
+Analysis system
+
+- Length of the analysis window: 6 hours
+
+- Number of ensemble members and their resolution: NA
+
+- Additional comments: Uses Incremental Analysis Update (Bloom et al. 1996) and global mass constraint (Takacs et al. 2016)
+
+- Data assimilation method: 3D variational analysis (3D-Var), with the first-guess at the appropriate time of the observations (FGAT) and variational bias correction.
+
+Externally prescribed boundary conditions
+
+- Sea surface temperature: SST and Sea Ice are prescribed from observations; (Bosilovich et al. 2015)
+
+- Sea-ice: As with SST above, but sea ice albedo is discussed by Cullather et al. (2014)
+
+- Snow: Observation-based precipitation driving the land surface except in the high latitudes (Reichle et al. 2017a,b)
+
+- Vegetation: Seasonally-varying climatology of satellite leaf-area index; (Reichle et al. 2017b)

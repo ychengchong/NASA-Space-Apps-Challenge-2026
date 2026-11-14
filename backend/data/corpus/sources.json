@@ -1,0 +1,199 @@
+{
+  "about": "The reviewed documents of the retrieval corpus (spec 8, 'Planned corpus and retrieval'). scripts/build_corpus.py fetches each agency page, reads each project note from 'path', and writes manifest.json and sections/. 'drop_classes' names page furniture to leave out. Add a source only after reviewing it; no news, uploads or web search results.",
+  "sources": [
+    {
+      "source_id": "power-methodology",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Data Methodology",
+      "url": "https://power.larc.nasa.gov/docs/methodology/",
+      "notes": "Overview of POWER's components, data sources and release history."
+    },
+    {
+      "source_id": "power-sources-meteorology",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Meteorological Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_meteorology/",
+      "notes": "MERRA-2 and GEOS-IT as the meteorological source, the native grid and validation of meteorological parameters such as T2M and precipitation."
+    },
+    {
+      "source_id": "power-sources-hydrology",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Hydrology Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_hydrology/",
+      "notes": "Hydrology parameters, including precipitation sources."
+    },
+    {
+      "source_id": "power-processing",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Data Processing",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/processing/",
+      "notes": "The temporal processing hierarchy: how daily, monthly and annual values are derived."
+    },
+    {
+      "source_id": "power-sources-fluxes",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Solar Flux Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_fluxes/",
+      "notes": "Radiation sources and the source change in 2001 behind the sunlight caution."
+    },
+    {
+      "source_id": "power-sources-clouds-aerosols",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Cloud and Aerosol Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_clds_aerosols/",
+      "notes": "Cloud and aerosol sources behind the cloud cover and haze variables."
+    },
+    {
+      "source_id": "power-sources-validation",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Validation Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_validation/",
+      "notes": "Surface observation archives POWER uses to validate its parameters."
+    },
+    {
+      "source_id": "power-met-derived-parameters",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Meteorological Derived Parameters",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/derived/met-derived-parameters/",
+      "notes": "Definitions of derived parameters such as relative humidity."
+    },
+    {
+      "source_id": "power-communities",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER User Communities",
+      "url": "https://power.larc.nasa.gov/docs/methodology/communities/",
+      "notes": "User communities and their units; the app requests the AG community."
+    },
+    {
+      "source_id": "power-api-monthly",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Monthly and Annual API",
+      "url": "https://power.larc.nasa.gov/docs/services/api/temporal/monthly/",
+      "notes": "The monthly API the app calls, its sources and request limits."
+    },
+    {
+      "source_id": "merra2-overview",
+      "kind": "agency",
+      "publisher": "NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)",
+      "title": "MERRA-2 Overview",
+      "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/",
+      "notes": "What MERRA-2 is, its start year and its resolution.",
+      "drop_classes": [
+        "c-banner-section",
+        "c-side-list-menu",
+        "c-bottom-menu-container",
+        "modal"
+      ]
+    },
+    {
+      "source_id": "merra2-system-characteristics",
+      "kind": "agency",
+      "publisher": "NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)",
+      "title": "MERRA-2 System Characteristics",
+      "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/system-characteristics_merra-2/",
+      "notes": "MERRA-2 configuration, grid and output frequency.",
+      "drop_classes": [
+        "c-banner-section",
+        "c-side-list-menu",
+        "c-bottom-menu-container",
+        "modal"
+      ]
+    },
+    {
+      "source_id": "merra2-faq",
+      "kind": "agency",
+      "publisher": "NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)",
+      "title": "MERRA-2 Frequently Asked Questions",
+      "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/faq_merra-2/",
+      "notes": "GMAO answers on MERRA-2 variables, such as soil wetness, and their use.",
+      "drop_classes": [
+        "c-banner-section",
+        "c-side-list-menu",
+        "c-bottom-menu-container",
+        "modal"
+      ]
+    },
+    {
+      "source_id": "project-sen-slope",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Sen's slope and the total change",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/sen-slope.md",
+      "path": "project/sen-slope.md",
+      "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    },
+    {
+      "source_id": "project-mann-kendall",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "The Mann-Kendall trend test in Trend Detective",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/mann-kendall.md",
+      "path": "project/mann-kendall.md",
+      "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    },
+    {
+      "source_id": "project-serial-dependence",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Serial dependence and the retired lag-one correction",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/serial-dependence.md",
+      "path": "project/serial-dependence.md",
+      "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    },
+    {
+      "source_id": "project-verdicts",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "What each verdict means",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/verdicts.md",
+      "path": "project/verdicts.md",
+      "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    },
+    {
+      "source_id": "project-interpreting-results",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Reading a result: what significance does and does not say",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/interpreting-results.md",
+      "path": "project/interpreting-results.md",
+      "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    },
+    {
+      "source_id": "project-grid-cells-and-reanalysis",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Grid cells, reanalysis and data sources",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/grid-cells-and-reanalysis.md",
+      "path": "project/grid-cells-and-reanalysis.md",
+      "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    },
+    {
+      "source_id": "project-seasons",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Seasons in Trend Detective",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/seasons.md",
+      "path": "project/seasons.md",
+      "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    },
+    {
+      "source_id": "project-record-years",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Record years",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/record-years.md",
+      "path": "project/record-years.md",
+      "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
+    }
+  ]
+}

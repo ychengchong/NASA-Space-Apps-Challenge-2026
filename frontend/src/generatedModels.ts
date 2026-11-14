@@ -28,6 +28,8 @@ export interface Box {
 
 export interface Capabilities {
   "ai_planner_available": boolean;
+  "ai_discovery_available"?: boolean;
+  "ai_explanation_available"?: boolean;
 }
 
 export interface Cell {
@@ -35,6 +37,31 @@ export interface Cell {
   "lon": number;
   "height": number;
   "width": number;
+}
+
+export interface Citation {
+  "source_id": string;
+  "section_id": string;
+  "title": string;
+  "publisher": string;
+  "url": string;
+  "section": string;
+  "kind": "agency" | "project";
+  "passage": string;
+}
+
+export interface Clarification {
+  "question": string;
+  "choices": (ClarificationChoice)[];
+}
+
+export interface ClarificationChoice {
+  "label": string;
+  "variable"?: (string | null);
+  "place"?: (PlaceCandidate | null);
+  "from"?: (number | null);
+  "to"?: (number | null);
+  "season"?: ("annual" | "DJF" | "MAM" | "JJA" | "SON" | null);
 }
 
 export interface ComparePlacesInput {
@@ -46,6 +73,65 @@ export interface ComparePlacesInput {
   "variable": string;
   "places": (PlaceInput)[];
   "scan"?: boolean;
+}
+
+export interface DiscoveryDraft {
+  "variable"?: (string | null);
+  "places"?: (PlaceInput)[];
+  "from"?: (number | null);
+  "to"?: (number | null);
+  "season"?: ("annual" | "DJF" | "MAM" | "JJA" | "SON" | null);
+}
+
+export interface DiscoveryRequest {
+  "question": string;
+  "draft"?: (DiscoveryDraft | null);
+}
+
+export interface DiscoveryResponse {
+  "status": "ready" | "clarify" | "unsupported";
+  "reason"?: ("no_evidence" | "provider_refused" | "provider_incomplete" | "validation_failed" | "unsupported_question" | null);
+  "suggestions": (VariableSuggestion)[];
+  "proposal"?: (Proposal | null);
+  "missing": ("variable" | "place" | "from" | "to" | "season")[];
+  "clarification"?: (Clarification | null);
+  "notices": (string)[];
+  "written_by_ai"?: boolean;
+  "corpus_version": string;
+}
+
+export interface DocumentSource {
+  "source_id": string;
+  "section_id": string;
+  "publisher": string;
+  "title": string;
+  "url": string;
+  "section": string;
+  "accessed": string;
+  "version"?: (string | null);
+  "sha256": string;
+  "kind": "agency" | "project";
+}
+
+export interface ExplanationBlock {
+  "text": string;
+  "citations": (Citation)[];
+  "references": (ResultReference)[];
+}
+
+export interface ExplanationRequest {
+  "question": string;
+  "investigation_id": string;
+}
+
+export interface ExplanationResponse {
+  "status": "answered" | "insufficient_evidence" | "new_investigation_required";
+  "reason"?: ("no_evidence" | "provider_refused" | "provider_incomplete" | "validation_failed" | "unsupported_question" | null);
+  "investigation_id": string;
+  "corpus_version": string;
+  "blocks": (ExplanationBlock)[];
+  "proposal"?: (Proposal | null);
+  "written_by_ai"?: boolean;
 }
 
 export interface ExtractedPlan {
@@ -238,6 +324,20 @@ export interface Requested {
   "season": "annual" | "DJF" | "MAM" | "JJA" | "SON";
 }
 
+export interface ResultReference {
+  "field": "sen_slope" | "sen_ci95" | "mk_p" | "total_change" | "n" | "first_year" | "last_year" | "verdict.kind" | "verdict.sentence" | "place.name" | "variable.name" | "variable.units" | "variable.rate_units" | "requested.from" | "requested.to" | "requested.season";
+  "place"?: number;
+}
+
+export interface RetrievedPassage {
+  "source_id": string;
+  "section_id": string;
+  "text": string;
+  "file_id": string;
+  "content_sha256": string;
+  "score": number;
+}
+
 export interface ScanPoint {
   "start": number;
   "sen_slope": number;
@@ -332,6 +432,12 @@ export interface TrendMap {
   "steps": (string)[];
   "sources": (SourceRef)[];
   "app_url": string;
+}
+
+export interface VariableSuggestion {
+  "variable": VariableSummary;
+  "reason": string;
+  "citations": (Citation)[];
 }
 
 export interface VariableSummary {

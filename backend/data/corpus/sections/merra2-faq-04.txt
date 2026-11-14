@@ -1,0 +1,32 @@
+MERRA-2 Frequently Asked Questions: FAQ (part 4)
+Publisher: NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)
+
+- Please refer to the Supplementary Description of Differences between ANA and ASM Data Collections
+
+- - Document
+
+What data are being produced?
+
+- The MERRA-2 File Specification Document provides extensive information on the collections of variables, units and data files.
+
+- - Document
+
+What is the difference between flux data included in the FLX collection and the LND collection?
+
+- MERRA's land parameterization is Randy Koster's Catchment model, but other surfaces, such as inland water, ocean surface and glaciers are also accounted for as sub-grid tiles. In the LND collection of variables, all the data are derived from the land model, and are not weighted according to the land fraction at that grid point. This data is provided to better compute land budgets for soil water and land energy.
+
+The data in FLX, RAD or any other collection of variables represent the gridbox average of all the different tiles weighted by their fractional cover. This is where you would use evaporation to compute the atmospheric energy balance. The important distinction here is that LND is land only, while all other collections are representative of the whole grid box.
+
+Fractional land cover in GEOS and MERRA is discussed more here
+
+Why are there such large discrepancies at 1000mb and 850mb bewtween MERRA and other reanalyses?
+
+- The GEOS data assimilation system used to produce MERRA does not (or did not at the time of production) extrapolate data to pressure levels greater than the surface pressure. These grid points are marked by undefined values. The result is that area averages that include these points will not be representative compared to other data sets without additional screening. Time averages, such as monthly means, may also have substantial differences at the edges of topography. The lowest model level data and surface data are available so that users can produce their own extrapolation. A page discussing this issue is available. See details Pressure Levels Intersecting the Surface
+
+What is Displacement Height, DISPH?
+
+- The choice for a more complete derivation and discussion is a micrometeorology text book, for example, "Boundary Layer Meteorology" by Roland Stull.
+
+Briefly, elements of the Earth's surface, grass, shrubs, crops, trees and buildings, all cause some friction and perturbation to the wind profile. The displacement height (or depth, or zero-plan displacement) accounts for their effect in the calculation of the surface layer log wind profile. The displacement height is the height at which the log wind profile projects the wind to be zero for purposes of computing the surface later turbulent fluxes. At heights less than displacement, different physical processes and theory take over from the log profile methods. For practical purposes, MERRA 2m and 10m output are intended to compare with screen level meteorology stations.
+
+Which surface meteorology data are assimilated in MERRA-2?

@@ -1,0 +1,14 @@
+POWER Meteorological Data Sources: Dew Point Temperature
+Publisher: NASA Langley Research Center, POWER Project
+
+This section compares MERRA-2 2-meter dew point temperature to observations reported to the NCEI.
+
+Hourly Dew Point Temperature
+
+Density plot of the 2-D histograms comparing MERRA-2 hourly dew point temperatures with station observations from the selected NCEI ISD files for the years 2001–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.
+
+As with the daily average validation, the hourly validation shows good clustering along the 1:1 correlation line.
+
+Daily Average Dew Point Temperature
+
+Density plot of the 2-D histograms comparing MERRA-2 daily averaged dew point temperatures with station observations from the NCEI GSOD files for 1981–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.

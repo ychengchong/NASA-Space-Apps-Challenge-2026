@@ -1,0 +1,1361 @@
+{
+  "sources": [
+    {
+      "source_id": "power-methodology",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Data Methodology",
+      "url": "https://power.larc.nasa.gov/docs/methodology/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "362dfb5cc59fb23b6a4f55e4a77326937132c67a33f00b972e6fe3a1567113e3"
+    },
+    {
+      "source_id": "power-sources-meteorology",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Meteorological Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_meteorology/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "b2a8dcb492a3c43d39d940d231b72ad2580dd601e54d709655cf3bcf5c053f97"
+    },
+    {
+      "source_id": "power-sources-hydrology",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Hydrology Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_hydrology/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "3f17198bfd18d6a66db4e65bf0c4524281729d931af77a92e8dbb07d878672a7"
+    },
+    {
+      "source_id": "power-processing",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Data Processing",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/processing/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "8e9c104abaf9127ee823ec10bacb8eb37f02fbb408019e4f1de7ace91618d07b"
+    },
+    {
+      "source_id": "power-sources-fluxes",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Solar Flux Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_fluxes/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "dbdad91d645a2141b0258614b803884cdbe69e2722377c04174844731dcadb91"
+    },
+    {
+      "source_id": "power-sources-clouds-aerosols",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Cloud and Aerosol Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_clds_aerosols/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "c978351b8247522403c5fe1f1aaaa6a9cf6a9c76f25808748e1f4eafca630755"
+    },
+    {
+      "source_id": "power-sources-validation",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Validation Data Sources",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/sources_validation/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "8ebb9b308b4622fff98f37f0e70ca95e36389a59a89f3009e772dbe4fdb3a2c2"
+    },
+    {
+      "source_id": "power-met-derived-parameters",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Meteorological Derived Parameters",
+      "url": "https://power.larc.nasa.gov/docs/methodology/data/derived/met-derived-parameters/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "959f4998b16dd3f9edda0584a8863516acf92fb077d0d849eef9e2e402006213"
+    },
+    {
+      "source_id": "power-communities",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER User Communities",
+      "url": "https://power.larc.nasa.gov/docs/methodology/communities/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "b3ac6852669cff49b35a2da9d98dffc957be4b061cf27382ce567b420524ef51"
+    },
+    {
+      "source_id": "power-api-monthly",
+      "kind": "agency",
+      "publisher": "NASA Langley Research Center, POWER Project",
+      "title": "POWER Monthly and Annual API",
+      "url": "https://power.larc.nasa.gov/docs/services/api/temporal/monthly/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "46e51dff1fa2031bea7d669281704fb4a8cff1a62ec4569f27c0673e5d59ab0a"
+    },
+    {
+      "source_id": "merra2-overview",
+      "kind": "agency",
+      "publisher": "NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)",
+      "title": "MERRA-2 Overview",
+      "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "d99b75e222372f4996ee954698a15b1fae78474c83cdb57e9e27d21a014b99d7"
+    },
+    {
+      "source_id": "merra2-system-characteristics",
+      "kind": "agency",
+      "publisher": "NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)",
+      "title": "MERRA-2 System Characteristics",
+      "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/system-characteristics_merra-2/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "7f0c26c5100e2d4a21b77978836b082aebf377544ab3628a861a32f652b7efcc"
+    },
+    {
+      "source_id": "merra2-faq",
+      "kind": "agency",
+      "publisher": "NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)",
+      "title": "MERRA-2 Frequently Asked Questions",
+      "url": "https://gmao.gsfc.nasa.gov/gmao-products/merra-2/faq_merra-2/",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "7fcdd0dce0b0f4271a03fbda69067a8fb443491b61147d2cf4250322ff7830b1"
+    },
+    {
+      "source_id": "project-sen-slope",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Sen's slope and the total change",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/sen-slope.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "29d08d7d27f78bdc850b90f46567c851b66ae7bcc09c0f7810f07ef330624c54"
+    },
+    {
+      "source_id": "project-mann-kendall",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "The Mann-Kendall trend test in Trend Detective",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/mann-kendall.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "8c8abb02a143f4107b1fe716a4de2aefc9b553ebd92f2b3229c92c304d286ab7"
+    },
+    {
+      "source_id": "project-serial-dependence",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Serial dependence and the retired lag-one correction",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/serial-dependence.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "65010530a89abda86bee69575da52062e446688579c6c50ec058119291cd59fb"
+    },
+    {
+      "source_id": "project-verdicts",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "What each verdict means",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/verdicts.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "82520bffa802eb2aa759eb19a61f0b1ba25017e58cf5832144f81bb5ece5ec11"
+    },
+    {
+      "source_id": "project-interpreting-results",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Reading a result: what significance does and does not say",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/interpreting-results.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "bd5c3932b7405b89bfcd0d11c02e8bf68140d458d6af5fb88d5d5b6cf353a16a"
+    },
+    {
+      "source_id": "project-grid-cells-and-reanalysis",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Grid cells, reanalysis and data sources",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/grid-cells-and-reanalysis.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "0224234602099738cfa57df845f9948dd5354b5a2452542e5e0d8e75cdc9815c"
+    },
+    {
+      "source_id": "project-seasons",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Seasons in Trend Detective",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/seasons.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "9db5785c34e4a9a4b763dd89320ff933b479dea92c10a6ddb60a36465c392597"
+    },
+    {
+      "source_id": "project-record-years",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "Record years",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/record-years.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "35798e6e71691563dcbef4e36599f11a71806e94d595ba76e5c66f39161501c6"
+    }
+  ],
+  "sections": [
+    {
+      "section_id": "power-methodology-01",
+      "source_id": "power-methodology",
+      "title": "POWER Data Methodology: POWER Project Release History",
+      "path": "sections/power-methodology-01.txt",
+      "chars": 2727,
+      "sha256": "fceeca2c9730146d63507b4b81a7c4fae13001eebcbaab57cf323b0f6565b762"
+    },
+    {
+      "section_id": "power-methodology-02",
+      "source_id": "power-methodology",
+      "title": "POWER Data Methodology: POWER Project Release History (part 2)",
+      "path": "sections/power-methodology-02.txt",
+      "chars": 2704,
+      "sha256": "6073eed091038f27e5c9bdce4a128240949d1f9422fc4aa570e9a82aaeb35783"
+    },
+    {
+      "section_id": "power-methodology-03",
+      "source_id": "power-methodology",
+      "title": "POWER Release 10",
+      "path": "sections/power-methodology-03.txt",
+      "chars": 931,
+      "sha256": "160a08043540ec24a15a4acf8a07c6a9307fc62ee38d57e6f1f99d6db3c01f57"
+    },
+    {
+      "section_id": "power-methodology-04",
+      "source_id": "power-methodology",
+      "title": "High-Resolution Sources",
+      "path": "sections/power-methodology-04.txt",
+      "chars": 609,
+      "sha256": "91c7dbf5705b788e963babc88b73f70b271583def82529f36bb7268c3b810f52"
+    },
+    {
+      "section_id": "power-methodology-05",
+      "source_id": "power-methodology",
+      "title": "Components",
+      "path": "sections/power-methodology-05.txt",
+      "chars": 760,
+      "sha256": "338d9b939b5ea580c1c834084e949731be899248bcec89d65824cf9794d5292a"
+    },
+    {
+      "section_id": "power-sources-meteorology-01",
+      "source_id": "power-sources-meteorology",
+      "title": "Meteorological",
+      "path": "sections/power-sources-meteorology-01.txt",
+      "chars": 1841,
+      "sha256": "556352e8b2ab6903a712d39a9815abe6e1cd3420ca143d395f73964ac0ce144b"
+    },
+    {
+      "section_id": "power-sources-meteorology-02",
+      "source_id": "power-sources-meteorology",
+      "title": "MERRA-2",
+      "path": "sections/power-sources-meteorology-02.txt",
+      "chars": 2864,
+      "sha256": "027e0bf9699db4d3ee0a94e9d167717674f6bfd6a6d865fab7ecaf177a16b480"
+    },
+    {
+      "section_id": "power-sources-meteorology-03",
+      "source_id": "power-sources-meteorology",
+      "title": "Validation Overview",
+      "path": "sections/power-sources-meteorology-03.txt",
+      "chars": 1293,
+      "sha256": "017e0544b9d3b055df12059f14259eb1f22656004ad8a37afd320403f40741a4"
+    },
+    {
+      "section_id": "power-sources-meteorology-04",
+      "source_id": "power-sources-meteorology",
+      "title": "Hourly Overview",
+      "path": "sections/power-sources-meteorology-04.txt",
+      "chars": 2451,
+      "sha256": "26d1239cd80388e41996059250849e56dc42fe0eaf31c9a426d62973d7381da8"
+    },
+    {
+      "section_id": "power-sources-meteorology-05",
+      "source_id": "power-sources-meteorology",
+      "title": "Daily Average Overview",
+      "path": "sections/power-sources-meteorology-05.txt",
+      "chars": 1556,
+      "sha256": "58e725bf246d6f080b362a36dcd073dd06cd676a5cc247806efc49eee49c56b0"
+    },
+    {
+      "section_id": "power-sources-meteorology-06",
+      "source_id": "power-sources-meteorology",
+      "title": "Validation Details: Dry Bulb Temperature (T2M)",
+      "path": "sections/power-sources-meteorology-06.txt",
+      "chars": 1287,
+      "sha256": "35d452e038e8df1399cb0b6ffc94e52692685893a1a1dc7f93a9bb3f48785212"
+    },
+    {
+      "section_id": "power-sources-meteorology-07",
+      "source_id": "power-sources-meteorology",
+      "title": "Dew Point Temperature",
+      "path": "sections/power-sources-meteorology-07.txt",
+      "chars": 879,
+      "sha256": "9e9bdfdcc7516f2bdfcf4b33aea243464b2f30902c63194a07c188c4d9318caf"
+    },
+    {
+      "section_id": "power-sources-meteorology-08",
+      "source_id": "power-sources-meteorology",
+      "title": "Precipitation",
+      "path": "sections/power-sources-meteorology-08.txt",
+      "chars": 797,
+      "sha256": "38b893ed9ab12fc66d9c45c8866e1d4f36978d31670cd9835ba3dde51c770d9e"
+    },
+    {
+      "section_id": "power-sources-meteorology-09",
+      "source_id": "power-sources-meteorology",
+      "title": "Daily Accumulations",
+      "path": "sections/power-sources-meteorology-09.txt",
+      "chars": 1389,
+      "sha256": "e49af32ce0e5d3718f52e6db326378033d6042ed792a481e2fda9012fb01e79f"
+    },
+    {
+      "section_id": "power-sources-meteorology-10",
+      "source_id": "power-sources-meteorology",
+      "title": "Contingency Table",
+      "path": "sections/power-sources-meteorology-10.txt",
+      "chars": 2396,
+      "sha256": "579604f158515488c1c04234024a229316e260f0d878840f9269751af81e3ca3"
+    },
+    {
+      "section_id": "power-sources-meteorology-11",
+      "source_id": "power-sources-meteorology",
+      "title": "Contingency Table (part 2)",
+      "path": "sections/power-sources-meteorology-11.txt",
+      "chars": 3074,
+      "sha256": "571a3f5a1fca90ecea3f034b5a5809efe56251c72d741fd75e2edc12601d5de2"
+    },
+    {
+      "section_id": "power-sources-meteorology-12",
+      "source_id": "power-sources-meteorology",
+      "title": "Contingency Table (part 3)",
+      "path": "sections/power-sources-meteorology-12.txt",
+      "chars": 2234,
+      "sha256": "b6932a36503158ec0a85c68c24ab679c0ef0446823b9e7a9f02b5a25df8a9c7a"
+    },
+    {
+      "section_id": "power-sources-meteorology-13",
+      "source_id": "power-sources-meteorology",
+      "title": "Wind",
+      "path": "sections/power-sources-meteorology-13.txt",
+      "chars": 646,
+      "sha256": "a5eccfeec612d496f2bde6f91d86b7e7dcda492f9ae641982a7903394a5b1f59"
+    },
+    {
+      "section_id": "power-sources-meteorology-14",
+      "source_id": "power-sources-meteorology",
+      "title": "Corrected Wind Speed",
+      "path": "sections/power-sources-meteorology-14.txt",
+      "chars": 2221,
+      "sha256": "13f65ce7fcea1a900c11e22adda843209833fb65facd652402e0eb0f83a9efac"
+    },
+    {
+      "section_id": "power-sources-meteorology-15",
+      "source_id": "power-sources-meteorology",
+      "title": "Wind Speed Validation",
+      "path": "sections/power-sources-meteorology-15.txt",
+      "chars": 705,
+      "sha256": "4543e95a544501d6167df633f0c6ff89f0eeb67c9ad395d7a79084db7f8fbd4d"
+    },
+    {
+      "section_id": "power-sources-meteorology-16",
+      "source_id": "power-sources-meteorology",
+      "title": "Wind Direction",
+      "path": "sections/power-sources-meteorology-16.txt",
+      "chars": 1422,
+      "sha256": "237daf4f2c2eba1fef2decbe59e0f15b7a04c48ae0bf3f952b0c626935986a82"
+    },
+    {
+      "section_id": "power-sources-meteorology-17",
+      "source_id": "power-sources-meteorology",
+      "title": "Surface Pressure",
+      "path": "sections/power-sources-meteorology-17.txt",
+      "chars": 1719,
+      "sha256": "0ea540c0a8e2c798b198fa78162130d13c2078811dc326ad54a96bed576a08b2"
+    },
+    {
+      "section_id": "power-sources-meteorology-18",
+      "source_id": "power-sources-meteorology",
+      "title": "Surface Pressure (part 2)",
+      "path": "sections/power-sources-meteorology-18.txt",
+      "chars": 1558,
+      "sha256": "bb07701f4c224a85ce5a848839296788876791b3713c6e6832ade9c663fb75c3"
+    },
+    {
+      "section_id": "power-sources-meteorology-19",
+      "source_id": "power-sources-meteorology",
+      "title": "GEOS-IT",
+      "path": "sections/power-sources-meteorology-19.txt",
+      "chars": 563,
+      "sha256": "e0165926e11f53597266a13079cc1341266bd638b23c98a455e318c2f10d65e6"
+    },
+    {
+      "section_id": "power-sources-meteorology-20",
+      "source_id": "power-sources-meteorology",
+      "title": "Validation Overview",
+      "path": "sections/power-sources-meteorology-20.txt",
+      "chars": 1560,
+      "sha256": "844e3564d74db5bd0c33ff7b8785cd23d396ff72f817673fd87cb6098aedfd49"
+    },
+    {
+      "section_id": "power-sources-meteorology-21",
+      "source_id": "power-sources-meteorology",
+      "title": "IMERG",
+      "path": "sections/power-sources-meteorology-21.txt",
+      "chars": 1248,
+      "sha256": "a90d3686eb4267a5a0a2c286fbd4e894c5b9aba5d06c57d9e273ca1bf83cb72a"
+    },
+    {
+      "section_id": "power-sources-meteorology-22",
+      "source_id": "power-sources-meteorology",
+      "title": "Parameters",
+      "path": "sections/power-sources-meteorology-22.txt",
+      "chars": 376,
+      "sha256": "0afe4c38b4c6e66fdb1794e7abb62f3fb1a9956f362badd03ad37e42ad2ba0bc"
+    },
+    {
+      "section_id": "power-sources-meteorology-23",
+      "source_id": "power-sources-meteorology",
+      "title": "Validation IMERG vs. MERRA-2",
+      "path": "sections/power-sources-meteorology-23.txt",
+      "chars": 982,
+      "sha256": "5d77796e838ddc20ac5e6ba3c1f9879290e8e999e4de4e05014918db5c19c287"
+    },
+    {
+      "section_id": "power-sources-meteorology-24",
+      "source_id": "power-sources-meteorology",
+      "title": "Data Integration",
+      "path": "sections/power-sources-meteorology-24.txt",
+      "chars": 759,
+      "sha256": "d16f0118fa459b0c9676cd35fafeef2977cacd58027dc63f88f947141739716e"
+    },
+    {
+      "section_id": "power-sources-meteorology-25",
+      "source_id": "power-sources-meteorology",
+      "title": "All Events",
+      "path": "sections/power-sources-meteorology-25.txt",
+      "chars": 730,
+      "sha256": "1d2794d48bb9d35124b3bf341527dd61de09f8ad20d66ceefa36266d9db2f01e"
+    },
+    {
+      "section_id": "power-sources-meteorology-26",
+      "source_id": "power-sources-meteorology",
+      "title": "Precipitation Only",
+      "path": "sections/power-sources-meteorology-26.txt",
+      "chars": 849,
+      "sha256": "f98ae0b48937f93056f7d177d4eda7f28e790ed3ae89a742eed155037414c220"
+    },
+    {
+      "section_id": "power-sources-hydrology-01",
+      "source_id": "power-sources-hydrology",
+      "title": "Hydrology: Overview",
+      "path": "sections/power-sources-hydrology-01.txt",
+      "chars": 2333,
+      "sha256": "8a8860ab9c0f0c8bd854880efd1b90c2296d15d216e7c31a131a2a781b9bb21c"
+    },
+    {
+      "section_id": "power-sources-hydrology-02",
+      "source_id": "power-sources-hydrology",
+      "title": "HY Parameter Groups",
+      "path": "sections/power-sources-hydrology-02.txt",
+      "chars": 1669,
+      "sha256": "d3fa0b8bfbb7b4416b614750da5b43bb91180a9d273b5055322c1154bb774d4a"
+    },
+    {
+      "section_id": "power-sources-hydrology-03",
+      "source_id": "power-sources-hydrology",
+      "title": "GWM",
+      "path": "sections/power-sources-hydrology-03.txt",
+      "chars": 964,
+      "sha256": "f9a35d76a2ca0b3c972fd48259d8b18fa865f915ff48fa51adc2cd1c7fe14072"
+    },
+    {
+      "section_id": "power-sources-hydrology-04",
+      "source_id": "power-sources-hydrology",
+      "title": "Source and Reference",
+      "path": "sections/power-sources-hydrology-04.txt",
+      "chars": 686,
+      "sha256": "73e59ef0f32bd8d2f12ecb5a79b91d0aa4fcb24910e705e5f4d6553fe5f2891f"
+    },
+    {
+      "section_id": "power-sources-hydrology-05",
+      "source_id": "power-sources-hydrology",
+      "title": "POWER's HEP Reservoir Focus",
+      "path": "sections/power-sources-hydrology-05.txt",
+      "chars": 847,
+      "sha256": "02c57f41ddebe62166e4c8a04a6b99970dcb58a29dff377224bda73717a46364"
+    },
+    {
+      "section_id": "power-sources-hydrology-06",
+      "source_id": "power-sources-hydrology",
+      "title": "Water-Body Size Limitations",
+      "path": "sections/power-sources-hydrology-06.txt",
+      "chars": 679,
+      "sha256": "36ba0d406e64c982e7f06da4c6a6b787228f1f99f9d7cb03431f2011e79e818f"
+    },
+    {
+      "section_id": "power-sources-hydrology-07",
+      "source_id": "power-sources-hydrology",
+      "title": "GWM Data Structure",
+      "path": "sections/power-sources-hydrology-07.txt",
+      "chars": 1067,
+      "sha256": "4d1454cc4b3595752d28804a1c9464b882f5f57224d1f5e816369bacddb8fb66"
+    },
+    {
+      "section_id": "power-sources-hydrology-08",
+      "source_id": "power-sources-hydrology",
+      "title": "Satellite Missions and Repeat Frequencies",
+      "path": "sections/power-sources-hydrology-08.txt",
+      "chars": 933,
+      "sha256": "f13be329c7a1f16d9481499ce489df8e1be427ccaeae60125b8458ba073e019d"
+    },
+    {
+      "section_id": "power-sources-hydrology-09",
+      "source_id": "power-sources-hydrology",
+      "title": "Source Prioritization",
+      "path": "sections/power-sources-hydrology-09.txt",
+      "chars": 771,
+      "sha256": "7798b052e5ba1932f2076d78758ec3e2093590cba5feaab7197270ac9ad624ca"
+    },
+    {
+      "section_id": "power-sources-hydrology-10",
+      "source_id": "power-sources-hydrology",
+      "title": "Parameters",
+      "path": "sections/power-sources-hydrology-10.txt",
+      "chars": 567,
+      "sha256": "4643c99d820ee9735fa46182a9b7081f63cea5c5808e5d5d8073ea00a083312a"
+    },
+    {
+      "section_id": "power-sources-hydrology-11",
+      "source_id": "power-sources-hydrology",
+      "title": "Possible Use Cases",
+      "path": "sections/power-sources-hydrology-11.txt",
+      "chars": 545,
+      "sha256": "193120bfeae3124b97fb6c8422c7d0aeaaf82cdadf93f21a1bf878974d7a932b"
+    },
+    {
+      "section_id": "power-sources-hydrology-12",
+      "source_id": "power-sources-hydrology",
+      "title": "SMAP",
+      "path": "sections/power-sources-hydrology-12.txt",
+      "chars": 805,
+      "sha256": "e7a06ed553dadf6d04967920cfa3a3d2a6a3754542f40137626fbe558155bf35"
+    },
+    {
+      "section_id": "power-sources-hydrology-13",
+      "source_id": "power-sources-hydrology",
+      "title": "SMAP Processing",
+      "path": "sections/power-sources-hydrology-13.txt",
+      "chars": 622,
+      "sha256": "63acb9f1a79ac47e65edb979bd064f20fe6dc106315733ca5092788c51999a75"
+    },
+    {
+      "section_id": "power-sources-hydrology-14",
+      "source_id": "power-sources-hydrology",
+      "title": "Parameters",
+      "path": "sections/power-sources-hydrology-14.txt",
+      "chars": 722,
+      "sha256": "f61c939a068199954ba52d042b48790e9a0bfb1b21bb25ab0ef6d32939a27797"
+    },
+    {
+      "section_id": "power-sources-hydrology-15",
+      "source_id": "power-sources-hydrology",
+      "title": "Comparison to MERRA-2",
+      "path": "sections/power-sources-hydrology-15.txt",
+      "chars": 1347,
+      "sha256": "6a943e8cbedf89db20da69c6585dfd9b9bbd7528275e1944ebc7c307a62e454b"
+    },
+    {
+      "section_id": "power-sources-hydrology-16",
+      "source_id": "power-sources-hydrology",
+      "title": "Caveats",
+      "path": "sections/power-sources-hydrology-16.txt",
+      "chars": 732,
+      "sha256": "9612e134fc0790818d41fb0a3c421ff8fe317a5f90c3bbd4ecbaca1718de78df"
+    },
+    {
+      "section_id": "power-sources-hydrology-17",
+      "source_id": "power-sources-hydrology",
+      "title": "SMAP Selection Logic",
+      "path": "sections/power-sources-hydrology-17.txt",
+      "chars": 626,
+      "sha256": "38a20afc7969fb86751c317ccbdc031a97343f19834b2646e51f3d419f9bf640"
+    },
+    {
+      "section_id": "power-sources-hydrology-18",
+      "source_id": "power-sources-hydrology",
+      "title": "IMERG",
+      "path": "sections/power-sources-hydrology-18.txt",
+      "chars": 397,
+      "sha256": "33ce04f7bfaa1c5c233f854b923f7945cb69a956999cd32fe5959870ce77213a"
+    },
+    {
+      "section_id": "power-processing-01",
+      "source_id": "power-processing",
+      "title": "Data Processing",
+      "path": "sections/power-processing-01.txt",
+      "chars": 1260,
+      "sha256": "eff37ca82f701d1f62f5f1a9e2cb97c57d8ac9b5bd2c86cf9ae511dfe4048b0f"
+    },
+    {
+      "section_id": "power-processing-02",
+      "source_id": "power-processing",
+      "title": "Processing Hierarchy",
+      "path": "sections/power-processing-02.txt",
+      "chars": 931,
+      "sha256": "692d442ae557d1570c63650e4613c8532039bf2a2a3a752392c00fa120be9ff9"
+    },
+    {
+      "section_id": "power-sources-fluxes-01",
+      "source_id": "power-sources-fluxes",
+      "title": "Energy Fluxes",
+      "path": "sections/power-sources-fluxes-01.txt",
+      "chars": 2990,
+      "sha256": "295d55967efa04bd14d931c74ca79bac92db5e4993426efde7870a65b2bfd0ed"
+    },
+    {
+      "section_id": "power-sources-fluxes-02",
+      "source_id": "power-sources-fluxes",
+      "title": "Energy Fluxes (part 2)",
+      "path": "sections/power-sources-fluxes-02.txt",
+      "chars": 2800,
+      "sha256": "666ff3ab07bc2216480482635883bbe458061b038e6c8333ae12a076575594fd"
+    },
+    {
+      "section_id": "power-sources-fluxes-03",
+      "source_id": "power-sources-fluxes",
+      "title": "SRB 4-IP",
+      "path": "sections/power-sources-fluxes-03.txt",
+      "chars": 1156,
+      "sha256": "37ca0c7de856b9128aab7bf3df7f5926da3b4f29242a5f1bf6f265b1eb08310a"
+    },
+    {
+      "section_id": "power-sources-fluxes-04",
+      "source_id": "power-sources-fluxes",
+      "title": "SRB 4-IP (part 2)",
+      "path": "sections/power-sources-fluxes-04.txt",
+      "chars": 2514,
+      "sha256": "f86d35610aad0a50f652642d91d1647938c580f04a01485ab36185432a5b820b"
+    },
+    {
+      "section_id": "power-sources-fluxes-05",
+      "source_id": "power-sources-fluxes",
+      "title": "SRB 4-IP (part 3)",
+      "path": "sections/power-sources-fluxes-05.txt",
+      "chars": 2806,
+      "sha256": "af0630c16beaf3ab2d1d92a0d37a9c2174923e32ca7920a1aadb58f6fb0479b5"
+    },
+    {
+      "section_id": "power-sources-fluxes-06",
+      "source_id": "power-sources-fluxes",
+      "title": "SRB 4-IP (part 4)",
+      "path": "sections/power-sources-fluxes-06.txt",
+      "chars": 1682,
+      "sha256": "373f2c7dfe70efb018eb03ad082e5a3409955c96653b674b475431667c951058"
+    },
+    {
+      "section_id": "power-sources-fluxes-07",
+      "source_id": "power-sources-fluxes",
+      "title": "SYN1deg",
+      "path": "sections/power-sources-fluxes-07.txt",
+      "chars": 2163,
+      "sha256": "e776a88251b8daba9d78b51756e6f9616a798b15d0580765e959cb6f5e761dcc"
+    },
+    {
+      "section_id": "power-sources-fluxes-08",
+      "source_id": "power-sources-fluxes",
+      "title": "SYN1deg (part 2)",
+      "path": "sections/power-sources-fluxes-08.txt",
+      "chars": 1948,
+      "sha256": "9a93d6027cf6a8e30a874a78c313a20b5ca98931c30ce32e8dfb7b30d69f03d1"
+    },
+    {
+      "section_id": "power-sources-fluxes-09",
+      "source_id": "power-sources-fluxes",
+      "title": "FLASHFlux",
+      "path": "sections/power-sources-fluxes-09.txt",
+      "chars": 1845,
+      "sha256": "644b21f51364e4dac581819ec27f3301330a89a1ffea52741a21fb67040f05eb"
+    },
+    {
+      "section_id": "power-sources-fluxes-10",
+      "source_id": "power-sources-fluxes",
+      "title": "FLASHFlux (part 2)",
+      "path": "sections/power-sources-fluxes-10.txt",
+      "chars": 1431,
+      "sha256": "fd54a52a3fd3d7f3fc2a4a796617f8bc6bdbb28be05b597168350772502d6fb2"
+    },
+    {
+      "section_id": "power-sources-fluxes-11",
+      "source_id": "power-sources-fluxes",
+      "title": "References",
+      "path": "sections/power-sources-fluxes-11.txt",
+      "chars": 679,
+      "sha256": "d0738dcb6385e14b80f4fff985e1a092c9f000c04a6a5e3b80023f6977070e90"
+    },
+    {
+      "section_id": "power-sources-clouds-aerosols-01",
+      "source_id": "power-sources-clouds-aerosols",
+      "title": "Clouds, Aerosols and Trace Gases",
+      "path": "sections/power-sources-clouds-aerosols-01.txt",
+      "chars": 2548,
+      "sha256": "fbf7f8ecbc0b770575ddd69c7f71898273ab358d05a95066f1f983fa53183128"
+    },
+    {
+      "section_id": "power-sources-clouds-aerosols-02",
+      "source_id": "power-sources-clouds-aerosols",
+      "title": "SYN1deg",
+      "path": "sections/power-sources-clouds-aerosols-02.txt",
+      "chars": 2565,
+      "sha256": "769e063f772a0f18d7701f31755ba3cea3d688996932fb897f1bc8ea33d3fc45"
+    },
+    {
+      "section_id": "power-sources-clouds-aerosols-03",
+      "source_id": "power-sources-clouds-aerosols",
+      "title": "Parameters",
+      "path": "sections/power-sources-clouds-aerosols-03.txt",
+      "chars": 1294,
+      "sha256": "bf336f032dbc5c622d80bbb81082ffe3abdc2a5eb27e03378f7b3e1e1decefbe"
+    },
+    {
+      "section_id": "power-sources-clouds-aerosols-04",
+      "source_id": "power-sources-clouds-aerosols",
+      "title": "Validation",
+      "path": "sections/power-sources-clouds-aerosols-04.txt",
+      "chars": 1389,
+      "sha256": "ddc8a8102462a094f356a2ff4486d0687f13ed8cc78830e274b5b7d0b7d5fb7a"
+    },
+    {
+      "section_id": "power-sources-clouds-aerosols-05",
+      "source_id": "power-sources-clouds-aerosols",
+      "title": "AOD at 0.55 µm",
+      "path": "sections/power-sources-clouds-aerosols-05.txt",
+      "chars": 729,
+      "sha256": "4d943e29d01b67467d8d35087f84b4ebaccdf03b73653f564246359467f70bbb"
+    },
+    {
+      "section_id": "power-sources-clouds-aerosols-06",
+      "source_id": "power-sources-clouds-aerosols",
+      "title": "TEMPO",
+      "path": "sections/power-sources-clouds-aerosols-06.txt",
+      "chars": 1843,
+      "sha256": "7e6fe3b2ade4a5901753812698246523b85e56b16241910eefa72fdbe0c098cd"
+    },
+    {
+      "section_id": "power-sources-clouds-aerosols-07",
+      "source_id": "power-sources-clouds-aerosols",
+      "title": "Parameters",
+      "path": "sections/power-sources-clouds-aerosols-07.txt",
+      "chars": 2331,
+      "sha256": "f8d76dab5f91f898fcfa2393b63587d53fdb974853505293ac488e63c567efbd"
+    },
+    {
+      "section_id": "power-sources-clouds-aerosols-08",
+      "source_id": "power-sources-clouds-aerosols",
+      "title": "References",
+      "path": "sections/power-sources-clouds-aerosols-08.txt",
+      "chars": 616,
+      "sha256": "3c29cea58082667f7acb8084c4969493b386b902453dd9e92862bef171ae607d"
+    },
+    {
+      "section_id": "power-sources-validation-01",
+      "source_id": "power-sources-validation",
+      "title": "Validation Sources",
+      "path": "sections/power-sources-validation-01.txt",
+      "chars": 1257,
+      "sha256": "978341619f5120769f7a1d7c35421595d11d445ae1a17ef9b317f695f1b47f6c"
+    },
+    {
+      "section_id": "power-sources-validation-02",
+      "source_id": "power-sources-validation",
+      "title": "NOAA NCEI GSOD: Data sourcing and processing",
+      "path": "sections/power-sources-validation-02.txt",
+      "chars": 565,
+      "sha256": "3b54f4e08c4f2a23d9c7d9d78addd1ea99e2302ff2fc4881d6122ed7c5a8f5b2"
+    },
+    {
+      "section_id": "power-sources-validation-03",
+      "source_id": "power-sources-validation",
+      "title": "Migration to new surface site data",
+      "path": "sections/power-sources-validation-03.txt",
+      "chars": 376,
+      "sha256": "d93feaaeea97bc5dd0619a74da0a40b34cfa1c3e6073d92152ab4d885f2bc1e9"
+    },
+    {
+      "section_id": "power-sources-validation-04",
+      "source_id": "power-sources-validation",
+      "title": "NOAA ISD (Lite): Data sourcing",
+      "path": "sections/power-sources-validation-04.txt",
+      "chars": 524,
+      "sha256": "37c13220fce286a70351046a91fc317c09f04e9cce1aafbc1dc790e5a2d0096d"
+    },
+    {
+      "section_id": "power-sources-validation-05",
+      "source_id": "power-sources-validation",
+      "title": "Processing",
+      "path": "sections/power-sources-validation-05.txt",
+      "chars": 367,
+      "sha256": "e5c8f07bb66a9113987cbc32f0009338ac24ebbd6f3f571c6f0c63889b7a460f"
+    },
+    {
+      "section_id": "power-sources-validation-06",
+      "source_id": "power-sources-validation",
+      "title": "Pressure conversion from sea level pressure to station level pressure",
+      "path": "sections/power-sources-validation-06.txt",
+      "chars": 1045,
+      "sha256": "d7cb31516919aabbba3fcce9282da28814e793a69632a3a948a6b6a46e5b5a3d"
+    },
+    {
+      "section_id": "power-sources-validation-07",
+      "source_id": "power-sources-validation",
+      "title": "Migration to new surface site data",
+      "path": "sections/power-sources-validation-07.txt",
+      "chars": 666,
+      "sha256": "d1f2e8477d3e011783431735252b0353667a9452123e0d5bc8db4bd1553fdb52"
+    },
+    {
+      "section_id": "power-sources-validation-08",
+      "source_id": "power-sources-validation",
+      "title": "BSRN: Data Sourcing",
+      "path": "sections/power-sources-validation-08.txt",
+      "chars": 518,
+      "sha256": "7bc2b44ae6048be90d658ed1db2e82f8bb0f55192b29cf0145dfbb6b24a88a4b"
+    },
+    {
+      "section_id": "power-sources-validation-09",
+      "source_id": "power-sources-validation",
+      "title": "Processing",
+      "path": "sections/power-sources-validation-09.txt",
+      "chars": 1548,
+      "sha256": "823406d312f22e5d1c9bd38e1f7cf4b70a8d755f5cf216c70588a421d30915e1"
+    },
+    {
+      "section_id": "power-sources-validation-10",
+      "source_id": "power-sources-validation",
+      "title": "Data Latency",
+      "path": "sections/power-sources-validation-10.txt",
+      "chars": 619,
+      "sha256": "250762810bfbcd438081678e8b2d83ffc0e96905def096c5d106f4d2e05c59b2"
+    },
+    {
+      "section_id": "power-sources-validation-11",
+      "source_id": "power-sources-validation",
+      "title": "AERONET: Data Sourcing",
+      "path": "sections/power-sources-validation-11.txt",
+      "chars": 405,
+      "sha256": "5f39248760a8e8c42d103d11444ec4e5dd8164bb11965279917bdd2a80ceb0aa"
+    },
+    {
+      "section_id": "power-sources-validation-12",
+      "source_id": "power-sources-validation",
+      "title": "Processing",
+      "path": "sections/power-sources-validation-12.txt",
+      "chars": 323,
+      "sha256": "eb67333ae5e4de8765c9852063d3d96bd0109b1e0b94337ecd1e80477595b14f"
+    },
+    {
+      "section_id": "power-sources-validation-13",
+      "source_id": "power-sources-validation",
+      "title": "Aerosol Optical Depth",
+      "path": "sections/power-sources-validation-13.txt",
+      "chars": 556,
+      "sha256": "90e2c3f60e00991ad539cc97712e126509337b1aabad131cfff4fc7991be13d7"
+    },
+    {
+      "section_id": "power-sources-validation-14",
+      "source_id": "power-sources-validation",
+      "title": "Temporal Aggregation",
+      "path": "sections/power-sources-validation-14.txt",
+      "chars": 1139,
+      "sha256": "19ca9f53ff1b767a43b1895ca6422e28116e057eba39173f958a8e50f8b2f08f"
+    },
+    {
+      "section_id": "power-sources-validation-15",
+      "source_id": "power-sources-validation",
+      "title": "Migration to new surface site data",
+      "path": "sections/power-sources-validation-15.txt",
+      "chars": 877,
+      "sha256": "0206bdc5492a9acd4c307d7160f88ac363b6c0a7cf1e2402f9b3a1b01d8d1de2"
+    },
+    {
+      "section_id": "power-met-derived-parameters-01",
+      "source_id": "power-met-derived-parameters",
+      "title": "Meteorological Derived Parameters",
+      "path": "sections/power-met-derived-parameters-01.txt",
+      "chars": 353,
+      "sha256": "bcba6c69d32484dd9c028363af5bec84e08207c4f6ee142480b818954f21f1cc"
+    },
+    {
+      "section_id": "power-met-derived-parameters-02",
+      "source_id": "power-met-derived-parameters",
+      "title": "Relative Humidity",
+      "path": "sections/power-met-derived-parameters-02.txt",
+      "chars": 908,
+      "sha256": "ba3e170238f9896d5591ff61fef475254b50c77551347bf3b8b80768bd16ee0c"
+    },
+    {
+      "section_id": "power-met-derived-parameters-03",
+      "source_id": "power-met-derived-parameters",
+      "title": "Equation",
+      "path": "sections/power-met-derived-parameters-03.txt",
+      "chars": 1901,
+      "sha256": "4e5613f2e88deecd0483d346e8a50e6ce94add4e24656c2317a6e035a7a154cd"
+    },
+    {
+      "section_id": "power-met-derived-parameters-04",
+      "source_id": "power-met-derived-parameters",
+      "title": "Coefficients",
+      "path": "sections/power-met-derived-parameters-04.txt",
+      "chars": 860,
+      "sha256": "4fe5d48c28c0a2917e6e5803249db26298fa3d6b1da88ad7218ffdcbd1afbf68"
+    },
+    {
+      "section_id": "power-met-derived-parameters-05",
+      "source_id": "power-met-derived-parameters",
+      "title": "Validation",
+      "path": "sections/power-met-derived-parameters-05.txt",
+      "chars": 519,
+      "sha256": "1dea025b221bf24e07c8200a75fa286c2f2da24de7d448a5c7ac3aaab5bb82b8"
+    },
+    {
+      "section_id": "power-met-derived-parameters-06",
+      "source_id": "power-met-derived-parameters",
+      "title": "Wet Bulb Temperature",
+      "path": "sections/power-met-derived-parameters-06.txt",
+      "chars": 3048,
+      "sha256": "6f9e4d3c77959b14a50f5f035dbf25dea2a92026cf435cda2a0631159ac3e653"
+    },
+    {
+      "section_id": "power-met-derived-parameters-07",
+      "source_id": "power-met-derived-parameters",
+      "title": "Moist Air Enthalpy",
+      "path": "sections/power-met-derived-parameters-07.txt",
+      "chars": 431,
+      "sha256": "28b6c65508c1a62a7e3409251d2bf78d8e1ca826ec2dbbe4b6902c6fb84c2ffa"
+    },
+    {
+      "section_id": "power-met-derived-parameters-08",
+      "source_id": "power-met-derived-parameters",
+      "title": "Equation",
+      "path": "sections/power-met-derived-parameters-08.txt",
+      "chars": 696,
+      "sha256": "918687f7c157d2171e042c939669cc816f72e7f35433de079c6ae1492e6dbafb"
+    },
+    {
+      "section_id": "power-met-derived-parameters-09",
+      "source_id": "power-met-derived-parameters",
+      "title": "Heating/Cooling Degree Days",
+      "path": "sections/power-met-derived-parameters-09.txt",
+      "chars": 537,
+      "sha256": "3e3e2e677121680f04fb8fbd5118d06861319adb4acdcd0133174ac59aef08f7"
+    },
+    {
+      "section_id": "power-met-derived-parameters-10",
+      "source_id": "power-met-derived-parameters",
+      "title": "Equation",
+      "path": "sections/power-met-derived-parameters-10.txt",
+      "chars": 925,
+      "sha256": "a91e93ef67551edb93a1865dc6de1d1c82ae364af2a1b5cbee183eeca2ab0287"
+    },
+    {
+      "section_id": "power-met-derived-parameters-11",
+      "source_id": "power-met-derived-parameters",
+      "title": "Validation",
+      "path": "sections/power-met-derived-parameters-11.txt",
+      "chars": 2980,
+      "sha256": "53521e57ca3d72fa67b76a5f05990085c0b654d14beed35b23b06c140165d439"
+    },
+    {
+      "section_id": "power-met-derived-parameters-12",
+      "source_id": "power-met-derived-parameters",
+      "title": "Growing Degree Days",
+      "path": "sections/power-met-derived-parameters-12.txt",
+      "chars": 594,
+      "sha256": "f6e17b2a675a1c339918d60bdd08b4b07d409d2df96a9a9bf61b377cd25e8312"
+    },
+    {
+      "section_id": "power-met-derived-parameters-13",
+      "source_id": "power-met-derived-parameters",
+      "title": "Equation",
+      "path": "sections/power-met-derived-parameters-13.txt",
+      "chars": 1090,
+      "sha256": "80b3420a12f34183c2e6a42a5c79fa2e749703d32430def71ed879d724bb31e9"
+    },
+    {
+      "section_id": "power-communities-01",
+      "source_id": "power-communities",
+      "title": "User Communities",
+      "path": "sections/power-communities-01.txt",
+      "chars": 2803,
+      "sha256": "eaac706180e0333870b247d13939e983cf422ad760bfd20b1f313e520582e36e"
+    },
+    {
+      "section_id": "power-communities-02",
+      "source_id": "power-communities",
+      "title": "User Communities (part 2)",
+      "path": "sections/power-communities-02.txt",
+      "chars": 1910,
+      "sha256": "2a544f72af7daeaa1781f3bc49f531388b6bce3fad313fe04e4862eb474bdc6d"
+    },
+    {
+      "section_id": "power-api-monthly-01",
+      "source_id": "power-api-monthly",
+      "title": "Monthly and Annual API",
+      "path": "sections/power-api-monthly-01.txt",
+      "chars": 1025,
+      "sha256": "7f63dcb1c85ff11c115207f91199d20de49a50c2bcdb629aa60e3aa0e18ebad6"
+    },
+    {
+      "section_id": "power-api-monthly-02",
+      "source_id": "power-api-monthly",
+      "title": "Limitations",
+      "path": "sections/power-api-monthly-02.txt",
+      "chars": 705,
+      "sha256": "86c5f878963f9561b40a6ebe1b1bed94372271b47479adb458fa81fa82cae084"
+    },
+    {
+      "section_id": "power-api-monthly-03",
+      "source_id": "power-api-monthly",
+      "title": "Point",
+      "path": "sections/power-api-monthly-03.txt",
+      "chars": 451,
+      "sha256": "a023a25918017e10a6b75afabeddb98bec07d1c1fd3d76d53f73fd29cc781201"
+    },
+    {
+      "section_id": "power-api-monthly-04",
+      "source_id": "power-api-monthly",
+      "title": "Regional",
+      "path": "sections/power-api-monthly-04.txt",
+      "chars": 348,
+      "sha256": "546a5b835f961f711b3b95d8ea4db260a9a2c42e96616608c1ab9e55f8e5bf22"
+    },
+    {
+      "section_id": "merra2-overview-01",
+      "source_id": "merra2-overview",
+      "title": "Modern-Era Retrospective analysis for Research and Applications, Version 2",
+      "path": "sections/merra2-overview-01.txt",
+      "chars": 1244,
+      "sha256": "2ecd8e980b6678d41720623c67de9a3e72bfd89573216188b85da2c5c5a1f882"
+    },
+    {
+      "section_id": "merra2-system-characteristics-01",
+      "source_id": "merra2-system-characteristics",
+      "title": "System Characteristics",
+      "path": "sections/merra2-system-characteristics-01.txt",
+      "chars": 2536,
+      "sha256": "d1d3eb4d34eb26048cae18aafc02eef1a421791ff53a79d9c88395e82294b49c"
+    },
+    {
+      "section_id": "merra2-system-characteristics-02",
+      "source_id": "merra2-system-characteristics",
+      "title": "System Characteristics (part 2)",
+      "path": "sections/merra2-system-characteristics-02.txt",
+      "chars": 2636,
+      "sha256": "b7f6785ae489f0f87c1a191929d3bd7438d4ba7d54be507b9a77e7c69c2d9b79"
+    },
+    {
+      "section_id": "merra2-system-characteristics-03",
+      "source_id": "merra2-system-characteristics",
+      "title": "System Characteristics (part 3)",
+      "path": "sections/merra2-system-characteristics-03.txt",
+      "chars": 2308,
+      "sha256": "4f006043c70bb8d9ef30b2938be660dd2f3c049d8acfb5ce7816be173721f449"
+    },
+    {
+      "section_id": "merra2-faq-01",
+      "source_id": "merra2-faq",
+      "title": "FAQ",
+      "path": "sections/merra2-faq-01.txt",
+      "chars": 2836,
+      "sha256": "e466b392f8d32e74cb967951ef0e0e84d56f96a757e18568e98182fb99fcfd54"
+    },
+    {
+      "section_id": "merra2-faq-02",
+      "source_id": "merra2-faq",
+      "title": "FAQ (part 2)",
+      "path": "sections/merra2-faq-02.txt",
+      "chars": 3079,
+      "sha256": "2145f51bdcfe75afeaaa7204365fe8426a5fbea120e3663715d9f957b7b3af63"
+    },
+    {
+      "section_id": "merra2-faq-03",
+      "source_id": "merra2-faq",
+      "title": "FAQ (part 3)",
+      "path": "sections/merra2-faq-03.txt",
+      "chars": 3092,
+      "sha256": "89bdb1ec2fdeff27e74b98c8556abb5ea905a9cc7362a2d8310d6f7879df5a29"
+    },
+    {
+      "section_id": "merra2-faq-04",
+      "source_id": "merra2-faq",
+      "title": "FAQ (part 4)",
+      "path": "sections/merra2-faq-04.txt",
+      "chars": 3079,
+      "sha256": "233d6b9fe9a6aadc452960b5133f4ef399fe9d52d1f48f56dee8887309849213"
+    },
+    {
+      "section_id": "merra2-faq-05",
+      "source_id": "merra2-faq",
+      "title": "FAQ (part 5)",
+      "path": "sections/merra2-faq-05.txt",
+      "chars": 3014,
+      "sha256": "109b7172969f4b8385ba45150cf263d64e777f23bd65db3f9d382c4df640fa14"
+    },
+    {
+      "section_id": "project-sen-slope-01",
+      "source_id": "project-sen-slope",
+      "title": "Sen's slope and the total change",
+      "path": "sections/project-sen-slope-01.txt",
+      "chars": 761,
+      "sha256": "0e9ecf1b5f9cfc4401493420809eb84412a6b8abdd67301507629f149999b966"
+    },
+    {
+      "section_id": "project-sen-slope-02",
+      "source_id": "project-sen-slope",
+      "title": "The line on the chart and the total change",
+      "path": "sections/project-sen-slope-02.txt",
+      "chars": 359,
+      "sha256": "832aed2d5d3341529c80aed685116b4f6568d02b68dbf618ae1134a1bbf63ac7"
+    },
+    {
+      "section_id": "project-sen-slope-03",
+      "source_id": "project-sen-slope",
+      "title": "Ordinary least squares is only a sensitivity check",
+      "path": "sections/project-sen-slope-03.txt",
+      "chars": 414,
+      "sha256": "376896ea63dc0c11a228995e23f2fe956d7aa3d009128c5f60b93749e65ed878"
+    },
+    {
+      "section_id": "project-sen-slope-04",
+      "source_id": "project-sen-slope",
+      "title": "A zero rate",
+      "path": "sections/project-sen-slope-04.txt",
+      "chars": 672,
+      "sha256": "ad153b5bb7ae8df50dd2beec3b7d4ec5d2fed64533405661bd37630f3f23057a"
+    },
+    {
+      "section_id": "project-mann-kendall-01",
+      "source_id": "project-mann-kendall",
+      "title": "The Mann-Kendall trend test in Trend Detective",
+      "path": "sections/project-mann-kendall-01.txt",
+      "chars": 301,
+      "sha256": "c297d246bb4ea45628b59856b8f41c7f8ad3512c525a061ef585b7fe999bc909"
+    },
+    {
+      "section_id": "project-mann-kendall-02",
+      "source_id": "project-mann-kendall",
+      "title": "What the Mann-Kendall test asks",
+      "path": "sections/project-mann-kendall-02.txt",
+      "chars": 578,
+      "sha256": "6547dadead1ad21df12759cf02d43fc210b750f49833d8442adf234569b13f60"
+    },
+    {
+      "section_id": "project-mann-kendall-03",
+      "source_id": "project-mann-kendall",
+      "title": "The procedure the app uses",
+      "path": "sections/project-mann-kendall-03.txt",
+      "chars": 766,
+      "sha256": "c9e8a2e31c3f258e04b64c1e672655b27ba02ef1cc5c84ecda114fb63dfe0004"
+    },
+    {
+      "section_id": "project-mann-kendall-04",
+      "source_id": "project-mann-kendall",
+      "title": "When the test is run",
+      "path": "sections/project-mann-kendall-04.txt",
+      "chars": 743,
+      "sha256": "0d8bb706c2a352da658a5bbdb6c3fdc5ab8f856671b61d19459c63fb8da2867e"
+    },
+    {
+      "section_id": "project-mann-kendall-05",
+      "source_id": "project-mann-kendall",
+      "title": "What the p-value means",
+      "path": "sections/project-mann-kendall-05.txt",
+      "chars": 349,
+      "sha256": "91eb2109c8b03d7425e2bd3c8bddac30a55f2dc048d2b3e7c6c3466ccb2297d7"
+    },
+    {
+      "section_id": "project-mann-kendall-06",
+      "source_id": "project-mann-kendall",
+      "title": "What the checks show, and what they do not",
+      "path": "sections/project-mann-kendall-06.txt",
+      "chars": 768,
+      "sha256": "95b76684709963c8ecd24c1ac4050ee0a0a4acb256f0eee5cec12a4ea03961ce"
+    },
+    {
+      "section_id": "project-serial-dependence-01",
+      "source_id": "project-serial-dependence",
+      "title": "Serial dependence and the retired lag-one correction",
+      "path": "sections/project-serial-dependence-01.txt",
+      "chars": 676,
+      "sha256": "58b5a723c99c77244f91ea716b54d95c1b101c418616304648319800cc0e9fe7"
+    },
+    {
+      "section_id": "project-serial-dependence-02",
+      "source_id": "project-serial-dependence",
+      "title": "The retired correction",
+      "path": "sections/project-serial-dependence-02.txt",
+      "chars": 613,
+      "sha256": "6c224078e0dc8d27a66060ef161c5b74e3b1e9b1080dfc2999a1e1fdb5c60b3f"
+    },
+    {
+      "section_id": "project-serial-dependence-03",
+      "source_id": "project-serial-dependence",
+      "title": "What the app does instead",
+      "path": "sections/project-serial-dependence-03.txt",
+      "chars": 797,
+      "sha256": "1117dcc720643a18c237f943e88271c181aa6dd93cb0bb22f9538f20d6977491"
+    },
+    {
+      "section_id": "project-verdicts-01",
+      "source_id": "project-verdicts",
+      "title": "What each verdict means",
+      "path": "sections/project-verdicts-01.txt",
+      "chars": 962,
+      "sha256": "51a7e517ef7570982803a283d47d3134ad055ea3781c925feb079550d1d94f23"
+    },
+    {
+      "section_id": "project-verdicts-02",
+      "source_id": "project-verdicts",
+      "title": "When significance is not assessed",
+      "path": "sections/project-verdicts-02.txt",
+      "chars": 585,
+      "sha256": "6a714550386003960facb94e3d9d2a682f2bddc84e71dcce4f8803d9495555d2"
+    },
+    {
+      "section_id": "project-verdicts-03",
+      "source_id": "project-verdicts",
+      "title": "How the verdict sentences are worded",
+      "path": "sections/project-verdicts-03.txt",
+      "chars": 680,
+      "sha256": "cbda3d2842e35e1261a3d279119994dc4c75019bdf75ebbeb9de7683987c2906"
+    },
+    {
+      "section_id": "project-interpreting-results-01",
+      "source_id": "project-interpreting-results",
+      "title": "Reading a result: what significance does and does not say",
+      "path": "sections/project-interpreting-results-01.txt",
+      "chars": 668,
+      "sha256": "a9203d47cec8a0c6176470766d4a4592983aa7a6c424caa579fe4e010b78dc1d"
+    },
+    {
+      "section_id": "project-interpreting-results-02",
+      "source_id": "project-interpreting-results",
+      "title": "Significant is not cause or importance",
+      "path": "sections/project-interpreting-results-02.txt",
+      "chars": 588,
+      "sha256": "c28970e392c3074103f754806635b188bd90da045c5e8d2e62e8058ee0159c65"
+    },
+    {
+      "section_id": "project-interpreting-results-03",
+      "source_id": "project-interpreting-results",
+      "title": "P-values and intervals",
+      "path": "sections/project-interpreting-results-03.txt",
+      "chars": 501,
+      "sha256": "6c3da2dfe2ab7be44605b1c28c3b6661e84c395933b38574d960a3cc5c90ebbc"
+    },
+    {
+      "section_id": "project-interpreting-results-04",
+      "source_id": "project-interpreting-results",
+      "title": "Comparing places",
+      "path": "sections/project-interpreting-results-04.txt",
+      "chars": 526,
+      "sha256": "89676fdb4dee005901d00417f5aca49f6b600dff83ad16d12feafa94c389d51f"
+    },
+    {
+      "section_id": "project-interpreting-results-05",
+      "source_id": "project-interpreting-results",
+      "title": "Scans and maps",
+      "path": "sections/project-interpreting-results-05.txt",
+      "chars": 425,
+      "sha256": "1b148321091c5de2c9b197127ed269d9173894748ff8c90ed8581aeef1b85b00"
+    },
+    {
+      "section_id": "project-grid-cells-and-reanalysis-01",
+      "source_id": "project-grid-cells-and-reanalysis",
+      "title": "Grid cells, reanalysis and data sources",
+      "path": "sections/project-grid-cells-and-reanalysis-01.txt",
+      "chars": 646,
+      "sha256": "bf5f17455809b4f4f53b8b51eaa5797242b2678ce83098aad3a51d4e00ee7063"
+    },
+    {
+      "section_id": "project-grid-cells-and-reanalysis-02",
+      "source_id": "project-grid-cells-and-reanalysis",
+      "title": "Reanalysis and model output",
+      "path": "sections/project-grid-cells-and-reanalysis-02.txt",
+      "chars": 461,
+      "sha256": "2e27cf580456ceb6808e280cae51f145a70a45ccb3fee6e4fa5bdf1d9a4ec71d"
+    },
+    {
+      "section_id": "project-grid-cells-and-reanalysis-03",
+      "source_id": "project-grid-cells-and-reanalysis",
+      "title": "Changes of data source",
+      "path": "sections/project-grid-cells-and-reanalysis-03.txt",
+      "chars": 451,
+      "sha256": "4f68f4e89aecff8882a8c8cff6adcbeb34e7dbdad207ef5ad956eceed188af0b"
+    },
+    {
+      "section_id": "project-grid-cells-and-reanalysis-04",
+      "source_id": "project-grid-cells-and-reanalysis",
+      "title": "Yearly values",
+      "path": "sections/project-grid-cells-and-reanalysis-04.txt",
+      "chars": 471,
+      "sha256": "d9aa6694848a0b9fade23b865e2a9636d6336eca79304342c98f86f1f8f17143"
+    },
+    {
+      "section_id": "project-seasons-01",
+      "source_id": "project-seasons",
+      "title": "Seasons in Trend Detective",
+      "path": "sections/project-seasons-01.txt",
+      "chars": 474,
+      "sha256": "80a6b869a5e00a1c18c4babc57211346b5f6281363ed14976417cef1377496df"
+    },
+    {
+      "section_id": "project-seasons-02",
+      "source_id": "project-seasons",
+      "title": "Seasonal rates are descriptive",
+      "path": "sections/project-seasons-02.txt",
+      "chars": 400,
+      "sha256": "e0eb1a9deb4faf321a852568c29c74fdb953e6c7d49b8d15bfe404c8cdf41014"
+    },
+    {
+      "section_id": "project-seasons-03",
+      "source_id": "project-seasons",
+      "title": "Comparing seasons",
+      "path": "sections/project-seasons-03.txt",
+      "chars": 284,
+      "sha256": "93dc8829c8d9400b8955e17d00c97065cfc1c8bec9edb9b39ae2f25b96e3b523"
+    },
+    {
+      "section_id": "project-record-years-01",
+      "source_id": "project-record-years",
+      "title": "Record years",
+      "path": "sections/project-record-years-01.txt",
+      "chars": 882,
+      "sha256": "13a411a1bd468cd248b1043fa45c9e1ef2bb657568d404137e9dbbf5fc44b597"
+    },
+    {
+      "section_id": "project-record-years-02",
+      "source_id": "project-record-years",
+      "title": "First and last ten years",
+      "path": "sections/project-record-years-02.txt",
+      "chars": 610,
+      "sha256": "46ebff126443b6caa50139c85ae1a82d43481eebda6cbe2d44bcb19c2ae2a137"
+    }
+  ],
+  "corpus_version": "17c64a90c665a37e429fc896d69a232e745e78fe03f8a908d9c8b163938c6f35"
+}

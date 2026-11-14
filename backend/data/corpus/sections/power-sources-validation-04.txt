@@ -1,0 +1,4 @@
+POWER Validation Data Sources: NOAA ISD (Lite): Data sourcing
+Publisher: NASA Langley Research Center, POWER Project
+
+Like GSOD, the most accurate hourly subset ISD is available through the AWS Open Data Registry, but POWER accesses values from a lighter data set ISD Lite. The data values are mostly the same and considered suitable for timeseries analysis, which is exactly what POWER tools enable. Several of the fields that are available in the true NOAA subset like accuracy flags, etc. are absent in the Lite version.

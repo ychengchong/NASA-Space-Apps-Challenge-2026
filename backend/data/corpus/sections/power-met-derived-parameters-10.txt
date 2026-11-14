@@ -1,0 +1,12 @@
+POWER Meteorological Derived Parameters: Equation
+Publisher: NASA Langley Research Center, POWER Project
+
+\begin{align} T_{i} = (T_{max} + T_{min})/2 \tag {Equation 1} \end{align}
+
+\begin{align} Where: \\ T_{i}: & \text{ The daily mean temperature from the 24 hourly components. }\\ T_{max}: & \text{ The daily maximum temperature from the 24 hourly components. }\\ T_{min}: & \text{ The daily minimum temperature from the 24 hourly components. } \end{align}
+
+\begin{align} HDD = \sum(T_{base} - T_i )^+ \tag {Equation 2} \end{align}
+
+\begin{align} CDD = \sum( T_i - T_{base})^+ \tag {Equation 3} \end{align}
+
+The "+" superscript in the above equations indicates that only the positive values of the operation in the parenthesis are taken into account in the sum. The sum is taken from i = 1 to N, where N is number of days in the given time period. POWER provides HDD and CDD values for T_{base} = 0 °C, 10 °C, and 18.3 °C.

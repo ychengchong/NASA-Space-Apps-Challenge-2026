@@ -1,0 +1,6 @@
+POWER Meteorological Derived Parameters: Validation
+Publisher: NASA Langley Research Center, POWER Project
+
+Daily Relative Humidity
+
+Density plot of the 2-D histograms comparing MERRA-2 daily relative humidity with station-derived values from observations from the selected NCEI ISD files for the years 2001–2023. Darker reds indicate a higher number of matched pairs within the 2-D histogram. Both POWER RH and NCEI RH are derived from respective dry bulb and dew point values using the relationships discussed above.

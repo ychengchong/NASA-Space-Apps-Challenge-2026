@@ -7,10 +7,12 @@ result. The module also maps every error of the app to the JSON shape of spec 10
 
 import csv
 import io
+import time
 from collections.abc import Mapping
 from http import HTTPStatus
 from pathlib import Path
 from typing import Annotated, get_args
+from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
@@ -128,7 +130,12 @@ async def api_variables(request: Request) -> list[VariableSummary]:
 @router.get("/capabilities")
 async def api_capabilities(services: ServicesDep) -> Capabilities:
     """Describe user flows without exposing credentials or contacting a provider."""
-    return Capabilities(ai_planner_available=services.settings.active_ai_provider is not None)
+    settings = services.settings
+    return Capabilities(
+        ai_planner_available=settings.planner_available,
+        ai_discovery_available=settings.discovery_available,
+        ai_explanation_available=settings.explanation_available,
+    )
 
 
 @router.get("/places")
@@ -138,7 +145,9 @@ async def api_places(request: Request) -> list[PlaceCandidate]:
 
 @router.get("/case")
 async def api_case(request: Request, services: ServicesDep) -> Investigation:
-    return await _run_case(parse_case_query(_query_values(request)), services)
+    investigation = await _run_case(parse_case_query(_query_values(request)), services)
+    _record_investigation(investigation, services)
+    return investigation
 
 
 @router.get("/seasons")
@@ -263,6 +272,26 @@ async def _run_case(
     if isinstance(inp, ComparePlacesInput):
         return await compare_places(inp, ctx)
     return await analyze_trend(inp, ctx)
+
+
+def _record_investigation(investigation: Investigation, services: Services) -> None:
+    """Remember a pinned case's query under its ID, so /api/explain can rebuild it from the
+    retained snapshots alone (spec 8, "Planned explanations"). Nothing is recorded while
+    explanations are off, since no request could use the record, and an unpinned case cannot
+    be rebuilt without NASA, so it is not recorded either.
+    """
+    if (
+        services.operations is None
+        or not services.settings.explanation_available
+        or not investigation.pinned
+    ):
+        return
+    services.operations.record_investigation(
+        investigation.id,
+        urlsplit(investigation.app_url).query,
+        investigation.analysis_version,
+        time.time(),
+    )
 
 
 # CSV download

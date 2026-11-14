@@ -1,0 +1,4 @@
+What each verdict means: How the verdict sentences are worded
+Publisher: Trend Detective project
+
+A significant verdict says that the estimated change for the grid cell containing the place is a given rate per decade over the period, and that evidence for a monotonic trend meets the method's 5% threshold. A not significant verdict gives the estimated rate and says that the data do not provide sufficient evidence for a monotonic trend, adding that this does not establish that no change occurred. An unavailable verdict states its reason and that significance has not been assessed. The app writes these sentences from fixed templates; the numbers come from the analysis code.
