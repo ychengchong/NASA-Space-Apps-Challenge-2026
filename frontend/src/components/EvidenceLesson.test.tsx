@@ -9,3 +9,10 @@ test("asks the learner to interpret evidence before revealing feedback", () => {
   expect(html).not.toContain("Correct.");
   expect(html).toContain('type="radio"');
 });
+
+test("is folded to one line until the learner opens it", () => {
+  const html = renderToStaticMarkup(<EvidenceLesson />);
+  expect(html).toContain("<details");
+  expect(html).not.toContain("<details open");
+  expect(html).toContain("One question on reading a result that is not significant");
+});

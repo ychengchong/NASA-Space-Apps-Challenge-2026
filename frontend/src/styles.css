@@ -33,6 +33,9 @@
   --faded: #5b4a3a;
   --shadow: 0 16px 28px -16px rgb(60 40 20 / 0.65);
   --gap: 16px;
+  /* The room the verdict line takes at the top of the screen, with a margin: one line of text,
+     or two when a comparison's entries wrap on a narrow screen. */
+  --verdict-line-room: 5rem;
   --font: "Libre Baskerville", Baskerville, Georgia, "Times New Roman", serif;
   --display: "Bodoni Moda", Didot, "Bodoni 72", Georgia, serif;
   --type: "Courier Prime", "Courier New", Courier, monospace;
@@ -249,6 +252,14 @@ a:hover {
 
 .site-footer {
   clip-path: inset(-16px -100vmax 0);
+}
+
+/* On a phone the answer leads every page that has one: there the stage follows the case file,
+   which the page holds before it, and only the first screen opens on the globe. */
+@media (max-width: 639.98px) {
+  .app.has-answer .stage {
+    order: 1;
+  }
 }
 
 /* The stage: the plate, a framed window onto the globe. */
@@ -500,6 +511,12 @@ a:hover {
 
 .stage-caption {
   max-width: 24rem;
+}
+
+/* The caption lets clicks through to the globe, except on its own button. */
+.stage-caption .button {
+  margin-top: 8px;
+  pointer-events: auto;
 }
 
 .stage-kicker {
@@ -1325,6 +1342,18 @@ fieldset {
   flex: 1 1 240px;
 }
 
+/* The case a question set up, waiting under the question to be run. */
+.ready-card {
+  background: var(--grain), var(--sheet);
+  border-left-color: var(--accent);
+}
+
+.ready-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 /* Progress line */
 
 .progress {
@@ -1509,6 +1538,279 @@ fieldset {
 
 .case-actions .field-hint {
   margin: 0;
+}
+
+/* The tabs of an open case's file (spec 3, "Case file tabs"): typed tabs standing on an ink rule,
+   like the "Case file" tab of the verdict, the chosen one joined to the page below it. */
+.case-tab-list {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--ink);
+}
+
+.case-tab {
+  min-height: 44px;
+  margin-bottom: -1px;
+  padding: 6px 10px 3px;
+  border: 1px solid var(--line-strong);
+  border-bottom: 0;
+  border-radius: 0;
+  background: var(--paper-shade);
+  color: var(--ink-muted);
+  font-family: var(--type);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.case-tab:hover {
+  color: var(--ink);
+}
+
+.case-tab[aria-selected="true"] {
+  border-color: var(--ink);
+  border-bottom: 1px solid var(--page);
+  background: var(--page);
+  color: var(--ink);
+}
+
+.case-tab-panel {
+  display: grid;
+  gap: var(--gap);
+  padding-top: var(--gap);
+  min-width: 0;
+}
+
+/* The grid above would otherwise show a hidden panel. */
+.case-tab-panel[hidden] {
+  display: none;
+}
+
+/* Inside a tab the folded panels are one ruled list (spec 3): each closed row is its line and its
+   hint under the rule, with no gap or shadow between rows. */
+.case-tab-panel > .panel:has(> details:first-child) {
+  padding: 8px 4px 6px;
+}
+
+.case-tab-panel > .panel:has(> details:first-child) + .panel:has(> details:first-child) {
+  margin-top: calc(-1 * var(--gap));
+}
+
+/* The verdict line (spec 3): the card's figure and stamp words in one line, held at the top of
+   the screen once the card has scrolled away. The anchor has no height, so it takes no room in
+   the column, and the line hangs from it. */
+.verdict-line-anchor {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  height: 0;
+}
+
+.verdict-line {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--ink);
+  border-top: 0;
+  background: var(--grain), var(--sheet);
+  box-shadow: var(--shadow);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s;
+}
+
+.verdict-line.is-shown {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+/* Keyboard focus never lands under the line: the browser scrolls a focused element below it. */
+html:has(.verdict-line.is-shown) {
+  scroll-padding-top: var(--verdict-line-room);
+}
+
+.verdict-line-entry {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 6px;
+}
+
+.verdict-line-name,
+.verdict-line-figure {
+  font-weight: 700;
+}
+
+.verdict-line-stamp {
+  color: var(--faded);
+  font-family: var(--type);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.verdict-line-stamp.stamp-rising {
+  color: var(--rising);
+}
+
+.verdict-line-stamp.stamp-falling {
+  color: var(--falling);
+}
+
+/* Record years (spec 7): a small table of the highest and lowest years and the two windows. The
+   sheet is tighter than the others, as it holds a few short rows. */
+.record-years {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.record-years .panel-heading-row {
+  margin-bottom: 4px;
+}
+
+.record-units {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
+
+.record-table {
+  width: 100%;
+  margin: 0 0 4px;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.45;
+}
+
+.record-table caption {
+  padding: 4px 0 2px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.record-table th,
+.record-table td {
+  padding: 2px 0;
+  border-top: 1px solid var(--line);
+  vertical-align: baseline;
+  text-align: left;
+}
+
+/* The row labels take only the width they need, so each row's values stay on one line. */
+.record-table th {
+  width: 1%;
+  padding-right: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.record-years-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record-year {
+  color: var(--ink-muted);
+}
+
+.record-years .panel-note {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+/* Explore further: the ways on from an answer, as a list of cards with one line each. */
+.explore h2 {
+  margin-bottom: 8px;
+}
+
+.explore-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.explore-list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.explore-card {
+  display: grid;
+  gap: 2px;
+  padding: 10px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.explore-title {
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.explore-card:hover .explore-title {
+  text-decoration-thickness: 2px;
+}
+
+.explore-hint {
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+}
+
+/* The last group of the sheet: the same case with another variable, as lines of links. */
+.explore-variables {
+  padding: 10px 0 4px;
+  border-top: 1px solid var(--line);
+}
+
+.explore-variables h3 {
+  margin: 0;
+}
+
+.explore-variables .explore-hint {
+  margin: 2px 0 0;
+}
+
+.explore-links {
+  margin-top: 8px;
+}
+
+.explore-links-label {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.explore-links ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 /* The shape of an answer that is still on its way. */
@@ -1704,6 +2006,11 @@ details > summary::-webkit-details-marker {
 .summary-hint {
   color: var(--ink-muted);
   font-size: 0.92rem;
+}
+
+/* A folded panel whose first line would otherwise touch its heading. */
+.explorer-spaced[open] > summary {
+  margin-bottom: 10px;
 }
 
 /* Tables: ruled like the tables of an atlas. */
@@ -2381,6 +2688,10 @@ details > summary::-webkit-details-marker {
   }
 
   .button {
+    transition: none;
+  }
+
+  .verdict-line {
     transition: none;
   }
 }

@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { JSX } from "react";
 import type { VariableSummary } from "../api";
 import type { CaseParams } from "../caseUrl";
@@ -19,9 +20,10 @@ interface CrossChecksProps {
 }
 
 /**
- * Other variables to test with the same places, period and season (spec 3, "The investigation
- * flow", step 6): the variable's related variables as cross-checks, and the variables worth
- * testing in the region type of a place, when that is known. Nothing when there is neither.
+ * Other variables to test with the same places, period and season, as the last group of the
+ * "Explore further" sheet (spec 3): the variable's related variables as cross-checks, and the
+ * variables worth testing in the region type of a place, when that is known. Nothing when there
+ * is neither.
  */
 export function CrossChecks({
   params,
@@ -41,53 +43,62 @@ export function CrossChecks({
   if (related.length === 0 && suggestions.length === 0) return null;
 
   return (
-    <section className="panel" aria-labelledby="cross-checks-heading">
-      <h2 id="cross-checks-heading">Dig deeper</h2>
-      <p className="panel-note">Each link tests another variable with the same places, period and season.</p>
+    <section className="explore-variables" aria-labelledby="cross-checks-heading">
+      <h3 id="cross-checks-heading">Test another variable</h3>
+      <p className="explore-hint">
+        Each link tests another variable with the same places, period and season.
+      </p>
       {related.length > 0 ? (
-        <>
-          <h3>Cross-check with a related variable</h3>
-          <VariableLinks params={params} variables={related} onOpenPage={onOpenPage} />
-        </>
+        <VariableLinks
+          label="Cross-check with a related variable"
+          params={params}
+          variables={related}
+          onOpenPage={onOpenPage}
+        />
       ) : null}
-      {suggestions.length > 0 ? (
-        <>
-          <h3>Worth testing here</h3>
-          {suggestions.map((suggestion) => (
-            <div key={suggestion.regionType}>
-              <p className="field-hint">
-                {joinWords(suggestion.placeNames)} · {suggestion.regionType}
-              </p>
-              <VariableLinks params={params} variables={suggestion.variables} onOpenPage={onOpenPage} />
-            </div>
-          ))}
-        </>
-      ) : null}
+      {suggestions.map((suggestion) => (
+        <VariableLinks
+          key={suggestion.regionType}
+          label={`Worth testing here (${joinWords(suggestion.placeNames)} · ${suggestion.regionType})`}
+          params={params}
+          variables={suggestion.variables}
+          onOpenPage={onOpenPage}
+        />
+      ))}
     </section>
   );
 }
 
+/** One line of links to the same case with another variable, under the words that say why. */
 function VariableLinks({
+  label,
   params,
   variables,
   onOpenPage,
 }: {
+  label: string;
   params: CaseParams;
   variables: readonly VariableSummary[];
   onOpenPage: (url: string) => void;
 }): JSX.Element {
+  const labelId = useId();
   return (
-    <ul className="plain-list">
-      {variables.map((variable) => {
-        const url = casePageUrl(withVariable(params, variable.id));
-        return (
-          <li key={variable.id}>
-            <a href={url} onClick={(event) => followInApp(event, url, onOpenPage)}>
-              {variable.name}
-            </a>
-          </li>
-        );
-      })}
-    </ul>
+    <div className="explore-links">
+      <p id={labelId} className="explore-links-label">
+        {label}
+      </p>
+      <ul aria-labelledby={labelId}>
+        {variables.map((variable) => {
+          const url = casePageUrl(withVariable(params, variable.id));
+          return (
+            <li key={variable.id}>
+              <a href={url} onClick={(event) => followInApp(event, url, onOpenPage)}>
+                {variable.name}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

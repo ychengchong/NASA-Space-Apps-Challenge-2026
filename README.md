@@ -230,9 +230,9 @@ funded through the NASA Earth Science/Applied Science Program. Evidence records
 show API version, access date, retained query/source metadata and snapshot checksums.
 The shipped legacy examples report API v2.10.0, accessed 2026-11-13.
 
-Places: GeoNames cities15000, downloaded 2026-11-13, CC BY 4.0; the build script
-retains cities of at least 100,000 people and selected fields. Analysis remains useful
-without map tiles.
+Places: GeoNames cities15000 and countryInfo, downloaded 2026-11-15, CC BY 4.0; the build
+script retains cities of at least 100,000 people and every capital (marked as one), with
+selected fields. A country's name finds its capital. Analysis remains useful without map tiles.
 
 Globe tiles: [OpenFreeMap](https://openfreemap.org/), in the [OpenMapTiles](https://www.openmaptiles.org/)
 schema (© OpenMapTiles), with data © [OpenStreetMap](https://www.openstreetmap.org/copyright)

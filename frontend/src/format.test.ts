@@ -5,6 +5,7 @@ import {
   formatPValue,
   formatRate,
   formatRatePerDecade,
+  formatRecordValue,
   formatSignedRate,
   splitSign,
   withUnits,
@@ -151,5 +152,17 @@ describe("formatRatePerDecade", () => {
 
   test("leaves out the units for a variable without them", () => {
     expect(formatRatePerDecade(0.004, { decimals: 2, rate_units: "" })).toBe("+0.004 per decade");
+  });
+});
+
+describe("formatRecordValue", () => {
+  test("writes a value with the variable's decimals, as the record sentences do", () => {
+    expect(formatRecordValue(-3.2849, 2)).toBe("-3.28");
+    expect(formatRecordValue(0, 2)).toBe("0.00");
+  });
+
+  test("gives a small value more digits instead of 0.00 or -0.00", () => {
+    expect(formatRecordValue(0.00085, 2)).toBe("0.001");
+    expect(formatRecordValue(-0.0003, 2)).toBe("-0.0003");
   });
 });

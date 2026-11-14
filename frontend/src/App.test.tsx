@@ -171,8 +171,25 @@ describe("App", () => {
     const html = renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki");
     const chart = html.indexOf('id="chart-heading"');
     expect(chart).toBeGreaterThan(html.indexOf('id="verdict-heading"'));
-    expect(html.indexOf('class="case-actions"')).toBeGreaterThan(chart);
+    expect(html.indexOf(">Copy link</button>")).toBeGreaterThan(chart);
     expect(html.indexOf("Change this case")).toBeGreaterThan(chart);
+  });
+
+  test("files the rest of an open case in tabs under the verdict, with the settings after them", () => {
+    server.investigation = investigation(SIGNIFICANT_RISE);
+    const html = renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki");
+    const tabs = html.indexOf('role="tablist"');
+    expect(tabs).toBeGreaterThan(html.indexOf('id="verdict-heading"'));
+    const answer = html.indexOf('id="case-panel-answer"');
+    const explore = html.indexOf('id="case-panel-explore"');
+    const evidence = html.indexOf('id="case-panel-evidence"');
+    const learn = html.indexOf('id="case-panel-learn"');
+    expect(html.indexOf('id="chart-heading"')).toBeGreaterThan(answer);
+    expect(html.indexOf(">Copy link</button>")).toBeLessThan(explore);
+    expect(html.indexOf('id="explore-heading"')).toBeGreaterThan(explore);
+    expect(html.indexOf('id="evidence-heading"')).toBeGreaterThan(evidence);
+    expect(html.indexOf('id="lesson-heading"')).toBeGreaterThan(learn);
+    expect(html.indexOf("Change this case")).toBeGreaterThan(learn);
   });
 
   test("withholds answer actions while the previous case is shown during loading", () => {
@@ -209,5 +226,12 @@ describe("App", () => {
     for (const name of ["OpenFreeMap", "OpenMapTiles", "OpenStreetMap", "Natural Earth"]) {
       expect(footer).toContain(name);
     }
+  });
+});
+
+describe("App on a phone", () => {
+  test("marks every page with an answer, so a phone shows the answer before the globe", () => {
+    expect(renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki")).toContain('class="app has-answer"');
+    expect(renderAt("/", "")).toContain('class="app"');
   });
 });

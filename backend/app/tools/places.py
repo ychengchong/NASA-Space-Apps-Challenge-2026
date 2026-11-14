@@ -47,6 +47,7 @@ class PlaceRecord(BaseModel):
     kind: Literal["city", "region"]
     region_type: str | None = None
     hand_picked: bool = False
+    capital: bool = False  # the capital of `country`, found by the country's name
 
 
 class PlacesFile(BaseModel):
@@ -57,11 +58,14 @@ class PlacesFile(BaseModel):
 
 
 class _NameMatch(IntEnum):
-    """How closely a place's best name matches the query; a lower value ranks first."""
+    """How closely a place matches the query; a lower value ranks first."""
 
-    EXACT = 0
-    STARTS_WITH = 1
-    CONTAINS = 2
+    # A query that names a country means the country, so its capital comes before a city that
+    # shares the country's name, such as Yerevan before Armenia in Colombia.
+    CAPITAL_OF = 0
+    EXACT = 1
+    STARTS_WITH = 2
+    CONTAINS = 3
 
 
 @lru_cache(maxsize=4)
@@ -84,10 +88,14 @@ def _normalise(text: str) -> str:
 
 
 @lru_cache(maxsize=1)
-def _search_index() -> tuple[tuple[PlaceRecord, tuple[str, ...]], ...]:
-    """Every place with its name and alternative names normalised once."""
+def _search_index() -> tuple[tuple[PlaceRecord, tuple[str, ...], str | None], ...]:
+    """Every place with its names normalised once, and for a capital its country's name."""
     return tuple(
-        (record, tuple(_normalise(name) for name in (record.name, *record.alt_names)))
+        (
+            record,
+            tuple(_normalise(name) for name in (record.name, *record.alt_names)),
+            _normalise(record.country) if record.capital and record.country else None,
+        )
         for record in load_places()
     )
 
@@ -115,10 +123,12 @@ def _name_match(query: str, names: tuple[str, ...]) -> _NameMatch | None:
 
 
 def find_place(inp: FindPlaceInput) -> list[PlaceCandidate]:
-    """Up to five places whose name or an alternative name contains the query, best match first.
+    """Up to five places whose name or an alternative name contains the query, or the capital of
+    the country the query names, best match first.
 
-    Places whose name or an alternative name equals the query come first, then those with a
-    name that starts with it, then the other matches, so "Sahara" finds the desert before the
+    A country's capital comes first when the query is the country's name ("Finland" finds
+    Helsinki), then places whose name or an alternative name equals the query, then those with
+    a name that starts with it, then the other matches, so "Sahara" finds the desert before the
     larger city of Sahāranpur. Within each group the most populous place comes first; regions
     count as population 0, and places of equal population keep the order of places.json.
     Matching ignores case and accents, so "sao paulo" finds "São Paulo". A query that matches
@@ -128,8 +138,8 @@ def find_place(inp: FindPlaceInput) -> list[PlaceCandidate]:
     if not query:
         return []
     matches: list[tuple[_NameMatch, PlaceRecord]] = []
-    for record, names in _search_index():
-        match = _name_match(query, names)
+    for record, names, capital_of in _search_index():
+        match = _NameMatch.CAPITAL_OF if query == capital_of else _name_match(query, names)
         if match is not None:
             matches.append((match, record))
     # list.sort is stable, so places that tie keep the file's order.

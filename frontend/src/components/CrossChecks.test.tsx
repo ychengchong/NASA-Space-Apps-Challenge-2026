@@ -69,6 +69,14 @@ describe("CrossChecks", () => {
     );
   });
 
+  test("heads the links with what they do, in one group", () => {
+    const html = renderCrossChecks(SAHARA_CASE, SAHARA_IS_DESERT);
+    expect(html).toContain("Test another variable");
+    expect(html).toContain("Each link tests another variable with the same places, period and season.");
+    expect(html).toContain("Worth testing here (Sahara · desert)");
+    expect(html).not.toContain("Dig deeper");
+  });
+
   test("shows no region-type suggestions when the place's region type is not known", () => {
     const html = renderCrossChecks(SAHARA_CASE, new Map());
     expect(html).not.toContain("Worth testing here");

@@ -83,15 +83,11 @@ describe("VerdictCard", () => {
     expect(html).not.toContain(SIGNIFICANCE_DEFINITION.definition);
   });
 
-  test("lists a place's record years under its verdict, with the note that they are not tests", () => {
+  test("keeps record years off the verdict card, which they would crowd", () => {
     const base = investigation(SIGNIFICANT_RISE);
     const withRecords = { ...base, results: base.results.map((result) => ({ ...result, records: RECORDS })) };
     const html = renderToStaticMarkup(<VerdictCard investigation={withRecords} />);
-    for (const sentence of RECORDS.sentences) expect(html).toContain(sentence);
-    expect(html).toContain(RECORDS.note);
-    expect(html.indexOf(RECORDS.sentences[0] ?? "")).toBeGreaterThan(
-      html.indexOf('class="verdict-sentence"'),
-    );
+    expect(html).not.toContain(RECORDS.sentences[0] ?? "");
   });
 
   test("shows no record facts for a result without records", () => {

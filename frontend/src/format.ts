@@ -26,6 +26,16 @@ export function formatRate(perDecade: number, decimals: number): string {
   return text;
 }
 
+/**
+ * A yearly value as the record-year sentences write it (spec 7, "Record years"): the variable's
+ * decimals, with more digits for a value that is not zero but would round to zero, so a small
+ * value never reads as 0.00 or -0.00.
+ */
+export function formatRecordValue(value: number, decimals: number): string {
+  if (value === 0) return toFixed(0, decimals);
+  return `${value < 0 ? "-" : ""}${formatRate(value, decimals)}`;
+}
+
 /** A rate per decade with "+" or "-" in front, as in "{signed rate}"; zero has no sign. */
 export function formatSignedRate(perDecade: number, decimals: number): string {
   const size = formatRate(perDecade, decimals);

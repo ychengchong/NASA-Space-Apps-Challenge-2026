@@ -68,3 +68,38 @@ here were later retired on `main`, as described above):
   into the `new-stats` branch. It kept `main`'s plan, submission text and hidden answer actions
   while a case loads, and added the new links ("What is changing here?", "The whole world")
   and the additions' facts to the merged specification and README.
+- On 15 November 2026 the same assistant reviewed the interface's main journey in Chrome at
+  desktop and phone sizes and, at the team's request, fixed the four problems it ranked first:
+  a "Ready to test" card under the question bar that runs the matched case, with years read
+  from the question (`QuestionBar`, `readySummary`, `periodFromQuestion`); an "Explore
+  further" sheet in place of the row of answer buttons (`CaseActions`); the record years as
+  their own sheet after the chart (`RecordYears`); and, on a phone, the globe after the answer
+  on every page that has one. The assistant chose the remedies and their wording.
+- Later on 15 November 2026 the same assistant measured the case file of an open case (4.1
+  screens tall at 1440 by 900 pixels) and, at the team's request, shortened it to 3.2 screens:
+  the "Dig deeper" panel became the "Test another variable" group of the "Explore further"
+  sheet, which no longer repeats the seasons and period panels as links (`CaseActions`,
+  `CrossChecks`); the "On the globe" key and the evidence lesson are folded to one line under
+  an answer (`PlaceLegend`, `EvidenceLesson`); and the globe's caption gained the "Zoom in to
+  the grid cell" button (`StageCaption`). It wrote the tests and the specification text for
+  these changes.
+- Later on 15 November 2026 the same assistant, working from a brief the team reviewed and
+  agreed, shortened and calmed the case file further: the chart sheet keeps a one-row legend
+  and one line on what a point is, with the rest and the summary in words behind "Read the
+  chart in words" (`TrendChart`, `chartLegend.ts`); the record years became a small table of the
+  API's fields, keeping the API's sentence wherever the fields cannot say it (`RecordYears`,
+  `recordRows.ts`, `formatRecordValue`); a one-line verdict holds at the top of the case file
+  once the verdict card has scrolled away (`VerdictLine`, `verdictStamp.ts`,
+  `useScrolledPast.ts`); and the case file under the verdict is split into the tabs "Answer",
+  "Explore", "Evidence" and "Learn" (`CaseTabs`, `caseTabs.ts`), with folded rows set as a
+  ruled list inside them and charts in hidden tabs redrawn when shown (`PlotlyChart`). It wrote
+  the tests and the specification text for these changes, and chose the details the brief left
+  open, such as the table's row labels "Highest", "Lowest" and "Ten-year means". It also fixed
+  its earlier "Ready to test" card, which offered the open case's places when a question named
+  a place the keyword matcher could not find, such as a country (`questionIsReady`).
+- Later on 15 November 2026, at the user's request, the same assistant made a country's name
+  find its capital: it downloaded GeoNames' cities15000 and countryInfo files again with the
+  user's approval, changed the build script to keep every capital (GeoNames code PPLC) whatever
+  its size and mark it, rebuilt `places.json` (77 capitals added, no other place changed),
+  ranked a country's capital first in `find_place`, and let the question bar's keyword matching
+  accept it (`pickPlaces`). It wrote the tests and the specification and README text.

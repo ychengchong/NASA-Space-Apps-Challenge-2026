@@ -7,6 +7,7 @@ import {
   matchQuestion,
   MAX_PLACE_LOOKUPS,
   nameKey,
+  periodFromQuestion,
   pickPlaces,
   placePhrases,
   questionWords,
@@ -138,6 +139,23 @@ describe("pickPlaces", () => {
     const found = new Map([["london", [city("East London"), city("London", 51.5), city("London", 43)]]]);
     expect(pickPlaces(phrases, found)[0]?.candidate.lat).toBe(51.5);
   });
+
+  test("takes the capital the place search offers for a country's name", () => {
+    const question = "Is Finland getting warmer?";
+    const phrases = placePhrases(question, questionWords(question));
+    const helsinki = { ...city("Helsinki", 60.17), country: "Finland" };
+    const found = new Map([["finland", [helsinki]]]);
+    expect(pickPlaces(phrases, found).map((match) => match.candidate.name)).toEqual(["Helsinki"]);
+  });
+
+  test("keeps the place search's order, so a country's capital comes before a city of that name", () => {
+    const question = "Armenia";
+    const phrases = placePhrases(question, questionWords(question));
+    const yerevan = { ...city("Yerevan", 40.18), country: "Armenia" };
+    const armenia = { ...city("Armenia", 4.53), country: "Colombia" };
+    const found = new Map([["armenia", [yerevan, armenia]]]);
+    expect(pickPlaces(phrases, found)[0]?.candidate.name).toBe("Yerevan");
+  });
 });
 
 describe("variableQuery", () => {
@@ -215,5 +233,22 @@ describe("matchQuestion", () => {
       searchVariables: () => Promise.resolve([]),
     };
     await expect(matchQuestion("Is Nairobi warmer?", lookups, signal)).rejects.toThrow("offline");
+  });
+});
+
+describe("periodFromQuestion", () => {
+  test("takes one year as the first year", () => {
+    expect(periodFromQuestion("Has the Amazon got drier since 2000?")).toEqual({ from: 2000 });
+  });
+
+  test("takes two years as the first and the last, in either order", () => {
+    expect(periodFromQuestion("Warmer from 1990 to 2010?")).toEqual({ from: 1990, to: 2010 });
+    expect(periodFromQuestion("Between 2010 and 1990?")).toEqual({ from: 1990, to: 2010 });
+  });
+
+  test("names no period without a year, with more than two, or for other numbers", () => {
+    expect(periodFromQuestion("Is Helsinki getting warmer?")).toEqual({});
+    expect(periodFromQuestion("1990, 2000 or 2010?")).toEqual({});
+    expect(periodFromQuestion("Is it above 500 metres or 12345?")).toEqual({});
   });
 });

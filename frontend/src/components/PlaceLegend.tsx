@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import type { JSX, ReactNode } from "react";
 import { formatCoordinates } from "../format";
 import { useGlobe } from "../globeContext";
 import type { MapPlace } from "../mapCell";
@@ -16,6 +16,11 @@ interface PlaceLegendProps {
   places: readonly MapPlace[];
   /** The point picked on the globe that is not yet a place of the case. */
   pickedPoint: LatLon | null;
+  /**
+   * True under an answer, where the key is folded to one line: the globe's caption names the
+   * places there and offers the zoom, so the key waits for whoever wants the cells in words.
+   */
+  folded?: boolean;
 }
 
 /**
@@ -23,12 +28,12 @@ interface PlaceLegendProps {
  * describe, and how to pick a point. The list names every place, so nothing on the globe is
  * told by colour or position alone.
  */
-export function PlaceLegend({ places, pickedPoint }: PlaceLegendProps): JSX.Element {
+export function PlaceLegend({ places, pickedPoint, folded = false }: PlaceLegendProps): JSX.Element {
   const { handle, status } = useGlobe();
   const hasCells = places.some((place) => place.cell !== undefined);
-  return (
-    <section className="panel" aria-labelledby="globe-heading">
-      <h2 id="globe-heading">On the globe</h2>
+  const heading = <h2 id="globe-heading">On the globe</h2>;
+  const key: ReactNode = (
+    <>
       {places.length > 0 ? (
         <ul className="map-places">
           {places.map((place, index) => (
@@ -56,6 +61,24 @@ export function PlaceLegend({ places, pickedPoint }: PlaceLegendProps): JSX.Elem
           ? ""
           : `You picked ${formatCoordinates(pickedPoint.lat, pickedPoint.lon)}. Choose what to do with it on the globe.`}
       </p>
+    </>
+  );
+  return (
+    <section className="panel" aria-labelledby="globe-heading">
+      {folded ? (
+        <details className="explorer explorer-spaced">
+          <summary>
+            {heading}
+            <span className="summary-hint">The grid cell behind each place, and how to pick a point</span>
+          </summary>
+          {key}
+        </details>
+      ) : (
+        <>
+          {heading}
+          {key}
+        </>
+      )}
     </section>
   );
 }

@@ -10,6 +10,7 @@ import { useRequest } from "../useRequest";
 import { CaseLayout } from "./CaseLayout";
 import { FileTab } from "./FileTab";
 import { ProgressLine } from "./ProgressLine";
+import { RecordYears } from "./RecordYears";
 import { TrendChart } from "./TrendChart";
 import { PlaceVerdict } from "./VerdictCard";
 
@@ -57,6 +58,7 @@ export function WorldView({ params, pickedPoint, onPick }: WorldViewProps): JSX.
           {chartInvestigation !== null ? (
             <TrendChart investigation={chartInvestigation} monthly={false} />
           ) : null}
+          {world !== null ? <RecordYears results={[world.result]} variable={world.variable} /> : null}
         </>
       }
       side={null}

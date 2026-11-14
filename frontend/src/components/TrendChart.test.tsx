@@ -47,4 +47,14 @@ describe("TrendChart", () => {
     expect(renderToStaticMarkup(<TrendChart investigation={withRecords} />)).toContain(ringsNote);
     expect(render()).not.toContain(ringsNote);
   });
+
+  test("keeps one line on what a point is in view and the summary in words behind one disclosure", () => {
+    const html = render();
+    const intro = html.indexOf("Each point is");
+    const disclosure = html.indexOf("<summary>Read the chart in words</summary>");
+    expect(intro).toBeGreaterThan(-1);
+    expect(disclosure).toBeGreaterThan(intro);
+    expect(html.indexOf("Its rate is +0.05 °C per decade")).toBeGreaterThan(disclosure);
+    expect(html.indexOf("A gap means a year with a missing month.")).toBeGreaterThan(disclosure);
+  });
 });

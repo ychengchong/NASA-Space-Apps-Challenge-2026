@@ -339,14 +339,55 @@ def test_find_place_without_a_match_returns_empty_list(query: str) -> None:
     assert find(query) == []
 
 
+# A country's name finds its capital (spec 5, "find_place")
+
+
+@pytest.mark.parametrize(
+    ("query", "capital", "country"),
+    [
+        ("Finland", "Helsinki", "Finland"),
+        ("indonesia", "Jakarta", "Indonesia"),
+        ("  FINLAND ", "Helsinki", "Finland"),
+    ],
+)
+def test_find_place_finds_a_country_by_its_capital(query: str, capital: str, country: str) -> None:
+    first = find(query)[0]
+
+    assert (first.name, first.country, first.kind) == (capital, country, "city")
+
+
+def test_find_place_offers_only_the_capital_for_a_country_name() -> None:
+    assert [candidate.name for candidate in find("Finland")] == ["Helsinki"]
+
+
+def test_find_place_ranks_a_countrys_capital_before_a_city_of_the_same_name() -> None:
+    found = [(candidate.name, candidate.country) for candidate in find("Armenia")]
+
+    assert found[:2] == [("Yerevan", "Armenia"), ("Armenia", "Colombia")]
+
+
+def test_find_place_ranks_a_countrys_capital_before_cities_that_start_with_its_name() -> None:
+    names = [candidate.name for candidate in find("India")]
+
+    assert names[0] == "New Delhi"
+    assert "Indianapolis" in names[1:]
+
+
+def test_find_place_finds_a_capital_smaller_than_the_minimum_population() -> None:
+    first = find("Malta")[0]
+
+    assert (first.name, first.country) == ("Valletta", "Malta")
+    assert population_of(first) < MIN_CITY_POPULATION
+
+
 # The bundled places.json and the script that builds it
 
 
-def test_bundled_cities_have_at_least_the_minimum_population() -> None:
+def test_bundled_cities_have_at_least_the_minimum_population_unless_capitals() -> None:
     cities = [record for record in load_places() if record.kind == "city"]
 
     assert cities
-    assert all(record.population >= MIN_CITY_POPULATION for record in cities)
+    assert all(record.capital or record.population >= MIN_CITY_POPULATION for record in cities)
     assert all(
         (record.region_type == "megacity") == (record.population >= MEGACITY_POPULATION)
         for record in cities
@@ -419,6 +460,39 @@ def test_build_places_keeps_large_current_cities_most_populous_first(
         },
         {"name": "Nowhere", "lat": 51.7706, "lon": 19.474, "population": 150_000, "kind": "city"},
     ]
+
+
+def test_build_places_keeps_and_marks_every_capital_whatever_its_size(tmp_path: Path) -> None:
+    rows = [
+        geonames_row("Bigtown", "Bigtown", "PL", 2_000_000),
+        geonames_row("Capitaltown", "Capitaltown", "PL", 20_000, code="PPLC"),
+        geonames_row("Smalltown", "Smalltown", "PL", 20_000),
+    ]
+    cities_zip = tmp_path / "cities15000.zip"
+    with zipfile.ZipFile(cities_zip, "w") as archive:
+        archive.writestr("cities15000.txt", "\n".join(rows) + "\n")
+    country_info = tmp_path / "countryInfo.txt"
+    country_info.write_text("PL\tPOL\t616\tPL\tPoland\n")
+
+    document = build_places(cities_zip, country_info, downloaded=date(2026, 11, 14))
+    cities = {place["name"]: place for place in document["places"] if place["kind"] == "city"}
+
+    assert sorted(cities) == ["Bigtown", "Capitaltown"]
+    assert cities["Capitaltown"]["capital"] is True
+    assert "capital" not in cities["Bigtown"]
+
+
+def test_build_places_leaves_out_a_town_a_hand_picked_region_stands_for(tmp_path: Path) -> None:
+    rows = [geonames_row("Longyearbyen", "Longyearbyen", "SJ", 2_417, code="PPLC")]
+    cities_zip = tmp_path / "cities15000.zip"
+    with zipfile.ZipFile(cities_zip, "w") as archive:
+        archive.writestr("cities15000.txt", "\n".join(rows) + "\n")
+    country_info = tmp_path / "countryInfo.txt"
+    country_info.write_text("SJ\tSJM\t744\tSV\tSvalbard and Jan Mayen\n")
+
+    document = build_places(cities_zip, country_info, downloaded=date(2026, 11, 14))
+
+    assert [place["name"] for place in document["places"] if place["kind"] == "city"] == []
 
 
 def test_build_places_adds_hand_picked_regions_and_attribution(
