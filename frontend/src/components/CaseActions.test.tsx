@@ -15,7 +15,9 @@ describe("CaseActions", () => {
     const html = renderToStaticMarkup(<CaseActions subject="case" region={REGION} />);
     expect(html).toContain('href="/map?v=air_temp&amp;box=55,20,65,30"');
     expect(html).toContain("Map this region");
-    expect(html).toContain("in every grid cell of a 10° by 10° box around Helsinki.");
+    expect(html).toContain("shows the rate of change in every grid cell");
+    expect(html).toContain("Significance is not assessed for the map.");
+    expect(html).not.toContain("runs the same test");
   });
 
   test("offers no region link where there is none, as on a map", () => {

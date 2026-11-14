@@ -5,9 +5,22 @@ state
 docs-personal
 AGENTS.md
 **/.env
+**/.env.*
+!**/.env.example
+**/*.pem
+**/*.key
+.aws
+.agents
+.codex
+artifacts
+logs
+runs
+data/raw
+data/processed
 
 # Python environments and caches; the image installs its own
 **/.venv
+**/venv
 **/__pycache__
 **/*.pyc
 **/.pytest_cache

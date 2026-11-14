@@ -1,10 +1,13 @@
 # Trend Detective: Technical Specification
 
-Draft 4 - 14 November 2026 - Working title - Prepared with AI assistance.
+Draft 5 - 14 November 2026 - Working title - Prepared with AI assistance.
 
-Status: implementation on `fix/draft3-compliance`, based on MarshyKid's
-`initial-app` at d42207c. Core manual workflows, immutable evidence and a bounded
-confirmed AI planner are implemented. The statistical study is retained in
+Status: the implementation baseline on `main` at 1fa0cf1 includes core manual workflows, immutable evidence,
+bounded confirmed AI planner integration and globe interface. Draft 5 defines the
+approved next plan on `new-plan`: OpenAI-assisted discovery, documentation retrieval/RAG and
+cited qualitative explanations. These additions are planned, not implemented or
+evaluated. Existing provider tests use fakes; no live-model accuracy is established.
+The statistical study is retained in
 [the preregistered plan](../research/inference-plan.md) and
 [all confirmation results](../research/inference-results.json). Automated checks
 are reported separately from live-model, user-study, browser and deployment evidence.
@@ -17,11 +20,12 @@ the evidence supports. A question becomes confirmed settings, NASA data, chart,
 rate, applicable significance result and a traceable explanation. Manual controls
 always work. This is historical analysis, not forecasting or causal attribution.
 
-The distinctive experience is a guided evidence lesson: compare the same
-variable at two places and interpret the evidence, including non-significant
-results. A chatbot attached to a chart is not sufficient differentiation.
+The complete journey is ask -> clarify -> choose -> confirm -> analyse -> inspect
+-> question -> learn -> share. The distinctive experience combines sourced variable
+discovery, a guided evidence lesson, comparison and cited explanations of limitations.
+It must help users interpret evidence, including non-significant results.
 
-Core release:
+Approved target release (existing and planned work are separated below):
 
 - One primary variable: NASA POWER T2M, named two-metre air temperature.
 - Monthly source data, complete annual aggregation and explicit dates.
@@ -31,13 +35,29 @@ Core release:
 - Sen's slope per decade; significance only after section 7's validation gate.
 - Fixed verdicts, evidence panel, CSV, provenance and pinned shareable links.
 - Frozen examples, public manual interface, keyboard and phone-width support.
-- One bounded AI question-to-case path if evaluated successfully. Cut this before
-  scientific validation, user evidence or submission preparation.
+- OpenAI natural-language planning and guided variable discovery, including short
+  clarification questions, supported suggestions and user confirmation.
+- A reviewed documentation corpus, OpenAI-hosted retrieval and an "Ask about this
+  investigation" panel with cited qualitative explanations.
+- Two guided walkthroughs and a water-related precipitation case. Precipitation
+  remains descriptive until its own inference validation gate passes.
+- Measured planner/RAG quality, at least five target-user observations, public
+  deployment checks and submission evidence, with failures and limits reported.
 
-Precipitation, seasons, a second product, documentation retrieval/RAG, period
-scanning, regional maps and MCP are conditional extensions. The twenty-variable
-catalogue (section 6, "Catalogue additions") is descriptive outside annual T2M, not twenty
-scientifically validated release promises.
+Temperature is the primary inferential demonstration. Precipitation is the planned
+water demonstration with verified quantity/units/coverage. Seasons and maps already
+have descriptive prototype paths; broader inference, a second product, additional
+connectors, period scanning and MCP are outside the new critical path. The existing
+twenty-variable catalogue (section 6, "Catalogue additions") is descriptive outside annual T2M,
+not twenty scientifically validated release promises.
+
+OpenAI is the selected implementation path for new AI work: Responses for language
+tasks and a hosted vector store for document retrieval. No local model, Ollama,
+fine-tuning or separate vector database is required. Existing alternative-provider
+planner integrations may remain, but new RAG provider parity is not a release goal.
+
+If a planned gate fails, keep that capability disabled and describe the resulting
+submission as a reduced prototype. Do not claim the complete Draft 5 plan is delivered.
 
 All quantitative conclusions come from Python. Fixed templates own verdicts.
 Frontend and AI never recompute statistics or replace canonical wording.
@@ -71,19 +91,55 @@ application are not required by that message.
 Each criterion is scored 1 to 5. Feature coverage does not prove a score,
 percentile, nomination or Global Winner probability.
 
+### Every potential consideration
+
+The challenge calls these optional; the team elects to address all of them. Addressing
+a consideration can mean a documented decision or learning feature, not a new connector.
+
+| Consideration | Planned response | Acceptance evidence |
+| --- | --- | --- |
+| High-school/college students and interested public | Plain language, accessible manual and AI paths | At least five intended users attempt predefined tasks; record assistance/errors |
+| Simple definitions | Quantity, units, source and spatial support before confirmation | Users can distinguish a grid-cell estimate from a local measurement |
+| Become data detectives | Prediction/interpretation question before learning feedback | Users distinguish rate, evidence, data quality and causation |
+| Short questions about what/where | Planner clarification flow and supported choices | Ambiguous goals/places do not silently become a guessed case |
+| Demonstration examples | Two guided walkthroughs plus a water case | Cached evidence, documented choice of places/periods and readable steps |
+| Optional AI discovery from literature or regional characteristics | Retrieve reviewed documentation to justify supported suggestions | Citations support relevance; general biome context is not presented as verified site-specific evidence |
+| Daily/monthly data | Monthly inputs and explicit annual/seasonal aggregation | Missing months, weights, leap years and units verified |
+| Non-significant trends remain interesting | Show descriptive rate and insufficient-evidence explanation | No assertion that non-significance proves no change; no searching dates for a favourable p-value |
+| Hydrological plotting tools | Review NASA Hydrology Time Series and CUAHSI workflows; prepare a precipitation case | Resource assessment records lessons, access limits and integration decision |
+| Seasonality/non-linear trends | Explain aggregation and limits of the monotonic-rate summary; exploratory seasons remain labelled | No claim that annual aggregation removes every cycle or that the method captures all non-linear change |
+
+A longer record can improve detection but does not guarantee significance. No
+causal attribution follows from a trend or regional contrast alone.
+
+Judging evidence must include observed task completion (Impact), the connected
+discovery/evidence/learning interaction (Creativity), reproducibility and scientific
+and AI evaluation (Validity), all four objectives (Relevance), and one clear real
+investigation in the demo (Presentation). These are evidence requirements, not scores.
+
 ## 3. User experience
 
-First visit shows a question box, manual settings and four worked investigations.
-Examples are chosen transparently, never forced to show a desired result.
+The current first visit shows a question box, manual settings and four saved examples.
+The planned journey adds two guided walkthroughs and a water case. Choose examples
+transparently before inspecting outcomes; never force a desired result.
 
-1. Ask a question or manually choose variable and place.
+1. Ask a question or manually choose variable and place. Planned discovery can
+   offer supported variables with sourced reasons and short clarification questions.
 2. Confirm definition, location, explicit period and annual aggregation.
 3. Show actual grid cell and supported dates. Propose adjustments for confirmation;
    do not silently clamp requests or substitute quantities.
 4. Draw annual values, gaps and fitted line.
 5. Show the fixed verdict, slope/units, valid p-value, method and limitations.
 6. Compare the second place over identical complete years.
-7. Download values or copy a link pinned to snapshots and analysis version.
+7. Ask about the dataset, method or limitations through the planned cited explanation
+   panel. A request for new calculations produces settings for confirmation.
+8. Complete interpretation feedback, then download values or share a pinned result.
+
+Planned explanation prompts: "Explain this simply", "What does this dataset actually
+measure?", "What are the limitations here?", "What can't we conclude?" and "What could
+I investigate next?" AI explanations sit below the chart and never delay the result.
+Show source passages/links, an AI label and a useful unsupported-answer state.
+On navigation, cancel or discard explanations for the old investigation.
 
 A short lesson asks users to interpret evidence before showing guidance. Predefine
 tasks before user testing. Rate, statistical evidence, data quality and causation
@@ -108,7 +164,7 @@ the city, not exact city measurement. Label AI commentary; hypotheses are unprov
 
 ### Interface
 
-This section and "The globe" describe the delivered interface: an atlas page with a detective's marks, and one globe behind every screen.
+This section and "The globe" describe the delivered interface: an atlas page with a detective's marks, and one globe behind every screen. Discovery clarification and the cited explanation panel above are planned additions.
 
 
 | Part | Purpose | What it holds |
@@ -119,7 +175,7 @@ This section and "The globe" describe the delivered interface: an atlas page wit
 | Globe | Show where, and let the user pick a place | The Earth behind the page ("The globe" below): a marker per place and, closer in, the outline of its grid cell; on the first screen, a pin for each example case; in region view, grid cells coloured by trend |
 | Key to the globe | Name what the globe shows, so nothing is told by colour or position alone | The "On the globe" panel: each place with its marker and the grid cell its values describe, how to pick a point, and "Zoom in to the grid cell" |
 | Verdict card | The answer in one sentence | The first sheet of the case file, tabbed "Case file". Each verdict's stamp, then the verdict sentence and the most important caution; for a comparison, the summary sentence first. A significant trend also shows its rate as a large figure above the sentence, such as "+0.79 °C per decade", with the digits and sign of the evidence panel; the sign is set in the text face, whose strokes are sturdier than the display face's. A trend that is not significant gets no figure, so a rate that year-to-year variation alone could produce is not read as the answer. Under each place's verdict, its record years and the note that they are not tests (section 7, "Record years") |
-| Answer actions | Share the answer, and take it further | A row under the verdict, on a case under the verdict's chart. "Copy link" copies the page's address and answers "Link copied. Anyone who opens it sees this case." (or "this map"); where the browser has no clipboard or refuses, it answers "The link could not be copied. Copy the address from the address bar instead." On a case, "Map this region" opens the region map of a 10° by 10° box around the first place, and "What is changing here?" opens that place's overview; one line says what each does |
+| Answer actions | Share the answer, and take it further | A row under the verdict, on a case under the verdict's chart. Actions are hidden while a new case or map loads, including while the previous answer remains visible. "Copy link" copies the page's address and answers "Link copied. Anyone who opens it sees this case." (or "this map"); where the browser has no clipboard or refuses, it answers "The link could not be copied. Copy the address from the address bar instead." On a case, "Map this region" opens the region map of a 10° by 10° box around the first place. Its explanation says the map shows rates of change and does not assess significance. "What is changing here?" opens that place's overview, and "The whole world" the same variable, period and season in the world sample when it covers the variable; one line says what each does |
 | Evidence panel | Let anyone check the method | Rate with its 95% interval, tests and p-values, number of years, every caution, data source, grid cell, a link to download the values, the steps taken |
 | Dig deeper | Suggest the next variable to test | A panel under the verdict and the notes, with the note "Each link tests another variable with the same places, period and season." Under "Cross-check with a related variable", links to the variable's `related` entries. Under "Worth testing here", one line "{place names} · {region type}" for each region type known among the case's places, then links to the catalogue variables whose `region_types` include it, without the case's own variable. The panel is left out when it would hold neither |
 | Example cases | Teach by showing | Four ready investigations that open instantly, numbered "Case 1" to "Case 4" in the list and on the globe |
@@ -169,8 +225,9 @@ One globe serves every screen. It fills the whole screen behind the page and is 
 
 ## 4. Architecture
 
-One FastAPI service serves a built static frontend. REST and optional AI use the
-same tools; MCP is deferred. No microservices, accounts or database server.
+One FastAPI service serves a built static frontend. REST and AI use the same
+analysis tools. Planned retrieval is an external OpenAI service, not a new local
+microservice. No accounts or self-managed database server are required.
 
 | Module | Boundary |
 | --- | --- |
@@ -181,11 +238,20 @@ same tools; MCP is deferred. No microservices, accounts or database server.
 | tools/ | Support validation, source coordination and results; no HTTP/model SDK logic |
 | verdict.py | Fixed sentences and cautions from structured results |
 | adapters/rest.py | HTTP, CSV and safe errors; no scientific calculations |
-| adapters/chat.py | Bounded provider calls and validated case proposals |
+| adapters/planner.py | Existing bounded provider extraction and validated case proposals |
+| Planned retrieval service | Fixed-corpus search, source mapping and evidence checks; no scientific calculations |
+| Planned discovery/explanation adapters | HTTP and bounded model orchestration; never execute an unconfirmed analysis |
 | Frontend | Settings, chart, evidence and lesson; no scientific recomputation |
 
 Data flow: source adapter -> immutable raw snapshot -> validated normalized series
 -> statistics -> structured result -> fixed verdict and rendered evidence.
+
+Planned discovery flow: question -> supported catalogue + relevant documentation
+-> structured suggestions/clarification -> resolved settings -> user confirmation.
+Planned explanation flow: question + investigation ID -> server-loaded evidence
+-> fixed-corpus search -> bounded qualitative generation -> validated citations
+and result-field references -> labelled explanation beside the canonical result.
+Climate measurements and document passages remain distinct evidence types.
 
 Analysis is repeatable for identical normalized inputs, snapshots, aggregation,
 method configuration and analysis version. Source refreshes and LLM generations
@@ -205,8 +271,9 @@ no external mutation of user resources, not that cache writes never occur.
 | place_overview | One place and a period -> PlaceOverview: every catalogue variable's descriptive rate there (section 7, "What is changing here?") |
 | world_trend | Variable and period -> WorldTrend: the trend of the frozen whole-world sample mean (section 7, "The whole world") |
 
-No arbitrary URLs, generated POWER codes or unchecked coordinates. Initially only
-annual is supported. Metadata can suggest defaults; analysis uses explicit dates.
+No arbitrary URLs, generated POWER codes or unchecked coordinates. Annual
+temperature is the inferential core; other supported seasons remain descriptive
+under section 7. Metadata can suggest defaults; analysis uses explicit dates.
 Create concrete Pydantic schemas before integration, generate client types and
 validate unknown fields deliberately. Numeric outputs are finite or null, never NaN.
 
@@ -251,6 +318,26 @@ Comparison uses the intersection of complete years and re-runs both analyses on
 that intersection. Report excluded years. Gaps still block inference under section
 7; never compress time or silently choose a favourable contiguous subperiod.
 
+### Planned discovery and explanation contracts
+
+These contracts are design requirements, not current models or generated types.
+Define them once in models.py and generate client types during implementation.
+
+| Planned contract | Required semantics |
+| --- | --- |
+| DiscoveryRequest | One question <=2,000 characters; optional typed unconfirmed draft; no arbitrary URLs or raw chat history |
+| DiscoveryResponse | Status ready/clarify/unsupported; up to three supported variable suggestions with cited qualitative reasons; optional resolved Proposal; explicit missing fields/clarification question |
+| ExplanationRequest | One question <=2,000 characters and a 64-hex investigation ID; never trust client-supplied statistics |
+| ExplanationResponse | Status answered/insufficient_evidence/new_investigation_required; investigation ID; corpus version; qualitative blocks, validated citation IDs and allowlisted result-field references; optional proposal awaiting confirmation |
+| DocumentSource | Stable source ID, publisher, title, canonical URL, section, accessed date, available version and content SHA-256; project notes distinguished from agency sources |
+| RetrievedPassage | Source ID, passage text, provider file/passage identity, content hash and retrieval score; not itself a claim of factual support |
+
+Reject unknown source IDs, mismatched investigation IDs, invalid result-field
+references and unsupported variable IDs. Citation URLs come from the reviewed
+manifest, never model-generated URLs. A provider response failing these checks is
+not displayed as an answer. Planned schemas must distinguish retrieval absence,
+provider refusal/incomplete output and unsupported questions from a valid finding.
+
 ## 6. Data
 
 ### Primary source and aggregation
@@ -274,6 +361,41 @@ Derive totals as sum(month_rate * calendar_days) only after verifying rate seman
 Use separate quantity/aggregation IDs and slope units. Defer temperature extrema
 until extrema versus average daily extrema are defined. MODIS land-surface
 temperature cannot silently replace two-metre air temperature.
+
+Draft 5 plans a precipitation demonstration using an explicitly identified POWER
+parameter/product. Verify metadata, continuity, support and rate-versus-total
+semantics before enabling that case. Its chart and descriptive rate do not acquire
+temperature's inference validation. New products require their own source and
+analysis contracts; reading the same product through two portals is not independent
+validation. Freeze the demonstration inputs and preserve honest provenance limits.
+
+### Resource decisions and demonstrations
+
+Maintain the detailed [resource assessment](resource-assessment.md), with current
+access checks and a reason for each decision. No additional connector is implied
+by listing a portal, paper or tutorial. Runtime source integrations require the
+same quality, unit, spatial-support and provenance review as POWER.
+
+| Resource | Planned consideration/deliverable |
+| --- | --- |
+| Giovanni | Evaluate one prepared export and its product/region metadata; integrate only if it adds a defined useful investigation |
+| NASA Hydrology Time Series | Review a water-variable time-series workflow and access/coverage limits |
+| AppEEARS | Assess a concrete land product, scaling/QA and extraction tasks before choosing integration |
+| NOAA CDO | Assess suitable observations for corroboration; station and grid-cell quantities are not interchangeable |
+| KNMI Climate Explorer | Review discovery/plotting/comparison workflow and source identities |
+| SeaWiFS time-series paper | Review its example workflow and caveats; it does not certify our statistical method |
+| Trend-testing article and significance guide | Review educational usefulness; verify technical claims against primary references before adopting them |
+| CUAHSI | Review hydrological discovery, plotting and export; record lessons for the water case |
+| RCM data | Assess a specific derived quantity, access and comparable imagery before any SAR trend work |
+| GEO.ca | Assess contextual layers only for a defined location/question |
+| SWOT mission | Assess surface-water questions and record length; do not substitute sampling frequency for years of evidence |
+| CSA ecosystem overview | Background/use-case discovery; verify product-specific claims separately |
+| CSA SAR tutorial | Learning reference for a future imagery pipeline, not an automatic release dependency |
+
+Demonstrations: (1) full temperature investigation, (2) aligned two-place
+comparison, (3) water-related descriptive investigation. Include insufficient or
+unavailable inference in the learning journey. Opposite/significant trends are not
+selection requirements. Explain quantity differences and cross-product disagreement.
 
 ### Geographic support
 
@@ -652,6 +774,15 @@ about 0.2 °C; a sample that stops at 80° misses the fastest-warming polar caps
 
 ## 8. Built-in AI
 
+### Status and selected path
+
+Existing: question-to-settings extraction and manual confirmation; AI is disabled
+by default. Planned: OpenAI guided discovery, hosted document retrieval and cited
+qualitative explanations. No RAG ingestion, live provider evaluation or explanation
+endpoint is claimed by this document. The target is OpenAI-only for these new
+features; existing Ollama/Anthropic planner support is an alternative, not a required
+installation. Choose an exact model after semantic, latency and cost evaluation.
+
 ### Planner and provider boundary
 
 Begin with schema-constrained extraction, not a free-running agent. The model
@@ -674,23 +805,81 @@ Optional Anthropic mode uses a selected exact model ID and server credentials.
 No silent local-to-paid fallback. Both providers share schemas and evaluation.
 Existing httpx can call local HTTP; another SDK is not needed merely for syntax.
 
-### Explanations and optional RAG
+### Planned guided discovery
 
-Render canonical verdicts from results. Free-form AI explanations are disabled. Canonical result fields and verdicts
-are rendered directly; a model proposes settings only and cannot introduce numeric claims. Validate place, period, quantity, units, direction
-and cautions together. Withhold unsupported commentary or use a fixed explanation.
-AI cannot overrule unavailable or non-significant outcomes.
+Keep /api/plan for extraction. Add /api/discover for broad goals such as investigating
+environmental change around Singapore or a rainforest. Offer up to three enabled
+variables with definitions, data availability, relevant source citations and limits.
+Suggestions concern scientific relevance, not a promise of a trend or significance.
+General regional context must not become an unsupported claim about a specific site.
 
-A number matcher is only a warning heuristic. No exemptions for small integers or
-in-range years: a matching number can refer to the wrong place. The planner is
-tool-using AI, not RAG. Retrieval is separate optional work with cited metadata,
-versioned corpus, coverage checks and matched RAG/no-RAG cases. Keep reference
-answers and held-out questions out of retrieval. User/retrieved text cannot
-authorize tools, network destinations or secret access.
+Clarify quantity, ambiguous place, dates or unsupported requests using short typed
+questions/choices. The browser resubmits the current question and typed draft, not
+unbounded history. Location resolution remains deterministic and catalogue-backed.
+No investigation or NASA call executes from a model proposal. Confirmation is
+required even when every setting is filled automatically.
+
+### Planned corpus and retrieval
+
+Use reviewed NASA POWER methodology, variable/source/validation and resolution
+documentation, relevant MERRA-2 documentation and documents for actually supported
+products. Include the project's method/limitations notes with explicit project
+authorship; never attribute our custom method to NASA. News, arbitrary uploads and
+unreviewed web search are outside the release corpus.
+
+An owner-run ingestion command prepares section-based documents, preserves original
+source metadata and hashes, uploads them to an OpenAI vector store and waits for
+indexing completion. Hosted indexing handles chunking/embeddings; no local embedding
+model is required. Keep a versioned source manifest, file-ID mapping and content
+snapshots in protected deployment storage; public docs contain only approved
+redistributable passages/metadata. Do not upload secrets, private documents or tests.
+
+Query the fixed vector store explicitly from the backend before generation. Start
+with at most four returned passages, each capped at 1,200 characters, filtered to the
+relevant source/product/variable where possible. Tune these starting bounds only
+against development questions, then freeze them before held-out evaluation. Preserve
+enough section context; do not remove qualifiers to meet a length cap. Retrieval
+scores are ranking signals, not probabilities that an answer is correct.
+
+Source IDs resolve to canonical links in the manifest. Show the cited passage and
+its source context. Persist corpus/retrieval provenance separately from numerical
+snapshots without storing user questions or generated chat text. A numerical share
+link reproduces the numerical investigation, not a nondeterministic AI answer.
+If no relevant evidence is available, return insufficient_evidence; citations alone
+do not establish support. Keep evaluation questions and reference answers out of
+the corpus and record a matched RAG/no-RAG evaluation.
+
+### Planned explanations and result protection
+
+Add /api/explain for "Ask about this investigation". Load the investigation by ID
+on the server, verify its frozen evidence and bind the response to that ID. If the
+result is unavailable, fail explicitly instead of analysing fresh data. Navigation
+cancels/discards the old response; the numerical result never waits for AI.
+Implement a server-owned result lookup/manifest as part of this path; an ID alone
+is not assumed to reconstruct settings. Bind it to retained snapshots and analysis
+version without storing user questions or model responses.
+
+Render canonical verdicts and numbers directly. Generated blocks explain concepts,
+dataset context, limitations and evidence-supported next questions. They must not
+calculate, paraphrase or replace the statistical verdict or introduce numerical
+findings. Any displayed rate/date/unit/result reference is an allowlisted field
+rendered by application code from the trusted investigation. Check place, period,
+quantity, direction, inference status and cautions together. Withhold unsupported
+commentary; AI cannot overrule unavailable/non-significant outcomes or infer causes.
+
+Validate cited source IDs against the actual retrieved passages and validate their
+relationship to each answer block. Schema/citation/number checks are defensive
+filters, not proof of truth; assess entailment and factual support in human-reviewed
+evaluation. A number matcher alone cannot protect against the wrong place or claim.
+Questions requiring new calculations create a new proposal for confirmation.
+
+User and retrieved text are untrusted evidence, never instructions authorizing
+tools, URLs, uploads, secret access or source changes. Render plain text and curated
+links. No model-controlled Python/SQL execution or open-ended tool loop is allowed.
 
 ### Bounds and evaluation
 
-Implemented bounds: 8 KiB body containing one question of <=2,000 characters;
+Existing /api/plan bounds: 8 KiB body containing one question of <=2,000 characters;
 one concurrent generation across workers sharing the operational DB; one provider
 generation per proposal, plus a local model-identity lookup for Ollama. No client
 history is accepted and no free-form numeric commentary is displayed. The output
@@ -709,13 +898,37 @@ Keep hosted mode off if accounting is unavailable. Counters need durable storage
 and concurrency/restart/redeployment checks. Local mode also needs compute bounds.
 No chat text is stored server-side.
 
+Planned /api/discover and /api/explain use independent readiness/evaluation flags
+so a working planner does not imply working RAG. Each accepts <=8 KiB and one
+question <=2,000 characters, performs at most one explicit retrieval and one model
+generation, has a 30-second total deadline and a 1,024-token output cap, and shares
+the operational generation lease/rate limits. No automatic retry or agent loop.
+The typed current draft and server-loaded investigation are separately size-bounded.
+Future changes to these limits need recorded latency/cost evaluation.
+
+Proposed configuration: RAG_ENABLED, RAG_EVALUATED, RAG_VECTOR_STORE_ID and
+RAG_CORPUS_VERSION, plus an exact evaluated generation model and retrieval limits.
+These are planned names, not current environment variables. Capabilities report
+planner, discovery and explanation availability separately after implementation.
+Absent or mismatched corpus/model/configuration disables only the affected AI path.
+
+Extend the existing atomic budget accounting before activating RAG: reserve model
+and retrieval charges, separately cap ingestion/indexing and storage costs, define
+vector-store expiry/cleanup, and reconcile actual usage. Daily turn counts are not
+spend controls. Unknown prices or insufficient durable budget state disable paid
+operations. Owner-run ingestion is separate from public requests and is not enabled
+merely by setting a runtime AI flag. Keep credentials server-side and inform users
+that questions go to OpenAI. Use store=false for Responses; this does not imply
+zero provider retention, and uploaded vector-store files persist separately.
+
 Evaluate semantic case accuracy, clarification/abstention, latency and critical
 factual errors separately from schema compliance. Include invalid JSON/types,
 ambiguity, unsupported requests, injection and misleading premises. Predeclare a
 practical >=90% correct resolution or appropriate clarification target on a fixed
 confirmation suite, with zero critical unsupported numerical/verdict claims.
 Report suite size, failures and uncertainty; sample success is not a population
-guarantee. Manual mode is the baseline.
+guarantee. Manual mode is the baseline. The expanded release gates in section 12
+supersede the earlier minimum planner suite size in the evaluation protocol.
 
 ## 9. MCP
 
@@ -729,7 +942,8 @@ resources; share source limits/cache across adapters.
 
 ## 10. API and URLs
 
-All endpoints are planned until implemented.
+The core numerical routes and /api/plan exist. Discovery, retrieval-backed
+explanation and their new contracts below are planned until implemented and tested.
 
 | Core route | Purpose |
 | --- | --- |
@@ -743,13 +957,19 @@ All endpoints are planned until implemented.
 | GET /api/world | WorldTrend for v, from, to and s; 422 unsupported_request for a variable the sample does not cover |
 | /world | A variable's whole-world page |
 | GET /api/examples | Frozen example titles and pinned queries |
+| GET /api/capabilities | Existing planner availability; planned separate discovery/explanation readiness |
+| POST /api/plan | Existing bounded question-to-settings proposal; user confirms |
+| POST /api/discover (planned) | Supported variable suggestions, cited reasons and clarification; no execution |
+| POST /api/explain (planned) | Question + investigation ID -> cited qualitative explanation or explicit unsupported state |
 | GET /healthz | Liveness without external calls |
 | GET /readyz | Catalogue/example manifest/schema loadability |
 | /case | Shareable static application route |
 
-Conditional: /api/chat, /api/chart.png, /mcp, /api/map. Disabled capabilities return
-clear unsupported responses. SPA fallback must not turn unknown /api/ routes into
-successful HTML.
+The retired /api/chat refuses requests; new discovery/explanations do not restore
+the old free-running loop. Existing /api/chart.png, /mcp and /api/map have separate
+scope/status and are not prerequisites for the new AI paths. Disabled capabilities
+return clear unsupported responses. SPA fallback must not turn unknown /api/ routes
+into successful HTML. No public ingestion/upload route is planned.
 
 Case query fields: v; one/two p=lat,lon; paired optional label; explicit from/to;
 s=annual; snapshot IDs and av=analysis_version. Validate counts, finite numbers,
@@ -777,8 +997,9 @@ frontend dependencies are pinned in package-lock.json. Use uv and npm ci.
 
 Planned core: FastAPI, Pydantic, NumPy/SciPy, httpx, SQLite, pytest/Ruff;
 React/Vite/strict TypeScript, Plotly and MapLibre GL JS (the globe, on OpenFreeMap tiles). Pin actual compatible versions and
-generate lockfiles with one manager during implementation. Matplotlib/MCP are
-deferred dependencies. Statistical references remain verification dependencies
+generate lockfiles with one manager during implementation. Matplotlib/MCP already
+exist in the dependency set; their broader release role is separate from the AI
+plan. Statistical references remain verification dependencies
 unless deliberately adopted at runtime.
 
 Use backend/app for models/tools/sources/adapters, backend/tests for safe checks,
@@ -815,6 +1036,14 @@ questions/credentials. Apply validation, plain-text rendering, trusted-proxy
 handling, work bounds and deadlines. Tiles require attribution; static coordinates/
 cell context keep analysis useful without tiles. Secrets never reach browsers.
 
+Planned RAG adds an owner-managed corpus manifest and citation mapping alongside
+protected document snapshots. Use existing httpx for OpenAI HTTP calls unless a
+separately justified SDK dependency is approved. Keep numerical-source fetching,
+document ingestion and model calls in distinct modules. No local model install is
+needed. Deploy one HTTPS app with persistent /app/state, verified proxy settings
+and configured public URL. Test container replacement, evidence links and AI cost
+state. Document ingestion and hosted vector-store retention are separate operations.
+
 ## 12. Build plan and submission
 
 Organizer deadline supplied by the team: 15 November 2026, 11:59 PM SGT. Team
@@ -823,17 +1052,22 @@ does not expand the intentionally trimmed event-information document.
 
 | Stage | Deliverable | Done when |
 | --- | --- | --- |
-| 1 | Frozen T2M case, manifests, aggregation/estimator, method review/calibration and minimal public health route | Numerical/reproduction checks pass; inference domain validated or explicitly blocked |
-| 2 | Manual chart, evidence, fixed verdict, download and pinned links | Supported full journey works; errors/gaps visible; examples survive source outage |
-| 3 | Aligned two-place comparison, lesson and small formative study | Correct common years and observed completion/interpretation evidence |
-| 4 | Bounded AI and one local/hosted provider | Confirmation gate passes; failures/ambiguity handled; hosting availability explicit |
-| 5 | One additional product if useful/feasible | Meaning, period, support, provenance and disagreements documented |
-| 6 | Public materials, demo and submission | Required fields/credits complete; public link works; submission confirmed |
+| 1 | Scope/contracts and existing scientific baseline | Draft 5 planned/implemented status is explicit; numerical/reproduction checks pass; inference domain is preserved |
+| 2 | OpenAI planner and guided clarification | Exact model selected using development evaluation; clear requests resolve, ambiguous requests clarify, every proposal waits for confirmation |
+| 3 | Reviewed corpus and hosted retrieval | Manifest/source mapping, hashes, indexed files, relevant retrieval and missing-evidence behaviour verified |
+| 4 | Cited discovery and explanation UI | Bounded /api/discover and /api/explain meet section 5/8 contracts; citations and result binding checked; failures preserve manual results |
+| 5 | Guided temperature/comparison/water demonstrations | Two walkthroughs and a precipitation case use frozen evidence; quantity/support/units verified; no extra inference implied; every resource/consideration has a recorded decision |
+| 6 | Scientific, AI, accessibility and user evaluation | Release gates below run on frozen suites; report failures, uncertainty, latency/cost and at least five intended-user observations |
+| 7 | Deployment and submission | HTTPS/container/persistence journey checked; video/deck, NASA/AI attribution, public materials and submission completion verified |
 
-Begin science and demo narrative early. Protect stages 1,2,3,6; reduce a study
-honestly if access/time is limited. Cut extra sources/AI before validity or
-presentation. Maps, scanning, extra variables and MCP are outside the critical path.
-Rough hour estimates do not establish feasibility; reassess at working milestones.
+Preserve the working manual/statistical foundation throughout this sequence. Begin
+the demo narrative and deployment preparation early, but do not claim a later stage
+is complete before its dependencies and checks pass. Additional connectors, broader
+inference, model training and provider parity are outside the critical path. Reassess
+at each working milestone; rough hours do not establish feasibility. If time runs
+out, disable failed AI features and disclose reduced scope rather than compromising
+scientific validity, user evidence or the submission. Such a prototype does not
+constitute completion of all Draft 5 features.
 
 Acceptance evidence:
 
@@ -843,15 +1077,34 @@ Acceptance evidence:
   Data preparation and statistical calibration are separate evidence.
 - Integration: labelled real NASA smoke check and public manual journey, distinct
   from fixture-only passes. Exercise NASA/AI/map-tile outages.
-- AI: frozen semantic/abstention/attribution/injection cases, aligned across providers.
-  RAG comparison only if retrieval exists.
-- Impact: aim for 3-5 intended users if available. Observe anonymous, non-sensitive
+- AI planner/discovery: at least 50 held-out prompts spanning exact requests, broad
+  goals, missing dates, comparisons, ambiguous places, unsupported quantities,
+  seasons, forecasting, misleading premises, injection and failures. Predeclare
+  expected resolution/clarification and a >=90% pass target. JSON validity alone
+  is not success; record counts, errors and uncertainty for the exact model/version.
+- RAG: at least 40 held-out questions spanning definitions, source/grid context,
+  limitations, absent/conflicting evidence and adversarial premises. Review
+  retrieval relevance separately from answer support and citation correctness;
+  predeclare a >=90% fully supported-answer-or-appropriate-abstention target.
+  Compare the same questions with/without retrieval under matched settings; report
+  regressions as well as improvements. Do not ingest test questions or answer keys.
+- Critical AI gate: zero invented numerical findings, unsupported verdict changes,
+  fabricated citations or successful tool/secret authorization injections in the
+  release suite. This is an observed suite result, not a general safety guarantee.
+- Impact: observe at least five intended users. Observe anonymous, non-sensitive
   completion, assistance and interpretation of rate/non-significance against a
   simple chart/manual baseline. Counterbalance tasks where feasible. Report
   denominator, errors and limits. This is formative evidence, not proof of a
-  population learning effect. Disclose absent users; never invent observations.
-- Performance: separately measure cache hits, source misses and model planning
-  on named hardware/host with exact model/prompt/schema/context identities.
+  population learning effect. Obtain agreement before observing tasks. Predefine
+  success, report every attempt and changes made. Disclose a smaller/absent study
+  as a release-evidence gap; never invent observations.
+- Performance: separately measure cache hits, source misses, planning, retrieval
+  and explanations on the named host with exact model/prompt/schema/corpus/context
+  identities. Report latency distributions, timeouts and cost per completed/failed
+  operation against predeclared practical limits and the configured budget.
+- Deployment: test real browser, keyboard/mobile and WebGL fallback, copied pinned
+  link in a fresh session, exports, NASA/OpenAI/tile outages, cancellation, rate and
+  budget exhaustion, Linux container build and persistent-volume replacement.
 
 No outcome is claimed until run. Full significance scope remains incomplete if
 only descriptive fallback exists. Label illustrative screens and unbuilt features.
@@ -888,6 +1141,14 @@ Linux container build and persistent-volume replacement check; public HTTPS depl
 observed student tasks; and the final submission demonstration. Optional intervals
 remain unavailable until independently coverage-tested. No extra source is mandatory.
 
+Draft 5 additionally requires implementation and held-out evaluation of discovery,
+corpus ingestion/retrieval, cited explanation contracts/UI and expanded cost
+accounting. Open decisions: exact OpenAI model and current prices; reviewed corpus
+sections/version; content retention/redistribution; relevant retrieval thresholds;
+precipitation product/aggregation; practical latency/cost limits; and deployment
+resources. Resolve these using recorded checks before enabling the affected path.
+No paid API calls, document uploads or new connectors are performed by this spec update.
+
 Main risks are invalid inference sounding authoritative, mismatched quantities,
 data revisions, unsupported local hosting, overstated comparison, weak user
 interpretation, unbounded costs/compute and excessive scope. The gates above are
@@ -912,13 +1173,24 @@ release conditions, not issues to conceal with a badge or polished interface.
 - [Ollama tool calling](https://docs.ollama.com/capabilities/tool-calling)
 - [Ollama hardware](https://docs.ollama.com/gpu)
 - [Anthropic model documentation](https://platform.claude.com/docs/en/models/overview)
+- [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+- [OpenAI retrieval and vector stores](https://developers.openai.com/api/docs/guides/retrieval)
+- [OpenAI hosted File Search](https://developers.openai.com/api/docs/guides/tools-file-search)
+- [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data)
+- [POWER data FAQ](https://power.larc.nasa.gov/docs/faqs/data/)
+- [NASA MERRA-2 overview](https://gmao.gsfc.nasa.gov/gmao-products/merra-2/)
+- [CUAHSI hydrological information system](https://www.cuahsi.org/data-services/hydrologic-information-system)
+- [Local-event reproduction of challenge/resources](https://hackathlone.com/challenges/earth-system-trend-detective)
 
-Primary technical references were inspected during review including 13 November
-2026. Some official challenge/guide pages did not load; supplied text remains the
-basis for local requirements. Recheck current rules before submission. Old live-call
+Primary technical references were inspected during review on 13-14 November 2026,
+including OpenAI retrieval/structured-output/data-control docs and NASA/CUAHSI
+sources for Draft 5 planning. The production challenge and current judging-guide
+pages did not fully load; the supplied statement/organizer criteria and local-event
+reproduction inform the requirement mapping. Do not substitute an older judging
+guide as current evidence. Recheck current rules before submission. Old live-call
 and simulation claims lacking artifacts are leads to verify, not validation.
 
-## Implementation notes for Draft 4
+## Existing implementation baseline (Draft 4 and UI fixes)
 
 - Coordinates preserve the original floating-point precision through URL round trips;
   resolve the original coordinate before choosing the grid cell. No two-decimal snapping.
@@ -952,3 +1224,21 @@ and simulation claims lacking artifacts are leads to verify, not validation.
   whether to offer the AI; the `ui` branch's /api/ai endpoint was dropped in the merge.
 - The old free-running provider loops are removed. Contract/test migration rationale
   is recorded in research/test-migration.md; no failures are hidden with skips/xfails.
+
+## Draft 5 planned delivery checklist
+
+These boxes remain unchecked until implementation and observed evidence exist.
+Specification approval alone does not activate AI or complete a release gate.
+
+- [ ] Implement guided clarification/discovery and source-backed variable suggestions.
+- [ ] Select and evaluate an exact OpenAI model; retain manual confirmation/fallback.
+- [ ] Review/version the corpus, ingest/index it and verify retrieval/source mapping.
+- [ ] Implement cited qualitative explanations bound to server-loaded investigations.
+- [ ] Render numerical references from Python fields; reject invalid citations/claims.
+- [ ] Verify ingestion/retrieval/storage accounting and independent capability flags.
+- [ ] Prepare two walkthroughs and a truthful water-related demonstration.
+- [ ] Record a decision for every consideration and listed resource.
+- [ ] Run >=50 planner/discovery and >=40 RAG held-out cases plus matched no-RAG cases.
+- [ ] Observe >=5 target users and report completion, assistance and interpretation errors.
+- [ ] Verify public HTTPS, browser/mobile/keyboard, outages and persistent redeploy.
+- [ ] Publish accurate NASA/AI credits and complete the demo/submission requirements.

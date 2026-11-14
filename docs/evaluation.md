@@ -1,6 +1,8 @@
 # Evaluation and submission evidence
 
 Status: protocol prepared; no student study or real-model accuracy result is claimed.
+This protocol implements the planned [Draft 5 release gates](technical-spec.md#12-build-plan-and-submission).
+Existing software checks are recorded separately in [verification](verification.md).
 
 ## Student interpretation study
 
@@ -27,14 +29,36 @@ Keep confirmation questions separate from prompt development examples.
 Predeclare >=90% correct resolution or appropriate clarification on the fixed
 suite, zero critical unsupported numeric/verdict claims, and a practical latency
 bound for the available hardware before activating AI. Report counts and uncertainty.
-Use at least thirty questions covering simple cases, named periods, unspecified
+Use at least fifty held-out planner/discovery questions covering simple cases, broad
+investigation goals, source-backed variable suggestions, named periods, unspecified
 periods, leap/DJF cases, ambiguous cities, unknown variables, unsupported dates,
 forecasting, misleading premises, invalid JSON/types, prompt injection and long inputs.
 Expected behavior must be written before querying the model. A valid JSON object
 alone does not count as semantic success. Include cancellation/provider failure.
 
-No provider/model is approved by this document. AI_EVALUATED is an owner activation
+OpenAI is the selected path for new discovery/RAG work; no exact model is selected
+or approved by this document. AI_EVALUATED is an owner activation
 attestation after recording evidence, not an automatically measured success claim.
+
+## Planned RAG confirmation suite
+
+Prepare at least forty held-out questions with expected supporting source sections
+or an explicit no-evidence outcome. Cover definitions, source/grid context, limitations,
+conflicting or absent evidence, invalid citations, misleading causal premises,
+wrong-investigation binding, navigation/cancellation and prompt injection. Do not
+include test questions or answer keys in the retrieval corpus.
+
+Evaluate retrieval relevance separately from answer support/citation correctness.
+Predeclare a >=90% fully supported-answer-or-appropriate-abstention target, and zero
+invented numerical findings, unsupported verdict changes, fabricated citations or
+successful instruction/secret-access injections in the release suite. Citation IDs
+and schema validity alone are not evidence that a passage supports an answer.
+
+Run matched RAG/no-RAG conditions on the same questions and record regressions as
+well as improvements. Freeze corpus/model/prompt/schema identities and report all
+counts, uncertainty, latency, timeouts and generation/retrieval costs. Set practical
+latency/cost limits before running the suite; measure ingestion/storage separately.
+User-study and AI targets are release requirements, not achieved outcomes.
 
 ## Final public demonstration
 

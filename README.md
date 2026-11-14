@@ -9,6 +9,22 @@ The app is a prototype, not a forecasting service or a causal attribution tool.
 One meaningfully used NASA dataset meets the organizer requirement supplied to
 the team. More datasets, AI and MCP are not prerequisites for the challenge.
 
+## Submission and documentation
+
+| Document | Purpose |
+| --- | --- |
+| [Submission text](docs/submission.md) | Project summary, details, demo script and remaining submission steps |
+| [Verification](docs/verification.md) | Observed checks and explicit verification limits |
+| [Technical spec](docs/technical-spec.md) | Existing behaviour and the planned LLM/RAG release |
+| [Evaluation protocol](docs/evaluation.md) | Held-out AI tests and intended-user study |
+| [Resource assessment](docs/resource-assessment.md) | Why resources are used or deferred |
+| [AI disclosure](docs/ai-disclosure.md) | Development assistance and runtime AI status |
+
+The current prototype is available as source; a public demo link has not been
+provided. OpenAI discovery/RAG remains planned and must not be described as
+working in the submission. Final recording, public-link checks and submission
+through the official team page remain team actions.
+
 ## Run locally
 
 Use 64-bit CPython **3.14.5**, uv and Node **22.23.5**. Backend package metadata
@@ -131,6 +147,13 @@ credits or calls NASA. Docker and a public HTTPS deployment require separate ver
 
 ## Optional AI planner
 
+The [Draft 5 technical spec](docs/technical-spec.md) plans OpenAI-assisted variable
+discovery and RAG explanations using a reviewed documentation corpus. These are
+planned additions, not current features; no local model is required for that plan.
+The configuration and limits below describe the existing planner only.
+Without an enabled provider, the question box matches keywords and fills settings;
+it does not generate conversational explanations.
+
 AI is **off by default**. `/api/plan` accepts one question and returns catalogue
 settings for the user to review, edit and confirm. It cannot run an investigation,
 return invented coordinates or display a free-form numerical explanation. All result
@@ -232,49 +255,20 @@ including source code, tests, documentation and the inference experiment. Option
 runtime planning uses the configured local or hosted model and is labelled as AI.
 No AI-generated images/video are used. No commit or push is performed automatically.
 
-Earlier AI use, recorded on the `initial-app` and `ui` branches (some of the chat files named
-here were later retired on `main`, as described above):
+Codex also added regression tests and fixes for answer actions during loading: sharing and
+region actions wait for the new result, and the region action describes rates of change
+without promising significance testing.
 
-- The [technical specification](docs/technical-spec.md) was drafted with AI assistance.
-- An AI coding assistant (Claude Code, model Claude Opus 5.5) wrote the following under the team's direction: the application code, the tests, the frontend, the Dockerfile, the catalogue texts, keywords and trend notes, the region-type suggestions (`region_types`) in `backend/data/catalogue.json`, the 21 hand-picked regions in `backend/data/places.json`, Svalbard among them, the choice of the example cases and their teaser texts, and this README.
-- The same assistant wrote the fixes from each review round, with their tests. An earlier round included the chat adapter (`backend/app/adapters/chat.py`), the MCP adapter (`backend/app/adapters/mcp_server.py`) and the shared plain message for invalid input (`first_problem` in `backend/app/errors.py`); in the frontend, the number pattern of the number check, link rounding and parameters, keyboard picking on the map, focus handling, the region view's notices and definitions, and the period explorer; new component tests with their sample data (`frontend/src/components/testData.ts`); and more catalogue keywords.
-- In the latest round the assistant implemented decisions the team made, with their tests. In the backend: the region-type suggestions and the `region_types` field, the Svalbard region, "the selected area" as the name of a region's area mean, the "both places" summary, the warm-up of the suggested prompt's place, the `httpx2` pin, the proxy trust default (`FORWARDED_ALLOW_IPS`), the handling of clients that disconnect, the chat adapter's handling of any failed turn or tool, the two new system-prompt rules, and an API key kept out of the settings' `repr`. In the frontend: the "Dig deeper" panel with its related-variable and "Worth testing here" links and the region-type lookup behind them, the notice under an answer that ended before its numbers were checked, the reading order of the page, the single `h1`, the switch to the basic Plotly bundle, the Prettier setup and a formatting run, and new tests, such as the one that keeps the function-word lists of backend and frontend identical. It also brought the specification, this README and `AGENTS.md` in line with the code.
-- On 14 November 2026 the assistant checked POWER's grids and the region map with 22 live calls. Its findings are in [spec 6](docs/technical-spec.md#6-data) and [spec 13](docs/technical-spec.md#13-risks-and-open-questions).
-- After that live check showed that sunlight and cloud cover came from a neighbouring 1° cell for about a third of places, the assistant changed the app to take them from the place's own 1° cell. In the backend it wrote the grid `alignment` field of the catalogue, the changes to `resolve_place` and `fetch_point_series`, the updated comments in `backend/scripts/warm_cache.py` and `backend/tests/test_examples.py`, and their tests. In the frontend it drew the 1° cell outline on the place map, fitted the map to the places and their whole cells, removed the caption saying the 1° grid's position was not confirmed, and wrote their tests. The assistant, not the team, chose this fix, and the team has yet to confirm it.
-- In the same round the assistant fixed the reading order of an open case and the region view: at every width the page now holds and shows the verdict, the notes and the Dig deeper panel first, then the settings, then the chart, maps and evidence, and the answer keeps a readable line width. It wrote the tests for the new order and brought the specification and this README in line with both changes.
-- The shipped `backend/data/cache.sqlite` was produced by a script (`backend/scripts/warm_cache.py`) from live NASA POWER calls on 13 November 2026. It holds the three example cases and the Nairobi grid point of the suggested prompt. Ten sunlight and cloud cover rows that the app no longer read were deleted from it on 14 November 2026, at the team's request.
-- The assistant then added OpenAI as a second provider for the AI helper, under decisions the team made: the `AI_PROVIDER` and `OPENAI_API_KEY` settings with a default model per provider, the Responses API loop in `backend/app/adapters/chat_openai.py`, the shared failure messages in `backend/app/adapters/chat_text.py`, the changes to `backend/app/adapters/chat.py` and `backend/app/config.py` that let both providers share the tools, steps and number check, the tests in `backend/tests/test_chat_openai.py` and `backend/tests/test_config.py`, and the matching changes to the specification, this README, `.env.example` and `AGENTS.md`. The OpenAI path has not yet run against the live API.
-- At run time, the optional AI helper uses the Claude API or, when it is configured instead, the OpenAI API, with the model set by `AI_MODEL`. Its notes carry a visible "Written by AI" label.
-- On 14 November 2026 the team asked the assistant to overhaul the interface, to make it look good and fit the challenge. The assistant chose and built the result: one dark theme, a globe behind every screen in place of the two flat maps (MapLibre GL JS on OpenFreeMap tiles, replacing Leaflet on OpenStreetMap tiles), the single-column case file with the settings folded under an open case or map, the key to the globe, the mark of a picked point, the app's own magnifying-glass mark, and the notice for a browser without WebGL. It wrote the new modules (`globeStyle.ts`, `globeGeometry.ts`, `globeContext.ts`, `cellTooltip.ts`, and the `GlobeCanvas`, `GlobeStage`, `PlaceLegend` and `SettingsFold` components), their tests, the new stylesheet, and the matching changes to the specification and this README. It checked the result in a desktop browser at 1440px and at an emulated phone width, not on a real phone. The team has yet to confirm the look.
-- Later on 14 November 2026 the assistant (Claude Code, model Claude Fable 5.2) reviewed the new interface at 18 screen sizes and states, and the team asked it to fix the first five findings. It wrote the fixes, their tests and the matching changes to the specification and this README: dark sheets under the header and the question bar on a phone, a shorter phone stage with the example prompts in one scrolling row, the side-by-side layout from 640px for tablets and phones held sideways, place names on the left of their markers on a small stage, a question bar that drops a keyword match once the screen has moved on (`frontend/src/questionBarState.ts`), "click the globe" in the case settings, example prompts on the first screen only, and the `GET /api/ai` endpoint, with which the question bar says from the start that the AI is off. The last item replaces the specification's earlier rule that the browser does not know in advance whether the AI is on; the assistant chose that fix, and the team has yet to confirm it. It checked the result in emulated screens from 320px to 1280px wide with the AI off, not on a real phone and not with the AI on.
-- The team then asked for the review's other fourteen findings to be fixed, and the same assistant wrote them, with their tests and the matching changes to the specification and this README. On the stage: the choices for a picked point (`PickedPoint`, moved out of the case settings), a caption for a case and a key for a region map (`StageCaption`, `StageNote` and `MapLegend`), a hint for touch screens, and a fade-in of the Earth after its first tiles. On the globe: a tilt held within 55° of the equator, region cells cut at the box, the oceans and the best known countries named evenly, and, on a phone, one finger scrolling the page while two move the globe. In the case file: "Copy link" and "Map this region" under the verdict (`CaseActions`, `clipboard.ts`), placeholders while a case loads (`Skeleton`), the rate of a significant trend as a large figure, a quieter question bar on a case or a map, the region verdict's sentence before its method note, larger panel labels and 44px touch targets. The assistant made the design choices among these; the team has yet to confirm them. It kept the mouse wheel zooming the globe on a wide screen, where the review had called that a scroll trap, because the stage there is fixed beside the page. It checked the result in emulated desktop, tablet and phone screens with the AI off, not on a real device.
-- Still on 14 November 2026 the team asked whether the interface could look more creative and less machine-made. The assistant (Claude Code, model Claude Fable 5.2) drew previews over the running app, each labelled as a mock-up made with AI: three ideas, then four looks, then a mix of two of them, then the app's data in that mix. The previews are not part of this repository. A team member chose from them: the mix (an atlas page with a detective's marks), the example cases pinned to the globe, the place inks green, violet, yellow and magenta, and open-licensed typefaces in the repository. The assistant then built that look and wrote its tests and the matching changes to the specification and this README: the stylesheet, the three typefaces, the globe as an engraving in a framed plate with a ring of degree marks, the sheets and their typed tabs (`FileTab`), the verdict's stamp (`VerdictCard`, `InkFilter`), the chart colours, and the example pins with their string (`examplePins.ts`, `ExampleCases`, `GlobeCanvas`). The assistant, not the team, decided what the previews did not show: which open typefaces stand in for the ones in the previews, the names of the oceans waiting for zoom 3, the pin's card standing on the case's northernmost place, the string only from 960px, the stamp standing above the text below 960px, the hint lines of the first screen, and the look of every screen that was not previewed, such as the settings, the notices and the phone layout. It was checked in headless Chrome at four screen sizes with the AI switched off, not on a real phone, not with a screen reader, and not with the AI switched on.
-- The team then asked the assistant, as a designer, for the real problems of the new look, and then to fix all seventeen it named. The assistant (Claude Code, model Claude Fable 5.2) wrote the fixes, their tests and the matching changes to the specification and this README. The chart moved right under the verdict, with its explanation under the plot and its rate and 95% interval in its summary (`App.tsx`, `TrendChart`). The question bar steps back on an open case, and the first screen links to the settings ("set up a case by hand"). The stamp lost its uneven-ink filter (`InkFilter` was removed), the tab lost the case's code, and the "Exhibit" tabs went. Capitals, italics, small text and the grain over text were cut back, and links and buttons went from red to ink (`styles.css`). The place inks became teal, ochre, violet and magenta (`placeStyles.ts`). The region map's cells became opaque under a coast line (`globeStyle.ts`). An example's pin now answers the pointer, its card can be clicked, the list waits 0.2 seconds before it turns the Earth, and the idle turn resumes (`ExampleCases`, `examplePins.ts`, `GlobeCanvas`). The stage's buttons grew to 44px for fingers, a tablet's plate fits the Earth, and a phone's hint sits on the frame. The assistant, not the team, chose every one of these remedies and their details, such as the four inks, the 0.2 and 4 second waits, the wording of the new line on the first screen and of the chart's sentence on its rate. It left three things for the team, listed in [spec 13](docs/technical-spec.md#13-risks-and-open-questions): a true minus sign, a drawn uncertainty band, and where a comparison's chart goes. The fixes were measured and walked through in headless Chrome at seven screen sizes with the AI switched off, not on a real phone, not with a screen reader, and not with the AI switched on.
-- The star field of the earlier dark look was removed with it. The grain of the paper is an SVG noise filter in the stylesheet; no AI image generator made it. The globe's map style in `globeStyle.ts` was written by the assistant, with layer filters taken from OpenFreeMap's Liberty style.
-- On 14 November 2026 the assistant (Claude Code, model Claude Opus 5.5) merged `main` into
-  the `ui` branch. It kept `main`'s retired chat endpoint, confirm-first planner, descriptive
-  regional maps and specification, and kept the `ui` interface: the question bar now asks
-  `GET /api/capabilities` instead of the `ui` branch's `GET /api/ai`, which was dropped;
-  settings changes on an open case wait for "Run this case"; and the region map's key no
-  longer shows a mark for cells passing a stricter test.
-- On 14 and 15 November 2026 the same assistant (Claude Code, model Claude Opus 5.5) built
-  descriptive additions from a team brief, one at a time, with their tests and the matching
-  specification text: record years (`Records` in `models.py`, `rank_years` and
-  `first_and_last_means` in `stats.py`, the sentences in `verdict.py`, the record facts under
-  each verdict and the rings on the chart); the seasons panel (`season_rates`, `GET
-  /api/seasons`, `SeasonsPanel`, `seasonRows.ts`); the fourth example and its title and
-  teaser, with three more cache rows from one live call; the place overview
-  (`place_overview`, `GET /api/overview`, the /place page, `PlaceOverviewView`,
-  `overviewRows.ts`); the gap between two places (`Gap`, `gap_sentence`, `GapChart`); the
-  whole world (`scripts/build_world_mean.py`, `data/world-mean.json` from 324 live calls the
-  team approved, `world_trend`, `GET /api/world`, `WorldView`);
-  eight catalogue variables and two sea places,
-  after 18 live POWER calls that confirmed their grids and their values over land and sea,
-  a new saved fixture and 35 rows added to the shipped example cache. The team chose the
-  additions and their limits; the assistant chose the details the brief left open, listed
-  in its reports, such as the first-ten against last-ten-years rule, the units word "optical
-  depth" for haze and the region types "ocean", "tundra" and "mountains" for the new
-  variables.
+Codex updated the Draft 5 technical specification with the team's approved LLM/RAG
+plan, consideration/resource mapping, evaluation gates and delivery checklist. This
+documentation update does not implement or enable the planned AI features.
+Codex also prepared submission text, refreshed verification/evaluation records and
+organized the contribution history during repository cleanup.
+
+Claude Code (model Claude Opus 5.5) built the descriptive additions of a team brief on 14 and
+15 November 2026: record years, eight catalogue variables and two sea places, the seasons
+panel, a fourth example, the place overview, the gap between two places and the whole-world
+sample. The detailed [AI contribution record](docs/ai-disclosure.md) preserves contributor-reported development history separately from current runtime behaviour.
 
 Educational impact and the >=90% semantic planner target are not established by
 unit tests. Run the recorded evaluation protocol with target users and the selected

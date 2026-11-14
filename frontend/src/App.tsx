@@ -565,13 +565,15 @@ function CaseView(props: CaseViewProps): JSX.Element {
           ) : null}
           {shown !== null ? (
             <>
-              <CaseActions
-                key={key}
-                subject="case"
-                region={regionLink(params, props.onOpenPage)}
-                overview={overviewLink(params, props.onOpenPage)}
-                world={worldLink(params, props.catalogue, props.onOpenPage)}
-              />
+              {!loading ? (
+                <CaseActions
+                  key={key}
+                  subject="case"
+                  region={regionLink(params, props.onOpenPage)}
+                  overview={overviewLink(params, props.onOpenPage)}
+                  world={worldLink(params, props.catalogue, props.onOpenPage)}
+                />
+              ) : null}
               <StageNote>
                 <StageCaption investigation={shown} />
               </StageNote>

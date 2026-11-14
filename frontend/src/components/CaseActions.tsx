@@ -71,8 +71,8 @@ export function CaseActions({ subject, region, overview, world }: CaseActionsPro
       </p>
       {region !== undefined ? (
         <p className="field-hint">
-          “Map this region” runs the same test in every grid cell of a 10° by 10° box around{" "}
-          {region.placeName}.
+          “Map this region” shows the rate of change in every grid cell of a 10° by 10° box around{" "}
+          {region.placeName}. Significance is not assessed for the map.
         </p>
       ) : null}
       {overview !== undefined ? (
