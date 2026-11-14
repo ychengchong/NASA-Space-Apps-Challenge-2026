@@ -1,31 +1,31 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import type { AiStatus, ExampleCase, Investigation } from "./api";
+import type { Capabilities, ExampleCase, Investigation } from "./api";
 import App from "./App";
 import { investigation, SIGNIFICANT_RISE } from "./components/testData";
 
-// Every request stays idle, so nothing touches the network. A test may give the answer to the
-// question whether the AI is on, the list of example cases, and the answer of a case.
+// Every request stays idle, so nothing touches the network. A test may give the server's
+// capabilities, the list of example cases, and the answer of a case.
 const server = vi.hoisted(
   (): {
-    aiStatus: AiStatus | null;
+    capabilities: Capabilities | null;
     caseLoading: boolean;
     examples: ExampleCase[] | null;
     investigation: Investigation | null;
   } => ({
-    aiStatus: null,
+    capabilities: null,
     caseLoading: false,
     examples: null,
     investigation: null,
   }),
 );
-const START_KEYS = ["ai", "variables", "examples"];
+const START_KEYS = ["capabilities", "variables", "examples"];
 vi.mock("./useRequest", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./useRequest")>()),
   useRequest: (key: string | null) => {
     const idle = { state: { status: "idle" }, retry: () => undefined };
-    if (key === "ai" && server.aiStatus !== null) {
-      return { ...idle, state: { status: "done", value: server.aiStatus } };
+    if (key === "capabilities" && server.capabilities !== null) {
+      return { ...idle, state: { status: "done", value: server.capabilities } };
     }
     if (key === "examples" && server.examples !== null) {
       return { ...idle, state: { status: "done", value: server.examples } };
@@ -44,7 +44,7 @@ vi.mock("./components/GlobeCanvas", () => ({ default: () => null }));
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  server.aiStatus = null;
+  server.capabilities = null;
   server.caseLoading = false;
   server.examples = null;
   server.investigation = null;
@@ -110,19 +110,20 @@ describe("App", () => {
     expect(renderAt("/map", "?v=air_temp").match(/class="example-tack"/g)).toBeNull();
   });
 
-  test("says an AI reads the question until the server has said whether the AI is on", () => {
+  test("does not offer the AI until the server has said the planner is available", () => {
+    const html = renderAt("/", "");
+    expect(html).toContain("The AI helper is off.");
+    expect(html).not.toContain("An AI reads your question");
+  });
+
+  test("says an AI reads the question when the server's planner is available", () => {
+    server.capabilities = { ai_planner_available: true };
     const html = renderAt("/", "");
     expect(html).toContain("An AI reads your question");
   });
 
-  test("says an AI reads the question when the server's AI is on", () => {
-    server.aiStatus = { on: true };
-    const html = renderAt("/", "");
-    expect(html).toContain("An AI reads your question");
-  });
-
-  test("says the AI helper is off from the start when the server's AI is off", () => {
-    server.aiStatus = { on: false };
+  test("says the AI helper is off when the server's planner is unavailable", () => {
+    server.capabilities = { ai_planner_available: false };
     const html = renderAt("/", "");
     expect(html).toContain("The AI helper is off.");
     expect(html).not.toContain("An AI reads your question");

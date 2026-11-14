@@ -1,0 +1,4 @@
+# The calibration digest covers exact bytes; Git must not rewrite its line endings.
+backend/data/inference-v1.json -text
+research/*.json text eol=lf
+frontend/src/generatedModels.ts text eol=lf

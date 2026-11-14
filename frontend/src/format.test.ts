@@ -24,7 +24,7 @@ describe("formatRate", () => {
   });
 
   test("shows only one more digit when that still rounds to zero", () => {
-    expect(formatRate(0.0004, 2)).toBe("0.000");
+    expect(formatRate(0.0004, 2)).toBe("0.0004");
   });
 
   test("keeps the variable's decimals when the rate does not round to zero", () => {

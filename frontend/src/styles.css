@@ -2328,12 +2328,7 @@ details > summary::-webkit-details-marker {
   border: 1px solid var(--ink);
 }
 
-/* The same dot, ring and hatch as the globe draws; their colours are set in globeStyle.ts and
-   GlobeCanvas.tsx. */
-.legend-mark {
-  background: radial-gradient(circle, #2a2018 0 3px, #f7f0de 3px 4.5px, #dd716a 4.5px);
-}
-
+/* The same hatch as the globe draws; its colours are set in globeStyle.ts and GlobeCanvas.tsx. */
 .legend-hatch {
   background: repeating-linear-gradient(45deg, #6b5846 0 2px, #efe6cf 2px 6px);
 }
@@ -2388,4 +2383,16 @@ details > summary::-webkit-details-marker {
   .button {
     transition: none;
   }
+}
+
+.evidence-id {
+  overflow-wrap: anywhere;
+}
+.lesson-choice {
+  display: block;
+  margin: 0.7rem 0;
+}
+.badge-inference_unavailable {
+  background: var(--caution-bg);
+  color: var(--ink);
 }

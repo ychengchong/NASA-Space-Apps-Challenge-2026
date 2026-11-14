@@ -125,7 +125,7 @@ class PowerClient:
                 # Spec 6: two requests for the same grid point at the same moment share one
                 # call. The running fetch may cover other codes, so the loop checks again
                 # afterwards. It has not finished, so waiting for it yields to the event loop.
-                fetched = await asyncio.shield(running)
+                fetched = await _join_fetch(running)
                 found.update({code: fetched[code] for code in missing if code in fetched})
         return {code: _up_to(found[code], end_year) for code in wanted}
 
@@ -159,6 +159,8 @@ class PowerClient:
             },
         )
         cells = _parse_regional(payload, code, self._accessed())
+        metadata = payload.get("_retained", {})
+        cells = {key: dataclasses.replace(series, **metadata) for key, series in cells.items()}
         self._cache.write_point_series(CACHE_SOURCE, cells.values(), end_year)
         return cells
 
@@ -168,7 +170,7 @@ class PowerClient:
         fetch.add_done_callback(_retrieve_outcome)
         self._point_fetches[key] = fetch
         # Shielded, so one caller giving up does not cancel the fetch the others wait for.
-        return await asyncio.shield(fetch)
+        return await _join_fetch(fetch)
 
     async def _fetch_point(self, key: PointKey, codes: list[str]) -> dict[str, PointSeries]:
         lat, lon, end_year = key
@@ -189,6 +191,10 @@ class PowerClient:
                     },
                 )
                 series = _parse_point(payload, batch, lat, lon, self._accessed())
+                metadata = payload.get("_retained", {})
+                series = {
+                    code: dataclasses.replace(item, **metadata) for code, item in series.items()
+                }
                 self._cache.write_point_series(CACHE_SOURCE, series.values(), end_year)
                 fetched.update(series)
             return fetched
@@ -227,7 +233,23 @@ class PowerClient:
             if response is None:
                 continue
             try:
-                return response.json()
+                payload = response.json()
+                if isinstance(payload, dict):
+                    digest = self._cache.snapshots.put(response.content)
+                    header = payload.get("header")
+                    sources = header.get("sources", []) if isinstance(header, dict) else []
+                    sources = (
+                        [source for source in sources if isinstance(source, str)]
+                        if isinstance(sources, list)
+                        else []
+                    )
+                    payload["_retained"] = {
+                        "raw_sha256": digest,
+                        "query_url": str(httpx.URL(POWER_BASE_URL + path, params=params)),
+                        "product": " / ".join(sources)
+                        + "; product release not supplied by response",
+                    }
+                return payload
             except ValueError as error:
                 raise SourceUnavailableError(UNREADABLE_MESSAGE) from error
         raise SourceUnavailableError(NOT_ANSWERING_MESSAGE)
@@ -261,6 +283,31 @@ class PowerClient:
 
     def _accessed(self) -> str:
         return self._today().isoformat()
+
+
+async def _join_fetch(fetch: asyncio.Task[dict[str, PointSeries]]) -> dict[str, PointSeries]:
+    """Wait without cancelling a shared fetch; consume errors after a caller disconnects.
+
+    An independent waiter avoids Python 3.14 shield's deliberate cancellation-error
+    logging, while every remaining caller still receives its result or typed error.
+    """
+    waiter: asyncio.Future[dict[str, PointSeries]] = asyncio.get_running_loop().create_future()
+
+    def finished(task: asyncio.Task[dict[str, PointSeries]]) -> None:
+        if task.cancelled():
+            if not waiter.done():
+                waiter.cancel()
+            return
+        error = task.exception()
+        if waiter.done():
+            return
+        if error is not None:
+            waiter.set_exception(error)
+        else:
+            waiter.set_result(task.result())
+
+    fetch.add_done_callback(finished)
+    return await waiter
 
 
 def _retrieve_outcome(fetch: asyncio.Task[dict[str, PointSeries]]) -> None:

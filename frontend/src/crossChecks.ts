@@ -11,7 +11,10 @@ import { formatCoordinates } from "./format";
 
 /** The case with another variable; its places, period and season stay. */
 export function withVariable(params: CaseParams, variable: string): CaseParams {
-  return { ...params, variable };
+  const next = { ...params, variable };
+  delete next.snapshotIds;
+  delete next.analysisVersion;
+  return next;
 }
 
 /** The catalogue entries of `variable.related`, in that order; an id not in the catalogue is left out. */
@@ -52,7 +55,7 @@ export function regionTypeSuggestions(
       continue;
     }
     const variables = catalogue.filter(
-      (entry) => entry.id !== variable.id && entry.region_types.includes(regionType),
+      (entry) => entry.id !== variable.id && entry.region_types?.includes(regionType) === true,
     );
     if (variables.length > 0) suggestions.push({ regionType, placeNames: [name], variables });
   }

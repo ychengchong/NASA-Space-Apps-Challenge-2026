@@ -9,8 +9,10 @@ import { formatCoordinates, formatPValue, formatRatePerDecade } from "./format";
  */
 export function cellTooltipLines(cell: MapCell, variable: VariableSummary): string[] {
   const lines = [formatCoordinates(cell.lat, cell.lon)];
-  if (cell.sen_slope === null || cell.mk_p === null) {
-    lines.push("No result: too few complete years to test.");
+  if (cell.sen_slope === null) {
+    lines.push("No descriptive rate is available.");
+  } else if (cell.mk_p === null) {
+    lines.push(formatRatePerDecade(cell.sen_slope, variable), "Significance not assessed for the map.");
   } else {
     lines.push(formatRatePerDecade(cell.sen_slope, variable), pValueText(cell.mk_p));
     if (cell.significant) lines.push("Marked: passes the map's stricter test.");

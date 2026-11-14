@@ -51,11 +51,55 @@ export function EvidencePanel({ investigation }: EvidencePanelProps): JSX.Elemen
         <ul className="plain-list">
           {investigation.sources.map((source, index) => (
             <li key={index}>
-              {source.name}, version {source.version}, accessed {source.accessed}.
+              <a href={source.url ?? "https://power.larc.nasa.gov/"} target="_blank" rel="noreferrer">
+                {source.name}
+              </a>
+              , API version {source.version}, accessed {source.accessed}.
+              {source.product ? <> Product: {source.product}.</> : null}
+              {source.provenance_status === "legacy_normalized_cache" ? (
+                <>
+                  {" "}
+                  Original response bytes were not retained for this legacy example; the normalized evidence
+                  is frozen.
+                </>
+              ) : null}
             </li>
           ))}
         </ul>
         <p>{POWER_ACKNOWLEDGEMENT}</p>
+        <p>
+          {investigation.pinned
+            ? "This case is pinned to immutable evidence."
+            : "This view uses the latest available data."}{" "}
+          Analysis version: {investigation.analysis_version ?? "not recorded"}.
+        </p>
+        {results.map((result, index) => (
+          <p key={`method-${index}`}>
+            {result.place.name}: {result.trend?.method_id ?? "Significance unavailable"}.{" "}
+            {result.trend?.inference_reason} {result.trend?.assumptions}
+            {result.snapshot_id ? (
+              <>
+                {" "}
+                Evidence ID: <code className="evidence-id">{result.snapshot_id}</code>.
+              </>
+            ) : null}
+            {result.snapshot_id ? (
+              <>
+                {" "}
+                <a href={`/api/evidence/${result.snapshot_id}`} download>
+                  Download frozen evidence
+                </a>
+                .
+              </>
+            ) : null}
+          </p>
+        ))}
+        {investigation.common_years ? (
+          <p>
+            Comparison fits use these common complete years: {investigation.common_years.join(", ")}. Charts
+            and CSVs retain the complete source record.
+          </p>
+        ) : null}
         <p>Download the values behind this case (CSV):</p>
         <ul className="download-list">
           {results.map((result, index) => (
@@ -95,6 +139,8 @@ function downloadUrl(investigation: Investigation, result: PlaceResult, resoluti
     season: requested.season,
     resolution,
     format: "csv",
+    snapshotIds: result.snapshot_id ? [result.snapshot_id] : undefined,
+    analysisVersion: investigation.analysis_version,
   });
 }
 
@@ -115,10 +161,11 @@ function numberRows(variable: VariableSummary): Row[] {
     { label: "Rate of change (Sen's slope)", value: withTrend((trend) => perDecade(trend.sen_slope)) },
     {
       label: "95% confidence interval of the rate",
-      value: withTrend(
-        (trend) =>
-          `${formatSignedRate(trend.sen_ci95[0], decimals)} to ` +
-          `${withUnits(formatSignedRate(trend.sen_ci95[1], decimals), rateUnits)} per decade`,
+      value: withTrend((trend) =>
+        trend.sen_ci95 === null
+          ? "Unavailable: serial-dependence coverage has not been validated"
+          : `${formatSignedRate(trend.sen_ci95[0], decimals)} to ` +
+            `${withUnits(formatSignedRate(trend.sen_ci95[1], decimals), rateUnits)} per decade`,
       ),
     },
     {
@@ -130,21 +177,23 @@ function numberRows(variable: VariableSummary): Row[] {
       ),
     },
     {
-      label: "Mann-Kendall p-value, after the correction",
-      value: withTrend((trend) => formatPValue(trend.mk_p)),
+      label: "Mann-Kendall p-value (stated method)",
+      value: withTrend((trend) => (trend.mk_p === null ? "Not assessed" : formatPValue(trend.mk_p))),
     },
     {
       label: "Year-to-year memory (lag-1 autocorrelation, r1)",
-      value: withTrend((trend) => formatNumber(trend.lag1, MEMORY_DECIMALS)),
+      value: withTrend((trend) =>
+        trend.lag1 === null ? "Unavailable: missing years" : formatNumber(trend.lag1, MEMORY_DECIMALS),
+      ),
     },
     {
-      label: "Correction factor applied (f)",
-      value: withTrend((trend) => formatNumber(trend.variance_factor, MEMORY_DECIMALS)),
+      label: "Aggregation",
+      value: withTrend((trend) => trend.aggregation ?? "Calendar-day-weighted mean"),
     },
     { label: "Least-squares slope (cross-check)", value: withTrend((trend) => perDecade(trend.ols_slope)) },
     {
-      label: "Least-squares p-value (t-test, same correction)",
-      value: withTrend((trend) => formatPValue(trend.ols_p)),
+      label: "Least-squares significance",
+      value: () => "Not assessed; OLS slope is descriptive",
     },
     { label: "Number of years used", value: withTrend((trend) => String(trend.n)) },
     {

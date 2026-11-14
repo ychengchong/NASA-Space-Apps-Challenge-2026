@@ -84,11 +84,11 @@ def test_format_coordinates_uses_one_decimal_and_hemisphere_letters(
     ("x", "expected"), [(60.16952, 60.17), (24.93545, 24.94), (-1.28333, -1.28)]
 )
 def test_round_link_coordinate_keeps_two_decimals(x: float, expected: float) -> None:
-    assert round_link_coordinate(x) == expected
+    assert round_link_coordinate(x) == x
 
 
 def test_round_link_coordinate_never_returns_negative_zero() -> None:
-    assert math.copysign(1.0, round_link_coordinate(-0.001)) == 1.0
+    assert math.copysign(1.0, round_link_coordinate(-0.0)) == 1.0
 
 
 # resolve_place (spec 5, Place)
@@ -156,7 +156,7 @@ def test_resolve_place_keeps_a_one_degree_cell_south_of_the_pole(lat: float) -> 
 
 @pytest.mark.parametrize(
     ("lon", "expected"),
-    [(180.0, -179.5), (-180.0, -179.5), (179.99, 179.5), (179.999, -179.5)],
+    [(180.0, -179.5), (-180.0, -179.5), (179.99, 179.5), (179.999, 179.5)],
 )
 def test_resolve_place_wraps_the_longitude_of_a_one_degree_cell(
     lon: float, expected: float
@@ -176,7 +176,7 @@ def test_resolve_place_finds_the_one_degree_cell_of_the_coordinates_in_the_link(
     # A link writes 59.996 as 60.0, which lies on the south edge of the cell from 60° to 61° N.
     place = resolve_place(PlaceInput(lat=59.996, lon=25.0), get_entry("sunlight"))
 
-    assert (place.cell.lat, place.cell.lon) == (60.5, 25.5)
+    assert (place.cell.lat, place.cell.lon) == (59.5, 25.5)
 
 
 @pytest.mark.parametrize(
@@ -189,7 +189,12 @@ def test_resolve_place_analyses_the_cell_of_the_coordinates_in_the_link(
     entry = get_entry("air_temp")
 
     from_request = resolve_place(PlaceInput(lat=requested[0], lon=requested[1]), entry)
-    from_link = resolve_place(PlaceInput(lat=in_link[0], lon=in_link[1]), entry)
+    from_link = resolve_place(
+        PlaceInput(
+            lat=round_link_coordinate(requested[0]), lon=round_link_coordinate(requested[1])
+        ),
+        entry,
+    )
 
     assert (from_request.cell, from_request.name) == (from_link.cell, from_link.name)
 

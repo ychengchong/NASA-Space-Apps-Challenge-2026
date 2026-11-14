@@ -91,6 +91,7 @@ const KIND_LABELS: Readonly<Record<Verdict["kind"], string>> = {
   not_significant: "Not significant",
   too_few_years: "Too few years",
   no_data: "No data",
+  inference_unavailable: "Significance unavailable",
 };
 
 /** A verdict's direction as the stamp prints it: an arrow, a word, and the word's own style. */
@@ -105,7 +106,7 @@ function stampDirection(verdict: Verdict): StampDirection | null {
   if (verdict.direction === "falling") return { arrow: "↓", word: "Falling", tone: "falling" };
   // Spec 7: a zero Sen's slope is a test with no direction.
   if (verdict.kind === "not_significant") {
-    return { arrow: "→", word: "No upward or downward trend", tone: "level" };
+    return { arrow: "→", word: "Zero estimated slope", tone: "level" };
   }
   return null;
 }

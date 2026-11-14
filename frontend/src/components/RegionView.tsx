@@ -5,7 +5,7 @@ import type { Box, ExampleCase, MapCell, TrendMap, VariableSummary } from "../ap
 import { buildMapQuery, parseMapQuery } from "../caseUrl";
 import type { MapParams } from "../caseUrl";
 import { scaleLimit } from "../colourScale";
-import { PERIOD_CAUTION, POWER_ACKNOWLEDGEMENT, STRICTER_TEST_NOTE } from "../definitions";
+import { PERIOD_CAUTION, POWER_ACKNOWLEDGEMENT, REGION_MAP_NOTE } from "../definitions";
 import { formatCoordinates, formatPValue, formatRatePerDecade } from "../format";
 import { useGlobe, useGlobeRegion } from "../globeContext";
 import { followInApp } from "../links";
@@ -366,7 +366,7 @@ function MapEvidence({
         </ol>
 
         <h3>Every grid cell</h3>
-        <p>Open a cell to see it as an ordinary case, judged by the ordinary rule. {STRICTER_TEST_NOTE}</p>
+        <p>Open a cell to see it as an ordinary case, judged by the ordinary rule. {REGION_MAP_NOTE}</p>
         <div className="table-scroll">
           <table className="data-table">
             <caption>

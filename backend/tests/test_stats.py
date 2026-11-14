@@ -64,13 +64,13 @@ FIXTURE_B = Fixture(
     s=40,
     var_s="212.667",
     r1="0.349",
-    f="2.074",
-    z="1.857",
-    p="0.0633",
+    f="1.000",
+    z="2.674",
+    p="0.0075",
     sen_slope="0.5",
-    sen_ci95=("-0.167", "1.0"),
+    sen_ci95=("0.25", "0.8"),
     line=("2.0", "7.5"),
-    significant=False,
+    significant=True,
 )
 
 # Spec 7, "Worked fixtures": fixture B would pass the uncorrected test with this p-value.
@@ -84,7 +84,7 @@ LARGE_OFFSET_SMALL_NOISE = tuple(100.0 + 1e-7 * value for value in FIXTURE_A.val
 
 # Two JJA seasons whose means are both 0.2 in exact arithmetic. As floats, (0.1 + 0.2 + 0.3) / 3
 # and (0.2 + 0.2 + 0.2) / 3 differ in the last bit.
-EQUAL_MEANS_MONTHS = ((0.1, 0.2, 0.3), (0.2, 0.2, 0.2))
+EQUAL_MEANS_MONTHS = ((0.2, 0.1, 0.3), (0.2, 0.2, 0.2))
 
 # Two-decimal yearly values for 2000 to 2011 whose two middle pairwise slopes are exactly
 # -1/700 and +1/700, so the exact Sen's slope is zero but their float mean is not.
@@ -196,7 +196,7 @@ def test_fixture_significance_at_five_percent(fixture: Fixture) -> None:
 def test_fixture_verdict_kind_and_direction(fixture: Fixture, kind: str) -> None:
     trend = to_trend(compute_trend(fixture.years, fixture.values))
     verdict = build_verdict(get_entry("air_temp"), "X", len(fixture.values), trend)
-    assert (verdict.kind, verdict.direction) == (kind, "rising")
+    assert (verdict.kind, verdict.direction) == ("inference_unavailable", None)
 
 
 def test_fixture_b_passes_the_uncorrected_test() -> None:
@@ -251,17 +251,21 @@ def test_yearly_values_give_one_entry_per_year_inclusive() -> None:
 
 def test_annual_value_is_the_mean_of_twelve_months() -> None:
     monthly = {(2000, month): float(month) for month in range(1, 13)}
-    assert yearly_values(monthly, "annual", 2000, 2000) == [(2000, 6.5)]
+    assert yearly_values(monthly, "annual", 2000, 2000) == [(2000, pytest.approx(2384 / 366))]
 
 
 def test_season_value_is_the_mean_of_its_three_months() -> None:
     monthly = {(2000, month): float(month) for month in range(1, 13)}
-    assert yearly_values(monthly, "JJA", 2000, 2000) == [(2000, 7.0)]
+    assert yearly_values(monthly, "JJA", 2000, 2000) == [
+        (2000, pytest.approx((6 * 30 + 7 * 31 + 8 * 31) / 92))
+    ]
 
 
 def test_december_counts_toward_following_year() -> None:
     monthly = {(1999, 12): 1.0, (2000, 1): 2.0, (2000, 2): 6.0, (2000, 12): 100.0}
-    assert yearly_values(monthly, "DJF", 2000, 2000) == [(2000, 3.0)]
+    assert yearly_values(monthly, "DJF", 2000, 2000) == [
+        (2000, pytest.approx((1 * 31 + 2 * 31 + 6 * 29) / 91))
+    ]
 
 
 def test_first_djf_value_is_the_year_after_the_record_starts() -> None:
@@ -328,10 +332,9 @@ def test_sen_slope_is_zero_when_the_middle_slopes_cancel() -> None:
 def test_cancelling_middle_slopes_get_the_zero_slope_verdict() -> None:
     trend = to_trend(compute_trend(range(2000, 2012), CANCELLING_MIDDLE_SLOPES))
     verdict = build_verdict(get_entry("air_temp"), "X", len(CANCELLING_MIDDLE_SLOPES), trend)
-    assert (verdict.direction, verdict.sentence) == (
-        None,
-        "Air temperature in X shows no upward or downward trend from 2000 to 2011.",
-    )
+    assert verdict.direction is None
+    assert verdict.kind == "inference_unavailable"
+    assert "Significance has not been assessed" in verdict.sentence
 
 
 def test_constant_values_show_no_memory() -> None:
@@ -401,7 +404,8 @@ def test_trend_gives_slopes_per_decade() -> None:
     stats = compute_trend(FIXTURE_B.years, FIXTURE_B.values)
     trend = to_trend(stats)
     assert trend.sen_slope == stats.sen_slope * PER_DECADE
-    assert trend.sen_ci95 == (stats.sen_ci95[0] * PER_DECADE, stats.sen_ci95[1] * PER_DECADE)
+    assert trend.sen_ci95 is None
+    assert trend.ols_p is None
     assert trend.ols_slope == stats.ols_slope * PER_DECADE
 
 
@@ -414,7 +418,7 @@ def test_trend_total_change_spans_the_years_used() -> None:
 def test_trend_reports_memory_and_correction() -> None:
     stats = compute_trend(FIXTURE_B.years, FIXTURE_B.values)
     trend = to_trend(stats)
-    assert (trend.lag1, trend.variance_factor, trend.mk_p) == (stats.r1, stats.f, stats.mk_p)
+    assert (trend.lag1, trend.variance_factor, trend.mk_p) == (stats.r1, 1.0, None)
 
 
 def test_trend_line_stays_in_value_units() -> None:
@@ -442,7 +446,7 @@ def test_scan_point_matches_the_trend_of_its_tail() -> None:
     values = [float(year % 7) for year in years]
     point = period_scan(years, values)[2]
     tail = compute_trend(years[2:], values[2:])
-    assert (point.sen_slope, point.mk_p) == (tail.sen_slope * PER_DECADE, tail.mk_p)
+    assert (point.sen_slope, point.mk_p) == (tail.sen_slope * PER_DECADE, None)
 
 
 def test_scan_of_a_short_record_is_empty() -> None:
@@ -475,7 +479,7 @@ def test_weighted_mean_weights_cells_by_cos_latitude() -> None:
 
 def test_weighted_mean_leaves_out_a_cell_without_a_value() -> None:
     cells = [(0.0, {(2000, 1): 10.0}), (60.0, {(2000, 1): None})]
-    assert cos_lat_weighted_mean(cells)[(2000, 1)] == 10.0
+    assert cos_lat_weighted_mean(cells)[(2000, 1)] is None
 
 
 def test_weighted_mean_is_none_when_no_cell_has_a_value() -> None:

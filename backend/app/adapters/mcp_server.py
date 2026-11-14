@@ -120,15 +120,18 @@ class GetChartInput(PeriodInput):
 
 _PERIOD_TEXT = (
     "Leave out from and to to use the variable's whole record up to the last complete year; "
-    "years outside the record are clamped to it. season picks the months averaged into each "
+    "unsupported years are rejected for user confirmation. season picks months "
+    "day-weighted into each "
     "year's value."
 )
 _INVESTIGATION_TEXT = (
     "In each result, series holds the yearly values in the variable's units, null where a year "
     "is missing. In trend, sen_slope, sen_ci95 and ols_slope are in the variable's rate_units "
-    "per decade, total_change and line are in its units, and mk_p and ols_p are two-sided "
-    "p-values; trend is null when there are too few years or no data. verdict.kind says whether "
-    "the trend is significant, verdict.sentence is the app's fixed sentence, and "
+    "per decade, total_change and line are in its units. Unsupported intervals and "
+    "OLS tests are null. "
+    "mk_p is available only for validated complete annual T2M cases with 20-45 years. "
+    "verdict.kind includes inference_unavailable; inference_reason explains why. "
+    "A zero median rate does not override valid rank evidence. verdict.sentence is canonical, and "
     "verdict.cautions lists the cautions to pass on, most important first. app_url opens the "
     "case in the Trend Detective web app."
 )
@@ -155,14 +158,16 @@ ANALYZE_TREND_DESCRIPTION = (
     "slope on yearly values. Use it for questions such as 'Is Nairobi getting warmer?'. The "
     "data come from the grid cell that contains the point. place.name is a display name of "
     f"{PLACE_NAME_MAX_LENGTH} characters at most. {_PERIOD_TEXT} Set scan to true to also get "
-    "trend.scan: Sen's slope per decade and the p-value for each start year that leaves at "
+    "trend.scan: descriptive Sen rates with null p-values for each start year that leaves at "
     f"least {MIN_YEARS_FOR_TEST} years. Returns an Investigation with requested (the years and "
     f"season used) and one result. {_INVESTIGATION_TEXT} A text block repeats the verdict "
     "sentence and the link."
 )
 COMPARE_PLACES_DESCRIPTION = (
     f"Test the same variable at {MIN_COMPARE_PLACES} to {MAX_COMPARE_PLACES} places over the "
-    "same years. Use it when the user names two or more places. The period and scan work as in "
+    "identical common complete years. This is descriptive, not a test of differences "
+    "between places. "
+    "Use it when the user names two or more places. The period and scan work as in "
     "analyze_trend. Returns one Investigation with one result per place, in the order given, "
     "plus contrast (opposite_directions, same_direction or unclear) and summary, the app's fixed "
     f"comparison sentence. {_INVESTIGATION_TEXT} A text block repeats the summary and the link."
@@ -180,10 +185,10 @@ MAP_TRENDS_DESCRIPTION = (
     f"east in degrees; each side must be from {MIN_BOX_SIDE_DEGREES:g} to "
     f"{MAX_BOX_SIDE_DEGREES:g} degrees, with south below north and west below east, so a box "
     "cannot cross the 180 degree meridian. The period works as in analyze_trend. Returns a "
-    "TrendMap: for each grid cell, sen_slope in the variable's rate_units per decade and mk_p, "
-    "both null when the cell has too few years, and significant, by a stricter rule that allows "
-    "for testing many cells at once; plus area_mean, the cells' latitude-weighted mean analysed "
-    "like a place, and app_url, which opens the map in the web app. A text block repeats the "
+    "TrendMap: sen_slope is descriptive, mk_p is null and significant is false for every cell. "
+    "The fixed-footprint latitude-weighted area_mean is descriptive too. This is a latest-data "
+    "view; its URL does not freeze a regional snapshot. app_url opens it in the app. "
+    "A text block repeats the "
     "area mean's verdict sentence and the link."
 )
 GET_CHART_DESCRIPTION = (

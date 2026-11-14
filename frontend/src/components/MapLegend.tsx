@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 import type { TrendMap, VariableSummary } from "../api";
 import { scaleEndDecimals, scaleGradient } from "../colourScale";
-import { STRICTER_TEST_NOTE } from "../definitions";
+import { REGION_MAP_NOTE } from "../definitions";
 import { formatSignedRate } from "../format";
 import { periodText } from "../seasons";
 
@@ -36,7 +36,7 @@ function LegendScale({ variable, limit }: { variable: VariableSummary; limit: nu
 
 /**
  * The key to the cells on the globe itself, on a wide screen (spec 3, "The globe"): the scale,
- * and beside it the two marks in a few words and the period. It is wide and low, because the
+ * and beside it the hatch in a few words and the period. It is wide and low, because the
  * map keeps clear of it. Hidden from screen readers, because the "Trend in each grid cell" panel
  * holds the full legend.
  */
@@ -50,10 +50,7 @@ export function StageLegend({ trendMap, limit }: { trendMap: TrendMap; limit: nu
       <div className="map-legend">
         <ul className="legend-keys">
           <li>
-            <span className="legend-swatch legend-mark" /> Passes the stricter test
-          </li>
-          <li>
-            <span className="legend-swatch legend-hatch" /> No result
+            <span className="legend-swatch legend-hatch" /> No rate
           </li>
         </ul>
         <p className="stage-detail">{periodText(trendMap.requested)}</p>
@@ -69,15 +66,11 @@ export function MapLegend({ variable, limit }: { variable: VariableSummary; limi
       <LegendScale variable={variable} limit={limit} />
       <ul className="legend-keys">
         <li>
-          <span className="legend-swatch legend-mark" aria-hidden="true" /> Dot: the cell passes the
-          map&apos;s stricter test
-        </li>
-        <li>
-          <span className="legend-swatch legend-hatch" aria-hidden="true" /> Hatched: no result, because the
-          cell has too few complete years to test
+          <span className="legend-swatch legend-hatch" aria-hidden="true" /> Hatched: no rate is available,
+          because the cell has fewer than ten complete values
         </li>
       </ul>
-      <p className="legend-note">{STRICTER_TEST_NOTE}</p>
+      <p className="legend-note">{REGION_MAP_NOTE}</p>
     </div>
   );
 }

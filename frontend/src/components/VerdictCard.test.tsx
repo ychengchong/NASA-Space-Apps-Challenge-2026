@@ -47,7 +47,7 @@ describe("VerdictCard", () => {
     const verdict = { ...SIGNIFICANT_RISE, kind: "not_significant" as const, direction: null };
     const html = renderToStaticMarkup(<VerdictCard investigation={investigation(verdict)} />);
     expect(html).toContain('class="stamp stamp-faded stamp-level"');
-    expect(html).toContain("No upward or downward trend");
+    expect(html).toContain("Zero estimated slope");
   });
 
   test("stamps a verdict that has no direction with its kind alone", () => {

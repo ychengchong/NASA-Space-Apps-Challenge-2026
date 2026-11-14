@@ -19,7 +19,7 @@ from starlette.requests import ClientDisconnect
 from starlette.routing import Match
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from app.adapters import chat, rest
+from app.adapters import chat, planner, rest
 from app.adapters import mcp_server as mcp_adapter
 from app.config import FRONTEND_DIST_DIR, Settings, get_settings
 from app.errors import RateLimitedError
@@ -33,7 +33,7 @@ CHAT_PATH = chat.CHAT_PATH
 MCP_PATH = mcp_adapter.MCP_PATH
 HEALTHZ_PATH = "/healthz"
 # The first path segments the service answers itself; the web app never serves them.
-SERVICE_SEGMENTS = frozenset({"api", "mcp", "healthz"})
+SERVICE_SEGMENTS = frozenset({"api", "mcp", "healthz", "readyz"})
 INDEX_FILE = "index.html"
 
 MS_PER_SECOND = 1000
@@ -89,7 +89,9 @@ def create_app(services: Services | None = None, static_dir: Path | None = None)
 
     app.include_router(rest.router)
     app.include_router(chat.router)
+    app.include_router(planner.router)
     app.add_api_route(HEALTHZ_PATH, healthz, methods=["GET"])
+    app.add_api_route("/readyz", readyz, methods=["GET"])
     _add_mcp(app, services.settings if services is not None else get_settings())
     # The web app's catch-all route stays last, so it never shadows another GET route.
     _add_web_app(app, static_dir if static_dir is not None else FRONTEND_DIST_DIR)
@@ -120,6 +122,19 @@ def _add_mcp(app: FastAPI, settings: Settings) -> None:
 async def healthz() -> dict[str, str]:
     """Liveness check (spec 10)."""
     return {"status": "ok"}
+
+
+async def readyz(request: rest.Request) -> dict[str, str]:
+    """Verify core local data and storage without a paid or live NASA request."""
+    from app.catalogue import load_catalogue
+    from app.errors import SourceUnavailableError
+    from app.tools.inference import load_table
+
+    services = request.app.state.services
+    services.cache.get_counter("readiness", services.today().isoformat())
+    if load_table() is None or not load_catalogue():
+        raise SourceUnavailableError("Core data or calibration is unavailable.")
+    return {"status": "ready"}
 
 
 # Logging (spec 11, "Security and privacy")

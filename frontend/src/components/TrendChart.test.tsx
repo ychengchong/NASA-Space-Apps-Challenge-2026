@@ -14,6 +14,19 @@ describe("TrendChart", () => {
     );
   });
 
+  test("says no interval is given when the rate has none, instead of inventing one", () => {
+    const base = investigation(SIGNIFICANT_RISE);
+    const [first] = base.results;
+    if (first?.trend == null) throw new Error("The test case needs a trend.");
+    const withoutInterval = {
+      ...base,
+      results: [{ ...first, trend: { ...first.trend, sen_ci95: null } }],
+    };
+    const html = renderToStaticMarkup(<TrendChart investigation={withoutInterval} />);
+    expect(html).toContain("Its rate is +0.05 °C per decade; no 95% confidence interval is given");
+    expect(html).not.toContain("runs from +0.03");
+  });
+
   test("explains what a point is after the chart, so the chart follows its heading", () => {
     const html = render();
     const chart = html.indexOf("Loading the chart…");

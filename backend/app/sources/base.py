@@ -21,6 +21,9 @@ class PointSeries:
     monthly: MonthlyValues
     version: str  # API version reported by the source, such as "v2.10.0"
     accessed: str  # date the values were fetched from the source, "YYYY-MM-DD"
+    raw_sha256: str | None = None
+    query_url: str | None = None
+    product: str | None = None
 
 
 class SeriesSource(Protocol):

@@ -1,5 +1,9 @@
 # Version control and secrets
 .git
+tmp
+state
+docs-personal
+AGENTS.md
 **/.env
 
 # Python environments and caches; the image installs its own

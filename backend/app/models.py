@@ -10,7 +10,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 Season = Literal["annual", "DJF", "MAM", "JJA", "SON"]
 Resolution = Literal["monthly", "yearly"]
-VerdictKind = Literal["significant", "not_significant", "too_few_years", "no_data"]
+VerdictKind = Literal[
+    "significant", "not_significant", "too_few_years", "no_data", "inference_unavailable"
+]
 Direction = Literal["rising", "falling"]
 Contrast = Literal["opposite_directions", "same_direction", "unclear"]
 Caution = Literal[
@@ -54,6 +56,8 @@ class PlaceInput(Model):
 
 
 class PeriodInput(Model):
+    snapshot_ids: list[str] = Field(default_factory=list, max_length=4)
+    analysis_version: str | None = None
     from_: int | None = Field(
         default=None,
         alias="from",
@@ -178,7 +182,7 @@ class YearValue(Model):
 class ScanPoint(Model):
     start: int
     sen_slope: float
-    mk_p: float
+    mk_p: float | None
 
 
 class Trend(Model):
@@ -186,14 +190,20 @@ class Trend(Model):
     first_year: int
     last_year: int
     sen_slope: float
-    sen_ci95: tuple[float, float]
+    sen_ci95: tuple[float, float] | None
     line: tuple[float, float]
     total_change: float
-    mk_p: float
-    lag1: float
+    mk_p: float | None
+    lag1: float | None
     variance_factor: float
     ols_slope: float
-    ols_p: float
+    ols_p: float | None
+    inference_status: Literal["assessed", "unavailable"] = "unavailable"
+    inference_reason: str | None = None
+    method_id: str | None = None
+    ci_method: str | None = None
+    aggregation: str = "calendar_day_weighted_mean_v1"
+    assumptions: str | None = None
     scan: list[ScanPoint] | None = None
 
 
@@ -209,12 +219,19 @@ class PlaceResult(Model):
     series: list[YearValue]
     trend: Trend | None
     verdict: Verdict
+    analysis_years: list[int] = Field(default_factory=list)
+    snapshot_id: str | None = None
 
 
 class SourceRef(Model):
     name: str
     version: str
     accessed: str
+    url: str = "https://power.larc.nasa.gov/"
+    product: str = "Product release not recorded in legacy cache"
+    snapshot_id: str | None = None
+    raw_sha256: str | None = None
+    provenance_status: str = "legacy_normalized_cache"
 
 
 class Investigation(Model):
@@ -227,6 +244,9 @@ class Investigation(Model):
     steps: list[str]
     sources: list[SourceRef]
     app_url: str
+    analysis_version: str = "td-2026-11-v1"
+    common_years: list[int] | None = None
+    pinned: bool = False
 
 
 class MapCell(Model):
@@ -246,3 +266,31 @@ class TrendMap(Model):
     steps: list[str]
     sources: list[SourceRef]
     app_url: str
+
+
+class PlannerRequest(Model):
+    question: str = Field(min_length=1, max_length=2000)
+
+
+class Capabilities(Model):
+    ai_planner_available: bool
+
+
+class ExtractedPlan(Model):
+    model_config = ConfigDict(strict=True)
+    variable: str | None
+    place_queries: list[str] = Field(max_length=2)
+    from_: int | None = Field(alias="from")
+    to: int | None
+    season: Season
+    ambiguous: bool
+
+
+class Proposal(Model):
+    variables: list[VariableSummary]
+    places: list[PlaceCandidate]
+    from_: int | None = Field(alias="from")
+    to: int | None
+    season: Season
+    notices: list[str]
+    written_by_ai: bool = True

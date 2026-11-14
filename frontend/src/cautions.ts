@@ -10,7 +10,7 @@ type FixedCaution = Exclude<Caution, "source_change" | "variable_note">;
 const FIXED_CAUTION_TEXTS: Readonly<Record<FixedCaution, string>> = {
   short_record: "This record is short. Trends in short records often fade as more years arrive.",
   autocorrelated:
-    "Each year here resembles the one before. The test allows for that, which makes it harder to pass.",
+    "Year-to-year dependence is present. Check the stated assumptions; other dependence may invalidate inference.",
   methods_disagree: "Two standard methods disagree about this trend.",
   borderline: "This result is close to the threshold for significance.",
 };

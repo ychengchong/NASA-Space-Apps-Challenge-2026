@@ -4,7 +4,7 @@
 export const PERIOD_CAUTION = "Changing the period until a trend turns significant is not evidence.";
 
 // Spec 3, "States the screen must handle": a trend that is not significant carries this note.
-export const MORE_YEARS_NOTE = "More years of data may settle whether this change is real.";
+export const MORE_YEARS_NOTE = "More observations may improve precision; they do not guarantee significance.";
 
 // Spec 6, "Citing the data": POWER's own acknowledgement, from its referencing page.
 export const POWER_ACKNOWLEDGEMENT =
@@ -20,7 +20,7 @@ export interface Definition {
 export const SIGNIFICANCE_DEFINITION: Definition = {
   term: "Statistically significant",
   definition:
-    "If nothing were really changing, a pattern this strong would turn up by chance less than 1 time in 20.",
+    "The result meets the stated test threshold of 5% under its null model and assumptions. It does not measure the probability that the claim is true.",
 };
 
 // Spec 7, "Definitions shown to users".
@@ -40,8 +40,8 @@ export const DEFINITIONS: readonly Definition[] = [
 ];
 
 // Spec 7, "Region view": the legend says exactly this.
-export const STRICTER_TEST_NOTE =
-  "Marked cells pass a stricter test, because a map tests hundreds of cells at once.";
+export const REGION_MAP_NOTE =
+  "Regional maps show descriptive rates. Significance is not assessed. This is a latest-data view; open a cell to freeze its individual evidence.";
 
 // Spec 6, "Caveats shown to users"; the spec's caution code is written out in words.
 export const DATA_CAVEATS: readonly string[] = [
@@ -49,7 +49,7 @@ export const DATA_CAVEATS: readonly string[] = [
     "system over the decades can create artificial shifts, so a trend is evidence, not proof.",
   "Values describe a grid cell, not a weather station.",
   "Sunlight and cloud values come from one satellite product up to 2000 and another from 2001. " +
-    "A trend across that join carries a caution.",
+    "Significance is unavailable across that join without a validated discontinuity-aware analysis.",
 ];
 
 // Spec 7, "What the statistics do not claim".

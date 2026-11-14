@@ -8,163 +8,34 @@
 import { buildCaseQuery, buildMapQuery, buildSeriesQuery } from "./caseUrl";
 import type { CaseParams, MapParams, SeriesParams } from "./caseUrl";
 
-// Shared literals (spec 5)
+import type * as Models from "./generatedModels";
 
-export type Season = "annual" | "DJF" | "MAM" | "JJA" | "SON";
-export type Resolution = "monthly" | "yearly";
-export type VerdictKind = "significant" | "not_significant" | "too_few_years" | "no_data";
-export type Direction = "rising" | "falling";
-export type Contrast = "opposite_directions" | "same_direction" | "unclear";
-export type Caution =
-  "source_change" | "variable_note" | "short_record" | "autocorrelated" | "methods_disagree" | "borderline";
-export type PlaceKind = "city" | "region";
-
-// Inputs (spec 5, "Inputs"). The app sends the other inputs as the query strings of spec 10,
-// described in caseUrl.ts.
-
-export interface Box {
-  south: number;
-  west: number;
-  north: number;
-  east: number;
-}
-
-// Results (spec 5, "Result types")
-
-export interface VariableSummary {
-  id: string;
-  name: string;
-  definition: string;
-  units: string;
-  rate_units: string;
-  decimals: number;
-  theme: string;
-  record_start: number;
-  related: string[];
-  /** Region types, as in PlaceCandidate.region_type, where a trend in this variable is worth testing. */
-  region_types: string[];
-  trend_note?: string | null;
-  source_changes?: number[] | null;
-}
-
-export interface PlaceCandidate {
-  name: string;
-  country?: string | null;
-  lat: number;
-  lon: number;
-  kind: PlaceKind;
-  region_type?: string | null;
-}
-
-export interface Cell {
-  lat: number;
-  lon: number;
-  height: number;
-  width: number;
-}
-
-export interface Place {
-  name: string;
-  lat: number;
-  lon: number;
-  cell: Cell;
-}
-
-export interface SeriesValue {
-  date: string;
-  value: number | null;
-}
-
-export interface Series {
-  variable: VariableSummary;
-  place: Place;
-  resolution: Resolution;
-  values: SeriesValue[];
-}
-
-export interface Requested {
-  from: number;
-  to: number;
-  season: Season;
-}
-
-export interface YearValue {
-  year: number;
-  value: number | null;
-}
-
-export interface ScanPoint {
-  start: number;
-  sen_slope: number;
-  mk_p: number;
-}
-
-export interface Trend {
-  n: number;
-  first_year: number;
-  last_year: number;
-  sen_slope: number;
-  sen_ci95: [number, number];
-  line: [number, number];
-  total_change: number;
-  mk_p: number;
-  lag1: number;
-  variance_factor: number;
-  ols_slope: number;
-  ols_p: number;
-  scan?: ScanPoint[] | null;
-}
-
-export interface Verdict {
-  kind: VerdictKind;
-  direction: Direction | null;
-  sentence: string;
-  cautions: Caution[];
-}
-
-export interface PlaceResult {
-  place: Place;
-  series: YearValue[];
-  trend: Trend | null;
-  verdict: Verdict;
-}
-
-export interface SourceRef {
-  name: string;
-  version: string;
-  accessed: string;
-}
-
-export interface Investigation {
-  id: string;
-  variable: VariableSummary;
-  requested: Requested;
-  results: PlaceResult[];
-  contrast?: Contrast | null;
-  summary?: string | null;
-  steps: string[];
-  sources: SourceRef[];
-  app_url: string;
-}
-
-export interface MapCell {
-  lat: number;
-  lon: number;
-  sen_slope: number | null;
-  mk_p: number | null;
-  significant: boolean;
-}
-
-export interface TrendMap {
-  variable: VariableSummary;
-  requested: Requested;
-  box: Box;
-  cells: MapCell[];
-  area_mean: PlaceResult;
-  steps: string[];
-  sources: SourceRef[];
-  app_url: string;
-}
+export type Proposal = Models.Proposal;
+export type Capabilities = Models.Capabilities;
+export type Season = Models.Season;
+export type Resolution = Models.Resolution;
+export type VerdictKind = Models.VerdictKind;
+export type Direction = Models.Direction;
+export type Contrast = Models.Contrast;
+export type Caution = Models.Caution;
+export type PlaceKind = Models.PlaceKind;
+export type Box = Models.Box;
+export type VariableSummary = Models.VariableSummary;
+export type PlaceCandidate = Models.PlaceCandidate;
+export type Cell = Models.Cell;
+export type Place = Models.Place;
+export type SeriesValue = Models.SeriesValue;
+export type Series = Models.Series;
+export type Requested = Models.Requested;
+export type YearValue = Models.YearValue;
+export type ScanPoint = Models.ScanPoint;
+export type Trend = Models.Trend;
+export type Verdict = Models.Verdict;
+export type PlaceResult = Models.PlaceResult;
+export type SourceRef = Models.SourceRef;
+export type Investigation = Models.Investigation;
+export type MapCell = Models.MapCell;
+export type TrendMap = Models.TrendMap;
 
 // Other endpoint shapes (spec 10)
 
@@ -299,17 +170,6 @@ export function getExamples(signal?: AbortSignal): Promise<ExampleCase[]> {
   return getJson<ExampleCase[]>("/api/examples", signal);
 }
 
-/** The answer of `GET /api/ai` (spec 8, "When the AI is off"). */
-export interface AiStatus {
-  /** False when the server's AI is turned off or has no key; a failing AI still counts as on. */
-  on: boolean;
-}
-
-/** Asks whether the built-in AI is on, so the question bar can say so before the first question. */
-export function getAiStatus(signal?: AbortSignal): Promise<AiStatus> {
-  return getJson<AiStatus>("/api/ai", signal);
-}
-
 /**
  * Sends one AI turn and calls `onEvent` for each server-sent event, in order.
  *
@@ -366,6 +226,22 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
     }
     throw error;
   }
+}
+
+/** Ask only for proposed settings. The caller must wait for user confirmation before getCase. */
+export async function proposeCase(question: string, signal?: AbortSignal): Promise<Proposal> {
+  const response = await send("/api/plan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question }),
+    signal,
+  });
+  const body: unknown = await response.json();
+  return body as Proposal;
+}
+
+export function getCapabilities(signal?: AbortSignal): Promise<Capabilities> {
+  return getJson<Capabilities>("/api/capabilities", signal);
 }
 
 /** Fetches, turning an unreachable server or an error status into an ApiError. */

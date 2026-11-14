@@ -1,10 +1,10 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
-import { getAiStatus, getCase, getExamples, getVariables } from "./api";
+import { getCapabilities, getCase, getExamples, getVariables, proposeCase } from "./api";
 import type { ExampleCase, Investigation, VariableSummary } from "./api";
 import { applyPlaceAction, caseFromDraft, draftFromCase, draftFromProposal, EMPTY_DRAFT } from "./caseDraft";
 import type { CaseDraft, PlaceAction } from "./caseDraft";
-import { buildCaseQuery, buildMapQuery } from "./caseUrl";
+import { buildCaseQuery, buildMapQuery, parseCaseQuery } from "./caseUrl";
 import type { CaseParams, CasePlace } from "./caseUrl";
 import type { ChatResult } from "./chat";
 import { CaseActions } from "./components/CaseActions";
@@ -13,8 +13,8 @@ import { CaseLayout } from "./components/CaseLayout";
 import { CaseProblem } from "./components/CaseProblem";
 import { CaseSettings } from "./components/CaseSettings";
 import { CrossChecks } from "./components/CrossChecks";
-import { DetectiveNotes } from "./components/DetectiveNotes";
 import { EvidencePanel } from "./components/EvidencePanel";
+import { EvidenceLesson } from "./components/EvidenceLesson";
 import { ExampleCases } from "./components/ExampleCases";
 import { GlobeStage } from "./components/GlobeStage";
 import type { StageHint } from "./components/GlobeStage";
@@ -48,7 +48,6 @@ import { boxAroundPlace } from "./regionBox";
 import type { RegionTypes } from "./regionTypes";
 import { casePageUrl, HOME_PATH, mapPageUrl, parseRoute, sameCase, withRequestedPeriod } from "./route";
 import type { Route } from "./route";
-import { useChat } from "./useChat";
 import { useRegionTypes } from "./useRegionTypes";
 import { useRequest } from "./useRequest";
 import type { RequestState } from "./useRequest";
@@ -110,19 +109,20 @@ export default function App(): JSX.Element {
     return globeHandle === null ? GLOBE_LOADING : { handle: globeHandle, status: "ready" as const };
   }, [globeHandle, globeUnavailable]);
   const markGlobeUnavailable = useCallback(() => setGlobeUnavailable(true), []);
-  const chat = useChat();
+  const [aiWorking, setAiWorking] = useState(false);
+  const [plannerNotices, setPlannerNotices] = useState<string[]>([]);
+  const plannerController = useRef<AbortController | null>(null);
   // Spec 8, "When the AI is off": after a failure the question bar matches keywords; this holds
   // the server's reason until the user tries the AI again or starts a new conversation.
   const [aiFailure, setAiFailure] = useState<string | null>(null);
   // The last case or map the AI ran, so its page opens without asking the API again.
-  const [chatResult, setChatResult] = useState<ChatResult | null>(null);
+  const chatResult: ChatResult | null = null;
 
-  // Spec 8, "When the AI is off": the server says whether the AI is on. Until it answers, and
-  // when it cannot be asked, the question bar takes the AI to be on, and a failed turn corrects it.
-  const aiStatus = useRequest("ai", (signal) => getAiStatus(signal));
-  const aiOff = aiStatus.state.status === "done" && aiStatus.state.value.on === false;
   const variables = useRequest("variables", (signal) => getVariables(undefined, undefined, signal));
   const examples = useRequest("examples", (signal) => getExamples(signal));
+  // Spec 8: the question bar offers the AI only once the server says the planner is available,
+  // so it never asks an AI that is off.
+  const capabilities = useRequest("capabilities", (signal) => getCapabilities(signal));
   const catalogue = variables.state.status === "done" ? variables.state.value : NO_VARIABLES;
   const regionTypes = useRegionTypes(route.kind === "case" ? route.params.places : NO_PLACES);
 
@@ -172,34 +172,47 @@ export default function App(): JSX.Element {
     setRoute(currentRoute());
   };
 
-  // Spec 8: a case or map the AI ran opens exactly as one set by hand, and the address follows.
-  const showChatResult = (result: ChatResult): void => {
-    setChatResult(result);
-    navigate(result.url);
-  };
   const askAi = async (question: string): Promise<AiAnswer> => {
-    const caseQuery = route.kind === "case" ? buildCaseQuery(route.params) : undefined;
-    const outcome = await chat.ask(question, caseQuery, showChatResult);
-    if (outcome.kind === "answered") return "answered";
-    if (outcome.kind === "stopped") return "ended";
-    setAiFailure(outcome.message);
-    return outcome.showedResult ? "ended" : "fall_back";
-  };
-  const startNewConversation = (): void => {
-    chat.reset();
-    setAiFailure(null);
+    const controller = new AbortController();
+    plannerController.current = controller;
+    setAiWorking(true);
+    try {
+      const proposal = await proposeCase(question, controller.signal);
+      if (route.kind === "map") navigate(HOME_PATH);
+      setPendingDraft({
+        variable: proposal.variables[0]?.id ?? null,
+        places: proposal.places,
+        from: proposal.from ?? undefined,
+        to: proposal.to ?? undefined,
+        season: proposal.season,
+      });
+      setPlannerNotices(proposal.notices);
+      setSettingsFocusRequest((count) => count + 1);
+      return "answered";
+    } catch (error) {
+      if (controller.signal.aborted) return "ended";
+      setAiFailure(error instanceof Error ? error.message : "AI planning is unavailable.");
+      return "fall_back";
+    } finally {
+      setAiWorking(false);
+    }
   };
   const ai: AiHelper | undefined =
-    aiFailure === null && !aiOff
-      ? { ask: askAi, working: chat.running, onStop: chat.stop, followUp: chat.state.turns.length > 0 }
+    aiFailure === null &&
+    capabilities.state.status === "done" &&
+    capabilities.state.value.ai_planner_available
+      ? { ask: askAi, working: aiWorking, onStop: () => plannerController.current?.abort(), followUp: false }
       : undefined;
   const notes =
-    chat.state.turns.length > 0 ? (
-      <DetectiveNotes
-        turns={chat.state.turns}
-        onNewConversation={startNewConversation}
-        onOpenPage={openPage}
-      />
+    plannerNotices.length > 0 ? (
+      <section className="panel" aria-label="AI proposal">
+        <h2>Proposed settings ? Written with AI</h2>
+        <ul>
+          {plannerNotices.map((notice, index) => (
+            <li key={index}>{notice}</li>
+          ))}
+        </ul>
+      </section>
     ) : null;
 
   const handleProposal = (proposal: KeywordProposal): void => {
@@ -210,15 +223,11 @@ export default function App(): JSX.Element {
     setSettingsFocusRequest((count) => count + 1);
   };
 
-  // The case settings as they stand: of the open case, or waiting for "Run this case".
+  // The case settings as they stand: of the open case, or waiting for "Run this case". Every
+  // change waits for "Run this case", so a case only runs once the user confirms it (spec 3).
   const openParams = route.kind === "case" ? route.params : null;
   const draft = pendingDraft ?? (openParams === null ? EMPTY_DRAFT : draftFromCase(openParams));
   const settingsPending = openParams === null || pendingDraft !== null;
-  const changeDraft = (next: CaseDraft): void => {
-    const params = settingsPending ? null : caseFromDraft(next);
-    if (params === null) setPendingDraft(next);
-    else openCase(params);
-  };
   const cancelPending = (): void => {
     setPendingDraft(null);
     setScreenChanges((count) => count + 1);
@@ -229,7 +238,7 @@ export default function App(): JSX.Element {
       variables={variables.state}
       pending={settingsPending}
       onPickCandidate={(candidate) => regionTypes.remember([candidate])}
-      onChange={changeDraft}
+      onChange={setPendingDraft}
       onRun={() => {
         const params = caseFromDraft(draft);
         if (params !== null) openPage(casePageUrl(params));
@@ -239,13 +248,12 @@ export default function App(): JSX.Element {
     />
   );
 
-  // The picked point's buttons leave the page once one is pressed, so focus moves on: to the
-  // settings when the point waits there for "Run this case", and otherwise back to the stage.
+  // The picked point's buttons leave the page once one is pressed, so focus moves on to the
+  // settings, where the point waits for "Run this case".
   const choosePickedPoint = (action: PlaceAction, place: CasePlace): void => {
-    changeDraft(applyPlaceAction(draft, action, place));
+    setPendingDraft(applyPlaceAction(draft, action, place));
     setPickedPoint(null);
-    if (settingsPending) setSettingsFocusRequest((count) => count + 1);
-    else stageRef.current?.focus({ preventScroll: true });
+    setSettingsFocusRequest((count) => count + 1);
   };
   const dismissPickedPoint = (): void => {
     setPickedPoint(null);
@@ -463,9 +471,9 @@ function CaseView(props: CaseViewProps): JSX.Element {
   const { params, preloaded } = props;
   const key = buildCaseQuery(params);
   const request = useRequest(key, (signal) => loadCase(params, key, preloaded, signal), {
-    answerKey: (investigation) => buildCaseQuery(withRequestedPeriod(params, investigation.requested)),
+    answerKey: (investigation) => buildCaseQuery(pinnedCase(params, investigation)),
     onDone: (investigation) => {
-      const normalised = withRequestedPeriod(params, investigation.requested);
+      const normalised = pinnedCase(params, investigation);
       if (!sameCase(normalised, params)) props.onNormalised(normalised);
     },
   });
@@ -554,11 +562,18 @@ function CaseView(props: CaseViewProps): JSX.Element {
             <PlaceLegend places={mapPlaces} pickedPoint={props.pickedPoint} />
             <PeriodExplorer params={params} investigation={shown} onOpenCase={props.onOpenCase} />
             <EvidencePanel investigation={shown} />
+            <EvidenceLesson />
           </div>
         ) : null
       }
     />
   );
+}
+
+function pinnedCase(params: CaseParams, investigation: Investigation): CaseParams {
+  const query = investigation.app_url.split("?")[1];
+  const parsed = query === undefined ? null : parseCaseQuery(query);
+  return parsed?.ok ? parsed.value : withRequestedPeriod(params, investigation.requested);
 }
 
 function loadCase(

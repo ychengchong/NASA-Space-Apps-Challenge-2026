@@ -198,17 +198,15 @@ def format_coordinates(lat: float, lon: float) -> str:
 def resolve_place(place: PlaceInput, entry: CatalogueEntry) -> Place:
     """The place as the tools report it: the requested point and the grid cell analysed.
 
-    The cell is the cell of the variable's own grid that holds the coordinates rounded as in a
+    The cell is from the variable's own grid, resolved from the original coordinates
+    before serializing a
     link: for a MERRA-2 variable the cell of the nearest grid point, and for sunlight and cloud
     the 1° cell bounded by whole degrees (spec 6). The cell's `lat` and `lon` are its centre,
     the point the source is asked for, and its size is the grid's. The name is the given name,
     or the centre's coordinates when no name is given. `lat` and `lon` stay as requested.
     """
-    # Spec 11: a link carries coordinates rounded to two decimals, so the cell is found from
-    # those. Otherwise a shared link could reopen a neighbouring cell.
-    centre_lat, centre_lon = _cell_centre(
-        round_link_coordinate(place.lat), round_link_coordinate(place.lon), entry.grid
-    )
+    # Preserve the original coordinate when selecting the cell, including near boundaries.
+    centre_lat, centre_lon = _cell_centre(place.lat, place.lon, entry.grid)
     given_name = place.name.strip() if place.name else ""
     return Place(
         name=given_name or format_coordinates(centre_lat, centre_lon),
@@ -219,6 +217,5 @@ def resolve_place(place: PlaceInput, entry: CatalogueEntry) -> Place:
 
 
 def round_link_coordinate(x: float) -> float:
-    """`x` rounded to two decimals for a shareable link (spec 11); -0.0 becomes 0.0."""
-    rounded = round(x, LINK_COORDINATE_DECIMALS)
-    return rounded if rounded != 0 else 0.0
+    """Retain coordinate precision for shared links; normalize only signed zero."""
+    return x if x != 0 else 0.0

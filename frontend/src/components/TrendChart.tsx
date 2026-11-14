@@ -96,6 +96,8 @@ function loadMonthly(investigation: Investigation, signal: AbortSignal): Promise
           to: requested.to,
           season: requested.season,
           resolution: "monthly",
+          snapshotIds: result.snapshot_id ? [result.snapshot_id] : undefined,
+          analysisVersion: investigation.analysis_version,
         },
         signal,
       ),
@@ -209,9 +211,12 @@ function placeSummary(result: PlaceResult, variable: VariableSummary): string {
       `The trend line runs from ${valueText(start, variable)} in ${trend.first_year} ` +
         `to ${valueText(end, variable)} in ${trend.last_year}.`,
       // The chart draws one line; how sure its rate is, the words say, in the evidence panel's numbers.
-      `Its rate is ${formatRatePerDecade(trend.sen_slope, variable)}; the 95% confidence interval ` +
-        `of the rate runs from ${formatSignedRate(trend.sen_ci95[0], variable.decimals)} ` +
-        `to ${formatRatePerDecade(trend.sen_ci95[1], variable)}.`,
+      trend.sen_ci95 === null
+        ? `Its rate is ${formatRatePerDecade(trend.sen_slope, variable)}; no 95% confidence interval ` +
+            "is given, because its coverage under serial dependence has not been validated."
+        : `Its rate is ${formatRatePerDecade(trend.sen_slope, variable)}; the 95% confidence interval ` +
+            `of the rate runs from ${formatSignedRate(trend.sen_ci95[0], variable.decimals)} ` +
+            `to ${formatRatePerDecade(trend.sen_ci95[1], variable)}.`,
     );
   } else if (verdict.kind === "too_few_years") {
     parts.push("There is no trend line, because there are too few complete years to test.");
