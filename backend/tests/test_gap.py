@@ -3,10 +3,13 @@
 import pytest
 
 from app.catalogue import get_entry
-from app.models import ComparePlacesInput, Investigation, PlaceInput
+from app.errors import BadRequestError
+from app.models import AnalyzeTrendInput, ComparePlacesInput, Investigation, PlaceInput
+from app.snapshots import SnapshotStore
 from app.stats import PER_DECADE, compute_trend
 from app.tools import trends
-from app.tools.trends import compare_places
+from app.tools.context import ToolContext
+from app.tools.trends import analyze_trend, compare_places
 from app.verdict import compare_places_summary
 from tests.fake_source import FakeSource, line, monthly_from_yearly
 from tests.test_tools import HELSINKI, HELSINKI_GRID_POINT, NAIROBI, NAIROBI_GRID_POINT, context
@@ -126,3 +129,32 @@ async def test_the_gap_carries_no_p_value_or_interval() -> None:
 
     assert investigation.gap is not None
     assert not set(investigation.gap.model_dump()) & {"mk_p", "sen_ci95", "ols_p", "p"}
+
+
+async def test_same_cell_snapshots_with_different_values_are_not_a_spatial_comparison() -> None:
+    snapshots = SnapshotStore()
+    first_ctx = ToolContext(FakeSource(monthly_from_yearly(line(0.05))), 2025, snapshots=snapshots)
+    second_ctx = ToolContext(
+        FakeSource(monthly_from_yearly(line(-0.05))), 2025, snapshots=snapshots
+    )
+    first = await analyze_trend(AnalyzeTrendInput(variable="air_temp", place=HELSINKI), first_ctx)
+    second = await analyze_trend(AnalyzeTrendInput(variable="air_temp", place=KALLIO), second_ctx)
+    inp = ComparePlacesInput(
+        variable="air_temp",
+        places=[HELSINKI, KALLIO],
+        snapshot_ids=[first.results[0].snapshot_id, second.results[0].snapshot_id],
+        analysis_version=first.analysis_version,
+    )
+
+    with pytest.raises(BadRequestError, match="different retained values"):
+        await compare_places(inp, first_ctx)
+
+
+async def test_same_cell_without_common_data_does_not_claim_a_zero_difference() -> None:
+    investigation = await compare(FakeSource({}), HELSINKI, KALLIO)
+
+    assert investigation.gap is not None
+    assert investigation.gap.n == 0
+    assert investigation.gap.sentence == (
+        "Helsinki and Kallio have no common complete year, so there is no difference to describe."
+    )

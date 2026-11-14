@@ -8,7 +8,7 @@ import httpx
 import pytest
 
 from app.cache import Cache
-from app.catalogue import load_catalogue
+from app.catalogue import get_entry, load_catalogue
 from app.errors import BadPeriodError
 from app.models import PlaceOverviewInput
 from app.sources.power import PowerClient
@@ -88,6 +88,23 @@ async def test_rows_carry_no_p_value_or_interval() -> None:
     overview = await place_overview(overview_input(), context(FakeSource(RISING)))
 
     assert not set(overview.rows[0].model_dump()) & {"mk_p", "sen_ci95", "ols_p"}
+
+
+async def test_overview_keeps_variable_and_source_transition_cautions() -> None:
+    overview = await place_overview(overview_input(), context(FakeSource(RISING)))
+    by_id = {row.variable.id: row for row in overview.rows}
+
+    assert get_entry("sea_ice").trend_note in by_id["sea_ice"].caution_sentences
+    assert any(
+        "2001" in text and "artificial step" in text for text in by_id["sunlight"].caution_sentences
+    )
+
+
+async def test_overview_omits_a_source_transition_outside_the_analysis_years() -> None:
+    overview = await place_overview(overview_input(**{"from": 2002}), context(FakeSource(RISING)))
+    sunlight = next(row for row in overview.rows if row.variable.id == "sunlight")
+
+    assert not any("artificial step" in text for text in sunlight.caution_sentences)
 
 
 async def test_a_new_place_costs_one_call_per_grid_and_a_cached_place_none(

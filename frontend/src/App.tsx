@@ -202,13 +202,17 @@ export default function App(): JSX.Element {
     setRoute(currentRoute());
   };
 
+  const showSettingsPage = (): void => {
+    if (route.kind === "map" || route.kind === "place" || route.kind === "world") navigate(HOME_PATH);
+  };
+
   const askAi = async (question: string): Promise<AiAnswer> => {
     const controller = new AbortController();
     plannerController.current = controller;
     setAiWorking(true);
     try {
       const proposal = await proposeCase(question, controller.signal);
-      if (route.kind === "map") navigate(HOME_PATH);
+      showSettingsPage();
       setPendingDraft({
         variable: proposal.variables[0]?.id ?? null,
         places: proposal.places,
@@ -249,7 +253,7 @@ export default function App(): JSX.Element {
   // incomplete one sends focus to the settings, where the missing part is filled in.
   const handleProposal = (proposal: KeywordProposal): void => {
     const base = pendingDraft ?? (route.kind === "case" ? draftFromCase(route.params) : EMPTY_DRAFT);
-    if (route.kind !== "case" && route.kind !== "home") navigate(HOME_PATH);
+    showSettingsPage();
     regionTypes.remember(proposal.places);
     const next = draftFromProposal(base, proposal);
     setPendingDraft(next);
@@ -297,6 +301,7 @@ export default function App(): JSX.Element {
   // The picked point's buttons leave the page once one is pressed, so focus moves on to the
   // settings, where the point waits for "Run this case".
   const choosePickedPoint = (action: PlaceAction, place: CasePlace): void => {
+    showSettingsPage();
     setPendingDraft(applyPlaceAction(draft, action, place));
     setPickedPoint(null);
     setSettingsFocusRequest((count) => count + 1);

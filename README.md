@@ -264,6 +264,9 @@ plan, consideration/resource mapping, evaluation gates and delivery checklist. T
 documentation update does not implement or enable the planned AI features.
 Codex also prepared submission text, refreshed verification/evaluation records and
 organized the contribution history during repository cleanup.
+Codex fixed the new-stats review findings with regression tests: proposals from the
+new pages open visible settings, overview rows retain their source/variable cautions,
+and inconsistent same-cell snapshots are rejected instead of described as a zero gap.
 
 Claude Code (model Claude Opus 5.5) built the descriptive additions of a team brief on 14 and
 15 November 2026: record years, eight catalogue variables and two sea places, the seasons

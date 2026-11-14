@@ -420,11 +420,11 @@ def gap_sentence(
     over `n_years` common years, or None when there are too few. Places in the same grid cell
     have the same values, so their gap is zero in every year and says so.
     """
+    if n_years == 0:
+        return _GAP_NO_YEAR_TEMPLATE.format(first=first, second=second)
     if same_cell:
         return _GAP_SAME_CELL_TEMPLATE.format(first=first, second=second)
     if trend is None:
-        if n_years == 0:
-            return _GAP_NO_YEAR_TEMPLATE.format(first=first, second=second)
         return _GAP_TOO_FEW_TEMPLATE.format(first=first, second=second, n=n_years)
     return _GAP_TEMPLATE.format(
         first=first,

@@ -133,6 +133,7 @@ export interface OverviewRow {
   "highest_year": (number | null);
   "lowest_year": (number | null);
   "sentence": string;
+  "caution_sentences"?: (string)[];
 }
 
 export interface PeriodInput {
