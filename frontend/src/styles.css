@@ -1,0 +1,1292 @@
+/* Trend Detective: one light theme, plain CSS. Colours keep text at 4.5:1 or more on its background. */
+
+:root {
+  color-scheme: light;
+  --page: #f4f5f7;
+  --surface: #ffffff;
+  --surface-muted: #f8f9fa;
+  --ink: #1d232b;
+  --ink-muted: #4a5360;
+  --line: #d5dae0;
+  --line-strong: #8a949f;
+  --accent: #1a5fb4;
+  --accent-hover: #154c91;
+  --accent-soft: #e8f0fb;
+  --focus: #0b3d91;
+  --caution-bg: #fff6e0;
+  --caution-line: #a8670f;
+  --error-bg: #fdeeee;
+  --error-line: #b42318;
+  --radius: 10px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  margin: 0 0 0.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin-top: 1.25rem;
+}
+
+h4 {
+  font-size: 1rem;
+}
+
+p {
+  margin: 0 0 0.75rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Page frame */
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  padding: 20px 0 12px;
+}
+
+/* The page's one h1 is the app's name, a link to the first screen. */
+.site-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.site-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.site-title a:hover {
+  color: var(--accent);
+}
+
+.site-tagline {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.site-main {
+  display: grid;
+  gap: 16px;
+}
+
+.site-footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+/* Panels and layout */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  min-width: 0;
+}
+
+.panel-heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 0.5rem;
+}
+
+.panel-heading-row h2 {
+  margin: 0;
+}
+
+.panel-intro,
+.panel-note {
+  color: var(--ink-muted);
+}
+
+.panel-note {
+  font-size: 0.95rem;
+}
+
+.case-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.case-side,
+.case-main,
+.case-results {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  align-content: start;
+}
+
+.case-results.is-stale {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.case-answer {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.case-answer > * + * {
+  margin-top: 16px;
+}
+
+.case-answer > .progress:empty + * {
+  margin-top: 0;
+}
+
+/* An empty live region takes no space, but stays in the page so screen readers announce what
+   appears in it. */
+.case-answer > .live-region:empty,
+.case-answer > .progress:empty + .live-region:empty + * {
+  margin-top: 0;
+}
+
+/* Across a wide column a line of the verdict or the AI's notes would be too long to read easily,
+   so at every width they keep near 70 characters. A notice spans the column so its example cards
+   have room, but its sentences keep the same limit. */
+.case-layout-open > .case-answer > :not(.notice),
+.case-layout-open > .case-answer > .notice > p {
+  max-width: 40rem;
+}
+
+@media (min-width: 900px) {
+  .case-layout {
+    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* The answer runs across the top, above the settings and the evidence, so the order on screen
+     is the order of the page, as on a phone. */
+  .case-layout-open {
+    grid-template-areas:
+      "answer answer"
+      "side main";
+  }
+
+  .case-layout-open > .case-answer {
+    grid-area: answer;
+  }
+
+  .case-layout-open > .case-side {
+    grid-area: side;
+  }
+
+  .case-layout-open > .case-main {
+    grid-area: main;
+  }
+}
+
+/* With room for two readable columns, the notes and the cross-checks sit beside the verdict, so
+   the evidence below starts higher. The verdict stays first in the page and on the left, so the
+   reading order is still the order on screen. Anything before the verdict spans both columns. */
+@media (min-width: 1100px) {
+  .case-layout-open > .case-answer {
+    display: grid;
+    grid-template-columns: minmax(0, 40rem) minmax(0, 1fr);
+    column-gap: 16px;
+    align-items: start;
+  }
+
+  .case-layout-open > .case-answer > * {
+    grid-column: 1 / -1;
+  }
+
+  .case-layout-open > .case-answer > .live-region:not(:empty) {
+    grid-column: 1;
+    grid-row: span 2;
+  }
+
+  .case-layout-open > .case-answer > .live-region:not(:empty) ~ * {
+    grid-column: 2;
+  }
+
+  .case-layout-open > .case-answer > .live-region:not(:empty) + * {
+    margin-top: 0;
+  }
+}
+
+.home-section {
+  display: grid;
+  gap: 4px;
+}
+
+.home-section h2 {
+  margin: 0;
+}
+
+/* Controls */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.button-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.button-secondary {
+  background: var(--surface);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.button-secondary:hover:not(:disabled),
+.button-secondary[aria-pressed="true"] {
+  background: var(--accent-soft);
+}
+
+.button-small {
+  min-height: 32px;
+  padding: 3px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.button-small:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.button-quiet {
+  border-color: transparent;
+  color: var(--ink-muted);
+}
+
+input,
+select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  min-height: 40px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+}
+
+select:disabled {
+  background: var(--surface-muted);
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.field-label {
+  font-weight: 700;
+  padding: 0;
+}
+
+.field-sublabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.field-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.field-inline select {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+
+/* A select with long options, such as the period explorer's, shrinks to the panel instead of
+   widening the page past a phone screen (spec 3). */
+.field-row > .field {
+  min-width: 0;
+}
+
+.field-row > .field select {
+  width: 100%;
+}
+
+.year-field {
+  display: grid;
+  gap: 4px;
+}
+
+.year-field input {
+  width: 7.5em;
+}
+
+.field-hint {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--error-line);
+  font-weight: 600;
+}
+
+.definition-box {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+}
+
+.definition-box p:last-child {
+  margin-bottom: 0;
+}
+
+/* Live regions stay in the page while empty, so screen readers announce what appears in them. */
+.status-text {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+/* Question bar */
+
+.question-bar {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.question-form {
+  display: grid;
+  gap: 6px;
+}
+
+.question-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.question-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* The input keeps a usable width on a phone; the Stop button then wraps below it. */
+.question-input {
+  flex: 1 1 180px;
+  min-width: 0;
+  min-height: 46px;
+  font-size: 1.05rem;
+}
+
+.prompt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.prompt-label {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.prompt-chip {
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 4px 12px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.prompt-chip:hover {
+  border-color: var(--accent);
+}
+
+.mode-note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+}
+
+/* Case settings */
+
+.case-settings h2 {
+  margin-bottom: 0.25rem;
+}
+
+.place-list,
+.candidate-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.place-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.place-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.place-search {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.candidate {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-muted);
+}
+
+.picked-point {
+  border-style: dashed;
+}
+
+.candidate-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.candidate-detail {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.candidate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.picked-point > .button-quiet {
+  justify-self: start;
+}
+
+.run-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 20px;
+}
+
+/* Cautions and notices */
+
+.caution {
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  background: var(--caution-bg);
+  border-left: 4px solid var(--caution-line);
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.notice {
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid;
+  border-left-width: 6px;
+}
+
+.notice h2 {
+  font-size: 1.15rem;
+}
+
+.notice p:last-child {
+  margin-bottom: 0;
+}
+
+.notice-warning {
+  background: var(--caution-bg);
+  border-color: var(--caution-line);
+}
+
+.notice-error {
+  background: var(--error-bg);
+  border-color: var(--error-line);
+}
+
+/* Progress line */
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-muted);
+}
+
+.progress-bar {
+  position: relative;
+  flex: 0 0 120px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--accent-soft);
+}
+
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: progress-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar::after {
+    animation: none;
+    width: 100%;
+  }
+}
+
+/* Verdict card */
+
+.verdict-card {
+  border-color: var(--line-strong);
+}
+
+.verdict-summary {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.verdict-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.verdict-list > li + li {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.verdict-place-name {
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verdict-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 10px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.badge-arrow {
+  font-size: 1.05rem;
+}
+
+.badge-direction {
+  border-color: var(--ink);
+}
+
+.badge-significant {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #ffffff;
+}
+
+.badge-not_significant {
+  background: #eceef1;
+  border-color: var(--line-strong);
+}
+
+.badge-too_few_years,
+.badge-no_data {
+  background: var(--caution-bg);
+  border-color: var(--caution-line);
+}
+
+.verdict-sentence {
+  font-size: 1.2rem;
+  line-height: 1.45;
+}
+
+.verdict-note {
+  color: var(--ink-muted);
+}
+
+/* Shapes that mark each place on the chart, the map and in lists */
+
+.shape-swatch {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  background: var(--place-color);
+  vertical-align: -1px;
+}
+
+.shape-circle {
+  border-radius: 50%;
+}
+
+.shape-square {
+  border-radius: 1px;
+}
+
+.shape-triangle {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.shape-diamond {
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+/* Chart */
+
+.chart-placeholder,
+.map-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+  color: var(--ink-muted);
+  background: var(--surface-muted);
+  border-radius: 8px;
+}
+
+.plotly-chart {
+  width: 100%;
+  min-height: 300px;
+}
+
+.chart-summary,
+.map-places {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+
+.disclosure,
+.evidence,
+.explorer {
+  margin-top: 12px;
+}
+
+details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.disclosure > summary {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.disclosure > summary::before,
+.evidence > summary::before,
+.explorer > summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 1.1em;
+  font-size: 1.1rem;
+  color: var(--ink-muted);
+}
+
+.disclosure[open] > summary::before,
+.evidence[open] > summary::before,
+.explorer[open] > summary::before {
+  content: "▾";
+}
+
+.evidence,
+.explorer {
+  margin-top: 0;
+}
+
+.evidence > summary,
+.explorer > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+
+.evidence > summary h2,
+.explorer > summary h2 {
+  display: inline;
+  margin: 0;
+}
+
+.summary-hint {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+/* Tables */
+
+.table-scroll {
+  overflow-x: auto;
+  margin-top: 8px;
+}
+
+.data-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table caption {
+  text-align: left;
+  color: var(--ink-muted);
+  padding-bottom: 6px;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 6px 10px 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.data-table thead th {
+  border-bottom: 2px solid var(--line-strong);
+}
+
+.numbers-table th[scope="row"] {
+  font-weight: 600;
+  width: 45%;
+}
+
+/* Evidence panel */
+
+.steps,
+.plain-list,
+.caution-list,
+.download-list {
+  margin: 0 0 0.75rem;
+  padding-left: 1.4rem;
+}
+
+.steps li,
+.plain-list li,
+.caution-list li {
+  margin-bottom: 4px;
+}
+
+.place-cautions h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.75rem;
+}
+
+.definitions {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.definitions dt {
+  font-weight: 700;
+}
+
+.definitions dd {
+  margin: 0;
+}
+
+/* Map */
+
+.place-map {
+  height: 340px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  z-index: 0;
+}
+
+/* The point Enter picks: the centre of the map, marked while the map has keyboard focus. */
+.place-map:focus-visible::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1000;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  background:
+    linear-gradient(var(--ink), var(--ink)) center / 2px 100% no-repeat,
+    linear-gradient(var(--ink), var(--ink)) center / 100% 2px no-repeat;
+  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff);
+  pointer-events: none;
+}
+
+.map-marker .shape-swatch {
+  width: 18px;
+  height: 18px;
+  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px rgb(0 0 0 / 0.6));
+}
+
+.leaflet-tooltip.map-label {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 2px 6px;
+}
+
+.leaflet-container {
+  font-family: var(--font);
+}
+
+/* Example cases */
+
+.example-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .example-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.example-card {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  height: 100%;
+  padding: 14px 16px;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.example-card:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.example-title {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.example-teaser {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+/* AI notice in the question bar */
+
+.notice-compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 10px 12px;
+}
+
+.notice-compact p {
+  margin: 0;
+  flex: 1 1 240px;
+}
+
+.prompt-chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Detective notes */
+
+.notes-turn + .notes-turn,
+.notes-earlier + .notes-turn {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.notes-earlier {
+  margin: 0 0 4px;
+}
+
+.notes-earlier > .notes-turn {
+  margin-top: 12px;
+}
+
+.notes-question {
+  overflow-wrap: anywhere;
+}
+
+.notes-who {
+  font-weight: 700;
+}
+
+.ai-steps {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+
+.ai-step {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.ai-step-icon {
+  flex: none;
+  width: 1.2em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.ai-step-started,
+.ai-step-cut_off {
+  color: var(--ink-muted);
+}
+
+.ai-step-failed .ai-step-icon,
+.ai-step-failed .ai-step-word {
+  color: var(--error-line);
+}
+
+.ai-step-word {
+  color: var(--ink-muted);
+}
+
+.ai-text {
+  padding: 12px;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line-strong);
+  border-radius: 6px;
+}
+
+.ai-text > :last-child {
+  margin-bottom: 0;
+}
+
+.ai-label {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 1px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.ai-body {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.unverified-number {
+  text-decoration: underline wavy var(--error-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.unverified-tag {
+  padding: 0 5px;
+  border: 1px solid var(--error-line);
+  border-radius: 4px;
+  color: var(--error-line);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.notes-results {
+  margin-top: 12px;
+}
+
+.notes-results p {
+  margin-bottom: 4px;
+}
+
+/* "Map this region" under a case's map */
+
+.region-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 0;
+}
+
+/* Region view */
+
+/* Holds the SVG pattern of cells without a result; it takes no space and is never read out. */
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.region-map {
+  height: 440px;
+}
+
+.region-map.is-drawing {
+  cursor: crosshair;
+}
+
+/* While drawing, presses go to the map itself, so a drawn box never opens a cell. */
+.region-map.is-drawing .leaflet-interactive {
+  pointer-events: none;
+}
+
+.box-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+}
+
+.box-field {
+  display: grid;
+  gap: 4px;
+}
+
+.box-field input {
+  width: 100%;
+}
+
+.map-legend {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.map-legend p {
+  margin: 0;
+}
+
+.legend-title {
+  font-weight: 700;
+}
+
+.legend-scale {
+  display: grid;
+  gap: 2px;
+  max-width: 420px;
+}
+
+.legend-gradient {
+  display: block;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+
+.legend-ticks,
+.legend-ends {
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+
+.legend-ends {
+  color: var(--ink-muted);
+}
+
+.legend-keys {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  vertical-align: -3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+}
+
+.legend-mark {
+  background: radial-gradient(circle, var(--ink) 0 3px, #ffffff 3px 4.5px, var(--surface-muted) 4.5px);
+}
+
+.legend-hatch {
+  background: repeating-linear-gradient(45deg, #8a949f 0 2px, #ffffff 2px 6px);
+}
+
+.legend-note {
+  font-weight: 600;
+}

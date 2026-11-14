@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Is Svalbard getting warmer?",
+    "teaser": "Air temperature in Longyearbyen, a town in the high Arctic, from 1981 to 2025. This case shows what a clear, significant trend looks like.",
+    "query": "v=air_temp&p=78.22,15.65&label=Longyearbyen&from=1981&to=2025&s=annual"
+  },
+  {
+    "title": "Are winters in Siberia changing?",
+    "teaser": "Winters in Novosibirsk can be mild one year and bitterly cold the next. This case shows how big swings from year to year can hide a trend, so the test cannot tell it apart from chance.",
+    "query": "v=air_temp&p=55.02,82.93&label=Novosibirsk&from=1981&to=2025&s=DJF"
+  },
+  {
+    "title": "Rain in Athens and Helsinki",
+    "teaser": "Climate studies often expect the Mediterranean to get drier and northern Europe to get wetter. We chose these two cities for that reason before looking at any result, and kept them whatever the data showed.",
+    "query": "v=precipitation&p=37.98,23.73&p=60.17,24.94&label=Athens&label=Helsinki&from=1981&to=2025&s=annual"
+  }
+]

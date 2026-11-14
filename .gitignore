@@ -1,4 +1,4 @@
-﻿# Secrets and local credentials; example variable names may be committed.
+# Secrets and local credentials; example variable names may be committed.
 .env
 .env.*
 !.env.example
@@ -6,7 +6,7 @@
 *.key
 .aws/
 
-# Local environments and generated caches.
+# Python environments and generated caches.
 .venv/
 venv/
 __pycache__/
@@ -16,8 +16,9 @@ __pycache__/
 .mypy_cache/
 .ipynb_checkpoints/
 
-# Full-stack dependencies, builds and local test outputs; adapt to the framework.
+# Frontend dependencies, builds and local test outputs.
 node_modules/
+frontend/dist/
 .next/
 .nuxt/
 .turbo/
@@ -28,8 +29,14 @@ playwright-report/
 test-results/
 *.tsbuildinfo
 
+# Local caches (the pre-warmed backend/data/cache.sqlite is committed on purpose).
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+# A local working copy of the cache, so local runs leave the committed file unchanged.
+backend/data/cache.local.sqlite
+
 # Large/private inputs, generated artifacts and operational state.
-# Adapt these paths if using DVC or another versioning system; retain its metadata.
 data/raw/
 data/processed/
 artifacts/
@@ -38,10 +45,9 @@ state/
 logs/
 tmp/
 
-# Keep code, configs, safe fixtures, data manifests and selected reports visible.
+# Personal notes.
+/docs-personal/
+
+# OS
 .DS_Store
 Thumbs.db
-
-# Local working instructions.
-/AGENTS.md
-/docs-personal/

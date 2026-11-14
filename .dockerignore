@@ -1,0 +1,25 @@
+# Version control and secrets
+.git
+**/.env
+
+# Python environments and caches; the image installs its own
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+
+# Frontend dependencies and build output; the image installs and builds its own
+**/node_modules
+**/dist
+
+# Side files of a cache that a local server has open. Copied next to cache.sqlite, a journal
+# would make SQLite roll back what it takes for an unfinished write.
+**/*.sqlite-journal
+**/*.sqlite-wal
+**/*.sqlite-shm
+# A local working copy of the cache; the image ships the committed cache.sqlite only
+**/cache.local.sqlite
+
+# OS
+**/.DS_Store
