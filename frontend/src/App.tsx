@@ -539,7 +539,9 @@ function CaseView(props: CaseViewProps): JSX.Element {
           ) : null}
           {shown !== null ? (
             <>
-              <CaseActions key={key} subject="case" region={regionLink(params, props.onOpenPage)} />
+              {!loading ? (
+                <CaseActions key={key} subject="case" region={regionLink(params, props.onOpenPage)} />
+              ) : null}
               <StageNote>
                 <StageCaption investigation={shown} />
               </StageNote>

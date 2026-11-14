@@ -211,6 +211,10 @@ including source code, tests, documentation and the inference experiment. Option
 runtime planning uses the configured local or hosted model and is labelled as AI.
 No AI-generated images/video are used. No commit or push is performed automatically.
 
+Codex also added regression tests and fixes for answer actions during loading: sharing and
+region actions wait for the new result, and the region action describes rates of change
+without promising significance testing.
+
 Earlier AI use, recorded on the `initial-app` and `ui` branches (some of the chat files named
 here were later retired on `main`, as described above):
 

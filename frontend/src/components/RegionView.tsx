@@ -160,7 +160,7 @@ export function RegionView(props: RegionViewProps): JSX.Element {
           </div>
           {trendMap !== null && state.status !== "failed" ? (
             <>
-              <CaseActions key={key} subject="map" />
+              {!loading ? <CaseActions key={key} subject="map" /> : null}
               <StageNote>
                 <StageLegend trendMap={trendMap} limit={limit} />
               </StageNote>

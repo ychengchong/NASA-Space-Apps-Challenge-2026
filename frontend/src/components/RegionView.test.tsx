@@ -40,6 +40,13 @@ beforeEach(() => {
 });
 
 describe("RegionView", () => {
+  test("withholds sharing while the previous map is shown during loading", () => {
+    request.state = { status: "loading", stale: TREND_MAP };
+    const html = renderRegionView();
+    expect(html).toContain("Verdict for the whole box");
+    expect(html).not.toContain("Copy link");
+  });
+
   test("defines the words its verdict and table use, as the case evidence does", () => {
     request.state = { status: "done", value: TREND_MAP };
     const html = renderRegionView();

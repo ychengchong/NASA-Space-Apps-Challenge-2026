@@ -32,7 +32,7 @@ vi.mock("./useRequest", async (importOriginal) => ({
     }
     // Every other key is a case or a map.
     if (key === null || START_KEYS.includes(key)) return idle;
-    if (server.caseLoading) return { ...idle, state: { status: "loading", stale: null } };
+    if (server.caseLoading) return { ...idle, state: { status: "loading", stale: server.investigation } };
     if (server.investigation !== null) {
       return { ...idle, state: { status: "done", value: server.investigation } };
     }
@@ -173,6 +173,15 @@ describe("App", () => {
     expect(chart).toBeGreaterThan(html.indexOf('id="verdict-heading"'));
     expect(html.indexOf('class="case-actions"')).toBeGreaterThan(chart);
     expect(html.indexOf("Change this case")).toBeGreaterThan(chart);
+  });
+
+  test("withholds answer actions while the previous case is shown during loading", () => {
+    server.caseLoading = true;
+    server.investigation = investigation(SIGNIFICANT_RISE);
+    const html = renderAt("/case", "?v=air_temp&p=1.3,103.8&label=Singapore");
+    expect(html).toContain('id="verdict-heading"');
+    expect(html).not.toContain("Copy link");
+    expect(html).not.toContain("Map this region");
   });
 
   test("keeps the chart out of the region that is read aloud when the verdict arrives", () => {
