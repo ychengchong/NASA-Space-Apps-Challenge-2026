@@ -68,7 +68,7 @@ The project is Trend Detective, a web app for the 2026 NASA Space Apps challenge
 
 - Secrets come from environment variables only. Never commit a key, log it or send it to the browser. Keep `.env` in `.gitignore` and keep `.env.example` up to date.
 - Render user-supplied text, such as place labels and questions, as plain text and never as HTML.
-- The app talks to NASA POWER, the Claude API and the map tile server. Ask before adding any other outbound destination.
+- The app talks to NASA POWER, the Claude API, the OpenAI API (when it is configured instead of Claude) and the map tile server. Ask before adding any other outbound destination.
 - There are no accounts, cookies, analytics or stored chat text. Logs hold the path, status and duration only.
 
 ## 8. Dependencies
@@ -115,10 +115,20 @@ These are set up in stage 1. Keep this table current.
 
 | Task | Run in | Command |
 | --- | --- | --- |
-| Backend tests | `backend/` | `pytest` |
-| Backend lint | `backend/` | `ruff check .` |
-| Backend format | `backend/` | `ruff format .` |
-| Run the backend locally | `backend/` | `uvicorn app.main:app --reload` |
+| Install backend dependencies | `backend/` | `uv sync` |
+| Backend tests | `backend/` | `uv run pytest` |
+| Backend lint | `backend/` | `uv run ruff check .` |
+| Backend format | `backend/` | `uv run ruff format .` |
+| Check backend formatting | `backend/` | `uv run ruff format --check .` |
+| Run the backend locally | `backend/` | `uv run uvicorn app.main:app --reload` |
+| Print a verdict | `backend/` | `uv run python -m app.cli air_temp 60.17,24.94 --label Helsinki` |
+| Rebuild the example cache | `backend/` | `uv run python -m scripts.warm_cache` |
+| Install frontend dependencies | `frontend/` | `npm ci` |
+| Run the frontend locally | `frontend/` | `npm run dev` |
 | Frontend lint | `frontend/` | `npm run lint` |
+| Frontend format | `frontend/` | `npm run format` |
+| Check frontend formatting | `frontend/` | `npm run format:check` |
 | Frontend tests | `frontend/` | `npm run test` |
 | Frontend build | `frontend/` | `npm run build` |
+| Build the container | repository root | `docker build -t trend-detective .` |
+| Run the container | repository root | `docker run --rm -p 8000:8000 --env-file .env trend-detective` |

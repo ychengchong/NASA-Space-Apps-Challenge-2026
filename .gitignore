@@ -1,0 +1,23 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Frontend
+node_modules/
+frontend/dist/
+
+# Local caches (the pre-warmed backend/data/cache.sqlite is committed on purpose)
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+# A local working copy of the cache, so local runs leave the committed file unchanged
+backend/data/cache.local.sqlite
+
+# OS
+.DS_Store
