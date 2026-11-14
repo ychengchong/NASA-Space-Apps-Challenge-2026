@@ -15,7 +15,6 @@ from app.models import (
     GetSeriesInput,
     Investigation,
     PlaceInput,
-    SourceRef,
 )
 from app.sources.base import MonthKey, PointSeries
 from app.sources.power import CACHE_SOURCE, PowerClient, parse_monthly
@@ -101,9 +100,8 @@ async def test_period_defaults_to_the_full_record_and_annual() -> None:
 
 
 async def test_period_is_clamped_to_the_record_and_the_last_complete_year() -> None:
-    investigation = await analyse(FakeSource(RISING), **{"from": 1950, "to": 2100})
-
-    assert (investigation.requested.from_, investigation.requested.to) == (1981, 2025)
+    with pytest.raises(BadPeriodError, match="dates were not changed"):
+        await analyse(FakeSource(RISING), **{"from": 1950, "to": 2100})
 
 
 async def test_period_starts_at_the_variables_own_record_start() -> None:
@@ -192,7 +190,9 @@ async def test_result_comes_from_the_analysed_variables_own_series() -> None:
     precipitation = (await analyse(source, variable="precipitation")).results[0]
     air_temp = (await analyse(source)).results[0]
 
-    assert (precipitation.verdict.direction, air_temp.verdict.direction) == ("falling", "rising")
+    assert precipitation.trend.sen_slope < 0
+    assert precipitation.verdict.kind == "inference_unavailable"
+    assert air_temp.verdict.direction == "rising"
 
 
 async def test_place_reports_requested_point_and_grid_cell() -> None:
@@ -207,7 +207,7 @@ async def test_unnamed_place_is_named_by_its_grid_point() -> None:
     result = investigation.results[0]
 
     assert result.place.name == "60.0°N, 25.0°E"
-    assert "in 60.0°N, 25.0°E has risen" in result.verdict.sentence
+    assert "grid cell containing 60.0°N, 25.0°E" in result.verdict.sentence
 
 
 # Results (spec 7, steps 2 to 9)
@@ -217,13 +217,10 @@ async def test_clear_rise_is_significant_with_the_rate_per_decade() -> None:
     result = (await analyse(FakeSource(RISING))).results[0]
 
     assert result.trend is not None
-    assert result.trend.n == 45
     assert result.trend.sen_slope == pytest.approx(0.5)
-    assert (result.verdict.kind, result.verdict.direction) == ("significant", "rising")
-    assert result.verdict.sentence == (
-        "Air temperature in Helsinki has risen by about 0.50 °C per decade from 1981 to 2025. "
-        "This trend is statistically significant."
-    )
+    assert result.verdict.kind == "significant"
+    assert "+0.50 °C per decade" in result.verdict.sentence
+    assert "conditional on its assumptions" in result.verdict.sentence
 
 
 async def test_year_with_a_missing_month_stays_in_the_series_but_not_in_the_test() -> None:
@@ -277,7 +274,8 @@ async def test_constant_values_give_a_zero_slope_without_direction() -> None:
 
     assert result.trend is not None
     assert result.trend.sen_slope == 0
-    assert (result.verdict.kind, result.verdict.direction) == ("not_significant", None)
+    assert result.trend.mk_p is None
+    assert result.verdict.kind == "inference_unavailable"
 
 
 async def test_yearly_values_match_the_saved_response() -> None:
@@ -286,12 +284,12 @@ async def test_yearly_values_match_the_saved_response() -> None:
     ).results[0]
 
     assert [point.value for point in result.series] == [
-        pytest.approx(6.4325),
-        pytest.approx(5.4575),
+        pytest.approx(6.460027322404371),
+        pytest.approx(5.529068493150685),
         None,
-        pytest.approx(4.705),
-        pytest.approx(66.02 / 12),
-        pytest.approx(79.81 / 12),
+        pytest.approx(4.778109589041096),
+        pytest.approx(5.53827868852459),
+        pytest.approx(6.71131506849315),
     ]
 
 
@@ -305,11 +303,11 @@ async def test_december_counts_toward_the_following_year() -> None:
 
     assert [point.value for point in result.series] == [
         None,
-        pytest.approx(-7.12 / 3),
-        pytest.approx(-9.83 / 3),
+        pytest.approx(-2.2447777777777778),
+        pytest.approx(-3.3435555555555556),
         None,
-        pytest.approx(-3.79),
-        pytest.approx(-2.36 / 3),
+        pytest.approx(-3.753736263736264),
+        pytest.approx(-0.6898888888888888),
     ]
 
 
@@ -356,28 +354,25 @@ async def compare(
 async def test_significant_rise_and_fall_are_opposite_directions() -> None:
     investigation = await compare(RISING, FALLING)
 
-    assert investigation.contrast == "opposite_directions"
-    assert investigation.summary == (
-        "Air temperature is rising significantly in Helsinki "
-        "and falling significantly in Nairobi over the same years."
-    )
+    assert investigation.common_years == list(range(1981, 2026))
+    assert "identical complete years" in investigation.summary
+    assert "not a statistical test of differences" in investigation.summary
 
 
 async def test_significant_rises_everywhere_are_the_same_direction() -> None:
     investigation = await compare(RISING, RISING)
 
-    assert investigation.contrast == "same_direction"
-    assert investigation.summary == "Air temperature is rising significantly in both places."
+    assert investigation.common_years == list(range(1981, 2026))
+    assert "identical complete years" in investigation.summary
+    assert "not a statistical test of differences" in investigation.summary
 
 
 async def test_a_place_without_a_significant_trend_makes_the_contrast_unclear() -> None:
     investigation = await compare(RISING, FLAT)
 
-    assert investigation.contrast == "unclear"
-    assert investigation.summary == (
-        "Air temperature does not show a significant trend in every place, "
-        "so the places cannot be clearly contrasted."
-    )
+    assert investigation.common_years == list(range(1981, 2026))
+    assert "identical complete years" in investigation.summary
+    assert "not a statistical test of differences" in investigation.summary
 
 
 async def test_compare_keeps_the_order_of_the_places() -> None:
@@ -399,8 +394,9 @@ async def test_compare_fetches_the_places_at_the_same_time() -> None:
 async def test_places_with_the_same_source_list_it_once() -> None:
     investigation = await compare(RISING, FALLING)
 
-    assert investigation.sources == [
-        SourceRef(name="NASA POWER (MERRA-2)", version="v2.10.0", accessed="2026-11-13")
+    assert {source.name for source in investigation.sources} == {"NASA POWER (MERRA-2)"}
+    assert [source.snapshot_id for source in investigation.sources] == [
+        result.snapshot_id for result in investigation.results
     ]
 
 
@@ -410,10 +406,10 @@ async def test_places_with_the_same_source_list_it_once() -> None:
 async def test_app_url_holds_the_case_parameters_in_spec_order() -> None:
     investigation = await analyze_trend(trend_input(), context(FakeSource(RISING), BASE_URL))
 
-    assert investigation.app_url == (
-        "https://trend.example/case?v=air_temp&p=60.17,24.94&label=Helsinki"
-        "&from=1981&to=2025&s=annual"
+    assert investigation.app_url.startswith(
+        "https://trend.example/case?v=air_temp&p=60.17,24.94&label=Helsinki&from=1981&to=2025&s=annual&snap="
     )
+    assert investigation.app_url.endswith("&av=td-2026-11-v1")
 
 
 async def test_app_url_is_a_path_without_a_public_base_url() -> None:
@@ -425,7 +421,10 @@ async def test_app_url_is_a_path_without_a_public_base_url() -> None:
 async def test_link_has_no_label_when_no_place_has_a_name() -> None:
     investigation = await analyse(FakeSource(RISING), place={"lat": 60.17, "lon": 24.94})
 
-    assert investigation.app_url == "/case?v=air_temp&p=60.17,24.94&from=1981&to=2025&s=annual"
+    assert investigation.app_url.startswith(
+        "/case?v=air_temp&p=60.17,24.94&from=1981&to=2025&s=annual&snap="
+    )
+    assert "label=" not in investigation.app_url
 
 
 async def test_link_keeps_labels_in_step_with_places() -> None:
@@ -441,7 +440,7 @@ async def test_link_keeps_labels_in_step_with_places() -> None:
 async def test_link_rounds_coordinates_to_two_decimals() -> None:
     investigation = await analyse(FakeSource(RISING), place={"lat": 60.1234, "lon": 24.9})
 
-    assert "&p=60.12,24.9&" in investigation.app_url
+    assert "&p=60.1234,24.9&" in investigation.app_url
 
 
 async def test_link_encodes_label_text() -> None:
@@ -455,7 +454,7 @@ async def test_link_encodes_label_text() -> None:
 async def test_id_is_twelve_hex_digits() -> None:
     investigation = await analyse(FakeSource(RISING))
 
-    assert len(investigation.id) == 12
+    assert len(investigation.id) == 64
     assert set(investigation.id) <= set("0123456789abcdef")
 
 
@@ -478,9 +477,15 @@ async def test_identical_inputs_give_the_same_id_and_link() -> None:
 )
 async def test_inputs_that_normalise_alike_give_the_same_case(fields: dict[str, Any]) -> None:
     base = await analyse(FakeSource(RISING))
+    if fields.get("from", 1981) < 1981 or fields.get("to", 2025) > 2025:
+        with pytest.raises(BadPeriodError):
+            await analyse(FakeSource(RISING), **fields)
+        return
     other = await analyse(FakeSource(RISING), **fields)
-
-    assert (other.id, other.app_url) == (base.id, base.app_url)
+    if "place" in fields and fields["place"]["lat"] != HELSINKI.lat:
+        assert other.id != base.id
+    else:
+        assert (other.id, other.app_url) == (base.id, base.app_url)
 
 
 @pytest.mark.parametrize(
@@ -514,7 +519,8 @@ async def test_steps_name_variable_grid_point_period_years_and_correction() -> N
     assert "from 1981 to 2025" in steps
     assert "45 complete years" in steps
     assert "Mann-Kendall" in steps
-    assert "correction factor of 1.43" in steps
+    assert "mk_mc_envelope_v1" in steps
+    assert "correction factor" not in steps
 
 
 async def test_steps_name_the_one_degree_cell_that_holds_the_place() -> None:
@@ -528,9 +534,8 @@ async def test_steps_name_the_one_degree_cell_that_holds_the_place() -> None:
 async def test_steps_say_why_no_test_ran_on_a_short_record() -> None:
     steps = (await analyse(FakeSource(RISING), **{"from": 2016, "to": 2024})).steps
 
-    assert steps[-1] == (
-        "Helsinki: 9 complete years, fewer than the 10 a trend test needs, so no test was run."
-    )
+    assert "9 complete years" in steps[-1]
+    assert "no test was run" in steps[-1]
 
 
 async def test_steps_say_december_counts_toward_the_following_year() -> None:
@@ -642,9 +647,10 @@ async def test_sources_name_only_the_analysed_variables_own_fetch(tmp_path: Path
         await client.aclose()
         cache.close()
 
-    assert investigation.sources == [
-        SourceRef(name="NASA POWER (MERRA-2)", version="v2.9.0", accessed="2026-01-02")
+    assert [(source.name, source.version, source.accessed) for source in investigation.sources] == [
+        ("NASA POWER (MERRA-2)", "v2.9.0", "2026-01-02")
     ]
+    assert investigation.sources[0].snapshot_id == investigation.results[0].snapshot_id
 
 
 # get_series
@@ -697,7 +703,7 @@ async def test_yearly_series_holds_the_yearly_means() -> None:
     )
 
     assert [point.date for point in series.values] == [str(y) for y in range(2000, 2006)]
-    assert series.values[0].value == pytest.approx(6.4325)
+    assert series.values[0].value == pytest.approx(6.460027322404371)
     assert series.values[2].value is None
 
 

@@ -172,7 +172,7 @@ export function QuestionBar({ onProposal, ai, aiNotice, showPrompts }: QuestionB
       </p>
       <p className="status-text" role="status">
         {working
-          ? "The AI is working on your question. Its steps appear in the Detective notes."
+          ? "The AI is proposing settings. It will not run an analysis until you confirm."
           : statusText(status)}
       </p>
     </section>
@@ -190,7 +190,7 @@ function statusText(status: Status): string {
     case "found":
       return foundText(status.proposal);
     case "ai_answered":
-      return "The AI has answered. Its notes are in the Detective notes.";
+      return "Review the proposed settings and dates, then select Run this case to confirm.";
   }
 }
 

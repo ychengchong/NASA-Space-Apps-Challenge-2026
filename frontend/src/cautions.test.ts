@@ -56,7 +56,7 @@ describe("cautionText", () => {
 
   test("uses the spec 7 wording for year-to-year memory", () => {
     expect(cautionText("autocorrelated", AIR_TEMPERATURE, trendOver(1981, 2025))).toBe(
-      "Each year here resembles the one before. The test allows for that, which makes it harder to pass.",
+      "Year-to-year dependence is present. Check the stated assumptions; other dependence may invalidate inference.",
     );
   });
 

@@ -44,6 +44,12 @@ def parse_case_query(query: QueryValues) -> AnalyzeTrendInput | ComparePlacesInp
     variable = _required_single(query, "v")
     places = _places(query)
     period = _period(query)
+    snapshots = list(query.get("snap", []))
+    if snapshots and len(snapshots) != len(places):
+        raise BadRequestError("Give exactly one snapshot for each place.")
+    if snapshots and not _single(query, "av"):
+        raise BadRequestError("Pinned evidence requires an analysis version.")
+    period.update(snapshot_ids=snapshots, analysis_version=_single(query, "av"))
     scan = _scan(query)
     try:
         if len(places) == 1:

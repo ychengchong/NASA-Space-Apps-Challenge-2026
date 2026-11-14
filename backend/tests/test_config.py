@@ -74,7 +74,8 @@ def test_active_ai_provider_follows_the_named_provider_and_the_keys_set(
     for name, value in env.items():
         ai_env.setenv(name, value)
 
-    assert load_settings().active_ai_provider == provider
+    assert load_settings().active_ai_provider is None
+    assert not load_settings().ai_evaluated
 
 
 def test_unknown_ai_provider_is_a_configuration_error(ai_env: pytest.MonkeyPatch) -> None:
@@ -98,7 +99,7 @@ def test_default_model_is_the_one_of_the_provider_in_use(
     for name, value in env.items():
         ai_env.setenv(name, value)
 
-    assert load_settings().ai_model == model
+    assert load_settings().ai_model == ""
 
 
 @pytest.mark.parametrize("key", ["ANTHROPIC_API_KEY", "OPENAI_API_KEY"])

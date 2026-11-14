@@ -4,14 +4,12 @@
  */
 
 import type { Box, Resolution, Season, SeriesFormat } from "./api";
-import { formatNumber } from "./format";
 
 // Spec 10: a case holds up to four places.
 export const MAX_PLACES = 4;
 // Spec 5 and 10: a place label is display text of at most 40 characters.
 export const PLACE_LABEL_MAX_LENGTH = 40;
 // Spec 10 and 11: coordinates in a link are rounded to two decimals.
-const LINK_COORDINATE_DECIMALS = 2;
 // Spec 5: latitude runs from -90 to 90 and longitude from -180 to 180.
 const MAX_LATITUDE = 90;
 const MAX_LONGITUDE = 180;
@@ -31,6 +29,8 @@ export interface PeriodParams {
   from?: number;
   to?: number;
   season: Season;
+  snapshotIds?: string[];
+  analysisVersion?: string;
 }
 
 export interface CasePlace {
@@ -91,6 +91,9 @@ export function parseCaseQuery(query: string): ParseResult<CaseParams> {
   if (!places.ok) return places;
   const period = parsePeriod(search);
   if (!period.ok) return period;
+  if (period.value.snapshotIds && period.value.snapshotIds.length !== places.value.length) {
+    return invalid("Pinned evidence needs one snapshot for each place.");
+  }
   const scan = parseScan(search);
   if (!scan.ok) return scan;
 
@@ -134,6 +137,8 @@ function periodEntries(period: PeriodParams): QueryEntry[] {
   if (period.from !== undefined) entries.push(["from", String(period.from)]);
   if (period.to !== undefined) entries.push(["to", String(period.to)]);
   entries.push(["s", period.season]);
+  for (const snapshot of period.snapshotIds ?? []) entries.push(["snap", snapshot]);
+  if (period.analysisVersion !== undefined) entries.push(["av", period.analysisVersion]);
   return entries;
 }
 
@@ -151,7 +156,7 @@ function pointParam(point: { lat: number; lon: number }): string {
  * backend open the same grid cell for the same point.
  */
 export function linkCoordinate(value: number): number {
-  return Number(formatNumber(value, LINK_COORDINATE_DECIMALS));
+  return Object.is(value, -0) ? 0 : value;
 }
 
 function roundCoordinate(value: number): string {
@@ -249,7 +254,22 @@ function parsePeriod(search: URLSearchParams): ParseResult<PeriodParams> {
   if (!isSeason(seasonText)) {
     return invalid(`Unknown season "${seasonText}". Use annual, DJF, MAM, JJA or SON.`);
   }
-  return valid({ from: from.value, to: to.value, season: seasonText });
+  const snapshots = search.getAll("snap");
+  const version = single(search, "av");
+  if (!version.ok) return version;
+  if (
+    snapshots.some((value) => !/^[0-9a-f]{64}$/.test(value)) ||
+    (snapshots.length > 0 && version.value === undefined)
+  ) {
+    return invalid("Pinned evidence needs valid snapshot IDs and an analysis version.");
+  }
+  return valid({
+    from: from.value,
+    to: to.value,
+    season: seasonText,
+    ...(snapshots.length > 0 ? { snapshotIds: snapshots } : {}),
+    ...(version.value !== undefined ? { analysisVersion: version.value } : {}),
+  });
 }
 
 function parseYear(search: URLSearchParams, name: "from" | "to"): ParseResult<number | undefined> {

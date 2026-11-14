@@ -10,8 +10,8 @@ describe("isSignificant", () => {
     expect(isSignificant({ start: 1990, sen_slope: 0.3, mk_p: 0.05 })).toBe(false);
   });
 
-  test("does not mark a zero slope, even with p below 0.05", () => {
-    expect(isSignificant({ start: 1985, sen_slope: 0, mk_p: 0.03 })).toBe(false);
+  test("keeps valid rank evidence distinct from a zero median rate", () => {
+    expect(isSignificant({ start: 1985, sen_slope: 0, mk_p: 0.03 })).toBe(true);
   });
 
   test("marks a falling trend whose p-value is below 0.05", () => {

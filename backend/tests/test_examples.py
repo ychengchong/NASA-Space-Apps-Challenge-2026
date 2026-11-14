@@ -173,9 +173,11 @@ async def test_every_example_answers_from_the_committed_cache_without_calling_na
 async def test_example_query_is_the_link_the_backend_builds(tmp_path: Path) -> None:
     investigations, _ = await run_examples_offline(tmp_path)
 
-    assert [investigation.app_url for investigation in investigations] == [
-        f"{CASE_PATH}?{query}" for query in QUERIES
-    ]
+    assert all(
+        investigation.app_url.startswith(f"{CASE_PATH}?{query}&snap=")
+        for investigation, query in zip(investigations, QUERIES, strict=True)
+    )
+    assert all(investigation.pinned for investigation in investigations)
 
 
 @pytest.mark.anyio
@@ -194,7 +196,8 @@ async def test_not_significant_example_is_not_significant_and_not_borderline(
     investigations, _ = await run_examples_offline(tmp_path)
     (result,) = investigations[NOT_SIGNIFICANT].results
 
-    assert result.verdict.kind == "not_significant"
+    assert result.verdict.kind == "inference_unavailable"
+    assert result.trend.mk_p is None
     assert "borderline" not in result.verdict.cautions
 
 

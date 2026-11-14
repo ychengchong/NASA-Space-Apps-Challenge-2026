@@ -11,6 +11,7 @@ import threading
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
+from app.snapshots import SnapshotStore
 from app.sources.base import MonthKey, MonthlyValues, PointSeries
 
 # A grid coordinate read from a response and the same coordinate computed by grid snapping can
@@ -34,6 +35,9 @@ CREATE TABLE IF NOT EXISTS counters (
     day   TEXT    NOT NULL,
     value INTEGER NOT NULL,
     PRIMARY KEY (key, day)
+);
+CREATE TABLE IF NOT EXISTS leases (
+    key TEXT PRIMARY KEY, token TEXT NOT NULL, expires REAL NOT NULL
 );
 """
 
@@ -59,12 +63,19 @@ RETURNING value
 class Cache:
     """The SQLite file. Safe to share between async code and threads: one connection, one lock."""
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, snapshots: SnapshotStore | None = None) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
         self._connection = sqlite3.connect(path, check_same_thread=False)
+        self.snapshots = snapshots or SnapshotStore(path.parent / "snapshots")
         with self._lock, self._connection:
             self._connection.executescript(_SCHEMA)
+            columns = {
+                row[1] for row in self._connection.execute("PRAGMA table_info(point_series)")
+            }
+            for column in ("raw_sha256", "query_url", "product"):
+                if column not in columns:
+                    self._connection.execute(f"ALTER TABLE point_series ADD COLUMN {column} TEXT")
 
     def close(self) -> None:
         with self._lock:
@@ -83,7 +94,8 @@ class Cache:
             return {}
         placeholders = ", ".join("?" for _ in codes)
         query = (
-            "SELECT code, monthly, version, accessed FROM point_series"
+            "SELECT code, monthly, version, accessed, raw_sha256, query_url, product "
+            "FROM point_series"
             " WHERE source = ? AND lat = ? AND lon = ? AND end_year >= ?"
             f" AND code IN ({placeholders})"
         )
@@ -99,8 +111,11 @@ class Cache:
                 monthly=_decode_monthly(monthly),
                 version=version,
                 accessed=accessed,
+                raw_sha256=raw_sha256,
+                query_url=query_url,
+                product=product,
             )
-            for code, monthly, version, accessed in rows
+            for code, monthly, version, accessed, raw_sha256, query_url, product in rows
         }
 
     def write_point_series(self, source: str, series: Iterable[PointSeries], end_year: int) -> None:
@@ -108,6 +123,7 @@ class Cache:
 
         A row already fetched up to a later year is kept.
         """
+        series = list(series)
         rows = [
             (
                 source,
@@ -123,6 +139,21 @@ class Cache:
         ]
         with self._lock, self._connection:
             self._connection.executemany(_UPSERT_SERIES, rows)
+            for item in series:
+                self._connection.execute(
+                    "UPDATE point_series SET raw_sha256=?, query_url=?, product=? "
+                    "WHERE source=? AND lat=? AND lon=? AND code=? AND end_year=?",
+                    (
+                        item.raw_sha256,
+                        item.query_url,
+                        item.product,
+                        source,
+                        _coordinate(item.lat),
+                        _coordinate(item.lon),
+                        item.code,
+                        end_year,
+                    ),
+                )
 
     def increment_counter(self, key: str, day: str) -> int:
         """Add one to the counter `key` for `day` ("YYYY-MM-DD") and return the new count."""
@@ -137,6 +168,39 @@ class Cache:
                 "SELECT value FROM counters WHERE key = ? AND day = ?", (key, day)
             ).fetchone()
         return 0 if row is None else int(row[0])
+
+    def reserve_budget(self, day: str, amount: int, limit: int) -> bool:
+        """Atomically reserve integer microdollars; attempts, failures and cancellations consume it.
+
+        Never refund an uncertain provider outcome. SQLite serializes this statement
+        across processes as well as threads, including the initial insert.
+        """
+        if amount <= 0 or amount > limit:
+            return False
+        with self._lock, self._connection:
+            row = self._connection.execute(
+                "INSERT INTO counters(key,day,value) VALUES('budget_microusd',?,?) "
+                "ON CONFLICT(key,day) DO UPDATE SET value=value+excluded.value "
+                "WHERE value+excluded.value<=? RETURNING value",
+                (day, amount, limit),
+            ).fetchone()
+        return row is not None
+
+    def acquire_lease(self, key: str, token: str, now: float, seconds: float) -> bool:
+        """Bound concurrent generations across workers sharing the operational database."""
+        with self._lock, self._connection:
+            row = self._connection.execute(
+                "INSERT INTO leases(key,token,expires) VALUES(?,?,?) "
+                "ON CONFLICT(key) DO UPDATE SET token=excluded.token,expires=excluded.expires "
+                "WHERE expires<=? RETURNING token",
+                (key, token, now + seconds, now),
+            ).fetchone()
+        return row is not None
+
+    def release_lease(self, key: str, token: str) -> None:
+        """Release only this request's lease; never release a newer owner's generation."""
+        with self._lock, self._connection:
+            self._connection.execute("DELETE FROM leases WHERE key=? AND token=?", (key, token))
 
 
 def _coordinate(value: float) -> float:

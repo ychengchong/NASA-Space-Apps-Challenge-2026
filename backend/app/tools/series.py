@@ -1,27 +1,40 @@
 """get_series, plus the period and fetch steps every case tool shares (spec 5; spec 7, step 1)."""
 
 from app.catalogue import CatalogueEntry, get_entry, load_catalogue, to_summary
-from app.errors import BadPeriodError
+from app.errors import BadPeriodError, BadRequestError
 from app.models import GetSeriesInput, PeriodInput, Place, Requested, Series, SeriesValue
 from app.sources.base import MonthlyValues, PointSeries
 from app.stats import SEASON_MONTHS, yearly_values
 from app.tools.context import ToolContext
+from app.tools.inference import ANALYSIS_VERSION
 from app.tools.places import resolve_place
 
 
 def resolve_period(
     entry: CatalogueEntry, period: PeriodInput, last_complete_year: int
 ) -> Requested:
-    """The years and season to analyse, after clamping (spec 7, step 1).
+    """Validate the explicit years and season without silently adjusting supported dates.
 
     A missing `from` is the start of the variable's record and a missing `to` is
-    `last_complete_year`. Both are then clamped to that record. Raises `BadPeriodError` when the
-    first year ends up later than the last.
+    `last_complete_year`. Unsupported periods raise `BadPeriodError`; callers must
+    confirm another period.
     """
     requested_from = period.from_ if period.from_ is not None else entry.record_start
     requested_to = period.to if period.to is not None else last_complete_year
-    first_year = max(requested_from, entry.record_start)
-    last_year = min(requested_to, last_complete_year)
+    first_year = requested_from
+    last_year = requested_to
+    if first_year < entry.record_start or last_year > last_complete_year:
+        raise BadPeriodError(
+            f"Requested {first_year}-{last_year}; "
+            f"available {entry.record_start}-{last_complete_year}. "
+            "Choose and confirm a supported period; dates were not changed."
+        )
+    if period.analysis_version not in (None, ANALYSIS_VERSION):
+        raise BadRequestError(
+            "This analysis version is unavailable; no current method was substituted."
+        )
+    if period.snapshot_ids and period.analysis_version is None:
+        raise BadRequestError("Pinned evidence requires an analysis version.")
     if first_year > last_year:
         raise BadPeriodError(
             f"This variable's record runs from {entry.record_start} to {last_complete_year}, "
@@ -31,7 +44,9 @@ def resolve_period(
     return Requested.model_validate({"from": first_year, "to": last_year, "season": period.season})
 
 
-async def fetch_point_series(entry: CatalogueEntry, place: Place, ctx: ToolContext) -> PointSeries:
+async def fetch_point_series(
+    entry: CatalogueEntry, place: Place, ctx: ToolContext, snapshot_id: str | None = None
+) -> PointSeries:
     """The variable's full monthly record at the centre of the place's cell, up to the last
     complete year.
 
@@ -43,6 +58,11 @@ async def fetch_point_series(entry: CatalogueEntry, place: Place, ctx: ToolConte
     cut from one cached response. Only the entry's own series is returned. Raises
     `SourceUnavailableError` when the data is neither cached nor available.
     """
+    if snapshot_id is not None:
+        series = ctx.snapshots.series(snapshot_id)
+        if (series.code, series.lat, series.lon) != (entry.code, place.cell.lat, place.cell.lon):
+            raise BadRequestError("The snapshot does not match this variable and grid cell.")
+        return series
     codes = [other.code for other in load_catalogue() if other.grid == entry.grid]
     found = await ctx.source.point_series(
         place.cell.lat, place.cell.lon, codes, ctx.last_complete_year
@@ -62,7 +82,11 @@ async def get_series(inp: GetSeriesInput, ctx: ToolContext) -> Series:
     entry = get_entry(inp.variable)
     requested = resolve_period(entry, inp, ctx.last_complete_year)
     place = resolve_place(inp.place, entry)
-    point_series = await fetch_point_series(entry, place, ctx)
+    if len(inp.snapshot_ids) > 1:
+        raise BadRequestError("A series takes one snapshot.")
+    point_series = await fetch_point_series(
+        entry, place, ctx, inp.snapshot_ids[0] if inp.snapshot_ids else None
+    )
     if inp.resolution == "monthly":
         values = _monthly_values(point_series.monthly, requested)
     else:

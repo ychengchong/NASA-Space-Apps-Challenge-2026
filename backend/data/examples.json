@@ -6,7 +6,7 @@
   },
   {
     "title": "Are winters in Siberia changing?",
-    "teaser": "Winters in Novosibirsk can be mild one year and bitterly cold the next. This case shows how big swings from year to year can hide a trend, so the test cannot tell it apart from chance.",
+    "teaser": "Winters in Novosibirsk can be mild one year and bitterly cold the next. This exploratory seasonal case shows large year-to-year swings. Seasonal inference has not been validated, so its rate is descriptive and significance is unavailable.",
     "query": "v=air_temp&p=55.02,82.93&label=Novosibirsk&from=1981&to=2025&s=DJF"
   },
   {

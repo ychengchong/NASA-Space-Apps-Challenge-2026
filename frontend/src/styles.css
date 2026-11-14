@@ -1290,3 +1290,15 @@ details > summary::-webkit-details-marker {
 .legend-note {
   font-weight: 600;
 }
+
+.evidence-id {
+  overflow-wrap: anywhere;
+}
+.lesson-choice {
+  display: block;
+  margin: 0.7rem 0;
+}
+.badge-inference_unavailable {
+  background: var(--caution-bg);
+  color: var(--ink);
+}

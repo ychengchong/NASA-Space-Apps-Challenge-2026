@@ -57,11 +57,11 @@ describe("pickedRegionTypes", () => {
 
   test("keeps the region type of a city tagged as a megacity", () => {
     const known = new Map(pickedRegionTypes([SHANGHAI]));
-    expect(regionTypeOf(known, linkedPlace("v=air_temp&p=31.22,121.46&label=Shanghai"))).toBe("megacity");
+    expect(regionTypeOf(known, linkedPlace("v=air_temp&p=31.2222,121.4581&label=Shanghai"))).toBe("megacity");
   });
 
   test("records a picked place without a region type as having none", () => {
-    expect(pickedRegionTypes([HELSINKI])).toEqual([["60.17,24.94 Helsinki", null]]);
+    expect(pickedRegionTypes([HELSINKI])).toEqual([["60.1695,24.9354 Helsinki", null]]);
   });
 
   test("gives no region type to an unnamed place at the same point", () => {
@@ -85,16 +85,16 @@ describe("regionTypeFromLookup", () => {
       kind: "region",
       region_type: "ice sheet",
     };
-    expect(regionTypeFromLookup(place, [candidate])).toBe("ice sheet");
+    expect(regionTypeFromLookup(place, [candidate])).toBeNull();
   });
 
   test("takes the megacity type of a city whose name and link coordinates match", () => {
-    const place = linkedPlace("v=min_temp&p=31.22,121.46&label=Shanghai");
+    const place = linkedPlace("v=min_temp&p=31.2222,121.4581&label=Shanghai");
     expect(regionTypeFromLookup(place, [SHANGHAI])).toBe("megacity");
   });
 
   test("gives no region type for a matching city that has none", () => {
-    const place = linkedPlace("v=air_temp&p=60.17,24.94&label=Helsinki");
+    const place = linkedPlace("v=air_temp&p=60.1695,24.9354&label=Helsinki");
     expect(regionTypeFromLookup(place, [HELSINKI])).toBeNull();
   });
 
@@ -127,7 +127,7 @@ describe("placesToLookUp", () => {
   });
 
   test("skips a place whose region type is known, even as none", () => {
-    const helsinki = linkedPlace("v=air_temp&p=60.17,24.94&label=Helsinki");
+    const helsinki = linkedPlace("v=air_temp&p=60.1695,24.9354&label=Helsinki");
     const known = new Map(pickedRegionTypes([HELSINKI]));
     expect(placesToLookUp([helsinki], known, NOTHING_ASKED)).toEqual([]);
   });
