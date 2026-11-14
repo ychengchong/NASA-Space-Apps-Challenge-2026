@@ -2,6 +2,12 @@
 
 This record distinguishes development assistance from runtime AI.
 
+On 15 November 2026, Codex fixed the new-stats review findings and added regression
+tests: visible settings for keyword/LLM proposals and picked-point choices from
+overview/world pages, Python-rendered overview cautions, rejection of differing
+same-cell evidence, and a no-common-years message instead of a claimed zero gap.
+It updated the shared generated types, technical spec and README for these fixes.
+
 Codex assisted with scientific/provenance fixes, planner integration, tests,
 documentation, UI review fixes and repository/submission preparation. Claude Code
 contributions reported by contributors are preserved below. The model names and

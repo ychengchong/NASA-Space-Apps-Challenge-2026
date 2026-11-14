@@ -141,6 +141,10 @@ I investigate next?" AI explanations sit below the chart and never delay the res
 Show source passages/links, an AI label and a useful unsupported-answer state.
 On navigation, cancel or discard explanations for the old investigation.
 
+Keyword/LLM proposals and picked-point choices from /map, /place or /world open
+the home settings page before filling the draft, so the user can review and run it.
+On /case, proposals continue to use that case's visible pending-settings form.
+
 A short lesson asks users to interpret evidence before showing guidance. Predefine
 tasks before user testing. Rate, statistical evidence, data quality and causation
 are distinct. Educational impact is not established by design alone.
@@ -713,6 +717,10 @@ actions (its first place, over the case's period).
   from {first} to {last}, {total} in all, over {n} complete years; highest in {year}, lowest
   in {year}." followed by "Significance was not assessed." or, for annual T2M alone, "The trend
   test finds it {significant|not significant}."
+- Each row also carries `caution_sentences`, a list of fixed Python-rendered texts
+  for every applicable verdict caution, in priority order. Display them beside the
+  row, including variable notes and source changes crossed by the actual analysis
+  years. The general descriptive-view note does not replace these cautions.
 - Rows keep the catalogue's order, grouped by theme on the page; nothing is sorted by rate
   and no combined score exists, because rates in different units cannot be compared.
 - The fixed note reads: "This view cannot say which of these changes are real. Every rate is
@@ -733,9 +741,12 @@ two places' rates (the two differ). Ten or more common years are needed for a ra
   per decade from {first} to {last}, over {n} common years. A positive rate means {A} rose
   compared with {B}. The difference was not tested; this is a description." It holds for
   every combination of signs, including both places falling.
-- Two places in the same grid cell have identical values: "{A} and {B} are in the same grid
-  cell, so the difference between them is zero in every year." Too few or no common years
-  have their own fixed sentences.
+- Two places in the same grid cell with consistent retained values read: "{A} and {B}
+  are in the same grid cell, so the difference between them is zero in every year."
+  Same-cell snapshots that differ on any common complete year are rejected with
+  bad_request (HTTP 400): differing evidence versions are not a spatial contrast.
+  No common complete years uses the no-data gap sentence, never the zero-difference
+  sentence. Too few common years otherwise retains its fixed sentence.
 - No difference p-value is constructed (section 5). The existing summary sentence is
   unchanged; the gap's sentence follows it on the verdict card, and a small chart draws the
   API's gap series, its trend line and a zero line. Comparisons of three or four places have

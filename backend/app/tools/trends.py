@@ -80,6 +80,7 @@ from app.verdict import (
     RECORDS_NOTE,
     SEASONS_NOTE,
     build_verdict,
+    caution_text,
     compare_places_summary,
     gap_sentence,
     overview_before_record_sentence,
@@ -172,7 +173,8 @@ def _gap(entry: CatalogueEntry, results: Sequence[PlaceResult]) -> Gap:
     descriptive Sen rate of that gap (spec 7, "The gap between two places").
 
     The common years are the analysis years both results share. Fewer than ten give no rate.
-    Places in the same grid cell have identical values, so their gap is zero in every year.
+    Same-cell snapshots with differing common-year values are rejected: their versions
+    must not be presented as a spatial contrast. Consistent same-cell values have zero gap.
     """
     first, second = results
     years = [year for year in first.analysis_years if year in set(second.analysis_years)]
@@ -183,6 +185,11 @@ def _gap(entry: CatalogueEntry, results: Sequence[PlaceResult]) -> Gap:
         to_trend(compute_trend(years, differences)) if len(years) >= MIN_YEARS_FOR_TEST else None
     )
     same_cell = first.place.cell == second.place.cell
+    if same_cell and any(value != 0.0 for value in differences):
+        raise BadRequestError(
+            "These locations share a grid cell but their snapshots contain different retained "
+            "values. Choose consistent evidence before making a spatial comparison."
+        )
     return Gap(
         first_place=first.place.name,
         second_place=second.place.name,
@@ -379,6 +386,9 @@ def _overview_row(entry: CatalogueEntry, result: PlaceResult) -> OverviewRow:
             highest_year,
             lowest_year,
         ),
+        caution_sentences=[
+            caution_text(caution, entry, trend) for caution in result.verdict.cautions
+        ],
     )
 
 

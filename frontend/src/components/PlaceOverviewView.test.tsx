@@ -59,4 +59,17 @@ describe("OverviewAnswer", () => {
       'href="/case?v=precipitation&amp;p=60.17,24.94&amp;label=Helsinki&amp;from=1981&amp;to=2025&amp;s=annual"',
     );
   });
+
+  test("shows the API's variable and source cautions beside the row", () => {
+    const caution = "The source changes in 2001, which can create an artificial step.";
+    const overview = {
+      ...OVERVIEW,
+      rows: [{ ...OVERVIEW.rows[0]!, caution_sentences: [caution] }],
+    };
+
+    const html = renderToStaticMarkup(<OverviewAnswer overview={overview} onOpenPage={() => undefined} />);
+
+    expect(html).toContain(caution);
+    expect(html).toContain("Caution:");
+  });
 });

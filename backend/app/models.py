@@ -303,6 +303,7 @@ class OverviewRow(Model):
     highest_year: int | None
     lowest_year: int | None
     sentence: str
+    caution_sentences: list[str] = Field(default_factory=list)
 
 
 class SourceRef(Model):

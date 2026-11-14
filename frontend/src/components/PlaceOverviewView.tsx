@@ -130,6 +130,11 @@ function OverviewLine({
         {row.variable.name}
       </a>
       : {row.sentence}
+      {(row.caution_sentences ?? []).map((caution, index) => (
+        <p className="caution" key={index}>
+          <strong>Caution:</strong> {caution}
+        </p>
+      ))}
     </li>
   );
 }
