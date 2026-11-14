@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { Mock } from "vitest";
-import { ApiError, getCase, getVariables, streamChat } from "./api";
+import { ApiError, getAiStatus, getCase, getVariables, streamChat } from "./api";
 import type { ChatEvent, ChatRequest } from "./api";
 
 const REQUEST: ChatRequest = { messages: [{ role: "user", text: "Is Nairobi getting warmer?" }] };
@@ -137,6 +137,12 @@ describe("JSON endpoints", () => {
     fetchMock.mockResolvedValue(jsonResponse([]));
     await getVariables("", "temperature");
     expect(fetchMock.mock.calls[0]?.[0]).toBe("/api/variables?theme=temperature");
+  });
+
+  test("getAiStatus asks /api/ai and answers whether the AI is on", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ on: false }));
+    await expect(getAiStatus()).resolves.toEqual({ on: false });
+    expect(fetchMock.mock.calls[0]?.[0]).toBe("/api/ai");
   });
 
   test("an error in the spec 10 shape becomes an ApiError with its code and message", async () => {

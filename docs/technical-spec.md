@@ -1,6 +1,6 @@
 # Trend Detective: Technical Specification
 
-Draft 2 · 13 November 2026 · "Trend Detective" is a working title · Drafted with AI assistance
+Draft 3 · 14 November 2026 · "Trend Detective" is a working title · Drafted with AI assistance
 
 Trend Detective is a web app that turns a plain-language question about the Earth into a tested trend. It fetches a NASA variable for a place, plots it over time, and reports the rate of change and whether it is statistically significant. It is our entry for the 2026 NASA Space Apps challenge ["Be An Earth System Trend Detective!"](https://www.spaceappschallenge.org/2026/challenges/earth-system-trend-detective/), due Sunday 15 November 2026 at 11:59 p.m. local time.
 
@@ -35,6 +35,7 @@ The audience is high school and college students, plus members of the public wit
 | --- | --- | --- |
 | Question first | The user starts from a question, not a dataset name | The audience does not know NASA variable names |
 | Place comparison | The same variable is tested in several places side by side | The brief stresses that one variable can rise in one region and fall in another |
+| Living globe | One globe sits behind every screen. It turns to each place tested, and a region's trends are painted onto it | A result is read beside the place it is about, never detached from where it is |
 | Trend map (stretch goal) | Each grid cell of a region is coloured by its own trend | Shows at a glance where a trend is strong, weak or reversed |
 | Explorable significance | Changing the period updates the rate and the verdict | Shows that significance depends on record length |
 | AI partner | A built-in assistant plans the case, runs the tools and explains the result | Lowers the barrier without inventing numbers |
@@ -59,7 +60,7 @@ The brief sets four objectives, and each one maps to a named feature of the app.
 | Objective in the brief | Feature that meets it |
 | --- | --- |
 | Identify Earth science variables that may show trends | A curated catalogue with plain-language definitions; the AI matches a question to variables |
-| Acquire the variable for a particular region | The user picks a place by name or on the map; the app fetches the record for that location |
+| Acquire the variable for a particular region | The user picks a place by name or on the globe; the app fetches the record for that location |
 | Generate and visualize a time series long enough for statistics | A chart of yearly values with the monthly data behind it, covering 20 years or more |
 | Analyze the rate of change and test its significance | Rate of change with a 95% confidence interval; Mann-Kendall test and t-test |
 
@@ -84,10 +85,10 @@ Judges score each criterion from 1 to 5 at every level of judging, according to 
 | Criterion | What judges look for | What we do about it |
 | --- | --- | --- |
 | Impact | How big the problem is and how many people the project helps or inspires | Any student can test a claim about the Earth without training |
-| Creativity | A novel concept or a meaningful improvement on existing ideas | Question-first cases, place comparison, tools open to any AI app |
+| Creativity | A novel concept or a meaningful improvement on existing ideas | Question-first cases, place comparison, a living globe that turns to every place tested, tools open to any AI app |
 | Validity | Scientific soundness, feasibility, completeness and usability | Standard tests with a stated correction, a visible method, tested code, one simple screen |
 | Relevance | Direct answer to the challenge, with NASA data as a core component | All four objectives covered; every result is computed from NASA data |
-| Presentation | Clear, engaging communication of the challenge, solution and significance | A screen that reads in one screenshot, plus three example cases |
+| Presentation | Clear, engaging communication of the challenge, solution and significance | A screen that reads in one screenshot, with the verdict beside the Earth, plus three example cases |
 
 ### Quality targets
 
@@ -99,10 +100,11 @@ Judges score each criterion from 1 to 5 at every level of judging, according to 
 
 ## 3. User experience
 
-The interface is one screen that answers one question at a time, with the verdict in words first and the proof one tap away.
+The interface is one screen that answers one question at a time, with the verdict in words first and the proof one tap away. The Earth turns in space behind it, and every case turns the globe to the place being tested.
 
 ### Principles
 
+- **The Earth is the setting.** One globe sits behind every screen. A case is read beside the place it is about, and a region's trends are painted onto the Earth itself.
 - **One question, one screen.** Each case shows a single claim being tested. Nothing unrelated competes for attention.
 - **Words first, numbers second.** The verdict is a sentence. The statistics sit behind it for anyone who wants them.
 - **Evidence is one tap away.** The method, the data source and every number are available on the same screen.
@@ -112,10 +114,10 @@ The interface is one screen that answers one question at a time, with the verdic
 
 ### The investigation flow
 
-1. **Start.** The first screen shows a question bar and three example cases.
+1. **Start.** The first screen shows a question bar and three example cases, each pinned to the globe at the places it tests.
 2. **Ask.** The user types a question, or picks a variable and a place by hand.
 3. **Plan.** The app shows the case settings it will test: variable, place, period and season. Each one can be edited.
-4. **Evidence.** The chart draws the yearly values and the trend line. The map shows the place.
+4. **Evidence.** The chart draws the yearly values and the trend line. The globe turns to the place.
 5. **Verdict.** A card states the direction, the rate of change and whether the trend is significant.
 6. **Dig deeper.** The user opens the evidence panel, changes the period, adds a second place, or follows a suggested variable: a related one to cross-check, or one worth testing in the place's region type. A suggestion keeps the places, period and season and switches the variable.
 7. **Share.** The address bar holds a link that reopens the same case.
@@ -124,32 +126,41 @@ The interface is one screen that answers one question at a time, with the verdic
 
 | Part | Purpose | What it holds |
 | --- | --- | --- |
-| Question bar | Entry point; turns a question into a case | Free-text box and example prompts |
+| Question bar | Entry point; turns a question into a case | Free-text box; on the first screen, example prompts; one line on whether an AI or keyword matching reads the question |
 | Case settings | Show exactly what is being tested, and let the user change it | Variable, place or places, period, season |
-| Chart | The evidence at a glance | Yearly values and the trend line, one pair per place; monthly values on request |
-| Map | Show where, and let the user pick a place | A marker and grid cell per place; in region view, grid cells coloured by trend |
-| Verdict card | The answer in one sentence | The verdict sentence and the most important caution; for a comparison, the summary sentence first |
+| Chart | The evidence at a glance | A sheet right under the verdict: yearly values and the trend line, one pair per place; monthly values on request. Under the plot, one line says what a point is, and a summary in words gives each trend line's ends, its rate and the rate's 95% confidence interval, in the evidence panel's numbers, because the plot draws the line without its uncertainty |
+| Globe | Show where, and let the user pick a place | The Earth behind the page ("The globe" below): a marker per place and, closer in, the outline of its grid cell; on the first screen, a pin for each example case; in region view, grid cells coloured by trend |
+| Key to the globe | Name what the globe shows, so nothing is told by colour or position alone | The "On the globe" panel: each place with its marker and the grid cell its values describe, how to pick a point, and "Zoom in to the grid cell" |
+| Verdict card | The answer in one sentence | The first sheet of the case file, tabbed "Case file". Each verdict's stamp, then the verdict sentence and the most important caution; for a comparison, the summary sentence first. A significant trend also shows its rate as a large figure above the sentence, such as "+0.79 °C per decade", with the digits and sign of the evidence panel; the sign is set in the text face, whose strokes are sturdier than the display face's. A trend that is not significant gets no figure, so a rate that year-to-year variation alone could produce is not read as the answer |
+| Answer actions | Share the answer, and take it further | A row under the verdict, on a case under the verdict's chart. "Copy link" copies the page's address and answers "Link copied. Anyone who opens it sees this case." (or "this map"); where the browser has no clipboard or refuses, it answers "The link could not be copied. Copy the address from the address bar instead." On a case, "Map this region" opens the region map of a 10° by 10° box around the first place, and one line says so |
 | Evidence panel | Let anyone check the method | Rate with its 95% interval, tests and p-values, number of years, every caution, data source, grid cell, a link to download the values, the steps taken |
 | Detective notes | Explain the result and suggest what to check next | The AI's plain-language reading, hypotheses labelled as such, suggested next cases |
 | Dig deeper | Suggest the next variable to test | A panel under the verdict and the notes, with the note "Each link tests another variable with the same places, period and season." Under "Cross-check with a related variable", links to the variable's `related` entries. Under "Worth testing here", one line "{place names} · {region type}" for each region type known among the case's places, then links to the catalogue variables whose `region_types` include it, without the case's own variable. The panel is left out when it would hold neither |
-| Example cases | Teach by showing | Three ready investigations that open instantly |
+| Example cases | Teach by showing | Three ready investigations that open instantly, numbered "Case 1" to "Case 3" in the list and on the globe |
 
 ### States the screen must handle
 
 | State | What the user sees |
 | --- | --- |
-| First visit | The question bar and the example cases, never an empty chart |
-| Working | A progress line. In an AI turn, each step appears as it runs |
+| First visit | The question bar, a line that leads to setting up a case by hand, and the example cases, never an empty chart |
+| Working | A progress line. In an AI turn, each step appears as it runs. While a case or a map loads for the first time, blank sheets with pale bars hold the place of the verdict and, on a case, of the chart; they are hidden from screen readers, which hear the progress line |
 | Clear trend | The verdict card with direction, rate and "significant" |
 | No significant trend | The same card, saying year-to-year variation alone could produce the change, with a note that more years of data may settle it |
 | Too little data | A plain message naming the reason, such as a period shorter than 10 years |
 | No data here | A plain message, such as a soil variable requested over open ocean |
 | NASA service unavailable | A notice, plus the pre-loaded examples, which still work. The region view shows the same notice and examples; there the examples open as cases |
-| AI unavailable | The question bar falls back to keyword matching and manual pickers; everything else works |
+| AI unavailable | The question bar falls back to keyword matching and manual pickers; everything else works. Where the server's AI is off, the bar says so from the start (section 8, "When the AI is off") |
+| Globe unavailable | Where the browser has no WebGL, the stage shows the notice "The globe could not start, because this browser has no WebGL. Everything else works: search for a place in the case settings, and type the edges of a region's box in the map settings." The key to the globe points to the place search, and "Draw a box" is disabled |
 
 ### Wording and accessibility
 
-- Detective words appear in labels only: case, evidence, verdict. There is no heavy theming.
+- Detective words appear in labels only: case, case file, evidence, verdict.
+- The look is a page from an atlas with a detective's marks on it, in one light theme. The page is paper. The globe is an engraving seen through a framed plate, and the verdict and the evidence are sheets of paper lying on the page, each with a soft shadow. A faint grain lies in the paper of the plate and of the sheets, under their text and never over it. A panel's heading is set as a small label in spaced capitals. Text keeps a contrast of 4.5:1 or more on its ground.
+- Type is kept plain where it is read. Spaced capitals are for the labels of panels, the typed tags and the stamps only; buttons and table headings are in sentence case. Italic is for titles and the key figure's units; hints, notes and captions are upright. No text is smaller than 12px.
+- The page has two voices. Printed matter is set in serif type: Bodoni Moda for the app's name, the key figure and the titles of cases, and Libre Baskerville for all running text. The detective's marks are typed, in Courier Prime: case numbers, the tab of the case file, stamps, the tags pinned to the globe and the label of text the AI wrote. The three typefaces are open-licensed and served by the app itself (section 11).
+- Colour is kept for data. Red means rising and blue means falling: on the region map's scale, and as the ink of a verdict's stamp. Each place has an ink of its own, in this order: teal `#039b6a`, ochre `#b57a00`, violet `#6250d6` and magenta `#d55181`, each with its own marker shape. The four were chosen with the dataviz palette validator against the sheet's colour, `#f7f0de`. Every ink has a contrast of 3:1 or more on a sheet: 3.1, 3.2, 5.1 and 3.5. Neighbours in this order stay apart under the common forms of colour blindness, and so does every pair among the first three. The first and the fourth, teal and magenta, are close for people with red-green colour blindness, so a case of four places leans on the marker shapes and the names. The first two inks keep clear of the red and the blue of a direction. The one other colour is the detective's red, for the marks of the first screen where nothing rises or falls: the handle of the app's magnifying glass, the examples' case labels, the pins and the string. Links and buttons are in ink; a link is underlined.
+- A verdict's stamp replaces separate labels. It prints the direction over the kind of verdict, in the words used everywhere else: "↑ Rising", "↓ Falling" or "→ No upward or downward trend", over "Significant", "Not significant", "Too few years" or "No data". A verdict with no direction is stamped with its kind alone. The ink is red for a significant rise, blue for a significant fall, and a faded ink for every other verdict, so colour appears only where the test settled the direction. The stamp is turned a few degrees and printed with clean edges, so its words stay sharp; they are ordinary text. From 960px the stamp lies to the right of the text, which runs round it; below 960px it stands above the text.
+- The case file has one tab. The verdict card of a case carries a typed tab, "Case file", which is the first thing read in its sheet. The case's `id` (section 5) is not shown: it names the case in data, and a reader can do nothing with it. No other sheet has a tab, because each has a heading that says what it holds.
 - Direction is never shown by colour alone. Each verdict carries a word and an arrow.
 - Text targets a secondary-school reading level, with units on every number.
 - Seasons are named by their months, because "winter" means different months in each hemisphere.
@@ -157,13 +168,38 @@ The interface is one screen that answers one question at a time, with the verdic
 - The interface is in English, as the [submission rules](https://www.spaceappschallenge.org/resources/project-submission-guide/) require.
 - All controls work by keyboard, and the layout holds at phone width.
 - The page has exactly one `h1`: the app's name, which links to the first screen.
-- An open case and the region view hold the answer first, then the settings, then the evidence. On a case the answer is the verdict, the notes and the Dig deeper panel, and the evidence is the chart, the place map, the period explorer and the evidence panel. In the region view the answer is the verdict for the whole box and the notes, and the evidence is the trend map and its evidence. The page holds the parts in that order and shows them in that order at every width, so the order on screen, the Tab order and the screen-reader order agree. On a wide screen the answer runs across the top, with the settings in the left column below it and the evidence in the right column. From 1100px wide, the notes and the Dig deeper panel sit beside the verdict rather than under it, so the evidence starts higher; the verdict stays first in the page and on the left.
-- The verdict, the notes and the Dig deeper panel are at most 40rem wide, about 70 characters a line, at every width. A notice spans the row, so its example cards have room, while its sentences keep the same width.
-- The place map works by keyboard too. With the map focused, the arrow keys move it, + and - zoom, and Enter picks the point at its centre, which a crosshair marks while the map has keyboard focus. Place markers are not tab stops; the list under the map names every place. The map's note reads: "Click the map to pick a point, or search for a place in the case settings. With a keyboard, focus the map, move it with the arrow keys and press Enter to pick the point at its centre."
+- An open case and the region view hold the answer first, then the settings, then the evidence, in one column at every width. On a case the answer is the verdict, its chart, the answer actions, the notes and the Dig deeper panel, and the evidence is the key to the globe, the period explorer and the evidence panel. The chart follows the verdict directly, so the proof is seen with the claim: at 1440 by 900 pixels and at 1280 by 720 the chart of a single place starts on the first screen. The chart lies outside the live region that announces the verdict. In the region view the answer is the verdict for the whole box and the notes, and the evidence is the "Trend in each grid cell" panel with its legend, and the map's evidence. The verdict for the whole box gives its sentence first and the note on how the box was averaged last. The page holds the parts in that order and shows them in that order, so the order on screen, the Tab order and the screen-reader order agree.
+- Once a case or a map is on screen, its settings are folded behind one button, "Change this case" or "Change this map", so the evidence follows the answer closely. The settings stay in the page while folded. They are shown unfolded, without the button, while the user has something to do in them: on the first screen, while settings wait for "Run this case", when a case or a map could not be made, and before a map has a box.
+- The verdict leads an open case or a map: it is the first sheet on the page. There the question bar steps back: its label is set smaller, and its line on who reads the question is kept for screen readers only. Below 640px the app's tagline is left out there too. On the first screen the question bar's label is the largest line under the app's name.
+- Under the question bar the first screen says "Or set up a case by hand: choose the variable, the place and the period yourself." The words "set up a case by hand" are a link to the case settings further down the page.
+- A panel's label is set at 0.875rem, so it is never the smallest text in its panel.
+- On a touch screen every button, input and disclosure row is at least 44px high, the stage's three buttons included. An example's pin is 17px across and takes a click or a tap within 45px.
+- The page holds the header, the question bar and the case file, and then the globe's stage. From 640px, which covers tablets and phones held sideways, the case file is a column on the left and the stage fills the rest of the screen beside it. The column is 22rem to 26rem wide below 960px and 26rem to 37rem wide from 960px, which keeps its lines near 70 characters or under. From 640px to 959px, where the stage is a narrow strip, the plate takes the top of it, 1.3 times as tall as it is wide and never taller than the screen, so the Earth fills it; the view's caption or key lies on the paper under the plate. Below 640px the stage is shown between the question bar and the case file, as a window 30% of the screen high and never under 12.5rem, so the start of the case file shows on the first screen of an ordinary phone. There the globe is seen only through the stage: the header and the question bar above it, and the case file below it, lie on the page's own paper, so no text is drawn over the map. In the page the stage always comes after the case file, so Tab and screen readers meet the verdict before the globe's controls.
+- Below 640px the question bar's example prompts share one row that scrolls sideways.
+- A keyword match belongs to the screen it was made on. The question bar drops its question and its result line when another page opens, when the browser goes back or forward, and when the settings the match filled in are cancelled. A question that is still being typed or matched stays, and so does the line that says the AI has answered.
+- The globe works by keyboard too. With the globe focused, the arrow keys turn it, + and - zoom, and Enter picks the point at its centre, which a crosshair marks while the globe has keyboard focus; a ring around the stage shows the focus. Place markers are not tab stops; the key to the globe names every place. Its note reads: "Click the globe to pick a point, or search for a place in the case settings. With a keyboard, focus the globe, turn it with the arrow keys and press Enter to pick the point at its centre."
 - Opening a page from inside the app, such as an example case, a map cell, a link in the notes or a link in the Dig deeper panel, moves focus to the start of the main content. Choosing, removing or dismissing a place in the case settings moves focus to the place search.
 - The progress line and the live regions that announce a verdict are in the page before their content arrives, so screen readers announce the content when it appears.
 - Next to a `significant` or `not_significant` verdict, on the verdict card and on the region view's verdict for the whole box, a "What does “significant” mean?" disclosure shows the definition from section 7.
 - The period control carries a caution: changing the period until a trend turns significant is not evidence.
+
+### The globe
+
+One globe serves every screen. It fills the whole screen behind the page and is seen through the stage. The stage is drawn as a plate: a frame of a heavy line with a fine one inside it, 12px in from the stage's edges and 6px below 640px. The map shows inside the frame only; everything outside it is paper.
+
+- **The Earth.** The Earth is drawn as an engraving in the ink and paper of the page, so that nothing on it is coloured but data. Land is pale paper, shaded in grey by the Natural Earth relief image. The sea is a darker paper under fine lines that follow the parallels, so they stay still while the Earth turns. A line of longitude and of latitude is drawn every 15°. Country borders and place names are in ink, the names in Latin script and the countries in spaced capitals. The whole-Earth view names the countries of the tiles' first rank, where their names have room; the other countries, the oceans, the seas and the bays are named from zoom 3, and the best known country keeps its name where two would overlap. An ocean's name lies near the edge of the whole Earth, where it would run under the ring, which is why it waits for zoom 3. The three longest country names are printed short: "DR Congo", "Congo" and "Central African Rep.". North is always up and the view is always from straight overhead, so a grid cell is always a plain rectangle.
+- **The ring.** A ring of degree marks surrounds the whole Earth, as round a hemisphere in an atlas: a full circle just outside the Earth, a fine one further out, and a mark every 5°, longer at every 10° and longest at every 30°. It is decoration and is hidden from screen readers. The globe sizes it to the Earth's disc as the view zooms, and hides it when the Earth with its ring does not fit the stage, as on a region map.
+- **The whole-Earth view.** The globe is sized so that the whole Earth fills 0.8 of the stage's shorter side, and it is centred in the stage. This is the view of the first screen and of an open case.
+- **First screen.** With no place to show, the Earth turns slowly, 30° every 15 seconds, until the user touches the globe. An example case that is singled out holds the turn up; 4 seconds after the example is let go, the turn goes on from the side of the Earth then in view. With the `prefers-reduced-motion` setting it does not turn, and no view flies: each change of view is a jump.
+- **Example cases on the globe.** On the first screen each example case is pinned to the globe: a red pin at each place the case tests, with a typed tag, and a red line between the places of a case that tests two. From 960px the tag holds the case's number and the place's name, such as "1 · Longyearbyen", on the pin's right. Below 960px, where the stage is narrow, it holds the number alone, on the pin's left, the side clear of the stage's buttons. A click on a pin opens its case; a pin on the far side of the Earth is not shown and cannot be pointed at or clicked. A case is singled out in three ways: by resting the pointer on its example in the list for 0.2 seconds, so that a pointer only passing over the list moves nothing; by moving keyboard focus to the example, at once; and by pointing at one of its pins. While a case is singled out, its example lifts off the page as a sheet, and from 960px the pin of its northernmost place shows a card in place of its tag, with "Case 1 · Longyearbyen", the case's title and "Open this case →". The card stands above its pin, so it covers none of the case's other pins, and it is part of the pin: the pointer can cross from the pin to the card, and a click on the card opens the case. For a case singled out in the list, the Earth turns to face its places. For one singled out by its pin, the Earth stays still, so the pin stays under the pointer. From 960px a red string runs from a pin on the example's card to each of the case's pins on the globe, hanging a little, and follows the pins while the Earth turns or the page scrolls; no string is drawn to a pin on the far side. Letting go of the case takes the card and the string away and leaves the Earth as it is; the slow turn goes on 4 seconds later ("First screen" above). The pins and the string are hidden from screen readers and are not tab stops, because the list of examples says the same.
+- **A case.** As soon as a case opens, the globe turns to face its places: the middle of the smallest box that holds every place and its grid cell. The whole-Earth view never leans further than 55° toward a pole, so the continents stay the right way up; a place nearer a pole, such as Longyearbyen, is seen above the middle of the Earth. Each place has a marker in its own ink and shape, with its name on a typed tag beside it and a ring that widens and fades around it three times and then rests. The name is on the marker's right from 960px and on its left below that, the side clear of the stage's buttons, where it is cut short at the edge of the stage. When the answer arrives, the outline of each place's grid cell is added without moving the view. At the scale of the whole Earth a cell is only a few pixels wide, so "Zoom in to the grid cell", in the key to the globe, closes in until the cells can be seen (section 6, "Places and grid cells").
+- **Picking a point.** A click on the Earth picks that point; a click on the space around it picks nothing. The picked point is marked with a dashed ring until it becomes a place or is dismissed. What to do with it is offered on the stage itself, in the top left corner inside the frame, in place of the hint: "You picked 1.3°S, 36.8°E", the buttons "Use this place", or "Use instead" and "Compare", or "Add to comparison", and "Dismiss". The buttons read their full labels to screen readers, such as "Compare with Helsinki". The card is announced when it appears, and Tab reaches it straight from the globe. Choosing moves focus to the case settings when the point then waits there for "Run this case", and otherwise back to the stage, as dismissing does.
+- **A region map.** The globe flies to the box, drawn as a dashed outline of ink on a pale line, until it fills the stage. Each cell is painted in the full colour of its rate, exactly as the key shows it, so a rate looks the same over land and over sea. Coasts, borders and names are drawn over the cells. A cell is drawn only up to the edge of the box, so the map ends where the box does, although a cell whose grid point lies on an edge reaches half a cell past it; a cell without a result is hatched in ink on paper, and a marked cell carries a dark dot with a pale ring. Pointing at a cell outlines it and shows its grid point, its rate, its p-value and whether it is marked. A click opens it as a case. While "Draw a box" is on, a drag draws a new box, snapped to whole degrees and cut to 10° a side, instead of turning the Earth.
+- **Controls.** The stage holds three buttons, "Zoom in", "Zoom out" and "Show the whole Earth", and one line on what the globe does there: "Drag to turn the Earth. Click it to pick a point."; on the first screen while example cases are pinned, "Click a pin to open an example, or pick a point."; on a region map, "Click a cell to open it as a case." From 960px the line sits in the middle of the frame's top edge, as a plate's title does. Below 640px it sits on the left of the frame's top edge, so it covers as little of a small plate as it can. From 640px to 959px it is in the stage's top left corner, inside the frame.
+- **Gestures.** Where the stage is fixed beside the case file, from 640px, the globe takes every gesture: a drag turns it, and the mouse wheel zooms it while the pointer is on the stage and scrolls the page elsewhere. Below 640px the stage scrolls with the page, so a swipe that starts on the globe must not trap the page: one finger and the wheel scroll the page, and two fingers, or the wheel with Ctrl held, move and zoom the globe. A tap still picks a point. On a touch screen the line then reads "Turn with two fingers. Tap to pick a point.", "Tap a pin to open it. Turn with two fingers." while example cases are pinned, or "Tap a cell to open it. Move with two fingers." While a box is being drawn, the globe takes every gesture again.
+- **Caption and key.** From 640px the stage names what the globe shows, on a card inside a double line, as a title is set on a map: in the lower left corner of the plate from 960px, and on the paper under the plate from 640px to 959px. On a case it holds three lines: the variable, each place beside its marker's shape, and the period and months, with the coordinates of a single place before them, such as "Air temperature", "Longyearbyen" and "78.2°N, 15.7°E · 1981 to 2025, all months". On a region map it holds the key to the colours: the variable, "Rate of change, {units} per decade", the scale with its two ends, the two marks as "Passes the stricter test" and "No result", and the period. Both are hidden from screen readers, because the case file says the same. A view that fills the stage, a region map or "Zoom in to the grid cell", stays clear of them.
+- **Credit.** The stage shows the credit for the tiles at all times: "OpenFreeMap © OpenMapTiles Data from OpenStreetMap", each name a link. From 960px it sits in the middle of the frame's bottom edge. From 640px to 959px it is in the stage's bottom right corner, and below 640px in its bottom left corner, clear of the buttons on a short plate. The footer repeats it and adds Natural Earth.
+- **Loading.** The globe's code loads after the first paint, so the verdict never waits for it. Until it is ready the stage shows the empty plate, and its buttons are disabled. The Earth fades in once its first tiles are drawn, or after four seconds without them, so it never shows as a bare ball on a normal connection.
 
 ## 4. Architecture
 
@@ -568,8 +604,7 @@ Wind speed and cloud cover list no region type. Desert leaves out soil wetness, 
 - POWER answers a point call the same way, from the nearest MERRA-2 grid point. Live calls on 14 November 2026 confirmed it: points anywhere inside one cell got identical series and the same elevation, both at 60.0° N, 25.0° E and in the tropics at 1.5° S, 36.875° E, and points just outside a cell's edge got the neighbouring cell's series. Cells are centred on the grid points, with edges halfway between them, as the snapping assumes, so caching by grid point is safe.
 - Sunlight and cloud sit on a coarser 1° grid, bounded by whole degrees, and a point call returns the 1° cell that holds the requested point ("Limits we observed"). For these two variables the app uses the 1° cell that holds the place. Its centre is (floor(lat) + 0.5, floor(lon) + 0.5), with the latitude at most 89.5 and the longitude wrapped as for the MERRA-2 grid, so a place on a whole-degree line takes the cell north or east of it, as POWER does. Both 1° codes are requested in one call at that centre and cached there. Sunlight at Helsinki, 60.17° N, 24.94° E, comes from the cell centred on 60.5° N, 24.5° E, which runs from 60° to 61° N and from 24° to 25° E. Switching a place from a MERRA-2 variable to sunlight or cloud therefore costs one more call.
 - A call asks for every code of one grid that is not cached yet, so a variable at a place depends on POWER returning all of them there: the ten MERRA-2 codes, or the two 1° codes. If it left one out, the call would fail with `source_unavailable`, and no variable of that grid missing from the cache could be fetched at that place.
-- The evidence panel, the steps and the CLI name the cell the values describe, by its centre and size. The place map outlines every cell the API reports, the 1° cell of sunlight and cloud included, and its caption names the cell's centre and size. The map fits every place's point and its whole cell outline in view, never closer than zoom 7, so a 1° cell or several places open further out, and a place with no cell yet opens at zoom 7. A cell centred on 180° W is drawn beside a place just west of 180° E.
-- The 1° outline is POWER's nominal cell. From 55° to 65° N, in the only box checked, neighbouring 1° columns repeat in pairs, 20° to 22° E, 22° to 24° E and so on, so the real longitude resolution there is about 2°, and a cell's values match, or nearly match, those of its pair ("Limits we observed"). The screen does not say so; whether it should is an open question (section 13).
+- The evidence panel, the steps and the CLI name the cell the values describe, by its centre and size. The globe outlines every cell the API reports, the 1° cell of sunlight and cloud included, and the key to the globe names the cell's centre and size. "Zoom in to the grid cell" fits every place's point and its whole cell outline in the stage, never closer than MapLibre's zoom 6, which is the scale of zoom 7 on a map of 256-pixel tiles, so a 1° cell or several places are shown from further out. A cell centred on 180° W is drawn beside a place just west of 180° E.
 - For sunlight and cloud the region view draws the 1° cells that a regional call returns, with whole-degree edges, and each cell is cached at its centre. A click on a cell opens a case at its centre, which resolves to the same 1° cell, so the case reads the row the regional call cached for the map's variable. The other 1° code is not cached there yet, so the case makes one call for it, just as a case opened from a MERRA-2 map cell makes one call for the other nine MERRA-2 codes.
 - `find_place` searches a bundled list: the cities of 100,000 people or more from GeoNames (CC BY 4.0), cities of 10 million or more tagged as megacities, plus 21 hand-picked regions tagged by type, such as desert, rainforest, delta, ice sheet or tundra. One of them is Svalbard (tundra), with its point at Longyearbyen, 78.22° N, 15.65° E, the place of the headline example, and Longyearbyen as an alternative name. `backend/scripts/build_places.py` holds the hand-picked regions and rebuilds the list from the GeoNames files.
 - A place's coordinates are rounded to two decimals before the cell is found, so a shared link always reopens the same grid cell.
@@ -770,7 +805,7 @@ The evidence panels of a case and of the region view list these terms under "Wor
 - Every grid cell goes through the same method.
 - A cell with fewer than 10 complete years has no result: its `sen_slope` and `mk_p` are null. It is not tested, takes no part in the correction below, and is never marked. The map draws it hatched.
 - With hundreds of cells, about 5% would pass a 5% test by chance. The map therefore marks a cell as significant only after a Benjamini-Hochberg correction at a 5% false discovery rate. The correction runs on the final p-values of the cells that have a result.
-- Every cell with a result is coloured by its rate. Significant cells carry a mark.
+- Every cell with a result is coloured by its rate. Significant cells carry a mark. The cells are drawn on the globe (section 3, "The globe"), and the "Trend in each grid cell" panel holds the legend. From 960px the stage also holds a short key to the colours beside the map.
 - The legend says: "Marked cells pass a stricter test, because a map tests hundreds of cells at once."
 - Clicking a cell opens it as an ordinary case, judged by the ordinary rule. The legend line is what explains any difference.
 - The area mean weights each cell by the cosine of its latitude, because cells shrink toward the poles. Each month averages the cells that have a value that month; a missing value is left out, never counted as zero. The area mean is then analysed like a place named "the selected area", at the box's centre, with the box as its cell, so its sentence reads "Air temperature in the selected area has risen by about ...". Its step in `steps` starts with a capital: "The selected area: ...".
@@ -924,7 +959,9 @@ The daily cap is a simple stand-in for a spend cap. The daily count lives in the
 
 ### When the AI is off
 
-The browser does not know in advance whether the AI is on. After any failed AI turn, including the `ai_unavailable` answer of a server with `AI_ENABLED=false` or no key for its provider, the question bar switches to keyword mode. It shows the server's message and a "Try the AI again" button, which switches it back. A question that failed before the AI put a result on screen is matched by keywords straight away.
+The app asks `GET /api/ai` once when it opens (section 10). Where the answer is `{ "on": false }`, because the server has `AI_ENABLED=false` or no key for its provider, the question bar is in keyword mode from the start: it says "The AI helper is off. The app looks for a variable and a place among your words, and you check what it found in the case settings.", and no question is sent to the AI. Until the answer arrives, and when it cannot be had, the bar takes the AI to be on and says "An AI reads your question, runs the tests and writes notes. You can change everything it sets up."
+
+The answer tells the configuration only, so an AI that is on can still fail. After any failed AI turn, including an `ai_unavailable` answer, the question bar switches to keyword mode. It shows the server's message and a "Try the AI again" button, which switches it back. A question that failed before the AI put a result on screen is matched by keywords straight away.
 
 Keyword mode runs the typed words through `find_place` and `search_variables`, and the user confirms the match in the case settings. The matching, in `frontend/src/keywordMatch.ts`, works like this:
 
@@ -1012,6 +1049,7 @@ Every REST endpoint is a thin wrapper over one tool, and a case page uses the sa
 | `GET /api/chart.png` | Chart image of a case | Chart renderer |
 | `GET /api/examples` | The example cases | `examples.json` |
 | `POST /api/chat` | One AI turn, streamed | Chat adapter |
+| `GET /api/ai` | Whether the built-in AI is on; answers `{ "on": true }` or `{ "on": false }`. It is off when `AI_ENABLED` is off or the provider has no key (section 8, "When the AI is off"), and it calls no provider | Chat adapter |
 | `POST /mcp` | MCP endpoint | MCP adapter |
 | Any other method on `/mcp` | Answers 405 with `Allow: POST`: there is no event stream and no session | MCP adapter |
 | `GET /healthz` | Liveness check; answers `{ "status": "ok" }` | None |
@@ -1138,7 +1176,8 @@ The whole app is one Python service plus a static frontend, deployed as one cont
 | MCP | Official `mcp` Python SDK | Mounts inside the same service |
 | Frontend | React, Vite, TypeScript | Swap for whatever the team knows best |
 | Charts | Plotly.js, as the basic bundle `plotly.js-basic-dist-min` 4.3.0, which holds the bar, pie and scatter traces | Interactive time series with little code. The app draws only scatter traces, so the full bundle is not needed |
-| Map | Leaflet with OpenStreetMap tiles | No key needed; attribution required |
+| Globe | MapLibre GL JS 6.18.0 (`maplibre-gl`) in its globe projection, with OpenFreeMap vector tiles and the Natural Earth relief image, both from `tiles.openfreemap.org` | Draws the Earth as a sphere with WebGL. No key or account needed; attribution required. It replaces Leaflet, which draws flat maps only |
+| Typefaces | Bodoni Moda, Libre Baskerville and Courier Prime, as WOFF2 files of their Latin and Latin Extended subsets, taken from Fontsource 5.3.0 and kept in `frontend/src/fonts/` with their licence texts | Open-licensed under the SIL Open Font License 1.1, and served by the app itself, so the page calls no font service |
 | Tests | pytest; Vitest for the frontend | Fixture and known-answer tests for the statistics |
 | Lint and format | Ruff for Python; ESLint and Prettier 3.10.1, with a line width of 110, for the frontend | One formatter per language, so style is never argued by hand |
 
@@ -1173,7 +1212,8 @@ The whole app is one Python service plus a static frontend, deployed as one cont
 │   │   └── adapters/
 │   │       ├── case_query.py    parses the case and map parameters of section 10
 │   │       ├── rest.py          /api/...
-│   │       ├── chat.py          /api/chat, the AI tool loop on Claude, the number check
+│   │       ├── chat.py          /api/chat, the AI tool loop on Claude, the number check;
+│   │       │                    /api/ai, whether the AI is on
 │   │       ├── chat_openai.py   the AI tool loop on the OpenAI Responses API
 │   │       ├── chat_text.py     the failure messages that both AI loops send
 │   │       └── mcp_server.py    /mcp
@@ -1203,6 +1243,8 @@ The whole app is one Python service plus a static frontend, deployed as one cont
 │       ├── mapDraft.ts          map settings while they are edited
 │       ├── chat.ts, useChat.ts  the conversation with the built-in AI, in memory only
 │       ├── keywordMatch.ts      the question bar's keyword mode
+│       ├── questionBarState.ts  what the question bar holds, and what it drops when the
+│       │                        screen moves on
 │       ├── numberCheck.ts       marks the numbers the number check listed
 │       ├── format.ts            number formatting, as Python's format() does it
 │       ├── cautions.ts          caution texts from section 7
@@ -1217,25 +1259,38 @@ The whole app is one Python service plus a static frontend, deployed as one cont
 │       │                        others, once per session
 │       ├── regionBox.ts         region view geometry: the box and its cells
 │       ├── mapCell.ts           the outline of a place's grid cell, and the part of the
-│       │                        place map that holds the places and their cells
-│       ├── mapKeyboard.ts       picking the place map's centre with Enter
+│       │                        Earth that holds the places and their cells
+│       ├── mapKeyboard.ts       picking the globe's centre with Enter
 │       ├── colourScale.ts       the region view's diverging colour scale
-│       ├── leafletBase.ts       the shared base map and its tile credit
+│       ├── globeStyle.ts        the globe's map style: the Earth as an engraving on
+│       │                        OpenFreeMap tiles, and the layers for cells, a region's box,
+│       │                        place outlines and the lines between an example's places
+│       ├── globeGeometry.ts     what the globe draws, as GeoJSON, where its camera sits, and
+│       │                        how large the Earth is on screen
+│       ├── examplePins.ts       the example cases as pins on the globe, and the string to them
+│       ├── globeContext.ts      how the views reach the one globe: its handle and hooks
+│       ├── cellTooltip.ts       the words shown beside a region map's cell
 │       ├── placeStyles.ts       one colour and marker shape per place
 │       ├── chartStyle.ts        shared Plotly layout
 │       ├── links.ts             in-app navigation for plain link clicks
+│       ├── clipboard.ts         copies a link, and says when the browser cannot
 │       ├── useRequest.ts        requests that cancel when their key changes
 │       ├── plotly.d.ts          types for the parts of Plotly the app uses
 │       ├── styles.css
+│       ├── fonts.css            the three typefaces, served from fonts/
+│       ├── fonts/               WOFF2 files of Bodoni Moda, Libre Baskerville and Courier
+│       │                        Prime, with their licence texts
 │       ├── *.test.ts            unit tests for the logic modules
 │       ├── App*.test.tsx        tests that render the whole app to static HTML
-│       └── components/          CaseLayout, QuestionBar, CaseSettings, PlaceSearch,
-│                                CaseProblem, VerdictCard, CrossChecks, TrendChart,
-│                                PlotlyChart, PlaceMap, PeriodExplorer, EvidencePanel,
-│                                WordsUsedHere, DetectiveNotes, ExampleCases, RegionView,
-│                                RegionMap, ProgressLine, ShapeSwatch; *.test.tsx tests
-│                                that render a component to static HTML, with sample
-│                                answers in testData.ts
+│       └── components/          CaseLayout, QuestionBar, CaseSettings, SettingsFold,
+│                                PlaceSearch, CaseProblem, VerdictCard, CaseActions,
+│                                CrossChecks, TrendChart, PlotlyChart, GlobeStage,
+│                                GlobeCanvas, PickedPoint, StageNote, StageCaption,
+│                                PlaceLegend, PeriodExplorer, EvidencePanel, WordsUsedHere,
+│                                DetectiveNotes, ExampleCases, RegionView, MapLegend,
+│                                ProgressLine, Skeleton, ShapeSwatch, FileTab; *.test.tsx tests that
+│                                render a component to static HTML, with sample answers in
+│                                testData.ts
 ├── docs/
 │   └── technical-spec.md        this document
 ├── AGENTS.md                    development rules for coding agents and contributors
@@ -1286,6 +1341,7 @@ The whole app is one Python service plus a static frontend, deployed as one cont
 - Rate limits apply per address on REST, chat and MCP. They are generous, because a venue or a judging panel may share one address. The daily AI cap is the real protection for the key.
 - There are no accounts, cookies or analytics. Logs record the method, the path without its query string, the status and the duration, not chat text. A client that disconnects before the app has read its request is logged with status 499 ("client closed request", section 10), with no traceback, and is not counted as a 500. An unexpected failure in an AI turn or in one of its tools is logged by the error's class name only (section 8).
 - Coordinates in a link are rounded to two decimals, and the analysis uses the grid cell, not the exact point.
+- The page itself contacts one other host: `tiles.openfreemap.org`, for the globe's tiles, relief image and label fonts. It sends no case data there, only the tile addresses of the part of the Earth in view. The page's own typefaces come from the app itself.
 
 ## 12. Build plan and submission
 
@@ -1327,7 +1383,7 @@ After stage 1, three strands can run in parallel: the screen (stage 2), the AI (
 - **Seeded noise.** 2,000 trend-free series of 45 values, generated from a fixed seed, must come out significant between 3% and 7% of the time.
 - **Reference check.** The uncorrected p-value and Sen's slope must match `pymannkendall` on both fixtures.
 - **Independent cross-check.** Compare one example with a dataset that is not MERRA-2, and record the comparison in the project description. Candidates are NASA's GISTEMP for temperature and IMERG, through Giovanni, for rainfall.
-- **Manual script.** Run the two single-place examples, the comparison example, a period of 8 years, a soil variable over open ocean, the AI switched off, and NASA unreachable.
+- **Manual script.** Run the two single-place examples, the comparison example, a period of 8 years, a soil variable over open ocean, the AI switched off, and NASA unreachable. On the first screen: point at each example and check that the Earth turns to it and the string follows its pins; point at a pin, move to its card and open the case there; and check that the Earth takes up its slow turn again a few seconds after an example is let go. On the globe: pick a point by click and by keyboard and choose what to do with it on the stage, zoom in to a grid cell, open a region map, open one of its cells, draw a box, and load the app at phone width, where a swipe on the globe must scroll the page. Copy the link of a case and open it in a new tab.
 
 ### Example cases
 
@@ -1358,7 +1414,7 @@ These items come from the [Project Submission Guide](https://www.spaceappschalle
 - [ ] AI disclosure: where and how AI was used. That covers the built-in assistant, AI-written code, and AI help with planning and with this document.
 - [ ] AI-generated images and video carry a visible watermark. AI-generated code and data are acknowledged in descriptive text and metadata, such as the README and commit messages.
 - [ ] NASA Data field: NASA POWER with its version and access dates, and the MERRA-2, CERES and SRB sources behind it. At least one NASA resource is required for a Global Award.
-- [ ] Partner data and references: every dataset, library, tool, image and text source used, including the place list and the map tiles.
+- [ ] Partner data and references: every dataset, library, tool, image and text source used, including the place list and the globe's tiles and relief image.
 - [ ] Everything in English. No image, video or likeness of anyone under 18.
 - [ ] All team members registered for the same event, and no more than six of them.
 - [ ] "Submit for Judging" pressed before the deadline. Resubmitting is allowed until then.
@@ -1381,7 +1437,9 @@ The largest risk is depending on a live NASA service during judging. The cache, 
 | Judges or a venue share one network address | Legitimate users hit the rate limit | Generous per-address limits; the daily cap carries the protection |
 | Time runs out | Unfinished features | Staged plan with a fixed cut order; deployment in stage 1 |
 | Judges cannot open the site | The project is not evaluated | Public link without login; private-window test; web filter classification; screenshots in the slides |
-| A grid cell is mistaken for a town | Results are misread | Show the cell on the map and state its size |
+| A grid cell is mistaken for a town | Results are misread | Outline the cell on the globe and state its size in the key to the globe |
+| The globe needs WebGL and a tile host we do not run | On a browser without WebGL, or with OpenFreeMap unreachable, the Earth is missing or bare | The verdict, chart and evidence never depend on the globe; a notice names what still works; places can be searched and a box typed. Without tiles the globe still draws a plain sphere with the markers and cells |
+| The globe is heavy for a weak phone | A slow or hot device | The style has few layers, and the globe's code loads after the first paint. Not yet measured on a real phone |
 | Sunlight and cloud at a place came from the 1° cell that holds its MERRA-2 grid point, not the place. About 37% of places got a neighbouring cell, and the app described a 1° cell centred on the grid point, which is POWER's cell at only 1 grid point in 16 | A student reads a neighbouring cell's sunlight or cloud, and the evidence panel names a cell POWER did not use | Closed on 14 November 2026: sunlight and cloud now come from the place's own 1° cell (change below). The team should confirm the choice |
 | The MCP SDK or specification behaves differently from its documentation | The MCP demo fails | Stretch goal only; test with a real AI app before mentioning it |
 
@@ -1393,7 +1451,7 @@ The change takes sunlight and cloud from the place's own 1° cell and describes 
 
 1. The catalogue's `grid` gained `alignment` ("A catalogue entry"). `resolve_place` (`backend/app/tools/places.py`) uses it: on the 1° grid the cell's centre is (floor(lat) + 0.5, floor(lon) + 0.5), from the coordinates rounded as in a link, with the latitude at most 89.5 and the longitude wrapped as `snap_to_grid` does. The MERRA-2 variables are unchanged.
 2. `fetch_point_series` (`backend/app/tools/series.py`) requests only the codes on the entry's own grid, so each code is cached at a centre of its own grid.
-3. The place map outlines the 1° cell and fits it in view, and its caption "the exact position of this coarser grid is not confirmed" is gone.
+3. The map, which is now the globe, outlines the 1° cell and fits it in view, and its caption "the exact position of this coarser grid is not confirmed" is gone.
 
 Effects:
 
@@ -1414,7 +1472,15 @@ The cheaper alternative, reporting POWER's actual cell without moving the reques
 - [x] Confirm that two points in the same grid cell return identical series, so that caching by grid point is safe. Yes: POWER answers from the nearest MERRA-2 grid point, with cell edges halfway between grid points (14 November 2026, section 6).
 - [x] Confirm the alignment of the 1° grid used for sunlight and cloud. Whole-degree edges and half-degree centres; a point call returns the cell that holds the point, north or east of a whole-degree line, and the app now uses that cell (14 November 2026, section 6).
 - [x] Decide whether sunlight and cloud at a place come from the place's own 1° cell, or only describe POWER's actual cell. From the place's own 1° cell (change above). The AI coding assistant made this choice, not the team, so the team should confirm it.
-- [ ] Decide whether the screen should say that from 55° to 65° N neighbouring 1° cells of sunlight and cloud can share values, and how the place map's caption would word it (section 6).
+- [ ] Decide whether the screen should say that from 55° to 65° N neighbouring 1° cells of sunlight and cloud can share values, and how the key to the globe would word it (section 6).
+- [ ] Try the globe on a real phone and on a low-powered laptop. It was checked in a desktop browser at 1440px, and in emulated screens from 320px to 844px wide, upright and sideways, only. The two-finger gestures of the phone layout, and drawing a box by touch, have not been tried with real fingers.
+- [x] Confirm the look of the interface with the team. On 14 November 2026 a team member chose the look from previews the AI coding assistant drew: an atlas page with a detective's marks, the example cases pinned to the globe, the place inks green, violet, yellow and magenta, and open-licensed typefaces kept in the repository (section 3). The assistant built it, and decided the details the previews did not show; the README's "AI use" section lists them.
+- [x] Decide whether the third place's yellow, which has less than 3:1 contrast on a sheet, should give way to another ink. It did: on 14 November 2026 a team member asked the AI coding assistant to fix the problems its own design review of the atlas look had found, and the inks became teal, ochre, violet and magenta, each with 3:1 or more on a sheet (section 3, "Wording and accessibility"). The assistant chose the four inks, so the team should confirm them.
+- [ ] Decide whether the fourth place's ink should change. Teal and magenta, the first and the fourth, are close for people with red-green colour blindness; the marker shapes and the names tell them apart (section 3).
+- [ ] Decide whether negative numbers are written with a true minus sign (−) in place of the hyphen. It would change the number format of every sentence, in the templates of `verdict.py` and in the frontend's `format.ts` together, and the number check of section 8.
+- [ ] Decide whether the chart draws the uncertainty of the trend line as a band. The API gives the interval of the rate, not of the line, so a band needs a new field in `Trend` (section 5) and a rule for it in section 7. Until then the chart's summary gives the rate's interval in words (section 3).
+- [ ] Decide whether a comparison should show its chart before the verdicts of its places. The chart follows the whole verdict card, which is one screen tall for two places, so there the chart starts below the first screen.
+- [ ] Try the atlas look on a real phone, and with a screen reader. It was checked in a desktop browser at 1440px, 1280px and 1024px and in emulated screens 320px, 375px, 390px and 768px wide only.
 - [ ] Decide whether to warm sunlight and cloud at the example places. That needs warm-up cases for them in `backend/scripts/warm_cache.py` and a live rebuild of `backend/data/cache.sqlite` (section 6, "Caching"). The ten 1° rows that sat at MERRA-2 grid points, where the app no longer reads them, were deleted on 14 November 2026.
 - [ ] Choose the independent dataset for the cross-check, and confirm how to get a point series from it.
 - [x] Choose the source of the city list and check its attribution terms. GeoNames `cities15000`, cities of 100,000 people or more, under CC BY 4.0, credited in the README, the app's footer and `places.json`.
@@ -1446,6 +1512,18 @@ NASA data:
 - [NASA POWER referencing](https://power.larc.nasa.gov/docs/referencing/)
 - [GES DISC tutorials](https://github.com/nasa/gesdisc-tutorials): the Giovanni time-series notebook and the Giovanni averaging-service notebook
 - [GES DISC Hydrology Time Series tool](https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series)
+
+Globe (read on 14 November 2026):
+
+- [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/), version 6.18.0, BSD-3-Clause
+- [OpenFreeMap](https://openfreemap.org/): vector tiles in the OpenMapTiles schema, with data from OpenStreetMap, and the Natural Earth relief image; no key or account
+- [Natural Earth](https://www.naturalearthdata.com/), public domain
+
+Typefaces (files taken from [Fontsource](https://fontsource.org/) 5.3.0 on 14 November 2026, each under the SIL Open Font License 1.1):
+
+- [Bodoni Moda](https://github.com/indestructible-type/Bodoni), © 2020 The Bodoni Moda Project Authors
+- [Libre Baskerville](https://github.com/impallari/Libre-Baskerville), © 2012 The Libre Baskerville Project Authors
+- [Courier Prime](https://github.com/quoteunquoteapps/CourierPrime), © 2015 The Courier Prime Project Authors
 
 MCP:
 

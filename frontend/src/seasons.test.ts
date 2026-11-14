@@ -1,5 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { isSeason, SEASON_ORDER, seasonAverageText, seasonLabel } from "./seasons";
+import {
+  isSeason,
+  periodText,
+  SEASON_ORDER,
+  seasonAverageText,
+  seasonLabel,
+  seasonMonthsText,
+} from "./seasons";
 
 describe("seasonLabel", () => {
   test("names every season by its months", () => {
@@ -17,6 +24,23 @@ describe("seasonLabel", () => {
     for (const word of ["winter", "spring", "summer", "autumn", "fall"]) {
       expect(labels).not.toContain(word);
     }
+  });
+});
+
+describe("seasonMonthsText", () => {
+  test("says all months for the whole year", () => {
+    expect(seasonMonthsText("annual")).toBe("all months");
+  });
+
+  test("names a season by its months", () => {
+    expect(seasonMonthsText("SON")).toBe("September to November");
+  });
+});
+
+describe("periodText", () => {
+  test("gives the first and last year, then the months", () => {
+    expect(periodText({ from: 1981, to: 2025, season: "annual" })).toBe("1981 to 2025, all months");
+    expect(periodText({ from: 1991, to: 2020, season: "JJA" })).toBe("1991 to 2020, June to August");
   });
 });
 

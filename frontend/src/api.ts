@@ -299,6 +299,17 @@ export function getExamples(signal?: AbortSignal): Promise<ExampleCase[]> {
   return getJson<ExampleCase[]>("/api/examples", signal);
 }
 
+/** The answer of `GET /api/ai` (spec 8, "When the AI is off"). */
+export interface AiStatus {
+  /** False when the server's AI is turned off or has no key; a failing AI still counts as on. */
+  on: boolean;
+}
+
+/** Asks whether the built-in AI is on, so the question bar can say so before the first question. */
+export function getAiStatus(signal?: AbortSignal): Promise<AiStatus> {
+  return getJson<AiStatus>("/api/ai", signal);
+}
+
 /**
  * Sends one AI turn and calls `onEvent` for each server-sent event, in order.
  *

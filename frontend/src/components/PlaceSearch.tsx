@@ -27,17 +27,30 @@ function actionLabel(action: PlaceAction, places: readonly CasePlace[]): string 
   }
 }
 
-/** The buttons that put a place into the case, or why it cannot go in. */
+/** What a button says where room is short; screen readers still get the full label. */
+const BRIEF_ACTION_LABELS: Readonly<Record<PlaceAction, string>> = {
+  use: "Use this place",
+  replace: "Use instead",
+  compare: "Compare",
+  add: "Add to comparison",
+};
+
+/**
+ * The buttons that put a place into the case, or why it cannot go in. With `brief`, as on the
+ * globe's small stage, a button shows a short label and reads out the full one.
+ */
 export function PlaceActions({
   name,
   place,
   places,
   onChoose,
+  brief = false,
 }: {
   name: string;
   place: CasePlace;
   places: readonly CasePlace[];
   onChoose: (action: PlaceAction, place: CasePlace) => void;
+  brief?: boolean;
 }): JSX.Element {
   const actions = placeActions(places, place);
   if (actions.length === 0) {
@@ -57,7 +70,14 @@ export function PlaceActions({
           onClick={() => onChoose(action, place)}
         >
           <span className="visually-hidden">{name}: </span>
-          {actionLabel(action, places)}
+          {brief ? (
+            <>
+              <span aria-hidden="true">{BRIEF_ACTION_LABELS[action]}</span>
+              <span className="visually-hidden">{actionLabel(action, places)}</span>
+            </>
+          ) : (
+            actionLabel(action, places)
+          )}
         </button>
       ))}
     </span>

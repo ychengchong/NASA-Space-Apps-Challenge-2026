@@ -1,5 +1,5 @@
 """The built-in AI: POST /api/chat, its tool loop and the number check (spec 8; spec 10, "Chat
-request and stream").
+request and stream"), and GET /api/ai, which says whether the AI is on.
 
 Translation only: the tools of the tool layer do every calculation, and the model chooses which
 to call and writes a short note. The number check is the one piece of logic here, because spec 8
@@ -94,6 +94,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 CHAT_PATH = "/api/chat"
+AI_STATUS_PATH = "/api/ai"
 
 # Boundary limits for one request body. AI_MAX_TURNS (spec 8, "Limits") caps the conversation;
 # these only keep a single request to a sane size.
@@ -232,7 +233,20 @@ def get_chat_backend(request: Request) -> ChatBackend:
     return backend
 
 
-# The endpoint
+# The endpoints
+
+
+@router.get(AI_STATUS_PATH)
+async def ai_status(backend: Annotated[ChatBackend, Depends(get_chat_backend)]) -> dict[str, bool]:
+    """Whether the AI is on (spec 8, "When the AI is off"), so the question bar can say which
+    mode it is in before the first question.
+
+    `on` is true exactly when a turn would get past the chat endpoint's first check. It tells
+    the configuration only: an AI that has reached its daily cap, or whose provider is failing,
+    still counts as on.
+    """
+    settings = backend.services.settings
+    return {"on": settings.active_ai_provider is not None and backend.client is not None}
 
 
 @router.post(CHAT_PATH)

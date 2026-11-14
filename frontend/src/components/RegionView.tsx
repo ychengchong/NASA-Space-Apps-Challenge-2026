@@ -1,32 +1,32 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, JSX } from "react";
 import { ApiError, getMap } from "../api";
 import type { Box, ExampleCase, MapCell, TrendMap, VariableSummary } from "../api";
 import { buildMapQuery, parseMapQuery } from "../caseUrl";
 import type { MapParams } from "../caseUrl";
-import { scaleEndDecimals, scaleGradient, scaleLimit } from "../colourScale";
-import { PERIOD_CAUTION, POWER_ACKNOWLEDGEMENT } from "../definitions";
-import { formatCoordinates, formatPValue, formatRatePerDecade, formatSignedRate } from "../format";
+import { scaleLimit } from "../colourScale";
+import { PERIOD_CAUTION, POWER_ACKNOWLEDGEMENT, STRICTER_TEST_NOTE } from "../definitions";
+import { formatCoordinates, formatPValue, formatRatePerDecade } from "../format";
+import { useGlobe, useGlobeRegion } from "../globeContext";
 import { followInApp } from "../links";
 import { boxText, draftFromMapQuery, mapFromDraft } from "../mapDraft";
 import type { BoxText, MapDraft } from "../mapDraft";
 import { casePageUrl, mapPageUrl } from "../route";
-import { isSeason, SEASON_LABELS, SEASON_ORDER, seasonLabel } from "../seasons";
+import { isSeason, SEASON_LABELS, SEASON_ORDER, seasonMonthsText } from "../seasons";
 import { useRequest } from "../useRequest";
 import type { RequestState } from "../useRequest";
+import { CaseActions } from "./CaseActions";
 import { CaseLayout } from "./CaseLayout";
 import { ExampleCases } from "./ExampleCases";
+import { MapLegend, StageLegend } from "./MapLegend";
 import { ProgressLine } from "./ProgressLine";
+import { SettingsFold } from "./SettingsFold";
+import { VerdictSkeleton } from "./Skeleton";
+import { StageNote } from "./StageNote";
 import { PlaceVerdict } from "./VerdictCard";
 import { WordsUsedHere } from "./WordsUsedHere";
 
-const RegionMap = lazy(() => import("./RegionMap"));
-
 const APP_NAME = "Trend Detective";
-
-// Spec 7, "Region view": the legend says exactly this.
-const STRICTER_TEST_NOTE =
-  "Marked cells pass a stricter test, because a map tests hundreds of cells at once.";
 
 /** A map that is already in hand, such as one the AI ran, keyed by its parameter string. */
 export interface PreloadedMap {
@@ -53,8 +53,8 @@ interface RegionViewProps {
 
 /**
  * The region view of `/map` (spec 7, "Region view", and spec 12, stage 6): the trend of every
- * grid cell in a box of at most 10° by 10°, the verdict for the area mean, and the controls to
- * choose the variable, period, season and box.
+ * grid cell in a box of at most 10° by 10°, drawn on the globe, the verdict for the area mean,
+ * and the controls to choose the variable, period, season and box.
  */
 export function RegionView(props: RegionViewProps): JSX.Element {
   const { query, preloaded } = props;
@@ -102,6 +102,16 @@ export function RegionView(props: RegionViewProps): JSX.Element {
     props.onOpenPage(cellCaseUrl(trendMap, cell));
   };
 
+  const globe = useGlobe();
+  useGlobeRegion({
+    box: params?.box ?? null,
+    trendMap: state.status === "failed" ? null : trendMap,
+    scaleLimit: limit,
+    drawing,
+    onBoxDrawn: (box) => submit({ ...current.draft, box: boxText(box) }),
+    onOpenCell: openCell,
+  });
+
   useEffect(() => {
     document.title = trendMap === null ? APP_NAME : `Map of ${trendMap.variable.name} · ${APP_NAME}`;
     return () => {
@@ -113,18 +123,25 @@ export function RegionView(props: RegionViewProps): JSX.Element {
   return (
     <CaseLayout
       side={
-        <MapSettings
-          draft={current.draft}
-          error={current.error}
-          variables={props.variables}
-          onChange={setDraft}
-          onSubmit={() => submit(current.draft)}
-        />
+        <SettingsFold
+          label="Change this map"
+          hint="Variable, period, season and box"
+          needed={params === null || current.error !== null || state.status === "failed"}
+        >
+          <MapSettings
+            draft={current.draft}
+            error={current.error}
+            variables={props.variables}
+            onChange={setDraft}
+            onSubmit={() => submit(current.draft)}
+          />
+        </SettingsFold>
       }
       answer={
         <>
           {params === null ? <MapIntro reason={query === "" || parsed.ok ? null : parsed.reason} /> : null}
           <ProgressLine active={loading} label="Getting the data and testing every grid cell…" />
+          {loading && trendMap === null ? <VerdictSkeleton /> : null}
           {state.status === "failed" ? (
             <MapProblem
               error={state.error}
@@ -141,6 +158,14 @@ export function RegionView(props: RegionViewProps): JSX.Element {
               </div>
             ) : null}
           </div>
+          {trendMap !== null && state.status !== "failed" ? (
+            <>
+              <CaseActions key={key} subject="map" />
+              <StageNote>
+                <StageLegend trendMap={trendMap} limit={limit} />
+              </StageNote>
+            </>
+          ) : null}
           {props.notes}
         </>
       }
@@ -153,25 +178,16 @@ export function RegionView(props: RegionViewProps): JSX.Element {
                 type="button"
                 className="button button-secondary"
                 aria-pressed={drawing}
+                disabled={globe.handle === null}
                 onClick={() => setDrawing((on) => !on)}
               >
                 {drawing ? "Stop drawing" : "Draw a box"}
               </button>
             </div>
             <p className="panel-intro">{mapIntroText(trendMap)}</p>
-            <Suspense fallback={<div className="map-placeholder">Loading the map…</div>}>
-              <RegionMap
-                box={params?.box ?? null}
-                trendMap={state.status === "failed" ? null : trendMap}
-                scaleLimit={limit}
-                drawing={drawing}
-                onBoxDrawn={(box) => submit({ ...current.draft, box: boxText(box) })}
-                onOpenCell={openCell}
-              />
-            </Suspense>
             <p className="status-text" role="status">
               {drawing
-                ? "Drag on the map to draw a box. It snaps to whole degrees and stops at 10° on each side."
+                ? "Drag on the globe to draw a box. It snaps to whole degrees and stops at 10° on each side."
                 : ""}
             </p>
             {trendMap !== null && state.status !== "failed" ? (
@@ -226,10 +242,12 @@ function cellCaseUrl(trendMap: TrendMap, cell: MapCell): string {
 }
 
 function mapIntroText(trendMap: TrendMap | null): string {
-  if (trendMap === null) return "Each grid cell will be coloured by its own trend.";
+  if (trendMap === null) return "The globe will colour each grid cell by its own trend.";
   const { variable, requested } = trendMap;
-  const months = requested.season === "annual" ? "all months" : seasonLabel(requested.season);
-  return `${variable.name} from ${requested.from} to ${requested.to}, ${months}. Click a cell to open it as a case.`;
+  return (
+    `${variable.name} from ${requested.from} to ${requested.to}, ${seasonMonthsText(requested.season)}, ` +
+    "coloured on the globe. Click a cell to open it as a case."
+  );
 }
 
 function MapIntro({ reason }: { reason: string | null }): JSX.Element {
@@ -247,7 +265,7 @@ function MapIntro({ reason }: { reason: string | null }): JSX.Element {
       <h2 id="region-intro-heading">Region map</h2>
       <p>
         Test every grid cell in a box of up to 10° by 10° the same way as a place. Choose a variable and a box
-        in the map settings, or draw a box on the map.
+        in the map settings, or draw a box on the globe.
       </p>
     </section>
   );
@@ -315,51 +333,12 @@ function AreaVerdict({ trendMap }: { trendMap: TrendMap }): JSX.Element {
   return (
     <section className="panel verdict-card" aria-labelledby="area-verdict-heading">
       <h2 id="area-verdict-heading">Verdict for the whole box</h2>
-      <p className="panel-note">
+      <PlaceVerdict result={trendMap.area_mean} index={0} variable={trendMap.variable} showName={false} />
+      <p className="panel-note verdict-method">
         All the grid cells averaged into one series, each weighted by the cosine of its latitude because cells
         shrink toward the poles, then tested like a place.
       </p>
-      <PlaceVerdict result={trendMap.area_mean} index={0} variable={trendMap.variable} showName={false} />
     </section>
-  );
-}
-
-function MapLegend({ variable, limit }: { variable: VariableSummary; limit: number }): JSX.Element {
-  const unitsText = variable.rate_units === "" ? "per decade" : `${variable.rate_units} per decade`;
-  const endDecimals = scaleEndDecimals(limit, variable.decimals);
-  return (
-    <div className="map-legend">
-      <p className="legend-title">Rate of change, {unitsText}</p>
-      <div className="legend-scale">
-        <span className="legend-gradient" style={{ background: scaleGradient() }} aria-hidden="true" />
-        {limit > 0 ? (
-          <span className="legend-ticks">
-            <span>{formatSignedRate(-limit, endDecimals)}</span>
-            <span>0</span>
-            <span>{formatSignedRate(limit, endDecimals)}</span>
-          </span>
-        ) : null}
-        <span className="legend-ends">
-          <span>
-            <span aria-hidden="true">←</span> Falling
-          </span>
-          <span>
-            Rising <span aria-hidden="true">→</span>
-          </span>
-        </span>
-      </div>
-      <ul className="legend-keys">
-        <li>
-          <span className="legend-swatch legend-mark" aria-hidden="true" /> Dot: the cell passes the
-          map&apos;s stricter test
-        </li>
-        <li>
-          <span className="legend-swatch legend-hatch" aria-hidden="true" /> Hatched: no result, because the
-          cell has too few complete years to test
-        </li>
-      </ul>
-      <p className="legend-note">{STRICTER_TEST_NOTE}</p>
-    </div>
   );
 }
 
@@ -566,7 +545,7 @@ function MapSettings({ draft, error, variables, onChange, onSubmit }: MapSetting
           </div>
           <p className="field-hint">
             In degrees: north and east are positive, south and west negative. Each side can be at most 10°.
-            You can also draw a box on the map.
+            You can also draw a box on the globe.
           </p>
         </fieldset>
 

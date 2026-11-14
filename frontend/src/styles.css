@@ -1,24 +1,65 @@
-/* Trend Detective: one light theme, plain CSS. Colours keep text at 4.5:1 or more on its background. */
+/* Trend Detective: a page from an atlas with a detective's marks on it, in plain CSS and one
+   light theme. The Earth is an engraving seen through a framed plate, and the case file lies
+   beside it as sheets of paper. The printed voice is serif; the detective's labels are typed.
+   Colour is kept for data: red rises and blue falls, and each place has an ink of its own.
+   Text keeps 4.5:1 or more on its ground. */
 
 :root {
   color-scheme: light;
-  --page: #f4f5f7;
-  --surface: #ffffff;
-  --surface-muted: #f8f9fa;
-  --ink: #1d232b;
-  --ink-muted: #4a5360;
-  --line: #d5dae0;
-  --line-strong: #8a949f;
-  --accent: #1a5fb4;
-  --accent-hover: #154c91;
-  --accent-soft: #e8f0fb;
-  --focus: #0b3d91;
-  --caution-bg: #fff6e0;
-  --caution-line: #a8670f;
-  --error-bg: #fdeeee;
-  --error-line: #b42318;
-  --radius: 10px;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* The page, a sheet of paper lying on it, and the darker paper of tabs. */
+  --page: #ece2c9;
+  --sheet: #f7f0de;
+  --paper-shade: #e6dbc0;
+  --field: rgb(255 252 240 / 0.6);
+  --ink: #2a2018;
+  --ink-soft: #4a3d30;
+  --ink-muted: #6b5846;
+  --line: rgb(42 32 24 / 0.28);
+  --line-strong: rgb(42 32 24 / 0.7);
+  /* The detective's red, for the marks on the first screen: case labels, pins and string. It is
+     not used for links or buttons, so that on a case red only ever means rising. */
+  --accent: #a3321c;
+  /* Text on a ground of ink. */
+  --on-ink: #f6efdd;
+  --focus: #2a2018;
+  --caution-bg: rgb(168 116 26 / 0.13);
+  --caution-line: #a8741a;
+  --error-bg: rgb(156 42 30 / 0.1);
+  --error-line: #9c2a1e;
+  /* A verdict's ink: the red and the blue of the region map's scale, and a faded ink for a trend
+     that is not significant. */
+  --rising: #b13f3c;
+  --falling: #256abf;
+  --faded: #5b4a3a;
+  --shadow: 0 16px 28px -16px rgb(60 40 20 / 0.65);
+  --gap: 16px;
+  --font: "Libre Baskerville", Baskerville, Georgia, "Times New Roman", serif;
+  --display: "Bodoni Moda", Didot, "Bodoni 72", Georgia, serif;
+  --type: "Courier Prime", "Courier New", Courier, monospace;
+  /* The grain of the paper: faint dark specks, laid under the plate and the sheets, never over
+     text. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .16 0 0 0 0 .12 0 0 0 0 .08 .2 0 0 0 -.03'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Beside the globe, the case file gets this much room and the globe the rest. */
+  --column: clamp(22rem, 50vw, 26rem);
+  --column-inset: 24px;
+  /* How far the plate's frame stands in from the edges of the stage. */
+  --frame-inset: 6px;
+  /* The width of the globe's stage: on a phone, the page less its padding on both sides. */
+  --stage-width: calc(100vw - 24px);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --frame-inset: 12px;
+    --stage-width: calc(100vw - var(--column) - var(--column-inset));
+  }
+}
+
+/* A wide screen has room for a wider case file. */
+@media (min-width: 960px) {
+  :root {
+    --column: clamp(26rem, 40vw, 37rem);
+  }
 }
 
 *,
@@ -29,15 +70,15 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  background: var(--page);
 }
 
 body {
   margin: 0;
-  background: var(--page);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 h1,
@@ -48,12 +89,16 @@ h4 {
   margin: 0 0 0.5rem;
 }
 
+/* A panel's heading is its label, set in spaced capitals like a heading in an atlas. */
 h2 {
-  font-size: 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 h3 {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   margin-top: 1.25rem;
 }
 
@@ -65,12 +110,15 @@ p {
   margin: 0 0 0.75rem;
 }
 
+/* A link is ink with a line under it; colour is kept for data. */
 a {
-  color: var(--accent);
+  color: var(--ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 a:hover {
-  color: var(--accent-hover);
+  text-decoration-thickness: 2px;
 }
 
 :focus-visible {
@@ -94,26 +142,68 @@ a:hover {
   border: 0;
 }
 
-/* Page frame */
+/* Page frame. The page holds the header, the question bar, the case file and then the globe's
+   stage. A phone shows the stage above the case file; a screen from 640px shows it beside it. */
 
 .app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 16px 32px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 100vh;
+  padding: 0 12px;
+}
+
+/* Everything but the stage sits above the globe, which fills the screen behind the page. */
+.app > :not(.stage) {
+  position: relative;
+  z-index: 1;
+}
+
+.site-top {
+  display: grid;
+  gap: var(--gap);
 }
 
 .site-header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 16px;
-  padding: 20px 0 12px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px 12px;
+  border-bottom: 3px double var(--ink);
+}
+
+.brand-mark {
+  flex: none;
+}
+
+.brand-lens {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.brand-lines {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  opacity: 0.8;
+}
+
+.brand-handle {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
 }
 
 /* The page's one h1 is the app's name, a link to the first screen. */
 .site-title {
   margin: 0;
-  font-size: 1.5rem;
+  font-family: var(--display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .site-title a {
@@ -122,35 +212,544 @@ a:hover {
 }
 
 .site-title a:hover {
-  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 .site-tagline {
-  margin: 0;
+  margin: 4px 0 0;
   color: var(--ink-muted);
+  font-size: 0.9rem;
+  font-style: italic;
 }
 
 .site-main {
   display: grid;
-  gap: 16px;
+  gap: var(--gap);
+  order: 1;
 }
 
 .site-footer {
-  margin-top: 32px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
+  order: 1;
+  margin-top: auto;
+  padding: 4px 4px 24px;
   color: var(--ink-muted);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+}
+
+/* On a phone the globe shows only through its stage: the header and the question bar above it,
+   and the case file below it, lie on the page's own paper. */
+.site-top,
+.site-main,
+.site-footer {
+  box-shadow: 0 0 0 100vmax var(--page);
+  clip-path: inset(-8px -100vmax);
+  background: var(--page);
+}
+
+.site-footer {
+  clip-path: inset(-16px -100vmax 0);
+}
+
+/* The stage: the plate, a framed window onto the globe. */
+
+/* A phone's stage leaves room for the start of the case file under it, and is never too short
+   for its three buttons, which are 44px each for a finger. */
+.stage {
+  position: relative;
+  z-index: 0;
+  height: clamp(12.5rem, 30svh, 18rem);
+  pointer-events: none;
+}
+
+.stage > * {
+  pointer-events: auto;
+}
+
+/* The plate's frame: a heavy line with a fine one inside it. The globe fills the whole screen
+   behind the page, so the frame also lays plain paper over everything outside itself: the map
+   is seen through the plate and nowhere else. */
+.stage::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: var(--frame-inset);
+  border: 2px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: -7px;
+  box-shadow: 0 0 0 100vmax var(--page);
+  pointer-events: none;
+}
+
+.stage-globe {
+  position: fixed;
+  inset: 0;
+  background:
+    var(--grain), radial-gradient(ellipse at 60% 50%, rgb(255 251 238 / 0.6) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 58%, rgb(120 88 45 / 0.24) 100%), var(--page);
+}
+
+/* MapLibre makes its container `position: relative`, so the canvas is sized, not pinned. The
+   Earth fades in once its first tiles are drawn, so it never shows as a bare ball. */
+.globe-canvas {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.globe-canvas.is-ready {
+  opacity: 1;
+}
+
+/* The stage's own hint says how the globe's gestures work. MapLibre's notice would lie across
+   the whole screen, behind the page, so it is left out. */
+.maplibregl-cooperative-gesture-screen {
+  display: none;
+}
+
+/* The ring of degree marks around the whole Earth. The globe sets --earth-radius, the radius of
+   the Earth's disc on screen, and hides the ring when the Earth does not fit the stage. The ring
+   is drawn in units of a hundredth of that radius (StageRing), and the frame's paper covers what
+   reaches past the plate. */
+.stage-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--earth-radius, 0px) * 2.2);
+  height: calc(var(--earth-radius, 0px) * 2.2);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.stage-ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 0.75px;
+}
+
+/* The lines keep their weight whatever size the Earth is drawn at. */
+.stage-ring svg * {
+  vector-effect: non-scaling-stroke;
+}
+
+.stage-ring-inner {
+  stroke-width: 1.5px;
+}
+
+.stage-ring-long {
+  stroke-width: 1.25px;
+}
+
+/* The globe fills the screen, so its focus ring is drawn inside the plate's frame. */
+.stage:has(.maplibregl-canvas:focus-visible)::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: calc(var(--frame-inset) + 10px);
+  border: 3px dashed var(--focus);
+  pointer-events: none;
+}
+
+.maplibregl-canvas:focus-visible {
+  outline: none;
+}
+
+/* The point Enter picks: the centre of the stage, marked while the globe has keyboard focus. */
+.stage-crosshair {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  background:
+    linear-gradient(var(--ink), var(--ink)) center / 2px 100% no-repeat,
+    linear-gradient(var(--ink), var(--ink)) center / 100% 2px no-repeat;
+  filter: drop-shadow(0 0 1px var(--sheet)) drop-shadow(0 0 2px var(--sheet));
+  pointer-events: none;
+}
+
+.stage:has(.maplibregl-canvas:focus-visible) .stage-crosshair {
+  display: block;
+}
+
+/* The parts of the stage that lie on or over the frame are drawn above it. */
+.stage-controls,
+.stage-top,
+.stage-note,
+.stage-credit,
+.stage-notice {
+  z-index: 2;
+}
+
+.stage-controls {
+  position: absolute;
+  top: calc(var(--frame-inset) + 12px);
+  right: calc(var(--frame-inset) + 12px);
+  display: grid;
+  gap: 8px;
+}
+
+.stage-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--ink);
+  background: var(--page);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.stage-button:hover:not(:disabled) {
+  background: var(--sheet);
+}
+
+.stage-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stage-hint,
+.stage-credit {
+  margin: 0;
+  background: var(--page);
+}
+
+.stage-notice,
+.stage-card {
+  margin: 0;
+  background: var(--sheet);
+}
+
+/* The top of the stage speaks to the user: one line on what the globe does, or the choices for
+   a point they picked. Clicks pass through it to the globe, except on its own buttons. */
+.stage-top {
+  position: absolute;
+  top: calc(var(--frame-inset) + 12px);
+  left: calc(var(--frame-inset) + 12px);
+  max-width: calc(100% - 2 * var(--frame-inset) - 76px);
+  pointer-events: none;
+}
+
+.stage-hint {
+  padding: 2px 10px;
+  border: 1px solid var(--line-strong);
+  font-size: 0.8rem;
+}
+
+.stage-hint-touch {
+  display: none;
+}
+
+/* On a phone one finger scrolls the page, so the hint says what two fingers do. */
+@media (max-width: 639.98px) and (pointer: coarse) {
+  .stage-hint-pointer {
+    display: none;
+  }
+
+  .stage-hint-touch {
+    display: inline;
+  }
+}
+
+/* A card on the stage is set like a title on a map: a sheet inside a double line. */
+.stage-card {
+  padding: 12px 16px;
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.stage-pick {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-style: dashed;
+  outline: 0;
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+}
+
+.stage-pick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* A view's caption or key: in the lower left corner of a wide stage, inside the frame. */
+.stage-note {
+  display: none;
+  position: absolute;
+  left: 36px;
+  bottom: 40px;
+  max-width: calc(100% - 72px);
+  pointer-events: none;
+}
+
+.stage-caption {
+  max-width: 24rem;
+}
+
+.stage-kicker {
+  margin: 0 0 4px;
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.stage-places {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  font-family: var(--display);
+  font-size: 1.4rem;
+  font-style: italic;
+  line-height: 1.25;
+}
+
+.stage-places li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stage-detail {
+  margin: 4px 0 0;
+  color: var(--ink-muted);
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stage-legend {
+  display: grid;
+  grid-template-columns: minmax(12rem, 15rem) auto;
+  align-items: end;
+  gap: 8px 24px;
+}
+
+.stage-legend .map-legend {
+  margin-top: 0;
+  font-size: 0.86rem;
+}
+
+.stage-credit,
+.stage-notice {
+  position: absolute;
+}
+
+.stage-credit {
+  right: calc(var(--frame-inset) + 8px);
+  bottom: calc(var(--frame-inset) + 8px);
+  max-width: calc(100% - 2 * var(--frame-inset) - 16px);
+  padding: 1px 8px;
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+.stage-credit a {
+  color: inherit;
+}
+
+.stage-notice {
+  inset: 50% 24px auto;
+  transform: translateY(-50%);
+  padding: 16px;
+  border: 1px solid var(--ink);
+  border-left: 6px solid var(--caution-line);
+}
+
+@media (max-width: 639.98px) {
+  /* On a phone an open case or map drops the tagline, so the answer starts higher up the screen. */
+  .site-top:has(.question-bar.is-quiet) .site-tagline {
+    display: none;
+  }
+
+  /* A phone's plate is small, so the hint sits on the frame's own line, as it does on a wide
+     screen, and covers as little of the globe as it can. */
+  .stage-top:not(:has(.stage-pick)) {
+    top: calc(var(--frame-inset) - 12px);
+    left: calc(var(--frame-inset) + 8px);
+    max-width: calc(100% - 2 * var(--frame-inset) - 16px);
+  }
+
+  .stage-hint {
+    padding: 1px 8px;
+    border: 0;
+  }
+
+  /* The credit keeps to the left of the buttons, so a short plate never lays one over the other. */
+  .stage-credit {
+    right: auto;
+    left: calc(var(--frame-inset) + 8px);
+    max-width: calc(100% - 2 * var(--frame-inset) - 76px);
+    text-align: left;
+  }
+}
+
+@media (min-width: 640px) {
+  .app {
+    width: calc(var(--column) + var(--column-inset));
+    padding: 0 0 0 var(--column-inset);
+  }
+
+  .site-header {
+    padding: 22px 4px 14px;
+  }
+
+  .site-title {
+    font-size: 2.1rem;
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0 0 0 calc(var(--column) + var(--column-inset));
+    height: auto;
+  }
+
+  /* The frame's paper lies behind the case file, so the file needs no ground of its own. */
+  .site-top,
+  .site-main,
+  .site-footer {
+    box-shadow: none;
+    clip-path: none;
+    background: none;
+  }
+
+  .stage-controls {
+    top: 34px;
+    right: 34px;
+  }
+
+  .stage-top {
+    top: 34px;
+    left: 34px;
+    max-width: calc(100% - 124px);
+  }
+
+  .stage-credit {
+    right: 34px;
+    bottom: 30px;
+    max-width: calc(100% - 68px);
+  }
+}
+
+/* Between a phone and a wide screen the stage is a narrow strip. The plate takes the top of it,
+   a little taller than it is wide, so the Earth fills it; the view's caption or key lies on the
+   paper under the plate. */
+@media (min-width: 640px) and (max-width: 959.98px) {
+  .stage {
+    bottom: auto;
+    height: min(100svh, calc(var(--stage-width) * 1.3));
+  }
+
+  .stage-note {
+    display: block;
+    top: calc(100% + 4px);
+    bottom: auto;
+    left: var(--frame-inset);
+    max-width: calc(100% - 2 * var(--frame-inset));
+  }
+
+  .stage-legend {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 960px) {
+  /* The hint and the credit sit on the frame's own lines, as a plate's title and imprint do. */
+  .stage-top:not(:has(.stage-pick)) {
+    top: 1px;
+    left: 50%;
+    max-width: calc(100% - 96px);
+    transform: translateX(-50%);
+  }
+
+  .stage-top:has(.stage-pick) {
+    max-width: min(24rem, calc(100% - 124px));
+  }
+
+  .stage-hint {
+    padding: 2px 16px;
+    border: 0;
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+
+  .stage-credit {
+    right: 50%;
+    bottom: 2px;
+    max-width: none;
+    padding: 2px 14px;
+    transform: translateX(50%);
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .stage-note {
+    display: block;
+  }
 }
 
 /* Panels and layout */
 
+/* A panel is a section of the page, ruled off from the one above it. */
 .panel {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px;
   min-width: 0;
+  padding: 16px 4px 4px;
+  border-top: 3px double var(--ink);
+}
+
+/* The verdict and the evidence are sheets of paper lying on the page. */
+.verdict-card,
+.sheet,
+.case-main .panel,
+.panel.skeleton {
+  position: relative;
+  padding: 18px 20px;
+  border: 1px solid var(--ink);
+  background: var(--grain), var(--sheet);
+  box-shadow: var(--shadow);
+}
+
+/* The typed tab of the case file's first sheet, the verdict: "Case file". It stands on the
+   sheet's top edge, so the sheet leaves room for it. */
+.file-tab {
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  margin: 0;
+  padding: 6px 13px 3px;
+  border: 1px solid var(--ink);
+  border-bottom: 0;
+  background: var(--paper-shade);
+  font-family: var(--type);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.panel:has(> .file-tab) {
+  margin-top: 28px;
 }
 
 .panel-heading-row {
@@ -159,7 +758,7 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   gap: 8px 16px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 
 .panel-heading-row h2 {
@@ -172,19 +771,17 @@ a:hover {
 }
 
 .panel-note {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
-.case-layout {
-  display: grid;
-  gap: 16px;
-}
-
+/* An open case and the region view hold the answer, then the settings, then the evidence, in one
+   column at every width, so the order on screen is the order of the page. */
+.case-layout,
 .case-side,
 .case-main,
 .case-results {
   display: grid;
-  gap: 16px;
+  gap: var(--gap);
   min-width: 0;
   align-content: start;
 }
@@ -201,7 +798,7 @@ a:hover {
 }
 
 .case-answer > * + * {
-  margin-top: 16px;
+  margin-top: var(--gap);
 }
 
 .case-answer > .progress:empty + * {
@@ -215,68 +812,49 @@ a:hover {
   margin-top: 0;
 }
 
-/* Across a wide column a line of the verdict or the AI's notes would be too long to read easily,
-   so at every width they keep near 70 characters. A notice spans the column so its example cards
-   have room, but its sentences keep the same limit. */
-.case-layout-open > .case-answer > :not(.notice),
-.case-layout-open > .case-answer > .notice > p {
-  max-width: 40rem;
+/* Settings folded away under an answer: one button that opens them. */
+.fold {
+  display: grid;
+  gap: var(--gap);
+  min-width: 0;
 }
 
-@media (min-width: 900px) {
-  .case-layout {
-    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
-    align-items: start;
-  }
-
-  /* The answer runs across the top, above the settings and the evidence, so the order on screen
-     is the order of the page, as on a phone. */
-  .case-layout-open {
-    grid-template-areas:
-      "answer answer"
-      "side main";
-  }
-
-  .case-layout-open > .case-answer {
-    grid-area: answer;
-  }
-
-  .case-layout-open > .case-side {
-    grid-area: side;
-  }
-
-  .case-layout-open > .case-main {
-    grid-area: main;
-  }
+.fold-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  width: 100%;
+  padding: 12px 4px;
+  border: 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
-/* With room for two readable columns, the notes and the cross-checks sit beside the verdict, so
-   the evidence below starts higher. The verdict stays first in the page and on the left, so the
-   reading order is still the order on screen. Anything before the verdict spans both columns. */
-@media (min-width: 1100px) {
-  .case-layout-open > .case-answer {
-    display: grid;
-    grid-template-columns: minmax(0, 40rem) minmax(0, 1fr);
-    column-gap: 16px;
-    align-items: start;
-  }
+.fold-toggle:hover {
+  background: var(--paper-shade);
+}
 
-  .case-layout-open > .case-answer > * {
-    grid-column: 1 / -1;
-  }
+.fold-toggle::before {
+  content: "▸";
+  width: 1.1em;
+  font-size: 1.1rem;
+  color: var(--ink-muted);
+}
 
-  .case-layout-open > .case-answer > .live-region:not(:empty) {
-    grid-column: 1;
-    grid-row: span 2;
-  }
+.fold-toggle[aria-expanded="true"]::before {
+  content: "▾";
+}
 
-  .case-layout-open > .case-answer > .live-region:not(:empty) ~ * {
-    grid-column: 2;
-  }
-
-  .case-layout-open > .case-answer > .live-region:not(:empty) + * {
-    margin-top: 0;
-  }
+.fold-label {
+  font-size: 0.875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 .home-section {
@@ -284,8 +862,33 @@ a:hover {
   gap: 4px;
 }
 
+/* The heading of the first screen's list stands between two double rules. */
 .home-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   margin: 0;
+}
+
+.home-section h2::before,
+.home-section h2::after {
+  content: "";
+  flex: 1;
+  height: 3px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+
+.home-section .panel-intro {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+/* The first screen's third way in, said in a line right under the question bar. */
+.home-manual {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
 }
 
 /* Controls */
@@ -295,55 +898,62 @@ a:hover {
   align-items: center;
   justify-content: center;
   min-height: 40px;
-  padding: 6px 14px;
+  padding: 6px 16px;
   border: 1px solid transparent;
-  border-radius: 6px;
   font: inherit;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  text-decoration: none;
   cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .button:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .button-primary {
-  background: var(--accent);
-  color: #ffffff;
+  background: var(--ink);
+  color: var(--on-ink);
 }
 
 .button-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: var(--ink-soft);
 }
 
 .button-secondary {
-  background: var(--surface);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .button-secondary:hover:not(:disabled),
 .button-secondary[aria-pressed="true"] {
-  background: var(--accent-soft);
+  background: var(--paper-shade);
 }
 
 .button-small {
   min-height: 32px;
-  padding: 3px 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background: var(--surface);
+  padding: 3px 12px;
+  font-size: 0.8rem;
+  background: var(--field);
   color: var(--ink);
   border-color: var(--line-strong);
 }
 
 .button-small:hover:not(:disabled) {
-  background: var(--accent-soft);
+  background: var(--paper-shade);
+  border-color: var(--ink);
 }
 
 .button-quiet {
+  background: transparent;
   border-color: transparent;
   color: var(--ink-muted);
 }
@@ -352,16 +962,33 @@ input,
 select {
   font: inherit;
   color: var(--ink);
-  background: var(--surface);
+  background: var(--field);
   min-height: 40px;
   max-width: 100%;
   padding: 6px 10px;
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: 0;
+}
+
+input::placeholder {
+  color: var(--ink-muted);
+  opacity: 0.85;
+}
+
+input:hover,
+select:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+/* The list a select opens is drawn by the browser, which needs a solid ground for it. */
+select option,
+select optgroup {
+  background: var(--sheet);
+  color: var(--ink);
 }
 
 select:disabled {
-  background: var(--surface-muted);
+  opacity: 0.6;
 }
 
 fieldset {
@@ -383,8 +1010,8 @@ fieldset {
 }
 
 .field-sublabel {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
 .field-inline {
@@ -427,21 +1054,21 @@ fieldset {
 .field-hint {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
 }
 
 .field-error {
   margin: 0;
   color: var(--error-line);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .definition-box {
-  background: var(--surface-muted);
+  background: var(--field);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-left: 3px solid var(--ink);
   padding: 10px 12px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .definition-box p:last-child {
@@ -452,29 +1079,49 @@ fieldset {
 .status-text {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
-/* Question bar */
+/* Question bar: on the first screen its label is the page's largest line after the title. */
 
 .question-bar {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 16px;
+  --bar-gap: 10px;
   display: grid;
-  gap: 10px;
+  gap: var(--bar-gap);
+  padding: 2px 4px 16px;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+/* On a case or a map the verdict leads, so the bar steps back to its label and its box. The
+   line on who reads the question stays in the page for screen readers and is not drawn. */
+.question-bar.is-quiet {
+  padding-bottom: 12px;
+}
+
+.question-bar.is-quiet .question-label {
+  font-size: 1.05rem;
+}
+
+.question-bar.is-quiet .mode-note {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .question-form {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .question-label {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-style: italic;
+  line-height: 1.2;
 }
 
 .question-row {
@@ -488,41 +1135,71 @@ fieldset {
   flex: 1 1 180px;
   min-width: 0;
   min-height: 46px;
-  font-size: 1.05rem;
+  padding-inline: 14px;
+  font-size: 1.02rem;
 }
 
+.question-row .button {
+  min-height: 46px;
+  padding-inline: 20px;
+}
+
+/* On a phone the prompts share one row that scrolls sideways, so the case file starts higher up
+   the screen. The padding is room for a prompt's focus ring, which a scrolling row would clip. */
 .prompt-row {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 6px 8px;
+  gap: 4px 14px;
+  margin: -5px;
+  padding: 5px;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .prompt-label {
   color: var(--ink-muted);
-  font-size: 0.95rem;
 }
 
+/* A prompt is set as a link in the text, not as a button. */
 .prompt-chip {
-  font: inherit;
-  font-size: 0.92rem;
-  color: var(--accent);
-  background: var(--accent-soft);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 4px 12px;
+  flex: none;
   min-height: 32px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 
-.prompt-chip:hover {
-  border-color: var(--accent);
+.prompt-chip:hover:not(:disabled) {
+  text-decoration-thickness: 2px;
+}
+
+.prompt-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .mode-note {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
+}
+
+/* The status line stays in the page while empty, for screen readers, but takes no row. */
+.question-bar > .status-text:empty {
+  margin-top: calc(-1 * var(--bar-gap));
+}
+
+@media (min-width: 640px) {
+  .prompt-row {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }
 
 /* Case settings */
@@ -544,16 +1221,16 @@ fieldset {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--field);
 }
 
 .place-name {
   flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: anywhere;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .place-search {
@@ -565,34 +1242,25 @@ fieldset {
 .candidate {
   display: grid;
   gap: 4px;
-  padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--surface-muted);
-}
-
-.picked-point {
-  border-style: dashed;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--field);
 }
 
 .candidate-name {
-  font-weight: 600;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .candidate-detail {
   color: var(--ink-muted);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .candidate-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.picked-point > .button-quiet {
-  justify-self: start;
 }
 
 .run-row {
@@ -609,34 +1277,52 @@ fieldset {
   margin: 12px 0 0;
   padding: 8px 12px;
   background: var(--caution-bg);
-  border-left: 4px solid var(--caution-line);
-  border-radius: 4px;
-  font-size: 0.95rem;
+  border-left: 3px solid var(--caution-line);
+  font-size: 0.92rem;
 }
 
 .notice {
   padding: 16px;
-  border-radius: var(--radius);
-  border: 1px solid;
+  border: 1px solid var(--ink);
   border-left-width: 6px;
+  box-shadow: var(--shadow);
 }
 
 .notice h2 {
-  font-size: 1.15rem;
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .notice p:last-child {
   margin-bottom: 0;
 }
 
+/* A notice is a sheet with its tint over it, so the tint reads the same wherever it lies. */
 .notice-warning {
-  background: var(--caution-bg);
-  border-color: var(--caution-line);
+  background: linear-gradient(var(--caution-bg), var(--caution-bg)), var(--sheet);
+  border-left-color: var(--caution-line);
 }
 
 .notice-error {
-  background: var(--error-bg);
-  border-color: var(--error-line);
+  background: linear-gradient(var(--error-bg), var(--error-bg)), var(--sheet);
+  border-left-color: var(--error-line);
+}
+
+.notice-compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  box-shadow: none;
+}
+
+.notice-compact p {
+  margin: 0;
+  flex: 1 1 240px;
 }
 
 /* Progress line */
@@ -648,13 +1334,18 @@ fieldset {
   color: var(--ink-muted);
 }
 
+.progress:not(:empty) {
+  padding: 8px 4px;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+}
+
 .progress-bar {
   position: relative;
   flex: 0 0 120px;
-  height: 4px;
+  height: 3px;
   overflow: hidden;
-  border-radius: 2px;
-  background: var(--accent-soft);
+  background: var(--line);
 }
 
 .progress-bar::after {
@@ -662,8 +1353,7 @@ fieldset {
   position: absolute;
   inset: 0;
   width: 40%;
-  background: var(--accent);
-  border-radius: 2px;
+  background: var(--ink);
   animation: progress-slide 1.2s ease-in-out infinite;
 }
 
@@ -676,22 +1366,197 @@ fieldset {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .progress-bar::after {
-    animation: none;
-    width: 100%;
+/* Verdict card: the first sheet of the case file. */
+
+.verdict-card h2 {
+  color: var(--ink-muted);
+}
+
+/* The rate of a significant trend, large: the one number to take away. */
+.verdict-figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin: 2px 0 8px;
+}
+
+.verdict-figure-number {
+  font-family: var(--display);
+  font-size: 3.3rem;
+  font-weight: 700;
+  line-height: 1.05;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* The sign is set in the text face, where it is as heavy as the digits; the display face draws
+   a plus as a hairline. */
+.verdict-figure-sign {
+  margin-right: 0.04em;
+  font-family: var(--font);
+  font-size: 0.72em;
+  vertical-align: 0.1em;
+}
+
+.verdict-figure-units {
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  font-style: italic;
+}
+
+.verdict-method {
+  margin: 12px 0 0;
+}
+
+/* The verdict's stamp: its direction over its kind, in the words the case uses everywhere. It is
+   plain type in a double line, large enough to read at a glance. The ink is the red or the blue
+   of the region map's scale for a significant rise or fall and a muted ink otherwise; the words
+   and the arrow say the same, so nothing is told by colour alone. On a wide screen it lies
+   beside the text, which runs round it. */
+.stamp {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: max-content;
+  max-width: 100%;
+  margin: 2px 0 12px;
+  padding: 8px 14px 6px;
+  border: 2.5px solid currentColor;
+  border-radius: 6px;
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
+  color: var(--faded);
+  font-family: var(--type);
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+  transform-origin: left center;
+}
+
+.stamp-rising {
+  color: var(--rising);
+}
+
+.stamp-falling {
+  color: var(--falling);
+}
+
+.stamp-direction {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}
+
+.stamp-kind {
+  width: 100%;
+  padding-top: 4px;
+  border-top: 1px solid currentColor;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+/* A verdict with no direction, such as "Too few years", is stamped with its kind alone. */
+.stamp-kind:only-child {
+  padding-top: 0;
+  border-top: 0;
+  font-size: 1.05rem;
+}
+
+/* "No upward or downward trend" is too long for the stamp's large line. */
+.stamp-level .stamp-direction {
+  max-width: 14rem;
+  font-size: 0.84rem;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-align: center;
+}
+
+@media (min-width: 960px) {
+  .stamp {
+    float: right;
+    margin: -4px 2px 8px 18px;
+    transform: rotate(-4deg);
+    transform-origin: center;
+  }
+
+  /* In a comparison each place's stamp is smaller and level with the place's name. */
+  .verdict-place-name + .stamp {
+    margin-top: -2rem;
+    transform: rotate(-4deg) scale(0.86);
+    transform-origin: top right;
+  }
+
+  /* Under a key figure the sentence starts below the stamp instead of running round it. */
+  .verdict-figure ~ .verdict-sentence {
+    clear: right;
   }
 }
 
-/* Verdict card */
+/* What to do with an answer, right under it. */
+.case-actions {
+  display: grid;
+  gap: 6px;
+}
 
-.verdict-card {
-  border-color: var(--line-strong);
+.case-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+
+.case-actions .field-hint {
+  margin: 0;
+}
+
+/* The shape of an answer that is still on its way. */
+.skeleton {
+  display: grid;
+  gap: 12px;
+}
+
+.skeleton-line {
+  display: block;
+  height: 1.1rem;
+  background: linear-gradient(90deg, var(--paper-shade) 25%, var(--page) 50%, var(--paper-shade) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.6s linear infinite;
+}
+
+.skeleton-label {
+  width: 6rem;
+  height: 0.8rem;
+}
+
+.skeleton-figure {
+  width: 11rem;
+  height: 2.4rem;
+}
+
+.skeleton-short {
+  width: 60%;
+}
+
+.skeleton-chart {
+  height: 14rem;
+}
+
+@keyframes skeleton-sweep {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 .verdict-summary {
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-style: italic;
+  line-height: 1.3;
 }
 
 .verdict-list {
@@ -703,7 +1568,7 @@ fieldset {
 }
 
 .verdict-list > li + li {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--line-strong);
   padding-top: 16px;
 }
 
@@ -712,61 +1577,20 @@ fieldset {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.verdict-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 10px;
-  border: 1px solid;
-  border-radius: 999px;
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-.badge-arrow {
-  font-size: 1.05rem;
-}
-
-.badge-direction {
-  border-color: var(--ink);
-}
-
-.badge-significant {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: #ffffff;
-}
-
-.badge-not_significant {
-  background: #eceef1;
-  border-color: var(--line-strong);
-}
-
-.badge-too_few_years,
-.badge-no_data {
-  background: var(--caution-bg);
-  border-color: var(--caution-line);
+  font-size: 1.1rem;
 }
 
 .verdict-sentence {
-  font-size: 1.2rem;
-  line-height: 1.45;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .verdict-note {
   color: var(--ink-muted);
 }
 
-/* Shapes that mark each place on the chart, the map and in lists */
+/* Shapes that mark each place on the chart, the globe and in lists */
 
 .shape-swatch {
   display: inline-block;
@@ -795,14 +1619,12 @@ fieldset {
 
 /* Chart */
 
-.chart-placeholder,
-.map-placeholder {
+.chart-placeholder {
   display: grid;
   place-items: center;
   min-height: 320px;
   color: var(--ink-muted);
-  background: var(--surface-muted);
-  border-radius: 8px;
+  background: var(--field);
 }
 
 .plotly-chart {
@@ -817,7 +1639,10 @@ fieldset {
   padding: 0;
   display: grid;
   gap: 4px;
-  font-size: 0.95rem;
+}
+
+.map-places {
+  margin: 0 0 12px;
 }
 
 .disclosure,
@@ -836,8 +1661,9 @@ details > summary::-webkit-details-marker {
 }
 
 .disclosure > summary {
-  color: var(--accent);
-  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 .disclosure > summary::before,
@@ -877,10 +1703,10 @@ details > summary::-webkit-details-marker {
 
 .summary-hint {
   color: var(--ink-muted);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
-/* Tables */
+/* Tables: ruled like the tables of an atlas. */
 
 .table-scroll {
   overflow-x: auto;
@@ -890,8 +1716,7 @@ details > summary::-webkit-details-marker {
 .data-table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 0.95rem;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .data-table caption {
@@ -909,11 +1734,18 @@ details > summary::-webkit-details-marker {
 }
 
 .data-table thead th {
-  border-bottom: 2px solid var(--line-strong);
+  padding-top: 8px;
+  border-top: 3px double var(--ink);
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.88rem;
+}
+
+.data-table tbody th {
+  font-weight: 400;
 }
 
 .numbers-table th[scope="row"] {
-  font-weight: 600;
+  font-weight: 700;
   width: 45%;
 }
 
@@ -954,111 +1786,361 @@ details > summary::-webkit-details-marker {
   margin: 0;
 }
 
-/* Map */
+/* The globe: markers, the tooltip of a region's cell, and drawing a box */
 
-.place-map {
-  height: 340px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  z-index: 0;
-}
-
-/* The point Enter picks: the centre of the map, marked while the map has keyboard focus. */
-.place-map:focus-visible::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 1000;
-  width: 28px;
-  height: 28px;
-  margin: -14px 0 0 -14px;
-  background:
-    linear-gradient(var(--ink), var(--ink)) center / 2px 100% no-repeat,
-    linear-gradient(var(--ink), var(--ink)) center / 100% 2px no-repeat;
-  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff);
-  pointer-events: none;
-}
-
-.map-marker .shape-swatch {
+.globe-marker {
+  display: grid;
+  place-items: center;
   width: 18px;
   height: 18px;
-  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px rgb(0 0 0 / 0.6));
 }
 
-.leaflet-tooltip.map-label {
-  font-family: var(--font);
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 2px 6px;
+/* A halo of paper sets the marker off from the engraving under it. */
+.globe-marker .shape-swatch {
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0 0 1px var(--sheet)) drop-shadow(0 0 1px var(--sheet))
+    drop-shadow(0 0 5px var(--sheet));
 }
 
-.leaflet-container {
-  font-family: var(--font);
+/* A ring that widens and fades around each marker, so a place is easy to find on the Earth. */
+.globe-marker::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--place-color);
+  border-radius: 50%;
+  /* Three times, to draw the eye to a new place, and then it rests. */
+  animation: marker-ring 2.6s ease-out 3 both;
 }
 
-/* Example cases */
-
-.example-list {
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 12px;
-}
-
-@media (min-width: 720px) {
-  .example-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+@keyframes marker-ring {
+  from {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.2);
+    opacity: 0;
   }
 }
 
-.example-card {
-  display: grid;
-  align-content: start;
-  gap: 4px;
-  height: 100%;
-  padding: 14px 16px;
+/* A name on the globe is a typed tag, as a detective would pin one to a map: a place's name, and
+   the number and place of an example case. */
+.globe-label,
+.example-pin-tag {
+  position: absolute;
+  top: 50%;
+  padding: 2px 8px 0;
+  background: var(--sheet);
+  box-shadow:
+    0 0 0 0.5px var(--line-strong),
+    1px 3px 6px rgb(60 40 20 / 0.45);
   color: var(--ink);
-  text-decoration: none;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-}
-
-.example-card:hover {
-  border-color: var(--accent);
-  color: var(--ink);
-}
-
-.example-title {
+  font-family: var(--type);
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--accent);
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.example-teaser {
-  color: var(--ink-muted);
-  font-size: 0.95rem;
+/* A place's name. On a small stage it sits left of its marker, the side clear of the globe's
+   buttons, and is cut short where the stage ends. */
+.globe-label {
+  right: calc(100% + 8px);
+  transform: translateY(-50%);
+  max-width: min(14rem, calc(var(--stage-width) / 2 - 24px));
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* AI notice in the question bar */
+/* A wide stage has room for the name on the marker's right. */
+@media (min-width: 960px) {
+  .globe-label {
+    right: auto;
+    left: calc(100% + 8px);
+    max-width: 14rem;
+  }
+}
 
-.notice-compact {
+.globe-picked {
+  width: 22px;
+  height: 22px;
+  border: 2px dashed var(--ink);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2px rgb(247 240 222 / 0.75),
+    0 0 0 2px rgb(247 240 222 / 0.75) inset;
+}
+
+.maplibregl-popup.globe-tooltip {
+  pointer-events: none;
+}
+
+.maplibregl-popup.globe-tooltip .maplibregl-popup-content {
+  padding: 8px 12px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--sheet);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  font-variant-numeric: lining-nums tabular-nums;
+  box-shadow: var(--shadow);
+}
+
+.maplibregl-popup.globe-tooltip .maplibregl-popup-tip {
+  display: none;
+}
+
+.globe-canvas.is-drawing .maplibregl-canvas-container {
+  cursor: crosshair;
+}
+
+.globe-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 12px;
-  padding: 10px 12px;
+  margin: 0 0 8px;
 }
 
-.notice-compact p {
-  margin: 0;
-  flex: 1 1 240px;
+/* An example case on the globe of the first screen: a red push pin with a typed tag. */
+.example-pin {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #ffb0a3 0%, #d8432f 34%, #9c2415 72%, #66140b 100%);
+  box-shadow: 2px 4px 5px rgb(40 25 10 / 0.5);
+  cursor: pointer;
 }
 
-.prompt-chip:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+/* The pin is small; the room around it takes the click or the tap, 45px across. */
+.example-pin::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+}
+
+/* A narrow stage has no room for the names beside its buttons: there a tag is the case's number
+   alone, on the pin's left, the side clear of the buttons, and the list of examples under the
+   globe names the places. */
+.example-pin-tag {
+  right: calc(100% + 9px);
+  transform: translateY(-50%) rotate(-2deg);
+}
+
+.example-pin-place {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .example-pin-tag {
+    right: auto;
+    left: calc(100% + 9px);
+  }
+
+  .example-pin-place {
+    display: inline;
+  }
+}
+
+/* The pin of the example that is singled out, in the list or by the pointer on the pin itself,
+   shows the case's question in place of its tag. */
+.example-pin-card {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 4px;
+  width: max-content;
+  max-width: 17rem;
+  padding: 8px 14px 9px;
+  background: var(--sheet);
+  box-shadow:
+    0 0 0 0.5px var(--line-strong),
+    1px 4px 9px rgb(60 40 20 / 0.5);
+  transform: rotate(-1.5deg);
+}
+
+/* Under the card, room without a gap down to the pin, so the pointer can cross from the pin to
+   the card and the case stays singled out. */
+.example-pin-card::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 3rem;
+  height: 20px;
+}
+
+.example-pin.is-active {
+  z-index: 1;
+}
+
+/* Only a wide stage has room for the card. */
+@media (min-width: 960px) {
+  .example-pin.is-active.has-card .example-pin-tag {
+    display: none;
+  }
+
+  .example-pin.is-active .example-pin-card {
+    display: block;
+  }
+}
+
+.example-pin-kicker,
+.example-pin-open {
+  display: block;
+  color: var(--accent);
+  font-family: var(--type);
+  font-weight: 700;
+}
+
+.example-pin-kicker {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.example-pin-title {
+  display: block;
+  margin: 2px 0 3px;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+.example-pin-open {
+  font-size: 0.86rem;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* The red string from the example under the pointer to its pin, drawn over the whole screen.
+   Only a wide screen has the card and the globe side by side. */
+.case-string {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.case-string-shadow {
+  fill: none;
+  stroke: rgb(60 40 20 / 0.35);
+  stroke-width: 3;
+  filter: blur(2px);
+}
+
+.case-string-thread {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+@media (min-width: 960px) {
+  .case-string {
+    display: block;
+  }
+}
+
+/* Example cases: the entries of a list, each under its typed number. The one under the pointer
+   lifts off the page as a sheet, with a pin for its string. */
+
+.example-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+}
+
+.example-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  height: 100%;
+  padding: 12px 36px 14px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.example-card::after {
+  content: "→";
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+}
+
+.example-card:hover,
+.example-card:focus-visible,
+.example-card.is-linked {
+  border-bottom-color: transparent;
+  background: var(--sheet);
+  box-shadow:
+    0 0 0 1px var(--line-strong),
+    var(--shadow);
+  color: var(--ink);
+}
+
+.example-number {
+  color: var(--accent);
+  font-family: var(--type);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.example-title {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+.example-teaser {
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+}
+
+/* Where the string leaves the card: a pin in its top right corner, shown with the string. */
+.example-tack {
+  display: none;
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #ffb0a3 0%, #d8432f 34%, #9c2415 72%, #66140b 100%);
+  box-shadow: 2px 4px 5px rgb(40 25 10 / 0.5);
+}
+
+@media (min-width: 960px) {
+  .example-card.is-linked .example-tack {
+    display: block;
+  }
+}
+
+/* A notice has a tinted ground of its own, so its entries stay flat. */
+.notice .example-card:hover,
+.notice .example-card:focus-visible {
+  background: none;
+  box-shadow: none;
 }
 
 /* Detective notes */
@@ -1067,7 +2149,7 @@ details > summary::-webkit-details-marker {
 .notes-earlier + .notes-turn {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--line-strong);
 }
 
 .notes-earlier {
@@ -1092,7 +2174,7 @@ details > summary::-webkit-details-marker {
   padding: 0;
   display: grid;
   gap: 4px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .ai-step {
@@ -1124,25 +2206,26 @@ details > summary::-webkit-details-marker {
 
 .ai-text {
   padding: 12px;
-  background: var(--surface-muted);
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--line-strong);
-  border-radius: 6px;
+  background: var(--sheet);
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--ink);
 }
 
 .ai-text > :last-child {
   margin-bottom: 0;
 }
 
+/* The label of text the AI wrote is typed, like the detective's other marks. */
 .ai-label {
   display: inline-block;
   margin: 0 0 8px;
-  padding: 1px 10px;
+  padding: 2px 8px 0;
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: var(--surface);
-  font-size: 0.85rem;
+  font-family: var(--type);
+  font-size: 0.8rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .ai-body {
@@ -1159,10 +2242,9 @@ details > summary::-webkit-details-marker {
 .unverified-tag {
   padding: 0 5px;
   border: 1px solid var(--error-line);
-  border-radius: 4px;
   color: var(--error-line);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -1174,38 +2256,7 @@ details > summary::-webkit-details-marker {
   margin-bottom: 4px;
 }
 
-/* "Map this region" under a case's map */
-
-.region-link {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 12px;
-  margin: 0;
-}
-
 /* Region view */
-
-/* Holds the SVG pattern of cells without a result; it takes no space and is never read out. */
-.svg-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-}
-
-.region-map {
-  height: 440px;
-}
-
-.region-map.is-drawing {
-  cursor: crosshair;
-}
-
-/* While drawing, presses go to the map itself, so a drawn box never opens a cell. */
-.region-map.is-drawing .leaflet-interactive {
-  pointer-events: none;
-}
 
 .box-fields {
   display: grid;
@@ -1226,7 +2277,7 @@ details > summary::-webkit-details-marker {
   margin-top: 12px;
   display: grid;
   gap: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .map-legend p {
@@ -1246,15 +2297,14 @@ details > summary::-webkit-details-marker {
 .legend-gradient {
   display: block;
   height: 14px;
-  border-radius: 4px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--ink);
 }
 
 .legend-ticks,
 .legend-ends {
   display: flex;
   justify-content: space-between;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .legend-ends {
@@ -1275,18 +2325,67 @@ details > summary::-webkit-details-marker {
   height: 16px;
   margin-right: 4px;
   vertical-align: -3px;
-  border: 1px solid var(--line-strong);
-  border-radius: 2px;
+  border: 1px solid var(--ink);
 }
 
+/* The same dot, ring and hatch as the globe draws; their colours are set in globeStyle.ts and
+   GlobeCanvas.tsx. */
 .legend-mark {
-  background: radial-gradient(circle, var(--ink) 0 3px, #ffffff 3px 4.5px, var(--surface-muted) 4.5px);
+  background: radial-gradient(circle, #2a2018 0 3px, #f7f0de 3px 4.5px, #dd716a 4.5px);
 }
 
 .legend-hatch {
-  background: repeating-linear-gradient(45deg, #8a949f 0 2px, #ffffff 2px 6px);
+  background: repeating-linear-gradient(45deg, #6b5846 0 2px, #efe6cf 2px 6px);
 }
 
 .legend-note {
-  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+/* A finger needs a larger target than a pointer: 44px for every control that is smaller. */
+@media (pointer: coarse) {
+  .button,
+  .button-small,
+  .prompt-chip,
+  input,
+  select {
+    min-height: 44px;
+  }
+
+  details > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .stage-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .globe-canvas {
+    transition: none;
+  }
+
+  .skeleton-line {
+    animation: none;
+  }
+
+  .progress-bar::after {
+    animation: none;
+    width: 100%;
+  }
+
+  .globe-marker::before {
+    animation: none;
+    transform: scale(1.3);
+    opacity: 0.6;
+  }
+
+  .button {
+    transition: none;
+  }
 }

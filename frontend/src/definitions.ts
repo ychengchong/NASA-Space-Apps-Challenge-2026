@@ -39,6 +39,10 @@ export const DEFINITIONS: readonly Definition[] = [
   },
 ];
 
+// Spec 7, "Region view": the legend says exactly this.
+export const STRICTER_TEST_NOTE =
+  "Marked cells pass a stricter test, because a map tests hundreds of cells at once.";
+
 // Spec 6, "Caveats shown to users"; the spec's caution code is written out in words.
 export const DATA_CAVEATS: readonly string[] = [
   "MERRA-2 is a reanalysis: a weather model steered by observations. Changes in the observing " +

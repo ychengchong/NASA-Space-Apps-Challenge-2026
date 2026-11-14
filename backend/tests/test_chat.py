@@ -1016,6 +1016,50 @@ async def test_iteration_limit_ends_with_an_error_then_done(
     assert events[-2][1] == {"code": "ai_unavailable", "message": AI_STEP_LIMIT_MESSAGE}
 
 
+# Whether the AI is on (spec 8, "When the AI is off")
+
+
+async def get_ai_status(app: FastAPI) -> httpx.Response:
+    transport = httpx.ASGITransport(app=app, client=("203.0.113.7", 50000))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as http:
+        return await http.get("/api/ai")
+
+
+async def test_ai_status_says_on_when_the_ai_can_run(
+    cache: Cache, anthropic_clients: list[anthropic.AsyncAnthropic]
+) -> None:
+    claude = FakeClaude()
+    app = chat_app(claude, cache, anthropic_clients)
+
+    response = await get_ai_status(app)
+
+    assert response.status_code == 200
+    assert response.json() == {"on": True}
+    assert claude.requests == []
+
+
+async def test_ai_status_says_off_when_the_ai_is_disabled(
+    cache: Cache, anthropic_clients: list[anthropic.AsyncAnthropic]
+) -> None:
+    app = chat_app(FakeClaude(), cache, anthropic_clients, ai_enabled=False)
+
+    response = await get_ai_status(app)
+
+    assert response.status_code == 200
+    assert response.json() == {"on": False}
+
+
+async def test_ai_status_says_off_when_the_provider_has_no_key(
+    cache: Cache, anthropic_clients: list[anthropic.AsyncAnthropic]
+) -> None:
+    app = chat_app(FakeClaude(), cache, anthropic_clients, anthropic_api_key=None)
+
+    response = await get_ai_status(app)
+
+    assert response.status_code == 200
+    assert response.json() == {"on": False}
+
+
 # Refused before the stream (spec 8, "Limits"; spec 10, "Errors")
 
 

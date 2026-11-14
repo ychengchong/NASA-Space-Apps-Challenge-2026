@@ -1,12 +1,14 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
-import { getCase, getExamples, getVariables } from "./api";
+import { getAiStatus, getCase, getExamples, getVariables } from "./api";
 import type { ExampleCase, Investigation, VariableSummary } from "./api";
-import { caseFromDraft, draftFromCase, draftFromProposal, EMPTY_DRAFT } from "./caseDraft";
-import type { CaseDraft } from "./caseDraft";
+import { applyPlaceAction, caseFromDraft, draftFromCase, draftFromProposal, EMPTY_DRAFT } from "./caseDraft";
+import type { CaseDraft, PlaceAction } from "./caseDraft";
 import { buildCaseQuery, buildMapQuery } from "./caseUrl";
 import type { CaseParams, CasePlace } from "./caseUrl";
 import type { ChatResult } from "./chat";
+import { CaseActions } from "./components/CaseActions";
+import type { RegionLink } from "./components/CaseActions";
 import { CaseLayout } from "./components/CaseLayout";
 import { CaseProblem } from "./components/CaseProblem";
 import { CaseSettings } from "./components/CaseSettings";
@@ -14,18 +16,34 @@ import { CrossChecks } from "./components/CrossChecks";
 import { DetectiveNotes } from "./components/DetectiveNotes";
 import { EvidencePanel } from "./components/EvidencePanel";
 import { ExampleCases } from "./components/ExampleCases";
-import type { MapPlace } from "./components/PlaceMap";
+import { GlobeStage } from "./components/GlobeStage";
+import type { StageHint } from "./components/GlobeStage";
 import { PeriodExplorer } from "./components/PeriodExplorer";
+import { PickedPoint } from "./components/PickedPoint";
+import { PlaceLegend } from "./components/PlaceLegend";
 import { ProgressLine } from "./components/ProgressLine";
 import { QuestionBar } from "./components/QuestionBar";
 import type { AiAnswer, AiHelper } from "./components/QuestionBar";
 import { RegionView } from "./components/RegionView";
+import { SettingsFold } from "./components/SettingsFold";
+import { ChartSkeleton, VerdictSkeleton } from "./components/Skeleton";
+import { StageCaption } from "./components/StageCaption";
+import { StageNote } from "./components/StageNote";
 import type { PreloadedMap } from "./components/RegionView";
 import { TrendChart } from "./components/TrendChart";
 import { VerdictCard } from "./components/VerdictCard";
 import { formatCoordinates } from "./format";
+import {
+  GLOBE_LOADING,
+  GLOBE_UNAVAILABLE,
+  GlobeContext,
+  StageNoteContext,
+  useGlobePlaces,
+} from "./globeContext";
+import type { GlobeHandle } from "./globeContext";
 import type { KeywordProposal } from "./keywordMatch";
 import { followInApp } from "./links";
+import type { MapPlace } from "./mapCell";
 import { boxAroundPlace } from "./regionBox";
 import type { RegionTypes } from "./regionTypes";
 import { casePageUrl, HOME_PATH, mapPageUrl, parseRoute, sameCase, withRequestedPeriod } from "./route";
@@ -35,9 +53,27 @@ import { useRegionTypes } from "./useRegionTypes";
 import { useRequest } from "./useRequest";
 import type { RequestState } from "./useRequest";
 
-const PlaceMap = lazy(() => import("./components/PlaceMap"));
+const GlobeCanvas = lazy(() => import("./components/GlobeCanvas"));
 
 const APP_NAME = "Trend Detective";
+
+// What the globe does on each screen, shown on the stage (spec 3, "The globe").
+const PICK_HINT: StageHint = {
+  pointer: "Drag to turn the Earth. Click it to pick a point.",
+  touch: "Turn with two fingers. Tap to pick a point.",
+};
+// On the first screen, while the example cases are pinned to the globe.
+const EXAMPLES_HINT: StageHint = {
+  pointer: "Click a pin to open an example, or pick a point.",
+  touch: "Tap a pin to open it. Turn with two fingers.",
+};
+const REGION_HINT: StageHint = {
+  pointer: "Click a cell to open it as a case.",
+  touch: "Tap a cell to open it. Move with two fingers.",
+};
+
+// The heading of the case settings (CaseSettings), which the first screen's manual way in jumps to.
+const SETTINGS_HEADING_ID = "settings-heading";
 
 const NO_PLACES: readonly CasePlace[] = [];
 const NO_VARIABLES: readonly VariableSummary[] = [];
@@ -60,8 +96,20 @@ export default function App(): JSX.Element {
   const [pickedPoint, setPickedPoint] = useState<CasePlace | null>(null);
   const [settingsFocusRequest, setSettingsFocusRequest] = useState(0);
   const [mainFocusRequest, setMainFocusRequest] = useState(0);
+  // Counts the times the screen moved on from the last question, for the question bar.
+  const [screenChanges, setScreenChanges] = useState(0);
   const settingsHeadingRef = useRef<HTMLHeadingElement>(null);
   const mainRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLElement>(null);
+  // Where a view draws its caption or key on the stage; a state, so the view draws once it exists.
+  const [stageNote, setStageNote] = useState<HTMLElement | null>(null);
+  const [globeHandle, setGlobeHandle] = useState<GlobeHandle | null>(null);
+  const [globeUnavailable, setGlobeUnavailable] = useState(false);
+  const globe = useMemo(() => {
+    if (globeUnavailable) return GLOBE_UNAVAILABLE;
+    return globeHandle === null ? GLOBE_LOADING : { handle: globeHandle, status: "ready" as const };
+  }, [globeHandle, globeUnavailable]);
+  const markGlobeUnavailable = useCallback(() => setGlobeUnavailable(true), []);
   const chat = useChat();
   // Spec 8, "When the AI is off": after a failure the question bar matches keywords; this holds
   // the server's reason until the user tries the AI again or starts a new conversation.
@@ -69,6 +117,10 @@ export default function App(): JSX.Element {
   // The last case or map the AI ran, so its page opens without asking the API again.
   const [chatResult, setChatResult] = useState<ChatResult | null>(null);
 
+  // Spec 8, "When the AI is off": the server says whether the AI is on. Until it answers, and
+  // when it cannot be asked, the question bar takes the AI to be on, and a failed turn corrects it.
+  const aiStatus = useRequest("ai", (signal) => getAiStatus(signal));
+  const aiOff = aiStatus.state.status === "done" && aiStatus.state.value.on === false;
   const variables = useRequest("variables", (signal) => getVariables(undefined, undefined, signal));
   const examples = useRequest("examples", (signal) => getExamples(signal));
   const catalogue = variables.state.status === "done" ? variables.state.value : NO_VARIABLES;
@@ -79,6 +131,7 @@ export default function App(): JSX.Element {
       setRoute(currentRoute());
       setPendingDraft(null);
       setPickedPoint(null);
+      setScreenChanges((count) => count + 1);
     };
     window.addEventListener("popstate", showAddress);
     return () => window.removeEventListener("popstate", showAddress);
@@ -107,6 +160,7 @@ export default function App(): JSX.Element {
     navigate(url);
     window.scrollTo(0, 0);
     setMainFocusRequest((count) => count + 1);
+    setScreenChanges((count) => count + 1);
   };
   // Spec 10: the API fills in the period, and the address bar then holds the full case.
   const showNormalisedCase = (params: CaseParams): void => {
@@ -136,7 +190,7 @@ export default function App(): JSX.Element {
     setAiFailure(null);
   };
   const ai: AiHelper | undefined =
-    aiFailure === null
+    aiFailure === null && !aiOff
       ? { ask: askAi, working: chat.running, onStop: chat.stop, followUp: chat.state.turns.length > 0 }
       : undefined;
   const notes =
@@ -156,99 +210,172 @@ export default function App(): JSX.Element {
     setSettingsFocusRequest((count) => count + 1);
   };
 
-  const settingsFor = (openParams: CaseParams | null): JSX.Element => {
-    const draft = pendingDraft ?? (openParams === null ? EMPTY_DRAFT : draftFromCase(openParams));
-    const pending = openParams === null || pendingDraft !== null;
-    const applyLive = (next: CaseDraft): void => {
-      const params = caseFromDraft(next);
-      if (params === null) setPendingDraft(next);
-      else openCase(params);
-    };
-    return (
-      <CaseSettings
-        draft={draft}
-        variables={variables.state}
-        pending={pending}
-        pickedPoint={pickedPoint}
-        onDismissPickedPoint={() => setPickedPoint(null)}
-        onPickCandidate={(candidate) => regionTypes.remember([candidate])}
-        onChange={pending ? setPendingDraft : applyLive}
-        onRun={() => {
-          const params = caseFromDraft(draft);
-          if (params !== null) openPage(casePageUrl(params));
-        }}
-        onCancel={openParams !== null && pendingDraft !== null ? () => setPendingDraft(null) : undefined}
-        headingRef={settingsHeadingRef}
-      />
-    );
+  // The case settings as they stand: of the open case, or waiting for "Run this case".
+  const openParams = route.kind === "case" ? route.params : null;
+  const draft = pendingDraft ?? (openParams === null ? EMPTY_DRAFT : draftFromCase(openParams));
+  const settingsPending = openParams === null || pendingDraft !== null;
+  const changeDraft = (next: CaseDraft): void => {
+    const params = settingsPending ? null : caseFromDraft(next);
+    if (params === null) setPendingDraft(next);
+    else openCase(params);
+  };
+  const cancelPending = (): void => {
+    setPendingDraft(null);
+    setScreenChanges((count) => count + 1);
+  };
+  const settings = (
+    <CaseSettings
+      draft={draft}
+      variables={variables.state}
+      pending={settingsPending}
+      onPickCandidate={(candidate) => regionTypes.remember([candidate])}
+      onChange={changeDraft}
+      onRun={() => {
+        const params = caseFromDraft(draft);
+        if (params !== null) openPage(casePageUrl(params));
+      }}
+      onCancel={openParams !== null && pendingDraft !== null ? cancelPending : undefined}
+      headingRef={settingsHeadingRef}
+    />
+  );
+
+  // The picked point's buttons leave the page once one is pressed, so focus moves on: to the
+  // settings when the point waits there for "Run this case", and otherwise back to the stage.
+  const choosePickedPoint = (action: PlaceAction, place: CasePlace): void => {
+    changeDraft(applyPlaceAction(draft, action, place));
+    setPickedPoint(null);
+    if (settingsPending) setSettingsFocusRequest((count) => count + 1);
+    else stageRef.current?.focus({ preventScroll: true });
+  };
+  const dismissPickedPoint = (): void => {
+    setPickedPoint(null);
+    stageRef.current?.focus({ preventScroll: true });
   };
 
   return (
-    <div className="app">
-      <header className="site-header">
-        <h1 className="site-title">
-          <a href={HOME_PATH} onClick={(event) => followInApp(event, HOME_PATH, openPage)}>
-            {APP_NAME}
-          </a>
-        </h1>
-        <p className="site-tagline">Test a claim about the Earth against NASA data.</p>
-      </header>
-      <QuestionBar
-        onProposal={handleProposal}
-        ai={ai}
-        aiNotice={aiFailure === null ? null : { message: aiFailure, onRetry: () => setAiFailure(null) }}
-        showPrompts={route.kind !== "case"}
-      />
-      <main id="main" className="site-main" ref={mainRef} tabIndex={-1}>
-        {route.kind === "case" ? (
-          <CaseView
-            params={route.params}
-            settings={settingsFor(route.params)}
-            pickedPoint={pickedPoint}
-            examples={examples.state}
-            preloaded={preloadedCase(chatResult)}
-            notes={notes}
-            catalogue={catalogue}
-            regionTypes={regionTypes.known}
-            onOpenCase={openCase}
-            onOpenPage={openPage}
-            onNormalised={showNormalisedCase}
-            onPick={setPickedPoint}
-          />
-        ) : null}
-        {route.kind === "map" ? (
-          <RegionView
-            query={route.query}
-            variables={variables.state}
-            examples={examples.state}
-            preloaded={preloadedMap(chatResult)}
-            notes={notes}
-            onOpenPage={openPage}
-            onShowMap={navigate}
-            onNormalised={showNormalisedPage}
-          />
-        ) : null}
-        {route.kind === "home" || route.kind === "bad_link" ? (
-          <StartView
-            badLinkReason={route.kind === "bad_link" ? route.reason : null}
-            settings={settingsFor(null)}
-            draftPlaces={(pendingDraft ?? EMPTY_DRAFT).places}
-            pickedPoint={pickedPoint}
-            examples={examples.state}
-            notes={notes}
-            onOpenPage={openPage}
-            onPick={setPickedPoint}
-          />
-        ) : null}
-      </main>
-      <footer className="site-footer">
-        <p>
-          Data: <a href="https://power.larc.nasa.gov/">NASA POWER</a> (MERRA-2 and other NASA sources). Map
-          tiles: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Place
-          names: <a href="https://www.geonames.org/">GeoNames</a> (CC BY 4.0).
-        </p>
-      </footer>
-    </div>
+    <GlobeContext value={globe}>
+      <StageNoteContext value={stageNote}>
+        <div className="app">
+          <div className="site-top">
+            <header className="site-header">
+              <BrandMark />
+              <div className="site-name">
+                <h1 className="site-title">
+                  <a href={HOME_PATH} onClick={(event) => followInApp(event, HOME_PATH, openPage)}>
+                    {APP_NAME}
+                  </a>
+                </h1>
+                <p className="site-tagline">Test a claim about the Earth against NASA data.</p>
+              </div>
+            </header>
+            <QuestionBar
+              onProposal={handleProposal}
+              ai={ai}
+              aiNotice={aiFailure === null ? null : { message: aiFailure, onRetry: () => setAiFailure(null) }}
+              firstScreen={route.kind === "home" || route.kind === "bad_link"}
+              screenChanges={screenChanges}
+            />
+          </div>
+          <main id="main" className="site-main" ref={mainRef} tabIndex={-1}>
+            {route.kind === "case" ? (
+              <CaseView
+                params={route.params}
+                settings={settings}
+                settingsNeeded={pendingDraft !== null}
+                pickedPoint={pickedPoint}
+                examples={examples.state}
+                preloaded={preloadedCase(chatResult)}
+                notes={notes}
+                catalogue={catalogue}
+                regionTypes={regionTypes.known}
+                onOpenCase={openCase}
+                onOpenPage={openPage}
+                onNormalised={showNormalisedCase}
+                onPick={setPickedPoint}
+              />
+            ) : null}
+            {route.kind === "map" ? (
+              <RegionView
+                query={route.query}
+                variables={variables.state}
+                examples={examples.state}
+                preloaded={preloadedMap(chatResult)}
+                notes={notes}
+                onOpenPage={openPage}
+                onShowMap={navigate}
+                onNormalised={showNormalisedPage}
+              />
+            ) : null}
+            {route.kind === "home" || route.kind === "bad_link" ? (
+              <StartView
+                badLinkReason={route.kind === "bad_link" ? route.reason : null}
+                settings={settings}
+                draftPlaces={draft.places}
+                pickedPoint={pickedPoint}
+                examples={examples.state}
+                notes={notes}
+                onOpenPage={openPage}
+                onPick={setPickedPoint}
+              />
+            ) : null}
+          </main>
+          <GlobeStage
+            stageRef={stageRef}
+            hint={stageHint(route, examples.state)}
+            pick={
+              pickedPoint === null ? null : (
+                <PickedPoint
+                  point={pickedPoint}
+                  places={draft.places}
+                  onChoose={choosePickedPoint}
+                  onDismiss={dismissPickedPoint}
+                />
+              )
+            }
+            noteRef={setStageNote}
+          >
+            <Suspense fallback={null}>
+              <GlobeCanvas
+                stageRef={stageRef}
+                onReady={setGlobeHandle}
+                onUnavailable={markGlobeUnavailable}
+              />
+            </Suspense>
+          </GlobeStage>
+          <footer className="site-footer">
+            <p>
+              Data: <a href="https://power.larc.nasa.gov/">NASA POWER</a> (MERRA-2 and other NASA sources).
+              Globe: <a href="https://openfreemap.org">OpenFreeMap</a> tiles, ©{" "}
+              <a href="https://www.openmaptiles.org/">OpenMapTiles</a>, with data from{" "}
+              <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors and relief from{" "}
+              <a href="https://www.naturalearthdata.com/">Natural Earth</a>. Place names:{" "}
+              <a href="https://www.geonames.org/">GeoNames</a> (CC BY 4.0).
+            </p>
+          </footer>
+        </div>
+      </StageNoteContext>
+    </GlobeContext>
+  );
+}
+
+/** The app's own mark: a magnifying glass with the Earth in its lens. */
+function BrandMark(): JSX.Element {
+  return (
+    <svg
+      className="brand-mark"
+      viewBox="0 0 40 40"
+      width="40"
+      height="40"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle className="brand-lens" cx="17" cy="17" r="12" />
+      <g className="brand-lines">
+        <ellipse cx="17" cy="17" rx="5" ry="12" />
+        <path d="M5 17h24M7.5 10.5h19M7.5 23.5h19" />
+      </g>
+      <path className="brand-handle" d="M26.5 26.5l9 9" />
+    </svg>
   );
 }
 
@@ -276,15 +403,8 @@ interface StartViewProps {
 
 /** The first screen: example cases, and a case set up by hand. Never an empty chart (spec 3). */
 function StartView(props: StartViewProps): JSX.Element {
-  const mapPlaces = useMemo(
-    () =>
-      props.draftPlaces.map((place): MapPlace => ({
-        name: place.name ?? formatCoordinates(place.lat, place.lon),
-        lat: place.lat,
-        lon: place.lon,
-      })),
-    [props.draftPlaces],
-  );
+  const mapPlaces = useMemo(() => placesOfDraft(props.draftPlaces), [props.draftPlaces]);
+  useGlobePlaces(mapPlaces, props.pickedPoint, props.onPick);
   return (
     <>
       {props.badLinkReason !== null ? (
@@ -295,17 +415,21 @@ function StartView(props: StartViewProps): JSX.Element {
         </div>
       ) : null}
       {props.notes}
+      <p className="home-manual">
+        Or <a href={`#${SETTINGS_HEADING_ID}`}>set up a case by hand</a>: choose the variable, the place and
+        the period yourself.
+      </p>
       <section className="home-section" aria-labelledby="examples-heading">
         <h2 id="examples-heading">Example cases</h2>
         <p className="panel-intro">
           Each one tests a claim about the Earth. Open one to see how a case works.
         </p>
-        <ExampleCases examples={props.examples} onOpen={props.onOpenPage} />
+        <ExampleCases examples={props.examples} onOpen={props.onOpenPage} onGlobe />
       </section>
       <div className="case-layout">
         <div className="case-side">{props.settings}</div>
         <div className="case-main">
-          <MapPanel places={mapPlaces} pickedPoint={props.pickedPoint} onPick={props.onPick} />
+          <PlaceLegend places={mapPlaces} pickedPoint={props.pickedPoint} />
         </div>
       </div>
     </>
@@ -315,6 +439,8 @@ function StartView(props: StartViewProps): JSX.Element {
 interface CaseViewProps {
   params: CaseParams;
   settings: JSX.Element;
+  /** True while settings wait for "Run this case", so they are shown unfolded. */
+  settingsNeeded: boolean;
   pickedPoint: CasePlace | null;
   examples: RequestState<ExampleCase[]>;
   preloaded: PreloadedCase | null;
@@ -330,8 +456,8 @@ interface CaseViewProps {
 }
 
 /**
- * An open case: the verdict, the variables to test next, the chart, the map, the period explorer
- * and the evidence.
+ * An open case: the verdict, its chart, what to do with the answer, the variables to test next,
+ * the key to the globe, the period explorer and the evidence.
  */
 function CaseView(props: CaseViewProps): JSX.Element {
   const { params, preloaded } = props;
@@ -347,11 +473,14 @@ function CaseView(props: CaseViewProps): JSX.Element {
   const investigation = shownInvestigation(state);
   const loading = state.status === "loading";
   const shown = state.status === "failed" ? null : investigation;
+  const firstLoad = loading && shown === null;
   const resultsClass = loading ? "case-results is-stale" : "case-results";
+  // The globe turns to the places as soon as the case opens; their grid cells follow the answer.
   const mapPlaces = useMemo(
-    () => (investigation === null ? [] : placesOnMap(investigation)),
-    [investigation],
+    () => (state.status === "done" ? placesOnMap(state.value) : placesOfDraft(params.places)),
+    [state, params.places],
   );
+  useGlobePlaces(mapPlaces, props.pickedPoint, props.onPick);
 
   useEffect(() => {
     document.title = investigation === null ? APP_NAME : `${caseTitle(investigation)} · ${APP_NAME}`;
@@ -362,10 +491,19 @@ function CaseView(props: CaseViewProps): JSX.Element {
 
   return (
     <CaseLayout
-      side={props.settings}
+      side={
+        <SettingsFold
+          label="Change this case"
+          hint="Variable, places, period and season"
+          needed={props.settingsNeeded || state.status === "failed"}
+        >
+          {props.settings}
+        </SettingsFold>
+      }
       answer={
         <>
           <ProgressLine active={loading} label="Getting the data and testing the trend…" />
+          {firstLoad ? <VerdictSkeleton /> : null}
           {state.status === "failed" ? (
             <CaseProblem
               error={state.error}
@@ -382,6 +520,23 @@ function CaseView(props: CaseViewProps): JSX.Element {
               </div>
             ) : null}
           </div>
+          {/* The chart follows the verdict at once: the proof beside the answer. It stays out of
+              the live region, whose text is read aloud when it changes. */}
+          {shown !== null ? (
+            <div className={resultsClass} aria-busy={loading}>
+              <TrendChart investigation={shown} />
+            </div>
+          ) : firstLoad ? (
+            <ChartSkeleton />
+          ) : null}
+          {shown !== null ? (
+            <>
+              <CaseActions key={key} subject="case" region={regionLink(params, props.onOpenPage)} />
+              <StageNote>
+                <StageCaption investigation={shown} />
+              </StageNote>
+            </>
+          ) : null}
           {props.notes}
           {shown !== null ? (
             <CrossChecks
@@ -396,13 +551,7 @@ function CaseView(props: CaseViewProps): JSX.Element {
       main={
         shown !== null ? (
           <div className={resultsClass} aria-busy={loading}>
-            <TrendChart investigation={shown} />
-            <MapPanel
-              places={mapPlaces}
-              pickedPoint={props.pickedPoint}
-              onPick={props.onPick}
-              region={regionLink(params, props.onOpenPage)}
-            />
+            <PlaceLegend places={mapPlaces} pickedPoint={props.pickedPoint} />
             <PeriodExplorer params={params} investigation={shown} onOpenCase={props.onOpenCase} />
             <EvidencePanel investigation={shown} />
           </div>
@@ -420,12 +569,6 @@ function loadCase(
 ): Promise<Investigation> {
   if (preloaded?.key === key) return Promise.resolve(preloaded.investigation);
   return getCase(params, signal);
-}
-
-interface RegionLink {
-  url: string;
-  placeName: string;
-  onOpenPage: (url: string) => void;
 }
 
 /** "Map this region": the case's variable, period and season over a box around its first place. */
@@ -448,6 +591,22 @@ function shownInvestigation(state: RequestState<Investigation>): Investigation |
   return null;
 }
 
+/** The line on the stage that says what the globe does on this screen (spec 3, "The globe"). */
+function stageHint(route: Route, examples: RequestState<ExampleCase[]>): StageHint {
+  if (route.kind === "map") return REGION_HINT;
+  const pinned = examples.status === "done" && examples.value.length > 0;
+  return (route.kind === "home" || route.kind === "bad_link") && pinned ? EXAMPLES_HINT : PICK_HINT;
+}
+
+/** The places of a case that has not run: their points and names, without grid cells. */
+function placesOfDraft(places: readonly CasePlace[]): MapPlace[] {
+  return places.map((place) => ({
+    name: place.name ?? formatCoordinates(place.lat, place.lon),
+    lat: place.lat,
+    lon: place.lon,
+  }));
+}
+
 function placesOnMap(investigation: Investigation): MapPlace[] {
   return investigation.results.map(({ place }) => ({
     name: place.name,
@@ -460,43 +619,4 @@ function placesOnMap(investigation: Investigation): MapPlace[] {
 function caseTitle(investigation: Investigation): string {
   const names = investigation.results.map((result) => result.place.name).join(", ");
   return `${investigation.variable.name} in ${names}`;
-}
-
-function MapPanel({
-  places,
-  pickedPoint,
-  onPick,
-  region,
-}: {
-  places: readonly MapPlace[];
-  pickedPoint: CasePlace | null;
-  onPick: (point: CasePlace) => void;
-  region?: RegionLink;
-}): JSX.Element {
-  return (
-    <>
-      <Suspense fallback={<div className="panel map-placeholder">Loading the map…</div>}>
-        <PlaceMap places={places} onPick={onPick} />
-      </Suspense>
-      {region !== undefined ? (
-        <p className="region-link">
-          <a
-            className="button button-secondary"
-            href={region.url}
-            onClick={(event) => followInApp(event, region.url, region.onOpenPage)}
-          >
-            Map this region
-          </a>{" "}
-          <span className="field-hint">
-            The same test in every grid cell of a 10° by 10° box around {region.placeName}.
-          </span>
-        </p>
-      ) : null}
-      <p className="status-text" role="status">
-        {pickedPoint === null
-          ? ""
-          : `You picked ${formatCoordinates(pickedPoint.lat, pickedPoint.lon)}. Choose what to do with it in the case settings.`}
-      </p>
-    </>
-  );
 }
