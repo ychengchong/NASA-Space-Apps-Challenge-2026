@@ -168,18 +168,19 @@ def _trend_lines(entry: CatalogueEntry, trend: Trend) -> list[str]:
     def rate(value: float) -> str:
         return _with_units(format_signed_rate(value, entry.decimals), entry.rate_units)
 
-    lower, upper = trend.sen_ci95
     first, last = trend.line
+    p_value = format(trend.mk_p, ".4g") if trend.mk_p is not None else "Not assessed"
+    inference_note = trend.inference_reason or trend.assumptions
     return [
         f"  Sen's slope:       {rate(trend.sen_slope)} per decade"
-        f" (95% interval {rate(lower)} to {rate(upper)})",
+        " (95% interval unavailable: coverage not validated)",
         f"  Total change:      {rate(trend.total_change)}"
         f" from {trend.first_year} to {trend.last_year}",
         f"  Trend line:        {_number(first, entry)} to {_number(last, entry)} {entry.units}",
-        f"  Mann-Kendall p:    {trend.mk_p:.{P_VALUE_DIGITS}g}, after the correction factor"
-        f" {trend.variance_factor:.2f} (lag-1 autocorrelation {trend.lag1:.2f})",
+        f"  Mann-Kendall p:    {p_value}"
+        f"; method {trend.method_id or 'unavailable'}; {inference_note}",
         f"  Least squares:     {rate(trend.ols_slope)} per decade,"
-        f" p {trend.ols_p:.{P_VALUE_DIGITS}g}",
+        " descriptive; significance not assessed",
         f"  Years used:        {trend.n}",
     ]
 

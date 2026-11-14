@@ -96,6 +96,8 @@ function loadMonthly(investigation: Investigation, signal: AbortSignal): Promise
           to: requested.to,
           season: requested.season,
           resolution: "monthly",
+          snapshotIds: result.snapshot_id ? [result.snapshot_id] : undefined,
+          analysisVersion: investigation.analysis_version,
         },
         signal,
       ),

@@ -22,15 +22,15 @@ describe("buildCaseQuery", () => {
     expect(buildCaseQuery(HELSINKI_CASE)).toBe(HELSINKI_QUERY);
   });
 
-  test("rounds coordinates to two decimals", () => {
+  test("preserves the requested coordinate precision", () => {
     const query = buildCaseQuery({ ...HELSINKI_CASE, places: [{ lat: 60.16952, lon: 24.93545 }] });
-    expect(query).toContain("p=60.17,24.94&");
+    expect(query).toContain("p=60.16952,24.93545&");
   });
 
   test.each([
-    [44.065, "44.06"],
-    [7.125, "7.12"],
-    [-15.785, "-15.79"],
+    [44.065, "44.065"],
+    [7.125, "7.125"],
+    [-15.785, "-15.785"],
   ])("rounds the link coordinate %d as Python's round() does, to %s", (lon, written) => {
     const query = buildCaseQuery({ ...HELSINKI_CASE, places: [{ lat: 9.56, lon }] });
     expect(query).toContain(`p=9.56,${written}&`);
@@ -38,7 +38,7 @@ describe("buildCaseQuery", () => {
 
   test("writes a coordinate that rounds to zero without a minus sign", () => {
     const query = buildCaseQuery({ ...HELSINKI_CASE, places: [{ lat: -0.001, lon: 24.94 }] });
-    expect(query).toContain("p=0,24.94&");
+    expect(query).toContain("p=-0.001,24.94&");
   });
 
   test("writes no label when no place has a name", () => {
@@ -254,7 +254,7 @@ describe("map query", () => {
   };
 
   test("writes the variable, the period and the box, edges rounded as the backend rounds them", () => {
-    expect(buildMapQuery(MAP)).toBe("v=air_temp&from=1981&to=2025&s=JJA&box=55,20,65,30.62");
+    expect(buildMapQuery(MAP)).toBe("v=air_temp&from=1981&to=2025&s=JJA&box=55,20,65,30.625");
   });
 
   test("reads back a map it writes", () => {
@@ -303,7 +303,7 @@ describe("buildSeriesQuery", () => {
       resolution: "monthly",
       format: "csv",
     });
-    expect(query).toBe("v=air_temp&p=60.17,24.94&from=1981&to=2025&s=annual&res=monthly&format=csv");
+    expect(query).toBe("v=air_temp&p=60.1699,24.9384&from=1981&to=2025&s=annual&res=monthly&format=csv");
   });
 
   test("rounds the place of an investigation as the backend's link does", () => {
@@ -316,6 +316,6 @@ describe("buildSeriesQuery", () => {
       resolution: "monthly",
       format: "json",
     });
-    expect(query).toContain("p=9.56,44.06&");
+    expect(query).toContain("p=9.56,44.065&");
   });
 });

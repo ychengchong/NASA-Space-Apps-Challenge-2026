@@ -1,8 +1,9 @@
-"""Yearly values, Mann-Kendall with the autocorrelation correction, Sen's slope and the scan.
+"""Day-weighted yearly values, descriptive rates and ordinary MK reference arithmetic.
 
 Pure functions only: no network, no files, no clock, no randomness (spec 7).
 """
 
+import calendar
 import math
 import sys
 from collections.abc import Sequence
@@ -43,8 +44,8 @@ SEASON_MONTHS: dict[Season, tuple[tuple[int, int], ...]] = {
 # rounding noise: noise has no memory to measure, and its lag-1 autocorrelation could take
 # any value. Real variation, however small next to the values, lies far above it.
 _ROUNDING_NOISE = (1e3 * sys.float_info.epsilon) ** 2
-# r1 is below 1 whenever the residuals are not all zero, so this only stops rounding from
-# making 1 - r1 zero in the correction factor.
+# r1 is below 1 whenever the residuals are not all zero, so this bounds the reported
+# diagnostic against numerical overshoot.
 _LARGEST_R1 = math.nextafter(1.0, 0.0)
 
 # Spec 7, "Equal values": the Mann-Kendall test and Sen's slope compare yearly values rounded
@@ -62,7 +63,8 @@ def yearly_values(
 ) -> list[tuple[int, float | None]]:
     """One (year, value) pair per year from `first_year` to `last_year` inclusive (spec 7, step 2).
 
-    The value is the mean of that year's months for `season`, in the units of the monthly
+    The value is the calendar-day-weighted mean of that year's months for `season`,
+    in the units of the monthly
     values. A year with any of its months absent or None has the value None, never zero. For
     DJF, the value of year Y averages December of Y - 1 with January and February of Y, so a
     record that starts in 1981 has its first DJF value in 1982.
@@ -79,7 +81,12 @@ def _season_mean(monthly: MonthlyValues, season: Season, year: int) -> float | N
         if value is None:
             return None
         values.append(value)
-    return math.fsum(values) / len(values)
+    weights = [
+        calendar.monthrange(year + offset, month)[1] for offset, month in SEASON_MONTHS[season]
+    ]
+    return math.fsum(value * weight for value, weight in zip(values, weights, strict=True)) / sum(
+        weights
+    )
 
 
 @dataclass(frozen=True)
@@ -90,22 +97,22 @@ class TrendStats:
     first_year: int
     last_year: int
     s: int
-    var_s: float  # Var(S) with the tie correction, before the factor f
+    var_s: float  # Ordinary tie-adjusted Var(S); not a serial-dependence correction.
     r1: float
-    f: float
+    f: float  # Always 1; no residual-lag correction is applied.
     v: float  # V = f Var(S)
-    z: float  # from V, so after the correction
-    mk_p: float  # two-sided, after the correction
+    z: float  # Ordinary normal-reference statistic, never used as application inference.
+    mk_p: float  # Ordinary two-sided reference p; application inference is separate.
     mk_p_uncorrected: float  # two-sided, from Var(S) alone
     sen_slope: float  # units per year
     sen_ci95: tuple[float, float]  # units per year
     line: tuple[float, float]  # trend-line value in first_year and in last_year
     ols_slope: float  # units per year
-    ols_p: float  # t-test with the standard error multiplied by sqrt(f)
+    ols_p: float  # Independent-error reference only; never exposed as valid application inference.
 
 
 def compute_trend(years: Sequence[int], values: Sequence[float]) -> TrendStats:
-    """Mann-Kendall with the correction, Sen's slope and the least-squares cross-check.
+    """Ordinary MK reference arithmetic, Sen's slope and descriptive OLS quantities.
 
     Returns spec 7, steps 4 to 8, with slopes in value units per year and every number
     finite. `years` are the years that have a value, ascending and without repeats, and
@@ -135,7 +142,9 @@ def compute_trend(years: Sequence[int], values: Sequence[float]) -> TrendStats:
     rss = float(e @ e)
     exact_fit = rss <= _ROUNDING_NOISE * float(x @ x)
     r1 = 0.0 if exact_fit else min(float(e[:-1] @ e[1:]) / rss, _LARGEST_R1)
-    f = (1 + r1) / (1 - r1) if r1 > 0 else 1.0
+    # Ordinary MK arithmetic is a reference only. Runtime inference is gated separately.
+    # Residual autocorrelation is diagnostic, never a universal variance correction.
+    f = 1.0
     v = f * var_s
     z = _mk_z(s, v)
 
@@ -226,20 +235,22 @@ def to_trend(stats: TrendStats, scan: list[ScanPoint] | None = None) -> Trend:
     `last_year`, in value units. `line` stays in value units. `scan` is passed through.
     """
     sen_slope = stats.sen_slope * PER_DECADE
-    lower, upper = stats.sen_ci95
     return Trend(
         n=stats.n,
         first_year=stats.first_year,
         last_year=stats.last_year,
         sen_slope=sen_slope,
-        sen_ci95=(lower * PER_DECADE, upper * PER_DECADE),
+        sen_ci95=None,
         line=stats.line,
         total_change=sen_slope * (stats.last_year - stats.first_year) / PER_DECADE,
-        mk_p=stats.mk_p,
+        mk_p=None,
         lag1=stats.r1,
         variance_factor=stats.f,
         ols_slope=stats.ols_slope * PER_DECADE,
-        ols_p=stats.ols_p,
+        ols_p=None,
+        inference_reason=(
+            "Reference arithmetic only; no validated inference policy has been applied."
+        ),
         scan=scan,
     )
 
@@ -249,15 +260,13 @@ def period_scan(years: Sequence[int], values: Sequence[float]) -> list[ScanPoint
 
     `years` and `values` follow the rules of `compute_trend`: years with a value only,
     ascending. There is one point per start year among `years` that leaves at least
-    MIN_YEARS_FOR_TEST values, in start order, with Sen's slope per decade and the corrected
-    Mann-Kendall p-value. A record shorter than that gives an empty list.
+    MIN_YEARS_FOR_TEST values, in start order, with Sen's slope per decade and the unavailable
+    p-value; scanning is descriptive. A record shorter than that gives an empty list.
     """
     points: list[ScanPoint] = []
     for k in range(len(years) - MIN_YEARS_FOR_TEST + 1):
         tail = compute_trend(years[k:], values[k:])
-        points.append(
-            ScanPoint(start=years[k], sen_slope=tail.sen_slope * PER_DECADE, mk_p=tail.mk_p)
-        )
+        points.append(ScanPoint(start=years[k], sen_slope=tail.sen_slope * PER_DECADE, mk_p=None))
     return points
 
 
@@ -296,6 +305,9 @@ def cos_lat_weighted_mean(
 
 
 def _weighted_mean(cells: Sequence[tuple[float, MonthlyValues]], month: MonthKey) -> float | None:
+    # Keep the spatial footprint fixed; a changing denominator can create an apparent trend.
+    if any(monthly.get(month) is None for _, monthly in cells):
+        return None
     present = [
         (math.cos(math.radians(lat)), value)
         for lat, monthly in cells

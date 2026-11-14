@@ -67,6 +67,7 @@ const KIND_LABELS: Readonly<Record<Verdict["kind"], string>> = {
   not_significant: "Not significant",
   too_few_years: "Too few years",
   no_data: "No data",
+  inference_unavailable: "Significance unavailable",
 };
 
 /** The direction as an arrow and a word, never by colour alone (spec 3), and the kind. */
@@ -83,7 +84,7 @@ function DirectionBadge({ verdict }: { verdict: Verdict }): JSX.Element | null {
   if (verdict.direction === "rising") return <Direction arrow="↑" word="Rising" />;
   if (verdict.direction === "falling") return <Direction arrow="↓" word="Falling" />;
   // Spec 7: a zero Sen's slope is a test with no direction.
-  if (verdict.kind === "not_significant") return <Direction arrow="→" word="No upward or downward trend" />;
+  if (verdict.kind === "not_significant") return <Direction arrow="→" word="Zero estimated slope" />;
   return null;
 }
 

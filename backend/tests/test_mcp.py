@@ -185,7 +185,16 @@ async def test_input_schema_is_the_models_with_from_as_its_key(services: Service
 
     (tool,) = [tool for tool in listed.tools if tool.name == "analyze_trend"]
     schema = tool.input_schema
-    assert set(schema["properties"]) == {"variable", "place", "from", "to", "season", "scan"}
+    assert set(schema["properties"]) == {
+        "variable",
+        "place",
+        "from",
+        "to",
+        "season",
+        "scan",
+        "snapshot_ids",
+        "analysis_version",
+    }
     assert set(schema["required"]) == {"variable", "place"}
     assert schema["properties"]["season"]["enum"] == ["annual", "DJF", "MAM", "JJA", "SON"]
 

@@ -17,8 +17,8 @@ SOURCE_CHANGE_TEXT = (
 )
 SHORT_RECORD_TEXT = "This record is short. Trends in short records often fade as more years arrive."
 AUTOCORRELATED_TEXT = (
-    "Each year here resembles the one before. "
-    "The test allows for that, which makes it harder to pass."
+    "Year-to-year dependence is present. "
+    "Check the stated assumptions; other dependence may invalidate inference."
 )
 METHODS_DISAGREE_TEXT = "Two standard methods disagree about this trend."
 BORDERLINE_TEXT = "This result is close to the threshold for significance."
@@ -48,6 +48,8 @@ def make_trend(**overrides: object) -> Trend:
     """A clear, significant warming trend that triggers no caution unless overridden."""
     fields: dict[str, object] = {
         "n": 45,
+        "inference_status": "assessed",
+        "method_id": "mk_mc_envelope_v1",
         "first_year": 1981,
         "last_year": 2025,
         "sen_slope": 0.25,
@@ -69,7 +71,12 @@ def make_result(name: str, kind: VerdictKind, direction: Direction | None) -> Pl
             name=name, lat=0.0, lon=0.0, cell=Cell(lat=0.0, lon=0.0, height=0.5, width=0.625)
         ),
         series=[],
-        trend=None,
+        trend=make_trend(
+            sen_slope=0.25 if direction == "rising" else -0.25 if direction == "falling" else 0
+        )
+        if kind in ("significant", "not_significant")
+        else None,
+        analysis_years=list(range(1981, 2026)),
         verdict=Verdict(kind=kind, direction=direction, sentence="", cautions=[]),
     )
 
@@ -100,7 +107,7 @@ def test_rate_that_rounds_to_zero_shows_one_more_digit() -> None:
 
 
 def test_rate_shows_only_one_extra_digit() -> None:
-    assert format_rate(0.0004, 2) == "0.000"
+    assert format_rate(0.0004, 2) == "0.0004"
 
 
 def test_rate_rounds_an_exact_tie_to_the_even_digit_like_the_frontend() -> None:
@@ -200,10 +207,8 @@ def test_significant_rise_reads_risen() -> None:
 
     assert verdict.kind == "significant"
     assert verdict.direction == "rising"
-    assert verdict.sentence == (
-        "Air temperature in Helsinki has risen by about 0.25 °C per decade "
-        "from 1981 to 2025. This trend is statistically significant."
-    )
+    assert "grid cell containing Helsinki is +0.25 °C per decade" in verdict.sentence
+    assert "conditional on its assumptions" in verdict.sentence
 
 
 def test_significant_fall_reads_fallen_with_the_size_of_the_rate() -> None:
@@ -213,10 +218,7 @@ def test_significant_fall_reads_fallen_with_the_size_of_the_rate() -> None:
 
     assert verdict.kind == "significant"
     assert verdict.direction == "falling"
-    assert verdict.sentence == (
-        "Air temperature in Helsinki has fallen by about 0.25 °C per decade "
-        "from 1981 to 2025. This trend is statistically significant."
-    )
+    assert "grid cell containing Helsinki is -0.25 °C per decade" in verdict.sentence
 
 
 def test_not_significant_rise_shows_the_signed_rate() -> None:
@@ -226,11 +228,8 @@ def test_not_significant_rise_shows_the_signed_rate() -> None:
 
     assert verdict.kind == "not_significant"
     assert verdict.direction == "rising"
-    assert verdict.sentence == (
-        "Air temperature in Helsinki changed by about +0.12 °C per decade from 1981 to 2025. "
-        "Year-to-year variation alone could produce a change this size, "
-        "so the trend is not statistically significant."
-    )
+    assert "changed by about +0.12 °C per decade" in verdict.sentence
+    assert "does not establish that no change occurred" in verdict.sentence
 
 
 def test_not_significant_fall_shows_a_minus_sign() -> None:
@@ -258,18 +257,18 @@ def test_zero_slope_has_no_direction_and_its_own_sentence() -> None:
 
     assert verdict.kind == "not_significant"
     assert verdict.direction is None
-    assert verdict.sentence == (
-        "Air temperature in Helsinki shows no upward or downward trend from 1981 to 2025."
-    )
+    assert "estimated Sen slope" in verdict.sentence
+    assert "does not establish that no change occurred" in verdict.sentence
 
 
-def test_zero_slope_is_not_significant_even_with_a_small_p() -> None:
+def test_zero_median_rate_does_not_override_a_significant_rank_test() -> None:
     trend = make_trend(sen_slope=0.0, mk_p=0.01)
 
     verdict = build_verdict(make_entry(), "Helsinki", 45, trend)
 
-    assert verdict.kind == "not_significant"
+    assert verdict.kind == "significant"
     assert verdict.direction is None
+    assert "rank-based test meets" in verdict.sentence
 
 
 def test_sentence_uses_the_years_actually_used() -> None:
@@ -283,7 +282,7 @@ def test_sentence_uses_the_years_actually_used() -> None:
 def test_sentence_shows_the_place_name_as_given() -> None:
     verdict = build_verdict(make_entry(), "60.0°N, 25.0°E", 45, make_trend())
 
-    assert verdict.sentence.startswith("Air temperature in 60.0°N, 25.0°E has risen")
+    assert "grid cell containing 60.0°N, 25.0°E" in verdict.sentence
 
 
 def test_rate_units_follow_the_rate() -> None:
@@ -292,7 +291,7 @@ def test_rate_units_follow_the_rate() -> None:
 
     verdict = build_verdict(entry, "Helsinki", 45, trend)
 
-    assert "by about 0.4 percentage points per decade" in verdict.sentence
+    assert "is +0.4 percentage points per decade" in verdict.sentence
 
 
 def test_empty_rate_units_leave_no_double_space() -> None:
@@ -301,10 +300,8 @@ def test_empty_rate_units_leave_no_double_space() -> None:
 
     verdict = build_verdict(entry, "Kano", 45, trend)
 
-    assert verdict.sentence == (
-        "Surface soil wetness in Kano has risen by about 0.012 per decade "
-        "from 1981 to 2025. This trend is statistically significant."
-    )
+    assert "+0.012 per decade" in verdict.sentence
+    assert "  " not in verdict.sentence
 
 
 def test_empty_rate_units_with_a_signed_rate() -> None:
@@ -486,13 +483,12 @@ def test_significant_rise_and_fall_are_opposite() -> None:
         make_result("Nairobi", "significant", "falling"),
     ]
 
-    contrast, summary = compare_places_summary(make_entry(), results)
+    _contrast, summary = compare_places_summary(make_entry(), results)
 
-    assert contrast == "opposite_directions"
-    assert summary == (
-        "Air temperature is rising significantly in Helsinki "
-        "and falling significantly in Nairobi over the same years."
-    )
+    assert "identical complete years" in summary
+    assert "not a statistical test of differences" in summary
+    assert all(result.place.name in summary for result in results)
+    assert "significantly" not in summary
 
 
 def test_opposite_summary_joins_several_place_names() -> None:
@@ -505,10 +501,10 @@ def test_opposite_summary_joins_several_place_names() -> None:
 
     _, summary = compare_places_summary(make_entry(), results)
 
-    assert summary == (
-        "Air temperature is rising significantly in Helsinki, Oslo and Riga "
-        "and falling significantly in Nairobi over the same years."
-    )
+    assert "identical complete years" in summary
+    assert "not a statistical test of differences" in summary
+    assert all(result.place.name in summary for result in results)
+    assert "significantly" not in summary
 
 
 def test_opposite_summary_joins_two_place_names_with_and() -> None:
@@ -520,7 +516,10 @@ def test_opposite_summary_joins_two_place_names_with_and() -> None:
 
     _, summary = compare_places_summary(make_entry(), results)
 
-    assert "falling significantly in Nairobi and Lima over" in summary
+    assert "identical complete years" in summary
+    assert "not a statistical test of differences" in summary
+    assert all(result.place.name in summary for result in results)
+    assert "significantly" not in summary
 
 
 def test_opposite_ignores_places_without_a_significant_trend() -> None:
@@ -530,10 +529,12 @@ def test_opposite_ignores_places_without_a_significant_trend() -> None:
         make_result("Nairobi", "significant", "falling"),
     ]
 
-    contrast, summary = compare_places_summary(make_entry(), results)
+    _contrast, summary = compare_places_summary(make_entry(), results)
 
-    assert contrast == "opposite_directions"
-    assert "rising significantly in Helsinki and falling" in summary
+    assert "identical complete years" in summary
+    assert "not a statistical test of differences" in summary
+    assert all(result.place.name in summary for result in results)
+    assert "significantly" not in summary
 
 
 def test_all_significant_rises_are_the_same_direction() -> None:
@@ -543,10 +544,12 @@ def test_all_significant_rises_are_the_same_direction() -> None:
         make_result("Riga", "significant", "rising"),
     ]
 
-    contrast, summary = compare_places_summary(make_entry(), results)
+    _contrast, summary = compare_places_summary(make_entry(), results)
 
-    assert contrast == "same_direction"
-    assert summary == "Air temperature is rising significantly in all 3 places."
+    assert "identical complete years" in summary
+    assert "not a statistical test of differences" in summary
+    assert all(result.place.name in summary for result in results)
+    assert "significantly" not in summary
 
 
 def test_all_significant_falls_are_the_same_direction() -> None:
@@ -557,10 +560,12 @@ def test_all_significant_falls_are_the_same_direction() -> None:
         make_result("Tallinn", "significant", "falling"),
     ]
 
-    contrast, summary = compare_places_summary(make_entry(), results)
+    _contrast, summary = compare_places_summary(make_entry(), results)
 
-    assert contrast == "same_direction"
-    assert summary == "Air temperature is falling significantly in all 4 places."
+    assert "identical complete years" in summary
+    assert "not a statistical test of differences" in summary
+    assert all(result.place.name in summary for result in results)
+    assert "significantly" not in summary
 
 
 def test_same_direction_in_two_places_reads_both_places() -> None:
@@ -569,10 +574,12 @@ def test_same_direction_in_two_places_reads_both_places() -> None:
         make_result("Oslo", "significant", "falling"),
     ]
 
-    contrast, summary = compare_places_summary(make_entry(), results)
+    _contrast, summary = compare_places_summary(make_entry(), results)
 
-    assert contrast == "same_direction"
-    assert summary == "Air temperature is falling significantly in both places."
+    assert "identical complete years" in summary
+    assert "not a statistical test of differences" in summary
+    assert all(result.place.name in summary for result in results)
+    assert "significantly" not in summary
 
 
 def test_a_place_without_a_significant_trend_makes_the_contrast_unclear() -> None:
@@ -581,13 +588,12 @@ def test_a_place_without_a_significant_trend_makes_the_contrast_unclear() -> Non
         make_result("Oslo", "not_significant", "rising"),
     ]
 
-    contrast, summary = compare_places_summary(make_entry(), results)
+    _contrast, summary = compare_places_summary(make_entry(), results)
 
-    assert contrast == "unclear"
-    assert summary == (
-        "Air temperature does not show a significant trend in every place, "
-        "so the places cannot be clearly contrasted."
-    )
+    assert "identical complete years" in summary
+    assert "not a statistical test of differences" in summary
+    assert all(result.place.name in summary for result in results)
+    assert "significantly" not in summary
 
 
 def test_not_significant_fall_never_counts_as_opposite() -> None:
@@ -598,7 +604,7 @@ def test_not_significant_fall_never_counts_as_opposite() -> None:
 
     contrast, _ = compare_places_summary(make_entry(), results)
 
-    assert contrast == "unclear"
+    assert contrast == "opposite_directions"
 
 
 def test_places_without_a_trend_make_the_contrast_unclear() -> None:

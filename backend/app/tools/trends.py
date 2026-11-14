@@ -4,11 +4,12 @@ every grid cell in a box as one TrendMap (spec 5; spec 7, "Method" and "Region v
 
 import asyncio
 import hashlib
+import json
 from collections.abc import Sequence
 from urllib.parse import quote, urlencode
 
 from app.catalogue import CatalogueEntry, GridAlignment, get_entry, to_summary
-from app.errors import BadPlaceError
+from app.errors import BadPlaceError, BadRequestError
 from app.models import (
     AnalyzeTrendInput,
     Box,
@@ -22,10 +23,12 @@ from app.models import (
     PlaceInput,
     PlaceResult,
     Requested,
+    ScanPoint,
     Season,
     SourceRef,
     Trend,
     TrendMap,
+    Verdict,
     YearValue,
 )
 from app.sources.base import MonthlyValues, PointSeries
@@ -33,13 +36,11 @@ from app.stats import (
     FALSE_DISCOVERY_RATE,
     MIN_YEARS_FOR_TEST,
     benjamini_hochberg,
-    compute_trend,
     cos_lat_weighted_mean,
-    period_scan,
-    to_trend,
     yearly_values,
 )
 from app.tools.context import ToolContext
+from app.tools.inference import ANALYSIS_VERSION, analyse_values
 from app.tools.places import (
     LINK_COORDINATE_DECIMALS,
     format_coordinates,
@@ -84,15 +85,16 @@ SEASON_DESCRIPTIONS: dict[Season, str] = {
 async def analyze_trend(inp: AnalyzeTrendInput, ctx: ToolContext) -> Investigation:
     """The trend of one variable at one place, as an Investigation with one result.
 
-    Follows spec 7, "Method": yearly values for the clamped period and season, the corrected
-    Mann-Kendall test with Sen's slope per decade, and the verdict. Years with a missing month
-    stay in the series as None and are left out of the test. Fewer than 10 yearly values give
-    the verdict kind "too_few_years", and none at all "no_data"; both have no trend. Raises
-    `UnknownVariableError`, `BadPeriodError` or `SourceUnavailableError`.
+    Annual values are day-weighted. Rates use real years and inference requires
+    a complete requested annual T2M period, a homogeneous source and approved tables.
+    Missing years remain gaps; unsupported inference is explicit and nullable.
+    Fewer than ten values gives no rate. The result freezes evidence and an analysis version.
     """
     entry = get_entry(inp.variable)
     requested = resolve_period(entry, inp, ctx.last_complete_year)
-    results, sources = await _analyse_places(entry, [inp.place], requested, inp.scan, ctx)
+    results, sources = await _analyse_places(
+        entry, [inp.place], requested, inp.scan, ctx, inp.snapshot_ids
+    )
     return _investigation(entry, [inp.place], requested, results, sources, ctx)
 
 
@@ -105,7 +107,9 @@ async def compare_places(inp: ComparePlacesInput, ctx: ToolContext) -> Investiga
     """
     entry = get_entry(inp.variable)
     requested = resolve_period(entry, inp, ctx.last_complete_year)
-    results, sources = await _analyse_places(entry, inp.places, requested, inp.scan, ctx)
+    results, sources = await _analyse_places(
+        entry, inp.places, requested, inp.scan, ctx, inp.snapshot_ids
+    )
     contrast, summary = compare_places_summary(entry, results)
     return _investigation(
         entry, inp.places, requested, results, sources, ctx, contrast=contrast, summary=summary
@@ -118,17 +122,39 @@ async def _analyse_places(
     requested: Requested,
     scan: bool,
     ctx: ToolContext,
+    snapshot_ids: Sequence[str] = (),
 ) -> tuple[list[PlaceResult], list[SourceRef]]:
+    if snapshot_ids and len(snapshot_ids) != len(place_inputs):
+        raise BadRequestError("Give exactly one snapshot for each place.")
     places = [resolve_place(place_input, entry) for place_input in place_inputs]
     # gather, not a TaskGroup, so a failed fetch raises its own AppError for the adapters.
     point_series = await asyncio.gather(
-        *(fetch_point_series(entry, place, ctx) for place in places)
+        *(
+            fetch_point_series(entry, place, ctx, snapshot_ids[index] if snapshot_ids else None)
+            for index, place in enumerate(places)
+        )
     )
+    frozen = [ctx.snapshots.freeze(series) for series in point_series]
+    common = None
+    if len(places) > 1:
+        available = [
+            set(
+                year
+                for year, value in yearly_values(
+                    series.monthly, requested.season, requested.from_, requested.to
+                )
+                if value is not None
+            )
+            for series in point_series
+        ]
+        common = set.intersection(*available)
     results = [
-        _place_result(entry, place, series.monthly, requested, scan)
-        for place, series in zip(places, point_series, strict=True)
+        _place_result(entry, place, series.monthly, requested, scan, common).model_copy(
+            update={"snapshot_id": identity}
+        )
+        for place, series, identity in zip(places, point_series, frozen, strict=True)
     ]
-    return results, _sources(entry, point_series)
+    return results, _sources(entry, point_series, frozen)
 
 
 def _place_result(
@@ -137,15 +163,50 @@ def _place_result(
     monthly: MonthlyValues,
     requested: Requested,
     scan: bool,
+    common_years: set[int] | None = None,
+    allow_inference: bool = True,
 ) -> PlaceResult:
     yearly = yearly_values(monthly, requested.season, requested.from_, requested.to)
     years, values = _years_with_values(yearly)
-    trend = _trend(years, values, scan)
+    if common_years is not None:
+        selected = [
+            (year, value) for year, value in zip(years, values, strict=True) if year in common_years
+        ]
+        years = [year for year, _ in selected]
+        values = [value for _, value in selected]
+    trend = analyse_values(
+        years,
+        values,
+        entry,
+        requested.season,
+        allow_inference=allow_inference,
+        complete_period=len(years) == requested.to - requested.from_ + 1,
+    )
+    if scan and trend is not None:
+        trend.scan = [
+            ScanPoint(start=years[index], sen_slope=tail.sen_slope, mk_p=None)
+            for index in range(max(0, len(years) - MIN_YEARS_FOR_TEST + 1))
+            if (
+                tail := analyse_values(
+                    years[index:], values[index:], entry, requested.season, allow_inference=False
+                )
+            )
+            is not None
+        ]
+    verdict = build_verdict(entry, place.name, len(values), trend)
+    if common_years is not None and not years and any(value is not None for _, value in yearly):
+        verdict = Verdict(
+            kind="inference_unavailable",
+            direction=None,
+            cautions=[],
+            sentence="No common complete years are available for this comparison.",
+        )
     return PlaceResult(
         place=place,
         series=[YearValue(year=year, value=value) for year, value in yearly],
         trend=trend,
-        verdict=build_verdict(entry, place.name, len(values), trend),
+        verdict=verdict,
+        analysis_years=years,
     )
 
 
@@ -156,18 +217,23 @@ def _years_with_values(yearly: Sequence[tuple[int, float | None]]) -> tuple[list
     return years, values
 
 
-def _trend(years: list[int], values: list[float], scan: bool) -> Trend | None:
-    # Spec 7, step 3: too few yearly values to test, so no trend at all.
-    if len(values) < MIN_YEARS_FOR_TEST:
-        return None
-    scan_points = period_scan(years, values) if scan else None
-    return to_trend(compute_trend(years, values), scan_points)
-
-
-def _sources(entry: CatalogueEntry, point_series: Sequence[PointSeries]) -> list[SourceRef]:
+def _sources(
+    entry: CatalogueEntry, point_series: Sequence[PointSeries], identities: Sequence[str] = ()
+) -> list[SourceRef]:
     sources: list[SourceRef] = []
-    for series in point_series:
-        source = SourceRef(name=entry.source, version=series.version, accessed=series.accessed)
+    for index, series in enumerate(point_series):
+        source = SourceRef(
+            name=entry.source,
+            version=series.version,
+            accessed=series.accessed,
+            snapshot_id=identities[index] if identities else None,
+            raw_sha256=series.raw_sha256,
+            url=series.query_url or "https://power.larc.nasa.gov/",
+            product=series.product or "Product release not recorded in legacy cache",
+            provenance_status="raw_response_retained"
+            if series.raw_sha256
+            else "legacy_normalized_cache",
+        )
         if source not in sources:
             sources.append(source)
     return sources
@@ -184,8 +250,18 @@ def _investigation(
     summary: str | None = None,
 ) -> Investigation:
     query = _case_query(entry.id, place_inputs, requested)
+    identities = [result.snapshot_id for result in results]
+    params = [("snap", identity) for identity in identities if identity is not None]
+    query += "&" + urlencode([*params, ("av", ANALYSIS_VERSION)])
+    normalized = [result.model_dump(mode="json") for result in results]
+    for result in normalized:
+        if result["trend"] is not None:
+            result["trend"].pop("scan", None)
+    evidence = {"query": query, "results": normalized}
     return Investigation(
-        id=hashlib.sha256(query.encode("utf-8")).hexdigest()[:CASE_ID_HEX_DIGITS],
+        id=hashlib.sha256(
+            json.dumps(evidence, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
         variable=to_summary(entry),
         requested=requested,
         results=results,
@@ -194,13 +270,16 @@ def _investigation(
         steps=_steps(entry, place_inputs, requested, results),
         sources=sources,
         app_url=f"{ctx.public_base_url or ''}{CASE_PATH}?{query}",
+        analysis_version=ANALYSIS_VERSION,
+        common_years=results[0].analysis_years if len(results) > 1 else None,
+        pinned=all(identity is not None for identity in identities),
     )
 
 
 def _case_query(variable_id: str, place_inputs: Sequence[PlaceInput], requested: Requested) -> str:
     """The case parameters of spec 10 in their order: v, p..., label..., from, to, s.
 
-    Coordinates are rounded to two decimals (spec 11). Labels appear only when some place has
+    Coordinates preserve their original precision. Labels appear only when some place has
     one, and then once per place, empty for a place without one, so they stay in step with p.
     The scan is a display option and not part of the case.
     """
@@ -224,7 +303,7 @@ def _link_point(place_input: PlaceInput) -> str:
 
 def _link_coordinate(x: float) -> str:
     """Two decimals at most, without trailing zeros: 60.17, 60.1 or 60."""
-    return f"{round_link_coordinate(x):.2f}".rstrip("0").rstrip(".")
+    return str(round_link_coordinate(x)).removesuffix(".0")
 
 
 def _steps(
@@ -269,7 +348,8 @@ def _grid_step(entry: CatalogueEntry, place_input: PlaceInput, place: Place) -> 
 
 def _period_step(requested: Requested) -> str:
     step = (
-        f"Averaged {SEASON_DESCRIPTIONS[requested.season]} of each year from {requested.from_} "
+        f"Calendar-day-weighted {SEASON_DESCRIPTIONS[requested.season]} of each year "
+        f"from {requested.from_} "
         f"to {requested.to} into one value per year. A year with a missing month has no value."
     )
     if requested.season == "DJF":
@@ -279,9 +359,11 @@ def _period_step(requested: Requested) -> str:
 
 def _test_step(result: PlaceResult) -> str:
     name = result.place.name
-    complete_years = sum(1 for year_value in result.series if year_value.value is not None)
+    complete_years = len(result.analysis_years)
     trend = result.trend
     if complete_years == 0:
+        if any(point.value is not None for point in result.series):
+            return f"{name}: no common complete years were selected; no rate or test was assessed."
         return f"{name}: no year in the period has a value for every month, so no test was run."
     if trend is None:
         years = "1 complete year" if complete_years == 1 else f"{complete_years} complete years"
@@ -291,47 +373,29 @@ def _test_step(result: PlaceResult) -> str:
         )
     step = (
         f"{name}: {trend.n} complete years from {trend.first_year} to {trend.last_year}. "
-        "Ran the Mann-Kendall test with Sen's slope and a least-squares cross-check. "
-        f"{_correction_text(trend)}"
+        "Estimated Sen's slope using actual years; OLS slope is descriptive. "
+        + (
+            f"Assessed Mann-Kendall significance using {trend.method_id}. {trend.assumptions}"
+            if trend.mk_p is not None
+            else f"Significance was not assessed: {trend.inference_reason}"
+        )
     )
     if trend.scan is not None:
         step += (
-            f" Repeated the test from each of {len(trend.scan)} start years that leave at least "
+            f" Computed descriptive rates from each of {len(trend.scan)} start years "
+            "that leave at least "
             f"{MIN_YEARS_FOR_TEST} years."
         )
     return step
 
 
-def _correction_text(trend: Trend) -> str:
-    # Spec 7, step 5: the correction applies only when r1 is positive.
-    if trend.lag1 > 0:
-        return (
-            f"The lag-1 autocorrelation of {trend.lag1:.2f} gave a correction factor of "
-            f"{trend.variance_factor:.2f} for year-to-year memory."
-        )
-    return "The lag-1 autocorrelation was not positive, so the correction factor was 1."
-
-
 async def map_trends(inp: MapTrendsInput, ctx: ToolContext) -> TrendMap:
     """The trend of one variable at every grid cell in a box, and of their area mean.
 
-    Follows spec 7, "Region view". The box's edges are first rounded to two decimals, as in a
-    link, so a shared map reopens the same cells; the result reports that box. Its south edge
-    must lie below its north edge and its west edge west of its east edge, so it never crosses
-    the 180° meridian, and each side must be from 2° to 10°. Otherwise `BadPlaceError` is
-    raised before any data is fetched.
-
-    Each grid point the source returns for the box is tested as a place would be, on the yearly
-    values of the clamped period and season, giving Sen's slope per decade and the corrected
-    Mann-Kendall p-value. A cell with fewer than 10 yearly values, or none, has None for both
-    and is never significant. `significant` is the Benjamini-Hochberg correction at a 5% false
-    discovery rate over the p-values of the cells that have one. Cells are ordered by latitude,
-    then longitude.
-
-    The area mean weights each cell's monthly values by the cosine of its latitude, leaving out
-    missing values, and is analysed exactly as `analyze_trend` analyses a place: it is named
-    "the selected area", sits at the box's centre, and its cell is the box. Raises
-    `UnknownVariableError`, `BadPeriodError`, `BadPlaceError` or `SourceUnavailableError`.
+    The validated box preserves its coordinate precision. Cells and the fixed-footprint
+    area mean have descriptive rates only: p-values are null and no cell is marked
+    significant. A missing cell-month makes the area mean missing for that month.
+    This conditional extension is a latest-data view, not a pinned regional analysis.
     """
     entry = get_entry(inp.variable)
     requested = resolve_period(entry, inp, ctx.last_complete_year)
@@ -340,11 +404,23 @@ async def map_trends(inp: MapTrendsInput, ctx: ToolContext) -> TrendMap:
     found = await ctx.source.regional_series(entry.code, box, ctx.last_complete_year)
     grid_points = sorted(found)
     point_series = [found[grid_point] for grid_point in grid_points]
-    trends = [_cell_trend(series.monthly, requested) for series in point_series]
+    trends = [
+        analyse_values(
+            *_years_with_values(
+                yearly_values(series.monthly, requested.season, requested.from_, requested.to)
+            ),
+            entry,
+            requested.season,
+            allow_inference=False,
+        )
+        for series in point_series
+    ]
     area_monthly = cos_lat_weighted_mean(
         [(lat, series.monthly) for (lat, _), series in zip(grid_points, point_series, strict=True)]
     )
-    area_mean = _place_result(entry, _area_place(box), area_monthly, requested, scan=False)
+    area_mean = _place_result(
+        entry, _area_place(box), area_monthly, requested, scan=False, allow_inference=False
+    )
     cells = _map_cells(grid_points, trends)
     return TrendMap(
         variable=to_summary(entry),
@@ -383,13 +459,6 @@ def _check_box(box: Box) -> None:
         )
 
 
-def _cell_trend(monthly: MonthlyValues, requested: Requested) -> Trend | None:
-    """One cell's trend, as `_place_result` computes it for a place; None with too few years."""
-    yearly = yearly_values(monthly, requested.season, requested.from_, requested.to)
-    years, values = _years_with_values(yearly)
-    return _trend(years, values, scan=False)
-
-
 def _map_cells(
     grid_points: Sequence[tuple[float, float]], trends: Sequence[Trend | None]
 ) -> list[MapCell]:
@@ -398,7 +467,7 @@ def _map_cells(
     tested = {
         grid_point: trend
         for grid_point, trend in zip(grid_points, trends, strict=True)
-        if trend is not None
+        if trend is not None and trend.mk_p is not None
     }
     passes = benjamini_hochberg([trend.mk_p for trend in tested.values()], FALSE_DISCOVERY_RATE)
     significant = dict(zip(tested, passes, strict=True))
@@ -463,9 +532,8 @@ def _map_steps(
         ),
         _period_step(requested),
         (
-            f"Tested {tested} of {_count(len(cells), 'grid point')} with the Mann-Kendall test "
-            f"and Sen's slope, corrected for year-to-year memory. A grid point needs at least "
-            f"{MIN_YEARS_FOR_TEST} complete years to be tested."
+            f"Estimated descriptive rates for {_count(len(cells), 'grid point')}. "
+            "Significance is not assessed for regional maps or their area mean."
         ),
     ]
     if tested > 0:

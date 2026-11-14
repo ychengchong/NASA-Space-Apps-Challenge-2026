@@ -26,7 +26,7 @@ const APP_NAME = "Trend Detective";
 
 // Spec 7, "Region view": the legend says exactly this.
 const STRICTER_TEST_NOTE =
-  "Marked cells pass a stricter test, because a map tests hundreds of cells at once.";
+  "Regional maps show descriptive rates. Significance is not assessed. This is a latest-data view; open a cell to freeze its individual evidence.";
 
 /** A map that is already in hand, such as one the AI ran, keyed by its parameter string. */
 export interface PreloadedMap {
@@ -348,16 +348,7 @@ function MapLegend({ variable, limit }: { variable: VariableSummary; limit: numb
           </span>
         </span>
       </div>
-      <ul className="legend-keys">
-        <li>
-          <span className="legend-swatch legend-mark" aria-hidden="true" /> Dot: the cell passes the
-          map&apos;s stricter test
-        </li>
-        <li>
-          <span className="legend-swatch legend-hatch" aria-hidden="true" /> Hatched: no result, because the
-          cell has too few complete years to test
-        </li>
-      </ul>
+      <p>No rate is available for cells with fewer than ten complete values.</p>
       <p className="legend-note">{STRICTER_TEST_NOTE}</p>
     </div>
   );

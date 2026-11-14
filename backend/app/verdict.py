@@ -28,16 +28,18 @@ BORDERLINE_P_HIGH = 0.10
 
 # Spec 7, "Verdict sentences". {amount} is the rate followed by the rate units, if any.
 _SIGNIFICANT_TEMPLATE = (
-    "{Variable} in {place} has {risen_or_fallen} by about {amount} per decade "
-    "from {first_year} to {last_year}. This trend is statistically significant."
+    "The estimated change in {Variable} for the grid cell containing {place} is "
+    "{amount} per decade from {first_year} to {last_year}. Evidence for a monotonic "
+    "trend meets the stated test's 5% threshold, conditional on its assumptions."
 )
 _NOT_SIGNIFICANT_TEMPLATE = (
     "{Variable} in {place} changed by about {amount} per decade from {first_year} to "
-    "{last_year}. Year-to-year variation alone could produce a change this size, "
-    "so the trend is not statistically significant."
+    "{last_year}. These data do not provide sufficient evidence for a monotonic trend "
+    "under the stated test. This does not establish that no change occurred."
 )
 _ZERO_SLOPE_TEMPLATE = (
-    "{Variable} in {place} shows no upward or downward trend from {first_year} to {last_year}."
+    "The estimated Sen slope for {Variable} in {place} is zero from {first_year} to "
+    "{last_year}. This does not establish that no change occurred."
 )
 _TOO_FEW_YEARS_TEMPLATE = (
     "There are only {n} complete years of {variable} data here. "
@@ -57,26 +59,12 @@ _FIXED_CAUTION_TEXTS: dict[Caution, str] = {
         "This record is short. Trends in short records often fade as more years arrive."
     ),
     "autocorrelated": (
-        "Each year here resembles the one before. "
-        "The test allows for that, which makes it harder to pass."
+        "Year-to-year dependence is present. "
+        "Check the stated assumptions; other dependence may invalidate inference."
     ),
     "methods_disagree": "Two standard methods disagree about this trend.",
     "borderline": "This result is close to the threshold for significance.",
 }
-
-# Spec 7, "Comparing places".
-_OPPOSITE_TEMPLATE = (
-    "{Variable} is rising significantly in {rising_places} "
-    "and falling significantly in {falling_places} over the same years."
-)
-_SAME_DIRECTION_TEMPLATE = "{Variable} is {direction} significantly in all {k} places."
-# With exactly this many places, the summary reads "both places" instead of "all {k} places".
-BOTH_PLACES_COUNT = 2
-_SAME_DIRECTION_BOTH_TEMPLATE = "{Variable} is {direction} significantly in both places."
-_UNCLEAR_TEMPLATE = (
-    "{Variable} does not show a significant trend in every place, "
-    "so the places cannot be clearly contrasted."
-)
 
 
 def format_rate(rate_per_decade: float, decimals: int) -> str:
@@ -89,8 +77,12 @@ def format_rate(rate_per_decade: float, decimals: int) -> str:
     """
     size = abs(rate_per_decade)
     text = f"{size:.{decimals}f}"
-    if float(text) == 0:
+    if size == 0:
         return f"{size:.{decimals + 1}f}"
+    precision = decimals
+    while float(text) == 0 and precision < 12:
+        precision += 1
+        text = f"{size:.{precision}f}"
     return text
 
 
@@ -134,6 +126,20 @@ def build_verdict(
         )
     if trend is None:
         raise ValueError(f"A record of {n_years} yearly values needs a trend.")
+    if trend.mk_p is None or trend.inference_status != "assessed":
+        reason = trend.inference_reason or "The inference method is not validated for this case."
+        return Verdict(
+            kind="inference_unavailable",
+            direction=None,
+            sentence=(
+                f"The estimated change in {variable} for the grid cell containing "
+                f"{place_name} is {format_signed_rate(trend.sen_slope, entry.decimals)} "
+                f"{entry.rate_units} per decade over {trend.first_year}-{trend.last_year}. "
+                f"{reason} "
+                "Significance has not been assessed."
+            ),
+            cautions=_cautions(entry, trend),
+        )
     kind, direction = _kind_and_direction(trend)
     return Verdict(
         kind=kind,
@@ -172,23 +178,36 @@ def compare_places_summary(
     """
     if len(results) < MIN_COMPARE_PLACES:
         raise ValueError(f"A comparison needs at least {MIN_COMPARE_PLACES} places.")
-    rising = _significant_place_names(results, "rising")
-    falling = _significant_place_names(results, "falling")
-    if rising and falling:
-        return "opposite_directions", _OPPOSITE_TEMPLATE.format(
-            Variable=entry.name, rising_places=_join(rising), falling_places=_join(falling)
+    years = results[0].analysis_years
+    if not years or any(result.analysis_years != years for result in results):
+        return "unclear", "No common complete years are available for a descriptive comparison."
+    usable = [result for result in results if result.trend is not None]
+    if len(usable) != len(results):
+        return (
+            "unclear",
+            "Too few common values to estimate all rates. Significance has not been compared.",
         )
-    if len(rising) == len(results) or len(falling) == len(results):
-        direction: Direction = "rising" if rising else "falling"
-        template = (
-            _SAME_DIRECTION_BOTH_TEMPLATE
-            if len(results) == BOTH_PLACES_COUNT
-            else _SAME_DIRECTION_TEMPLATE
-        )
-        return "same_direction", template.format(
-            Variable=entry.name, direction=direction, k=len(results)
-        )
-    return "unclear", _UNCLEAR_TEMPLATE.format(Variable=entry.name)
+    rates = "; ".join(
+        f"{result.place.name}: {format_signed_rate(result.trend.sen_slope, entry.decimals)} "
+        f"{entry.rate_units} per decade"
+        for result in usable
+    )
+    signs = {
+        1 if result.trend.sen_slope > 0 else -1 if result.trend.sen_slope < 0 else 0
+        for result in usable
+    }
+    contrast: Contrast = (
+        "opposite_directions"
+        if signs == {-1, 1}
+        else "same_direction"
+        if len(signs) == 1 and 0 not in signs
+        else "unclear"
+    )
+    return contrast, (
+        f"Descriptive comparison on {len(years)} identical complete years "
+        f"({years[0]}-{years[-1]}): {rates}. "
+        "This is not a statistical test of differences between places."
+    )
 
 
 def _variable_mid_sentence(entry: CatalogueEntry) -> str:
@@ -205,15 +224,15 @@ def _too_few_years_sentence(n_years: int, variable: str) -> str:
 def _kind_and_direction(trend: Trend) -> tuple[VerdictKind, Direction | None]:
     """Apply the verdict rules of spec 7 that need a trend; the first matching row decides."""
     if trend.sen_slope == 0:
-        return "not_significant", None
+        return ("significant" if _is_significant(trend.mk_p) else "not_significant"), None
     direction: Direction = "rising" if trend.sen_slope > 0 else "falling"
     if _is_significant(trend.mk_p):
         return "significant", direction
     return "not_significant", direction
 
 
-def _is_significant(p: float) -> bool:
-    return p < SIGNIFICANCE_LEVEL
+def _is_significant(p: float | None) -> bool:
+    return p is not None and p < SIGNIFICANCE_LEVEL
 
 
 def _trend_sentence(entry: CatalogueEntry, place_name: str, trend: Trend, kind: VerdictKind) -> str:
@@ -224,9 +243,15 @@ def _trend_sentence(entry: CatalogueEntry, place_name: str, trend: Trend, kind: 
         "last_year": trend.last_year,
     }
     if trend.sen_slope == 0:
-        return _ZERO_SLOPE_TEMPLATE.format(**fields)
+        sentence = _ZERO_SLOPE_TEMPLATE.format(**fields)
+        if kind == "significant":
+            sentence += (
+                " The rank-based test meets the stated 5% threshold under its assumptions. "
+                "Rank evidence and the median rate are distinct."
+            )
+        return sentence
     if kind == "significant":
-        rate = format_rate(trend.sen_slope, entry.decimals)
+        rate = format_signed_rate(trend.sen_slope, entry.decimals)
         risen_or_fallen = "risen" if trend.sen_slope > 0 else "fallen"
         return _SIGNIFICANT_TEMPLATE.format(
             risen_or_fallen=risen_or_fallen, amount=_amount(rate, entry.rate_units), **fields
@@ -251,11 +276,11 @@ def _cautions(entry: CatalogueEntry, trend: Trend | None) -> list[Caution]:
         return cautions
     if trend.n < SHORT_RECORD_YEARS:
         cautions.append("short_record")
-    if trend.lag1 >= AUTOCORRELATED_R1:
+    if trend.lag1 is not None and trend.lag1 >= AUTOCORRELATED_R1:
         cautions.append("autocorrelated")
-    if _is_significant(trend.mk_p) != _is_significant(trend.ols_p):
+    if trend.ols_p is not None and _is_significant(trend.mk_p) != _is_significant(trend.ols_p):
         cautions.append("methods_disagree")
-    if BORDERLINE_P_LOW <= trend.mk_p <= BORDERLINE_P_HIGH:
+    if trend.mk_p is not None and BORDERLINE_P_LOW <= trend.mk_p <= BORDERLINE_P_HIGH:
         cautions.append("borderline")
     return cautions
 
@@ -264,14 +289,6 @@ def _crossed_source_changes(entry: CatalogueEntry, trend: Trend) -> list[int]:
     # Spec 7, "Cautions": the first year used is before the change year and the last
     # year used is on or after it.
     return [year for year in entry.source_changes if trend.first_year < year <= trend.last_year]
-
-
-def _significant_place_names(results: Sequence[PlaceResult], direction: Direction) -> list[str]:
-    return [
-        result.place.name
-        for result in results
-        if result.verdict.kind == "significant" and result.verdict.direction == direction
-    ]
 
 
 def _join(names: Sequence[str]) -> str:

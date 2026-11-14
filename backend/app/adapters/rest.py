@@ -29,6 +29,7 @@ from app.config import DATA_DIR
 from app.errors import AppError, BadPlaceError, BadRequestError
 from app.models import (
     AnalyzeTrendInput,
+    Capabilities,
     ComparePlacesInput,
     FindPlaceInput,
     GetSeriesInput,
@@ -111,6 +112,12 @@ async def api_variables(request: Request) -> list[VariableSummary]:
     return search_variables(inp)
 
 
+@router.get("/capabilities")
+async def api_capabilities(services: ServicesDep) -> Capabilities:
+    """Describe user flows without exposing credentials or contacting a provider."""
+    return Capabilities(ai_planner_available=services.settings.active_ai_provider is not None)
+
+
 @router.get("/places")
 async def api_places(request: Request) -> list[PlaceCandidate]:
     return find_place(FindPlaceInput(query=_required(_query_values(request), "query")))
@@ -149,6 +156,16 @@ async def api_chart_png(request: Request, services: ServicesDep) -> Response:
 @router.get("/examples")
 async def api_examples() -> list[ExampleCase]:
     return load_examples()
+
+
+@router.get("/evidence/{identity}")
+async def api_evidence(identity: str, services: ServicesDep) -> Response:
+    """Download checksum-verified retained bytes; a missing pinned object never refreshes live."""
+    return Response(
+        content=services.cache.snapshots.get(identity),
+        media_type="application/json",
+        headers={"Content-Disposition": f'attachment; filename="{identity}.json"'},
+    )
 
 
 # Query string parsing

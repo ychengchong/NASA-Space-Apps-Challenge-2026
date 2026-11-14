@@ -7,11 +7,11 @@ import type { CaseParams } from "./caseUrl";
 export const SIGNIFICANCE_LEVEL = 0.05;
 
 /**
- * True when a scan point would get the "significant" verdict. Spec 7, verdict rules: a Sen's
- * slope of exactly zero is not significant, whatever p is, so the explorer agrees with the case.
+ * Read valid rank evidence independently of the median rate. Current descriptive scans
+ * always carry null p-values and therefore never receive a significance mark.
  */
 export function isSignificant(point: ScanPoint): boolean {
-  return point.sen_slope !== 0 && point.mk_p < SIGNIFICANCE_LEVEL;
+  return point.mk_p !== null && point.mk_p < SIGNIFICANCE_LEVEL;
 }
 
 /** Years written as runs: [1981, 1982, 1983, 1990] -> "1981 to 1983 and 1990". */

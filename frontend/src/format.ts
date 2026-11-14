@@ -19,8 +19,11 @@ const EXACT_DIGITS = 100;
  */
 export function formatRate(perDecade: number, decimals: number): string {
   const size = Math.abs(perDecade);
-  const text = toFixed(size, decimals);
-  return Number(text) === 0 ? toFixed(size, decimals + 1) : text;
+  if (size === 0) return toFixed(size, decimals + 1);
+  let precision = decimals;
+  let text = toFixed(size, precision);
+  while (Number(text) === 0 && precision < 12) text = toFixed(size, ++precision);
+  return text;
 }
 
 /** A rate per decade with "+" or "-" in front, as in "{signed rate}"; zero has no sign. */
@@ -32,7 +35,8 @@ export function formatSignedRate(perDecade: number, decimals: number): string {
 }
 
 /** A p-value with three decimals, or "< 0.001" when it is smaller than that. */
-export function formatPValue(p: number): string {
+export function formatPValue(p: number | null): string {
+  if (p === null) return "Not assessed";
   if (p < P_VALUE_FLOOR) return `< ${toFixed(P_VALUE_FLOOR, P_VALUE_DECIMALS)}`;
   return toFixed(p, P_VALUE_DECIMALS);
 }

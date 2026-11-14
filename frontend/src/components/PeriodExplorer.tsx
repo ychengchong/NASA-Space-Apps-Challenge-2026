@@ -8,7 +8,7 @@ import type { CaseParams } from "../caseUrl";
 import { AXIS_STYLE, BASE_LAYOUT, HOVER_TEXT_ONLY, plotlyText } from "../chartStyle";
 import { PERIOD_CAUTION } from "../definitions";
 import { formatPValue, formatSignedRate, withUnits } from "../format";
-import { caseFromFirstYear, isSignificant, SIGNIFICANCE_LEVEL, yearRuns } from "../periodScan";
+import { caseFromFirstYear, isSignificant, yearRuns } from "../periodScan";
 import { placeStyle } from "../placeStyles";
 import { useRequest } from "../useRequest";
 import { ShapeSwatch } from "./ShapeSwatch";
@@ -74,8 +74,7 @@ export function PeriodExplorer({ params, investigation, onOpenCase }: PeriodExpl
 }
 
 function fullRecordScan(params: CaseParams, to: number): CaseParams {
-  const { variable, places, season } = params;
-  return { variable, places, season, to, scan: true };
+  return { ...params, from: undefined, to, scan: true };
 }
 
 interface ScanViewProps {
@@ -107,10 +106,9 @@ function ScanView({ scanned, currentStart, variable, onChooseStart }: ScanViewPr
   return (
     <>
       <p className="panel-intro">
-        Each point is the rate of change from that first year to {scanned.requested.to}. Filled markers show a
-        significant trend (p below {SIGNIFICANCE_LEVEL} and a rate that is not zero); hollow markers show one
-        that is not. The dashed line marks the case&apos;s first year. Choose a point or a year to reload the
-        case from that year.
+        Each point is the descriptive rate of change from that first year to {scanned.requested.to}.
+        Significance is not assessed in the period scan. The dashed line marks the case&apos;s first year.
+        Choose a point or a year to reload the case from that year.
       </p>
       <Suspense fallback={<div className="chart-placeholder">Loading the chart…</div>}>
         <PlotlyChart
@@ -160,6 +158,7 @@ function rateText(rate: number, variable: VariableSummary): string {
 }
 
 function significanceWord(point: ScanPoint): string {
+  if (point.mk_p === null) return "significance not assessed";
   return isSignificant(point) ? "significant" : "not significant";
 }
 
@@ -170,6 +169,9 @@ function startOptionText(year: number, scan: ScanPoint[] | undefined, variable: 
 }
 
 function scanSummary(placeName: string, scan: readonly ScanPoint[]): string {
+  if (scan.every((point) => point.mk_p === null)) {
+    return `${placeName}: descriptive rates only; significance is not assessed in a period scan.`;
+  }
   const significant = scan.filter(isSignificant).map((point) => point.start);
   if (significant.length === 0) return `${placeName}: no first year gives a significant trend.`;
   return `${placeName}: the trend is significant from the first years ${yearRuns(significant)}.`;
@@ -190,7 +192,9 @@ function scanTraces(scanned: Investigation, scans: ScanPoint[][]): ScatterTrace[
       text: scan.map(
         (point) =>
           `${name}<br>From ${point.start}: ${rateText(point.sen_slope, variable)}, ` +
-          `p = ${formatPValue(point.mk_p)}, ${significanceWord(point)}`,
+          (point.mk_p === null
+            ? "Significance not assessed"
+            : `p = ${formatPValue(point.mk_p)}, ${significanceWord(point)}`),
       ),
       hovertemplate: HOVER_TEXT_ONLY,
       line: { color: style.color, width: 1.5 },

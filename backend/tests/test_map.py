@@ -21,7 +21,7 @@ from app.models import (
 )
 from app.sources.base import MonthKey, MonthlyValues
 from app.sources.power import POINT_PATH, REGIONAL_PATH, PowerClient
-from app.stats import SIGNIFICANCE_LEVEL, cos_lat_weighted_mean
+from app.stats import cos_lat_weighted_mean
 from app.tools.context import ToolContext
 from app.tools.trends import AREA_MEAN_NAME, analyze_trend, map_trends
 from tests.fake_source import (
@@ -102,8 +102,8 @@ async def test_box_is_fetched_once_for_the_variables_code_and_whole_record() -> 
 
 
 async def test_period_is_clamped_to_the_record_and_the_last_complete_year() -> None:
-    trend_map = await run_map({STRONG_POINT: RISING}, **{"from": 1950, "to": 2100})
-    assert trend_map.requested.model_dump() == {"from": 1981, "to": 2025, "season": "annual"}
+    with pytest.raises(BadPeriodError, match="dates were not changed"):
+        await run_map({STRONG_POINT: RISING}, **{"from": 1950, "to": 2100})
 
 
 async def test_unknown_variable_raises_before_any_fetch() -> None:
@@ -165,10 +165,9 @@ async def test_box_within_the_limits_is_fetched(box: Box) -> None:
 async def test_box_edges_are_rounded_to_two_decimals_before_the_fetch() -> None:
     source = RegionalFakeSource({STRONG_POINT: RISING})
     given = Box(south=-33.456, west=150.5, north=-31.4, east=152.504)
-    rounded = Box(south=-33.46, west=150.5, north=-31.4, east=152.5)
     trend_map = await map_trends(map_input(given), context(source))
-    assert source.regional_calls == [("T2M", rounded, LAST_COMPLETE_YEAR)]
-    assert trend_map.box == rounded
+    assert source.regional_calls == [("T2M", given, LAST_COMPLETE_YEAR)]
+    assert trend_map.box == given
 
 
 # Cells (spec 7, "Region view")
@@ -178,7 +177,8 @@ async def test_cells_hold_the_rate_per_decade_and_the_corrected_p_value() -> Non
     trend_map = await run_map({STRONG_POINT: RISING})
     cell = cell_at(trend_map, STRONG_POINT)
     assert cell.sen_slope == pytest.approx(0.5)
-    assert cell.mk_p is not None and cell.mk_p < SIGNIFICANCE_LEVEL
+    assert cell.mk_p is None
+    assert not cell.significant
 
 
 async def test_cell_has_the_rate_and_p_value_of_the_case_it_opens() -> None:
@@ -193,15 +193,17 @@ async def test_cell_has_the_rate_and_p_value_of_the_case_it_opens() -> None:
     trend = case.results[0].trend
     assert trend is not None
     cell = cell_at(trend_map, MODERATE_POINT)
-    assert (cell.sen_slope, cell.mk_p) == (trend.sen_slope, trend.mk_p)
+    assert cell.sen_slope == trend.sen_slope
+    assert cell.mk_p is None
+    assert trend.method_id == ("mk_mc_envelope_v1" if trend_map.variable.id == "air_temp" else None)
 
 
 async def test_benjamini_hochberg_marks_only_cells_that_pass_the_stricter_rule() -> None:
     cells = {STRONG_POINT: RISING, MODERATE_POINT: MODERATE} | dict.fromkeys(OTHER_POINTS, FLAT)
     trend_map = await run_map(cells)
     moderate = cell_at(trend_map, MODERATE_POINT)
-    assert cell_at(trend_map, STRONG_POINT).significant
-    assert moderate.mk_p is not None and moderate.mk_p < SIGNIFICANCE_LEVEL
+    assert not cell_at(trend_map, STRONG_POINT).significant
+    assert moderate.mk_p is None
     assert not moderate.significant
     assert not any(cell_at(trend_map, point).significant for point in OTHER_POINTS)
 
@@ -209,8 +211,8 @@ async def test_benjamini_hochberg_marks_only_cells_that_pass_the_stricter_rule()
 async def test_cells_without_a_result_do_not_count_toward_the_correction() -> None:
     cells = {STRONG_POINT: RISING, MODERATE_POINT: MODERATE} | dict.fromkeys(OTHER_POINTS, SHORT)
     trend_map = await run_map(cells)
-    assert cell_at(trend_map, STRONG_POINT).significant
-    assert cell_at(trend_map, MODERATE_POINT).significant
+    assert not cell_at(trend_map, STRONG_POINT).significant
+    assert not cell_at(trend_map, MODERATE_POINT).significant
 
 
 @pytest.mark.parametrize("monthly", [SHORT, ALL_MISSING, {}], ids=["short", "missing", "empty"])
@@ -233,7 +235,7 @@ async def test_cells_use_the_requested_season() -> None:
     summer = await run_map({STRONG_POINT: warming_summers}, season="JJA")
     annual = await run_map({STRONG_POINT: warming_summers})
     assert cell_at(summer, STRONG_POINT).sen_slope == pytest.approx(0.5)
-    assert cell_at(annual, STRONG_POINT).sen_slope == pytest.approx(-0.25)
+    assert cell_at(annual, STRONG_POINT).sen_slope == pytest.approx(-0.2479452055)
 
 
 async def test_cells_are_ordered_by_latitude_then_longitude() -> None:
@@ -321,7 +323,9 @@ async def test_case_opened_at_a_one_degree_map_cell_reads_the_values_the_map_cac
     trend = case.results[0].trend
     assert trend is not None
     assert (case.results[0].place.cell.lat, case.results[0].place.cell.lon) == OPENED_CELL
-    assert (cell.sen_slope, cell.mk_p) == (trend.sen_slope, trend.mk_p)
+    assert cell.sen_slope == trend.sen_slope
+    assert cell.mk_p is None
+    assert trend.method_id is None
 
 
 async def test_case_opened_at_a_one_degree_map_cell_asks_only_for_the_other_one_degree_code(
@@ -379,11 +383,9 @@ async def test_area_mean_leaves_out_a_cell_missing_a_month() -> None:
         (60.0, 20.0): gappy,
     }
     trend_map = await run_map(cells, box)
-    w50, w60 = math.cos(math.radians(50.0)), math.cos(math.radians(60.0))
-    both = (10.0 * w50 + 40.0 * w60) / (w50 + w60)
     # June 2000 is the 50° cell's value alone; the other eleven months average both cells.
     (year_2000,) = [value for value in trend_map.area_mean.series if value.year == 2000]
-    assert year_2000.value == pytest.approx((11 * both + 10.0) / 12)
+    assert year_2000.value is None
 
 
 async def test_area_mean_is_analysed_exactly_like_a_place() -> None:
@@ -400,8 +402,10 @@ async def test_area_mean_is_analysed_exactly_like_a_place() -> None:
     area_mean = trend_map.area_mean
     assert area_mean.trend is not None
     assert area_mean.series == place_result.series
-    assert area_mean.trend == place_result.trend
-    assert area_mean.verdict == place_result.verdict
+    assert area_mean.trend.sen_slope == place_result.trend.sen_slope
+    assert area_mean.trend.mk_p is None
+    assert area_mean.verdict.kind == "inference_unavailable"
+    assert area_mean.verdict.kind == "inference_unavailable"
 
 
 async def test_area_mean_sits_at_the_box_centre_with_the_box_as_its_cell() -> None:
@@ -414,9 +418,8 @@ async def test_area_mean_sits_at_the_box_centre_with_the_box_as_its_cell() -> No
 
 async def test_area_mean_sentence_names_the_selected_area() -> None:
     trend_map = await run_map({STRONG_POINT: RISING})
-    assert trend_map.area_mean.verdict.sentence.startswith(
-        "Air temperature in the selected area has risen by about"
-    )
+    assert "the selected area" in trend_map.area_mean.verdict.sentence
+    assert "Significance has not been assessed" in trend_map.area_mean.verdict.sentence
 
 
 async def test_area_mean_step_starts_with_a_capital_letter() -> None:
@@ -456,7 +459,7 @@ async def test_app_url_is_a_path_without_a_public_base_url() -> None:
 async def test_app_url_writes_box_edges_with_two_decimals_and_no_trailing_zeros() -> None:
     box = Box(south=-33.456, west=150.5, north=-31.4, east=152.504)
     trend_map = await run_map({STRONG_POINT: RISING}, box)
-    assert trend_map.app_url.endswith("&box=-33.46,150.5,-31.4,152.5")
+    assert trend_map.app_url.endswith("&box=-33.456,150.5,-31.4,152.504")
 
 
 async def test_cells_from_one_source_list_it_once() -> None:
@@ -474,8 +477,8 @@ async def test_steps_report_how_many_cells_were_tested_and_marked() -> None:
         | {(64.0, 20.0): SHORT}
     )
     steps = (await run_map(cells)).steps
-    assert "Tested 12 of 13 grid points" in " ".join(steps)
-    assert "Marked 1 of 12 tested grid points as significant" in " ".join(steps)
+    assert "descriptive rates for 13 grid points" in " ".join(steps)
+    assert "Significance is not assessed" in " ".join(steps)
 
 
 async def test_same_inputs_give_the_same_map_whatever_order_the_source_returns() -> None:

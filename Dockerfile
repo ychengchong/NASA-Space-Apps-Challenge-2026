@@ -15,7 +15,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: install the backend's pinned runtime dependencies from uv.lock, without the dev group.
-FROM python:3.12.16-slim-trixie AS backend-deps
+FROM python:3.14.5-slim-trixie AS backend-deps
 COPY --from=ghcr.io/astral-sh/uv:0.11.21 /uv /bin/uv
 # Use the image's own Python, and compile bytecode now, because the app user cannot write it.
 ENV UV_PYTHON_DOWNLOADS=never \
@@ -27,7 +27,7 @@ RUN uv sync --locked --no-dev --no-cache
 
 # Stage 3: the running service. Same base image as stage 2, so the copied virtual environment
 # finds its Python at the same path.
-FROM python:3.12.16-slim-trixie
+FROM python:3.14.5-slim-trixie
 # Matplotlib needs a writable folder for its font cache, and the app user has no home folder.
 ENV PATH="/app/backend/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -38,8 +38,9 @@ RUN useradd --system --user-group --no-create-home --home-dir /nonexistent \
 WORKDIR /app/backend
 COPY --from=backend-deps /app/backend/.venv ./.venv
 COPY backend/app ./app
-# The app user owns data/, because SQLite writes the cache and its journal file there.
-COPY --chown=app:app backend/data ./data
+COPY backend/data ./data
+RUN mkdir -p /app/state && chown app:app /app/state
+VOLUME /app/state
 # app/config.py serves the web app from <backend parent>/frontend/dist.
 COPY --from=frontend /app/frontend/dist /app/frontend/dist
 USER app

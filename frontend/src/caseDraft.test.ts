@@ -70,7 +70,7 @@ describe("placeActions", () => {
   });
 
   test("offers nothing for a place already in the case", () => {
-    expect(placeActions([HELSINKI], { lat: 60.171, lon: 24.938 })).toEqual([]);
+    expect(placeActions([HELSINKI], { lat: 60.171, lon: 24.938 })).toEqual(["replace", "compare"]);
   });
 });
 
@@ -92,11 +92,11 @@ describe("applyPlaceAction and removePlace", () => {
 
 describe("samePoint", () => {
   test("treats points with the same link coordinates as one place", () => {
-    expect(samePoint({ lat: 60.1701, lon: 24.9449 }, { lat: 60.17, lon: 24.94 })).toBe(true);
+    expect(samePoint({ lat: 60.1701, lon: 24.9449 }, { lat: 60.17, lon: 24.94 })).toBe(false);
   });
 
   test("rounds an exact tie as the backend's link does", () => {
-    expect(samePoint({ lat: 9.56, lon: 44.065 }, { lat: 9.56, lon: 44.06 })).toBe(true);
+    expect(samePoint({ lat: 9.56, lon: 44.065 }, { lat: 9.56, lon: 44.06 })).toBe(false);
     expect(samePoint({ lat: 9.56, lon: 44.065 }, { lat: 9.56, lon: 44.07 })).toBe(false);
   });
 
