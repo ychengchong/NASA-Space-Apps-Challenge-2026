@@ -1,0 +1,52 @@
+{
+  "paired_cases": 40,
+  "both_passed": [
+    "SD-R31",
+    "SD-R32",
+    "SD-R33",
+    "SD-R34",
+    "SD-R35",
+    "SD-R36",
+    "SD-R37",
+    "SD-R38",
+    "SD-R39",
+    "SD-R40"
+  ],
+  "improvements": [
+    "SD-R01",
+    "SD-R02",
+    "SD-R03",
+    "SD-R08",
+    "SD-R09",
+    "SD-R10",
+    "SD-R13",
+    "SD-R14",
+    "SD-R16",
+    "SD-R17",
+    "SD-R18",
+    "SD-R19",
+    "SD-R20",
+    "SD-R21",
+    "SD-R22",
+    "SD-R23",
+    "SD-R24",
+    "SD-R27",
+    "SD-R30"
+  ],
+  "regressions": [],
+  "both_failed": [
+    "SD-R04",
+    "SD-R05",
+    "SD-R06",
+    "SD-R07",
+    "SD-R11",
+    "SD-R12",
+    "SD-R15",
+    "SD-R25",
+    "SD-R26",
+    "SD-R28",
+    "SD-R29"
+  ],
+  "identities_matched": true,
+  "mismatched_identities": []
+}

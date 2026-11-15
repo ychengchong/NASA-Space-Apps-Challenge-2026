@@ -1,0 +1,53 @@
+{
+  "paired_cases": 40,
+  "both_passed": [
+    "FU-R31",
+    "FU-R33",
+    "FU-R34",
+    "FU-R35",
+    "FU-R36",
+    "FU-R37",
+    "FU-R38",
+    "FU-R39",
+    "FU-R40"
+  ],
+  "improvements": [
+    "FU-R01",
+    "FU-R02",
+    "FU-R03",
+    "FU-R04",
+    "FU-R05",
+    "FU-R06",
+    "FU-R07",
+    "FU-R09",
+    "FU-R10",
+    "FU-R11",
+    "FU-R12",
+    "FU-R16",
+    "FU-R18",
+    "FU-R19",
+    "FU-R20",
+    "FU-R21",
+    "FU-R22",
+    "FU-R23",
+    "FU-R24",
+    "FU-R25",
+    "FU-R26",
+    "FU-R28",
+    "FU-R29",
+    "FU-R30"
+  ],
+  "regressions": [
+    "FU-R32"
+  ],
+  "both_failed": [
+    "FU-R08",
+    "FU-R13",
+    "FU-R14",
+    "FU-R15",
+    "FU-R17",
+    "FU-R27"
+  ],
+  "identities_matched": true,
+  "mismatched_identities": []
+}

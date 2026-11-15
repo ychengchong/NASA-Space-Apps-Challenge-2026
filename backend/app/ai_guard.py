@@ -2,8 +2,8 @@
 
 The provider's JSON is parsed into the models below, then checked here before anything is shown.
 A check returns typed problems; any problem means the output is withheld and the response says
-`validation_failed`. These are defensive filters, not proof of truth (spec 8): they cannot tell
-a right claim about the wrong place from a right one, so evaluation still reviews support.
+`validation_failed`. These are defensive filters, not proof of truth (spec 8): each block is
+checked against its named and referenced places, but evaluation still reviews factual support.
 
 Generated text must stay qualitative. Numbers, dates and units reach the reader through
 allowlisted result references that the frontend renders from the trusted Investigation, so
@@ -14,8 +14,8 @@ such as MERRA-2 that the retrieved passages or the catalogue names use verbatim.
 import re
 import unicodedata
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
-from typing import Literal
+from dataclasses import dataclass, replace
+from typing import Literal, get_args
 
 from pydantic import ConfigDict, Field
 
@@ -155,7 +155,8 @@ class TextRules:
     `directions` holds every place's canonical direction (None for a place without a tested
     direction); it is empty in discovery, where no direction is checked. `allowed_phrases`
     are trusted catalogue texts, such as "Wind speed at 10 m", that text may quote verbatim
-    although they hold a number.
+    although they hold a number. `place_labels` follows the same order as the verdicts and
+    directions, so explanation blocks can be checked against their own places.
     """
 
     allowed_years: frozenset[int]
@@ -163,6 +164,7 @@ class TextRules:
     verdict_kinds: tuple[VerdictKind, ...] = ()
     directions: tuple[Direction | None, ...] = ()
     allowed_phrases: tuple[str, ...] = ()
+    place_labels: tuple[str, ...] = ()
 
 
 def text_rules(
@@ -171,6 +173,7 @@ def text_rules(
     verdict_kinds: Iterable[VerdictKind] = (),
     directions: Iterable[Direction | None] = (),
     allowed_phrases: Iterable[str] = (),
+    place_labels: Iterable[str] = (),
 ) -> TextRules:
     """Rules allowing `allowed_years`, and every four-digit year and every identifier (such as
     MERRA-2 or T2M) that appears verbatim in `trusted_texts`, the retrieved passages. An
@@ -191,7 +194,12 @@ def text_rules(
         unicodedata.normalize("NFKC", phrase) for phrase in allowed_phrases if _has_number(phrase)
     )
     return TextRules(
-        frozenset(years), frozenset(tokens), tuple(verdict_kinds), tuple(directions), phrases
+        frozenset(years),
+        frozenset(tokens),
+        tuple(verdict_kinds),
+        tuple(directions),
+        phrases,
+        tuple(place_labels),
     )
 
 
@@ -272,8 +280,35 @@ def check_explanation(
                 problems.append(
                     GuardProblem("unknown_reference", f"{where}.references[{ref_index}]")
                 )
-        problems += check_text(block.text, rules, f"{where}.text")
-    return problems
+        for scoped_rules in _block_text_rules(block, rules):
+            problems += check_text(block.text, scoped_rules, f"{where}.text")
+    return list(dict.fromkeys(problems))
+
+
+def _block_text_rules(block: ProviderBlock, rules: TextRules) -> list[TextRules]:
+    """Check a block against every place it names or references, never another place's result.
+
+    With no explicit place, a comparison claim must hold for all places. A block spanning
+    mixed outcomes is withheld; the provider can use separate blocks and canonical verdict
+    references instead. Source support and unnamed aliases still need evaluation.
+    """
+    count = len(rules.place_labels)
+    if count < 2 or len(rules.verdict_kinds) != count or len(rules.directions) != count:
+        return [rules]
+    places = {reference.place for reference in block.references if reference.place < count}
+    places.update(
+        index
+        for index, label in enumerate(rules.place_labels)
+        if label.strip() and mentions_any(block.text, (label,))
+    )
+    return [
+        replace(
+            rules,
+            verdict_kinds=(rules.verdict_kinds[index],),
+            directions=(rules.directions[index],),
+        )
+        for index in sorted(places or set(range(count)))
+    ]
 
 
 def _discovery_status_problems(output: ProviderDiscovery) -> list[GuardProblem]:
@@ -371,13 +406,15 @@ def mentions_any(text: str, terms: Iterable[str]) -> bool:
 
 
 # Spec 8: no URLs or markup in generated text; links are the manifest's curated citations. Any
-# dotted name ending in two or more letters reads as a domain, whatever its top-level domain.
+# dotted name ending in two or more letters reads as a domain, except the trusted result-field
+# identifiers. Scheme, path, query and port syntax around an identifier still counts as a URL.
 _URL = re.compile(
     r"[a-z][a-z0-9+.-]*://|\bwww\.|\b(?:mailto|javascript|vbscript):|\b(?:data|file):\S*/"
     r"|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}\b"
     r"|\b\w+\s+dot\s+(?:com|org|net|gov|edu|int|mil|io)\b",
     re.IGNORECASE,
 )
+_RESULT_FIELD_NAMES = frozenset(get_args(ResultField))
 _MARKUP = re.compile(r"<\s*[a-z/!?]|&#?\w+;|\]\(|!\[|`|\*\*|__|^\s*#{1,6}\s", re.I | re.M)
 # A word with its joined parts: "MERRA-2", "1981-2025", "0.5", "isn't".
 _TOKEN = re.compile(r"\w+(?:[-.,/'\u2019]\w+)*")
@@ -623,7 +660,11 @@ def check_plain_text(text: str, where: str) -> list[GuardProblem]:
     if any(_mixes_scripts(word) for word in re.findall(r"\w+", text)):
         problems.append(GuardProblem("obfuscated_text", where))
     normal = unicodedata.normalize("NFKC", text)
-    if _URL.search(normal):
+    if any(
+        match.group() not in _RESULT_FIELD_NAMES
+        or (match.end() < len(normal) and normal[match.end()] in "/?#:@=&%")
+        for match in _URL.finditer(normal)
+    ):
         problems.append(GuardProblem("url_in_text", where))
     if _MARKUP.search(normal):
         problems.append(GuardProblem("markup_in_text", where))
@@ -702,7 +743,8 @@ def _contradicts_verdicts(lower: str, kinds: Sequence[VerdictKind]) -> bool:
     not_assessed = [match.span() for match in _NOT_ASSESSED.finditer(lower)] + [
         match.span()
         for match in _SIGNIFICANCE_METHOD.finditer(lower)
-        if not _TEST_OUTCOME.search(_sentence(lower, match))
+        # The application name is not evidence that a test detected a trend.
+        if not _TEST_OUTCOME.search(_sentence(lower, match).replace("trend detective", "the app"))
     ]
     for match in _SIGNIFICANCE.finditer(lower):
         if any(start <= match.start() < end for start, end in not_assessed):
@@ -810,6 +852,8 @@ def _negated(text: str, position: int) -> bool:
     clause = _CLAUSE_BREAK.split(text[:position])[-1]
     words = _WORD.findall(clause)[-NEGATION_WINDOW:]
     for index, word in enumerate(words):
+        if word == "rather" and words[index + 1 : index + 2] == ["than"]:
+            return True
         if word not in _NEGATORS and not word.endswith("n't"):
             continue
         following = words[index + 1] if index + 1 < len(words) else ""

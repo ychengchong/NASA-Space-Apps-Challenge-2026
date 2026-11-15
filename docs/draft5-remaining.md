@@ -1,10 +1,44 @@
 # Draft 5: what is done and what remains
 
-Status on 15 November 2026, branch `draft-5`. This list follows the
+Updated on 15 November 2026 for branch `fix-draft5-release`. This list follows the
 [Draft 5 checklist](technical-spec.md#draft-5-planned-delivery-checklist) and
 [spec section 12](technical-spec.md#12-build-plan-and-submission). It was written by an AI
-agent (Claude Code, Claude Opus 5.5) from the repository's own records; no person has checked
-it yet.
+agent (Claude Code, Claude Opus 5.5) from the repository's own records. Codex added the
+submission-day fixes and testing records; human review is still pending.
+
+## Submission-day review
+
+The team deferred user testing for the 15 November deadline. Record it as not conducted;
+do not claim observed usability or educational impact. It is not needed to run the
+cached prototype demonstration.
+
+Follow-up branch `fix-draft5-release` fixes Windows corpus bytes and binds explanation
+checks to each block's named/referenced places. The four cached NASA examples and
+downloads passed with outbound requests blocked; checks are recorded in
+[verification](verification.md#submission-day-fixes-and-offline-checks).
+
+Teammate review before merging or enabling AI:
+
+1. Review `.gitattributes`, `build_corpus.py`, `ai_guard.py`, `adapters/explain.py` and
+   their regression tests. Confirm withholding an ambiguous mixed-outcome block is
+   preferable to displaying a potentially incorrect claim.
+2. Review the three recorded discovery citation failures R2-H17, R2-H39 and R2-H45
+   against the original passages and grader reasons. A variable-name mention proves
+   neither that a source explains the variable nor that it supports the generated reason.
+   This branch does not claim to have solved factual support for arbitrary answers.
+3. Review the NASA source documents and project notes as different evidence types.
+   Confirm corpus provenance, source links and explanations of the scientific limits.
+4. Keep discovery/explanations disabled. Changes invalidate the old live-model gate
+   evidence; passing unit tests is not passing the semantic evaluation. Run a fresh,
+   predeclared held-out suite only with a locally configured key and approved budget.
+5. Open the saved Svalbard and Athens/Helsinki examples before recording the demo.
+   Describe precipitation as exploratory/descriptive and the climate grid as distinct
+   from a local weather station. Do not claim causal attribution or forecasts.
+
+Public deployment and the demo/submission are still outstanding. The build table below
+retains PR #8 baseline claims; the remaining-work sections include the follow-up. See
+[current results](evaluation-results.md#submission-day-follow-up) and the
+[teammate review packet](../backend/evaluation/submission-day/follow-up/results/teammate-review.md).
 
 ## Done
 
@@ -24,19 +58,21 @@ it yet.
 
 ## Remaining
 
-### 1. The AI release gates are not met
+### 1. The AI release gates still need review and validation
 
 Discovery and explanations stay off (`DISCOVERY_EVALUATED=false`, `RAG_EVALUATED=false`).
 
-- Round 2 planner and discovery: 60 of 70 (85.7%), target 90%, and three critical
-  fabricated-citation errors (target zero).
-- Round 2 explanations: 65 of 77 (84.4%) under the automated checks and both AI graders,
-  target 90%; no critical error.
-- Retrieval relevance: 46 of 55 scored cases retrieved an expected section.
-- Next steps: study the failures listed in `docs/evaluation-results.md`, fix general
-  behaviour on development questions only, write a fresh blind held-out suite (rounds 1 and 2
-  have now been seen), and run it once. The ledger allows about USD 3.24 more.
-- Decide how a gate is read: on the point estimate or on the lower end of the Wilson interval.
+- Latest complete follow-up: **50/50 planner/discovery** and **33/40 explanations** on
+  automated checks, authored by the same agent implementing the fixes. Human support
+  review is pending. The explanation target remains 90%; it was not met.
+- Subsequent topic/guard fixes have targeted development evidence only; those checks
+  do not replace a fresh full confirmation run. Some failed expected-section checks
+  cited a different relevant section; keep the original scores and review actual support.
+- The current USD 1 ledger reserved **USD 0.975993**, including the historical USD 0.15
+  allowance. No new full RAG run fits its remainder. Do not erase the ledger or raise
+  the cap without the owner's approval.
+- The original PR #8 rounds and their grader records remain historical evidence in
+  `docs/evaluation-results.md`; they are not scores for the final candidate.
 - Turning a flag on is the owner's decision, recorded in `docs/evaluation-results.md`.
 
 ### 2. No person has reviewed the evaluation
@@ -54,8 +90,9 @@ files, and a code review of the round-2 changes in `backend/app/ai_guard.py`,
 
 ### 4. User observations
 
-The spec asks for at least five target users. None has been observed. Run the kit in
-`docs/user-study-kit.md` and report every attempt, including failures.
+The team deferred user testing for this submission. None has been observed; the kit in
+`docs/user-study-kit.md` remains for later validation. This is not a required action
+for the current deadline, and no observed learning/usability outcome is claimed.
 
 ### 5. Public deployment
 

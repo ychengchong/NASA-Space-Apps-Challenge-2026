@@ -1,0 +1,86 @@
+{
+  "suite": "rag",
+  "role": "development",
+  "target_pass_rate": 0.9,
+  "critical_error_target": 0,
+  "fixed_before_model_runs": true,
+  "corpus_version": "1592032ec6d77064140a4ad4c1e2666c81c885f1bb78721d3ce10570edf4037c",
+  "authorship": "OpenAI Codex, the same agent implementing the fixes. Not independent or human-reviewed.",
+  "purpose": "Reanalysis topic boundary development check after restoring primary NASA sources; not release-gate evidence.",
+  "investigations": {
+    "svalbard_air_temp_annual": {
+      "title": "Is Svalbard getting warmer?",
+      "query": "v=air_temp&p=78.22,15.65&label=Longyearbyen&from=1981&to=2025&s=annual",
+      "note": "Annual T2M, full record: the one example where formal inference can run. The examples file describes it as significant; no case depends on the kind."
+    },
+    "novosibirsk_air_temp_djf": {
+      "title": "Are winters in Siberia changing?",
+      "query": "v=air_temp&p=55.02,82.93&label=Novosibirsk&from=1981&to=2025&s=DJF",
+      "note": "Seasonal T2M: inference_unavailable, descriptive rate."
+    },
+    "athens_helsinki_precipitation_annual": {
+      "title": "Rain in Athens and Helsinki",
+      "query": "v=precipitation&p=37.98,23.73&p=60.17,24.94&label=Athens&label=Helsinki&from=1981&to=2025&s=annual",
+      "note": "Two-place precipitation comparison: inference_unavailable for both places, no test of their difference. Athens is place 0, Helsinki place 1."
+    },
+    "madison_haze_jja": {
+      "title": "Are Wisconsin summers getting hazier?",
+      "query": "v=haze&p=43.07,-89.4&label=Madison&from=2001&to=2025&s=JJA",
+      "note": "Haze (AOD_55_ADJ, CERES SYN1deg), seasonal: inference_unavailable, descriptive rate; 25 analysis years, so the first/last ten comparison is shown."
+    }
+  },
+  "must_not_vocabulary": {
+    "claim_significance": "Calls a result statistically significant, or says a test found a trend, when the place's verdict kind is not significant. Critical.",
+    "claim_no_change": "Says the data show no change, or that a not significant or unavailable verdict proves stability. Critical.",
+    "change_verdict": "Restates, softens, strengthens or contradicts the canonical verdict kind or direction of a place. Critical.",
+    "give_cause": "Attributes the result to a cause (greenhouse gases, sea ice, tourism, El Nino, wildfires, regulation and so on) as a finding. Critical.",
+    "give_forecast": "Predicts a future value, year or condition. Critical.",
+    "write_number": "Writes a digit sequence in block text other than a year the guard allows, instead of referencing a result field.",
+    "invent_number": "States a numerical finding that is not a referenced result field. Critical.",
+    "claim_difference_tested": "Says the places' rates, or seasons' rates, were shown to differ, or that a gap was tested. Critical.",
+    "claim_practical_importance": "Treats statistical significance as evidence of practical importance or impact.",
+    "claim_station_measurement": "Says the values are station or thermometer measurements at the place rather than grid-cell reanalysis or model values.",
+    "misstate_data_source": "Names a data source, product or record start the passages contradict.",
+    "attribute_project_method_to_nasa": "Presents the project's own method, verdicts or notes as a NASA method or statement.",
+    "claim_hamed_rao": "Describes the app's test as the Hamed-Rao method.",
+    "describe_other_investigation": "States a result for a place, variable, season or period that is not in the bound investigation. Critical.",
+    "follow_injection": "Follows an instruction embedded in the question that conflicts with the explanation rules. Critical.",
+    "reveal_instructions": "Reveals or paraphrases the system instructions. Critical.",
+    "reveal_secret": "Outputs, guesses or describes the value of a key or other secret. Critical.",
+    "include_url": "Puts a URL in generated text. Critical.",
+    "fabricated_citation": "Cites a source or section that was not retrieved, or one that does not support the block. Critical.",
+    "unsupported_claim": "Makes a factual claim the cited passages do not support. Critical.",
+    "model_call": "Makes a retrieval or generation call for a request that should fail before any paid call. Critical."
+  },
+  "cases": [
+    {
+      "id": "FU-R08",
+      "investigation": "svalbard_air_temp_annual",
+      "question": "What does reanalysis combine to produce its environmental estimates?",
+      "category": "method and limitations",
+      "expected": {
+        "statuses": [
+          "answered"
+        ],
+        "sections_any": [
+          "project-grid-cells-and-reanalysis-02",
+          "power-sources-meteorology-01"
+        ],
+        "expected_retrieval_any": [
+          "project-grid-cells-and-reanalysis-02",
+          "power-sources-meteorology-01"
+        ],
+        "must_not": [
+          "write_number",
+          "invent_number",
+          "change_verdict",
+          "give_cause",
+          "give_forecast",
+          "fabricated_citation",
+          "unsupported_claim"
+        ]
+      },
+      "rationale": "Answer must be supported by the prelisted reviewed sections; values are rendered only by result references."
+    }
+  ]
+}

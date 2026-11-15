@@ -79,6 +79,9 @@ INSTRUCTIONS = (
     "code: the app drops every other citation, and a suggestion left with none. Cite a "
     "passage that describes the variable, such as what it measures or how it is produced, "
     "not one that only mentions it in passing.\n"
+    "- If the learner only asks which environmental records to study and gives no quantity "
+    "or specific scientific goal, use status clarify and ask which aspect interests them. "
+    "Do not choose an arbitrary quantity just because its passage was retrieved.\n"
     "- Reasons and clarification text say why a quantity is worth looking at. They never say "
     "whether it has changed, is significant, was caused by anything, or will change. Write no "
     "numbers, units, URLs or markup; a year is allowed only when the question or a passage "
@@ -86,6 +89,9 @@ INSTRUCTIONS = (
     "- Copy place names from the question into place_queries exactly as written, never "
     "coordinates. Copy explicit years into from and to and a named season into season "
     "(DJF, MAM, JJA or SON), else null. List in missing what the question leaves open.\n"
+    "- Explicit month ranges override a default annual season: December to February is DJF, "
+    "March to May is MAM, June to August is JJA, September to November is SON. Preserve "
+    "the user's requested months even when a variable is called snowfall or sunlight.\n"
     "- status ready: at least one suggestion. status clarify: the variable or the place is "
     "unclear, such as a quantity that several catalogue variables measure in different ways "
     "or a place name that several places share; ask one short question about it with up to "
@@ -154,14 +160,24 @@ async def discover(
     `no_evidence`. Raises `httpx.HTTPError` or `KeyError`/`TypeError` for a failed call.
     """
     settings = services.settings
+    query = retrieval_query(discovery.question)
+    # Named quantities use the app's exact catalogue/product definitions. A different
+    # product's documentation can name the same quantity without describing our dataset.
+    filters = (
+        {"type": "eq", "key": "source_id", "value": "project-variables"}
+        if query != discovery.question
+        else None
+    )
     retrieved = await ai.openai_vector_search(
-        retrieval_query(discovery.question),
+        query,
         settings.rag_vector_store_id,
         MAX_PASSAGES,
-        None,
+        filters,
         services,
     )
     passages = corpus.citable(retrieved)
+    if filters is not None:
+        passages = [passage for passage in passages if passage.source_id == "project-variables"]
     if not passages:
         return _unanswered("no_evidence", corpus)
     try:

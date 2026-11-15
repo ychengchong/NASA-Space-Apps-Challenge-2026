@@ -1,0 +1,1104 @@
+{
+ "suite": "evaluation\\submission-day\\targeted-development.json",
+ "suite_kind": "rag",
+ "condition": "rag",
+ "target_pass_rate": 0.9,
+ "assumed_cutoff": null,
+ "identities": {
+  "model": "gpt-6-luna",
+  "provider": "openai",
+  "schema_sha256": {
+   "discover": "4c097cbbb79b1d753b9239bfd1c5192f629d9febf70ca02fa456b1d27d3bfd28",
+   "explain": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+   "plan": "c04eb7d6cfb10e278c12c5e22929b403df5c8aff74ccf7fbb85e817b3dbc2a5c"
+  },
+  "corpus_version": "1592032ec6d77064140a4ad4c1e2666c81c885f1bb78721d3ce10570edf4037c",
+  "vector_store_id": "vs_6af95eb121c481919656f62f0948fafa",
+  "git_head": "3ea4d5015889ae420fdca6f9cccc48f39cdf54ec",
+  "tracked_diff_sha256": "83d7f9850777d644cabe30a714c60f8c7b8df0f06bc6f0b27f209f1cafe66a60",
+  "tracked_diff_empty": false,
+  "suite_sha256": "30a67d58433a1e39c6403f236463807f0a9fab95b90941e2765ee9ab47191132",
+  "last_complete_year": 2025,
+  "started_utc": "2026-11-15T08:20:25+00:00",
+  "bounds": {
+   "max_passages": 4,
+   "discover_max_output_tokens": 1024,
+   "explain_max_output_tokens": 1024,
+   "deadline_seconds": 30,
+   "reasoning_effort": "low"
+  },
+  "prices_microusd": {
+   "input_per_million_tokens": 100000,
+   "output_per_million_tokens": 500000,
+   "search_per_call": 2500
+  }
+ },
+ "reviewer": null,
+ "recorded_cases": {
+  "v=air_temp&p=78.22,15.65&label=Longyearbyen&from=1981&to=2025&s=annual": {
+   "http": 200,
+   "investigation_id": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf",
+   "pinned": true,
+   "verdict_kinds": [
+    "significant"
+   ]
+  },
+  "v=air_temp&p=55.02,82.93&label=Novosibirsk&from=1981&to=2025&s=DJF": {
+   "http": 200,
+   "investigation_id": "30c960651241dd26db9abc271b8548c3757efa5f572c4c0e897ff90340317fb1",
+   "pinned": true,
+   "verdict_kinds": [
+    "inference_unavailable"
+   ]
+  },
+  "v=precipitation&p=37.98,23.73&p=60.17,24.94&label=Athens&label=Helsinki&from=1981&to=2025&s=annual": {
+   "http": 200,
+   "investigation_id": "de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a",
+   "pinned": true,
+   "verdict_kinds": [
+    "inference_unavailable",
+    "inference_unavailable"
+   ]
+  },
+  "v=haze&p=43.07,-89.4&label=Madison&from=2001&to=2025&s=JJA": {
+   "http": 200,
+   "investigation_id": "2960e4f4f2ed0837ac964c4cb75dcc68478ec5537ea14665781a736dce5c03b4",
+   "pinned": true,
+   "verdict_kinds": [
+    "inference_unavailable"
+   ]
+  }
+ },
+ "cases": [
+  {
+   "id": "FU-R08",
+   "category": "method and limitations",
+   "endpoint": "explain",
+   "request": {
+    "question": "What does reanalysis combine to produce its environmental estimates?",
+    "investigation_id": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf"
+   },
+   "http": 200,
+   "outcome": "insufficient_evidence",
+   "reason": "no_evidence",
+   "response": {
+    "status": "insufficient_evidence",
+    "reason": "no_evidence",
+    "missing": null,
+    "notices": null,
+    "proposal": null,
+    "investigation_id": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf",
+    "blocks": []
+   },
+   "latency_seconds": 5.007,
+   "timed_out": false,
+   "reservations": [
+    {
+     "kind": "search",
+     "microusd": 2500
+    },
+    {
+     "kind": "generation",
+     "microusd": 1514
+    }
+   ],
+   "reserved_microusd": 4014,
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "a1c39d6030cbcf4a85945d4e2aeb96ac29128fc469d12a67fc9d62ac27622ad2",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 1024,
+      "usage": {
+       "input_tokens": 1958,
+       "input_tokens_details": {
+        "cache_write_tokens": 913,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 913
+        },
+        "cached_tokens": 1042
+       },
+       "output_tokens": 102,
+       "output_tokens_details": {
+        "reasoning_tokens": 35
+       },
+       "total_tokens": 2060
+      },
+      "output": [
+       {
+        "id": "rs_0ab474322144515b016af96b4cbbf487d2b8a10b6bcbe37a4c",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0ab474322144515b016af96b4d3ce487d2a4d1b33b3df5e8ac",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"status\":\"insufficient_evidence\",\"investigation_id\":\"4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf\",\"blocks\":[],\"plan\":null}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ],
+   "retrievals": [
+    {
+     "query": "What does reanalysis combine to produce its environmental estimates?",
+     "passages": [
+      {
+       "source_id": "project-grid-cells-and-reanalysis",
+       "section_id": "project-grid-cells-and-reanalysis-02",
+       "file_id": "file-RNjxV3m7bWayehtHuR6rjW",
+       "score": 0.6571798444793804
+      },
+      {
+       "source_id": "project-grid-cells-and-reanalysis",
+       "section_id": "project-grid-cells-and-reanalysis-04",
+       "file_id": "file-Pxtd1UFCHQFA58vvohpQ4J",
+       "score": 0.6275472481066008
+      },
+      {
+       "source_id": "project-grid-cells-and-reanalysis",
+       "section_id": "project-grid-cells-and-reanalysis-03",
+       "file_id": "file-RGoxttPMFT7173rNqUZ8vN",
+       "score": 0.33192779939793965
+      },
+      {
+       "source_id": "project-grid-cells-and-reanalysis",
+       "section_id": "project-grid-cells-and-reanalysis-01",
+       "file_id": "file-LssKPcuqsRDfP73qx6fpFr",
+       "score": 0.32626096503923624
+      }
+     ]
+    }
+   ],
+   "guard_checks": [
+    {
+     "check": "explanation",
+     "problems": []
+    }
+   ],
+   "citation_support": [],
+   "retrieval_relevance": {
+    "relevant": true,
+    "hits": [
+     "project-grid-cells-and-reanalysis-02"
+    ],
+    "returned": [
+     "project-grid-cells-and-reanalysis-02",
+     "project-grid-cells-and-reanalysis-04",
+     "project-grid-cells-and-reanalysis-03",
+     "project-grid-cells-and-reanalysis-01"
+    ]
+   },
+   "checks": [
+    {
+     "check": "status",
+     "passed": false,
+     "detail": "insufficient_evidence"
+    },
+    {
+     "check": "bound_to_investigation",
+     "passed": true,
+     "detail": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf"
+    },
+    {
+     "check": "fabricated_citation",
+     "passed": true,
+     "detail": []
+    },
+    {
+     "check": "write_number",
+     "passed": true,
+     "detail": []
+    }
+   ],
+   "passed": false,
+   "critical": [],
+   "review_pending": [],
+   "number_flags": []
+  },
+  {
+   "id": "FU-R13",
+   "category": "method and limitations",
+   "endpoint": "explain",
+   "request": {
+    "question": "Why does the app leave formal significance unassessed for precipitation?",
+    "investigation_id": "de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a"
+   },
+   "http": 200,
+   "outcome": "answered",
+   "reason": null,
+   "response": {
+    "status": "answered",
+    "reason": null,
+    "missing": null,
+    "notices": null,
+    "proposal": null,
+    "investigation_id": "de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a",
+    "blocks": [
+     {
+      "text": "The app runs its trend test only on complete annual air-temperature records. For other variables, including precipitation, the p-value is not assessed, so significance has not been assessed.",
+      "citations": [
+       {
+        "source_id": "project-result-fields",
+        "section_id": "project-result-fields-04",
+        "kind": "project"
+       },
+       {
+        "source_id": "project-verdicts",
+        "section_id": "project-verdicts-01",
+        "kind": "project"
+       }
+      ],
+      "references": []
+     }
+    ]
+   },
+   "latency_seconds": 6.028,
+   "timed_out": false,
+   "reservations": [
+    {
+     "kind": "search",
+     "microusd": 2500
+    },
+    {
+     "kind": "generation",
+     "microusd": 1658
+    }
+   ],
+   "reserved_microusd": 4158,
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "a1c39d6030cbcf4a85945d4e2aeb96ac29128fc469d12a67fc9d62ac27622ad2",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "effort": "low",
+       "context": "all_turns",
+       "summary": null,
+       "mode": "standard"
+      },
+      "max_output_tokens": 1024,
+      "usage": {
+       "input_tokens": 2276,
+       "input_tokens_details": {
+        "cached_tokens": 1042,
+        "cache_write_tokens": 1231,
+        "cache_write_tokens_details": {
+         "ttl_30m_tokens": 1231,
+         "ttl_12h_tokens": 0
+        }
+       },
+       "output_tokens": 333,
+       "output_tokens_details": {
+        "reasoning_tokens": 208
+       },
+       "total_tokens": 2609
+      },
+      "output": [
+       {
+        "type": "reasoning",
+        "id": "rs_0d148106832ae678016af96b52ae3487d287d6f93fc16b5a9c",
+        "summary": [],
+        "content": []
+       },
+       {
+        "type": "message",
+        "id": "msg_0d148106832ae678016af96b52daa487d2b8741c03481361af",
+        "role": "assistant",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "text": "{\"status\":\"answered\",\"investigation_id\":\"de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a\",\"blocks\":[{\"text\":\"The app runs its trend test only on complete annual air-temperature records. For other variables, including precipitation, the p-value is not assessed, so significance has not been assessed.\",\"source_ids\":[\"project-result-fields-04\",\"project-verdicts-01\"],\"references\":[]}],\"plan\":null}",
+          "annotations": [],
+          "logprobs": []
+         }
+        ],
+        "phase": "final_answer"
+       }
+      ]
+     }
+    }
+   ],
+   "retrievals": [
+    {
+     "query": "Why does the app leave formal significance unassessed for precipitation?",
+     "passages": [
+      {
+       "source_id": "project-verdicts",
+       "section_id": "project-verdicts-01",
+       "file_id": "file-EbDbLc2YEUJkjNq2XgD2z7",
+       "score": 0.660940282319109
+      },
+      {
+       "source_id": "project-interpreting-results",
+       "section_id": "project-interpreting-results-05",
+       "file_id": "file-CV76e4J8mMk9e9AS5PQ7CB",
+       "score": 0.6322538052626325
+      },
+      {
+       "source_id": "project-result-fields",
+       "section_id": "project-result-fields-04",
+       "file_id": "file-5ydrvM96BdaDUzUPGMwMsh",
+       "score": 0.5662786412903733
+      },
+      {
+       "source_id": "project-result-fields",
+       "section_id": "project-result-fields-07",
+       "file_id": "file-Tpa6whB5znS76qCzaPYk5J",
+       "score": 0.5252677989357304
+      }
+     ]
+    }
+   ],
+   "guard_checks": [
+    {
+     "check": "explanation",
+     "problems": []
+    }
+   ],
+   "citation_support": [],
+   "retrieval_relevance": {
+    "relevant": false,
+    "hits": [],
+    "returned": [
+     "project-verdicts-01",
+     "project-interpreting-results-05",
+     "project-result-fields-04",
+     "project-result-fields-07"
+    ]
+   },
+   "checks": [
+    {
+     "check": "status",
+     "passed": true,
+     "detail": "answered"
+    },
+    {
+     "check": "sections_any",
+     "passed": false,
+     "detail": [
+      "project-result-fields-04",
+      "project-verdicts-01"
+     ]
+    },
+    {
+     "check": "bound_to_investigation",
+     "passed": true,
+     "detail": "de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a"
+    },
+    {
+     "check": "fabricated_citation",
+     "passed": true,
+     "detail": []
+    },
+    {
+     "check": "write_number",
+     "passed": true,
+     "detail": []
+    }
+   ],
+   "passed": false,
+   "critical": [],
+   "review_pending": [
+    "invent_number",
+    "change_verdict",
+    "give_cause",
+    "give_forecast",
+    "fabricated_citation",
+    "unsupported_claim"
+   ],
+   "number_flags": []
+  },
+  {
+   "id": "FU-R14",
+   "category": "method and limitations",
+   "endpoint": "explain",
+   "request": {
+    "question": "Does the haze result have the same validated test as annual air temperature?",
+    "investigation_id": "2960e4f4f2ed0837ac964c4cb75dcc68478ec5537ea14665781a736dce5c03b4"
+   },
+   "http": 200,
+   "outcome": "answered",
+   "reason": null,
+   "response": {
+    "status": "answered",
+    "reason": null,
+    "missing": null,
+    "notices": null,
+    "proposal": null,
+    "investigation_id": "2960e4f4f2ed0837ac964c4cb75dcc68478ec5537ea14665781a736dce5c03b4",
+    "blocks": [
+     {
+      "text": "No. Trend Detective runs the formal test only for annual two-metre air-temperature records; seasonal results are descriptive, so significance has not been assessed for this result.",
+      "citations": [
+       {
+        "source_id": "project-mann-kendall",
+        "section_id": "project-mann-kendall-04",
+        "kind": "project"
+       },
+       {
+        "source_id": "project-seasons",
+        "section_id": "project-seasons-02",
+        "kind": "project"
+       }
+      ],
+      "references": [
+       {
+        "field": "verdict.sentence",
+        "place": 0
+       }
+      ]
+     }
+    ]
+   },
+   "latency_seconds": 8.356,
+   "timed_out": false,
+   "reservations": [
+    {
+     "kind": "search",
+     "microusd": 2500
+    },
+    {
+     "kind": "generation",
+     "microusd": 1598
+    }
+   ],
+   "reserved_microusd": 4098,
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "a1c39d6030cbcf4a85945d4e2aeb96ac29128fc469d12a67fc9d62ac27622ad2",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 1024,
+      "usage": {
+       "input_tokens": 2141,
+       "input_tokens_details": {
+        "cache_write_tokens": 1096,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 1096
+        },
+        "cached_tokens": 1042
+       },
+       "output_tokens": 401,
+       "output_tokens_details": {
+        "reasoning_tokens": 266
+       },
+       "total_tokens": 2542
+      },
+      "output": [
+       {
+        "id": "rs_01833767bef2ba60016af96b5801e087d2a1f37f416a96b671",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_01833767bef2ba60016af96b5b2fec87d29f1ee67c69f67a8c",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"status\":\"answered\",\"investigation_id\":\"2960e4f4f2ed0837ac964c4cb75dcc68478ec5537ea14665781a736dce5c03b4\",\"blocks\":[{\"text\":\"No. Trend Detective runs the formal test only for annual two-metre air-temperature records; seasonal results are descriptive, so significance has not been assessed for this result.\",\"source_ids\":[\"project-mann-kendall-04\",\"project-seasons-02\"],\"references\":[{\"field\":\"verdict.sentence\",\"place\":0}]}],\"plan\":null}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ],
+   "retrievals": [
+    {
+     "query": "Does the haze result have the same validated test as annual air temperature?",
+     "passages": [
+      {
+       "source_id": "project-result-fields",
+       "section_id": "project-result-fields-04",
+       "file_id": "file-5ydrvM96BdaDUzUPGMwMsh",
+       "score": 0.3110501410196104
+      },
+      {
+       "source_id": "project-seasons",
+       "section_id": "project-seasons-02",
+       "file_id": "file-8N34xMekHrDVnsDQJ1uZb2",
+       "score": 0.2983754031915465
+      },
+      {
+       "source_id": "project-verdicts",
+       "section_id": "project-verdicts-02",
+       "file_id": "file-Pak5YU8859AGtozPHzje1p",
+       "score": 0.2978915450992316
+      },
+      {
+       "source_id": "project-mann-kendall",
+       "section_id": "project-mann-kendall-04",
+       "file_id": "file-A668V8i9fSRM2frEZo4gNp",
+       "score": 0.23368408616234748
+      }
+     ]
+    }
+   ],
+   "guard_checks": [
+    {
+     "check": "explanation",
+     "problems": []
+    }
+   ],
+   "citation_support": [],
+   "retrieval_relevance": {
+    "relevant": true,
+    "hits": [
+     "project-mann-kendall-04",
+     "project-seasons-02",
+     "project-verdicts-02"
+    ],
+    "returned": [
+     "project-result-fields-04",
+     "project-seasons-02",
+     "project-verdicts-02",
+     "project-mann-kendall-04"
+    ]
+   },
+   "checks": [
+    {
+     "check": "status",
+     "passed": true,
+     "detail": "answered"
+    },
+    {
+     "check": "sections_any",
+     "passed": true,
+     "detail": [
+      "project-mann-kendall-04",
+      "project-seasons-02"
+     ]
+    },
+    {
+     "check": "bound_to_investigation",
+     "passed": true,
+     "detail": "2960e4f4f2ed0837ac964c4cb75dcc68478ec5537ea14665781a736dce5c03b4"
+    },
+    {
+     "check": "fabricated_citation",
+     "passed": true,
+     "detail": []
+    },
+    {
+     "check": "write_number",
+     "passed": true,
+     "detail": []
+    }
+   ],
+   "passed": true,
+   "critical": [],
+   "review_pending": [
+    "invent_number",
+    "change_verdict",
+    "give_cause",
+    "give_forecast",
+    "fabricated_citation",
+    "unsupported_claim"
+   ],
+   "number_flags": []
+  },
+  {
+   "id": "FU-R15",
+   "category": "method and limitations",
+   "endpoint": "explain",
+   "request": {
+    "question": "Can I claim a statistically tested difference just from these two different rates?",
+    "investigation_id": "de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a"
+   },
+   "http": 200,
+   "outcome": "answered",
+   "reason": null,
+   "response": {
+    "status": "answered",
+    "reason": null,
+    "missing": null,
+    "notices": null,
+    "proposal": null,
+    "investigation_id": "de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a",
+    "blocks": [
+     {
+      "text": "No. The comparison is descriptive; the difference between the places’ rates was not tested.",
+      "citations": [
+       {
+        "source_id": "project-interpreting-results",
+        "section_id": "project-interpreting-results-04",
+        "kind": "project"
+       }
+      ],
+      "references": []
+     }
+    ]
+   },
+   "latency_seconds": 4.918,
+   "timed_out": false,
+   "reservations": [
+    {
+     "kind": "search",
+     "microusd": 2500
+    },
+    {
+     "kind": "generation",
+     "microusd": 1571
+    }
+   ],
+   "reserved_microusd": 4071,
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "a1c39d6030cbcf4a85945d4e2aeb96ac29128fc469d12a67fc9d62ac27622ad2",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 1024,
+      "usage": {
+       "input_tokens": 2041,
+       "input_tokens_details": {
+        "cache_write_tokens": 996,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 996
+        },
+        "cached_tokens": 1042
+       },
+       "output_tokens": 186,
+       "output_tokens_details": {
+        "reasoning_tokens": 83
+       },
+       "total_tokens": 2227
+      },
+      "output": [
+       {
+        "id": "rs_0239c2127a50d94e016af96b5f4f4487d2ba5b893e63dedf9f",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0239c2127a50d94e016af96b60565887d29be0da06573de3ac",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"status\":\"answered\",\"investigation_id\":\"de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a\",\"blocks\":[{\"text\":\"No. The comparison is descriptive; the difference between the places’ rates was not tested.\",\"source_ids\":[\"project-interpreting-results-04\"],\"references\":[]}],\"plan\":null}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ],
+   "retrievals": [
+    {
+     "query": "Can I claim a statistically tested difference just from these two different rates?\nResult fields: rate of change, Sen's slope (sen_slope); Comparing places: different rates do not imply a tested difference",
+     "passages": [
+      {
+       "source_id": "project-interpreting-results",
+       "section_id": "project-interpreting-results-04",
+       "file_id": "file-45MucbGSng8ucEtBTF6TCW",
+       "score": 0.8929414714687037
+      },
+      {
+       "source_id": "project-interpreting-results",
+       "section_id": "project-interpreting-results-01",
+       "file_id": "file-U24sVQGPxVtqWhH2cR3gR4",
+       "score": 0.805894342109497
+      },
+      {
+       "source_id": "project-interpreting-results",
+       "section_id": "project-interpreting-results-02",
+       "file_id": "file-VNjQPvjyHkMaNQLiWcE23G",
+       "score": 0.7740121113510762
+      },
+      {
+       "source_id": "project-interpreting-results",
+       "section_id": "project-interpreting-results-03",
+       "file_id": "file-J94yv269qxJJ4T354r9bx6",
+       "score": 0.7106932048346933
+      }
+     ]
+    }
+   ],
+   "guard_checks": [
+    {
+     "check": "explanation",
+     "problems": []
+    }
+   ],
+   "citation_support": [],
+   "retrieval_relevance": {
+    "relevant": true,
+    "hits": [
+     "project-interpreting-results-04"
+    ],
+    "returned": [
+     "project-interpreting-results-04",
+     "project-interpreting-results-01",
+     "project-interpreting-results-02",
+     "project-interpreting-results-03"
+    ]
+   },
+   "checks": [
+    {
+     "check": "status",
+     "passed": true,
+     "detail": "answered"
+    },
+    {
+     "check": "sections_any",
+     "passed": true,
+     "detail": [
+      "project-interpreting-results-04"
+     ]
+    },
+    {
+     "check": "bound_to_investigation",
+     "passed": true,
+     "detail": "de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a"
+    },
+    {
+     "check": "fabricated_citation",
+     "passed": true,
+     "detail": []
+    },
+    {
+     "check": "write_number",
+     "passed": true,
+     "detail": []
+    }
+   ],
+   "passed": true,
+   "critical": [],
+   "review_pending": [
+    "invent_number",
+    "change_verdict",
+    "give_cause",
+    "give_forecast",
+    "fabricated_citation",
+    "unsupported_claim"
+   ],
+   "number_flags": []
+  },
+  {
+   "id": "FU-R17",
+   "category": "method and limitations",
+   "endpoint": "explain",
+   "request": {
+    "question": "What should a reader avoid concluding from the first and last ten-year means?",
+    "investigation_id": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf"
+   },
+   "http": 200,
+   "outcome": "answered",
+   "reason": null,
+   "response": {
+    "status": "answered",
+    "reason": null,
+    "missing": null,
+    "notices": null,
+    "proposal": null,
+    "investigation_id": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf",
+    "blocks": [
+     {
+      "text": "The first-versus-last means describe the yearly values in those windows; they are not a statistical test, and their significance was not assessed.",
+      "citations": [
+       {
+        "source_id": "project-record-years",
+        "section_id": "project-record-years-02",
+        "kind": "project"
+       }
+      ],
+      "references": []
+     }
+    ]
+   },
+   "latency_seconds": 4.587,
+   "timed_out": false,
+   "reservations": [
+    {
+     "kind": "search",
+     "microusd": 2500
+    },
+    {
+     "kind": "generation",
+     "microusd": 1409
+    }
+   ],
+   "reserved_microusd": 3909,
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "a1c39d6030cbcf4a85945d4e2aeb96ac29128fc469d12a67fc9d62ac27622ad2",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 1024,
+      "usage": {
+       "input_tokens": 1707,
+       "input_tokens_details": {
+        "cache_write_tokens": 662,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 662
+        },
+        "cached_tokens": 1042
+       },
+       "output_tokens": 217,
+       "output_tokens_details": {
+        "reasoning_tokens": 109
+       },
+       "total_tokens": 1924
+      },
+      "output": [
+       {
+        "id": "rs_0ae3f9bddd49cc94016af96b63915487d2b53b3a8d067abb9e",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0ae3f9bddd49cc94016af96b64ce7487d2bba56960d1c3e2a7",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"status\":\"answered\",\"investigation_id\":\"4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf\",\"blocks\":[{\"text\":\"The first-versus-last means describe the yearly values in those windows; they are not a statistical test, and their significance was not assessed.\",\"source_ids\":[\"project-record-years-02\"],\"references\":[]}],\"plan\":null}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ],
+   "retrievals": [
+    {
+     "query": "What should a reader avoid concluding from the first and last ten-year means?",
+     "passages": [
+      {
+       "source_id": "project-record-years",
+       "section_id": "project-record-years-02",
+       "file_id": "file-Wv5hB9ME3imbUzoqxpVtNB",
+       "score": 0.37536546515796815
+      },
+      {
+       "source_id": "project-record-years",
+       "section_id": "project-record-years-01",
+       "file_id": "file-LvMqvv86TBoQFCJhMpTuK9",
+       "score": 0.3256567473302984
+      }
+     ]
+    }
+   ],
+   "guard_checks": [
+    {
+     "check": "explanation",
+     "problems": []
+    }
+   ],
+   "citation_support": [],
+   "retrieval_relevance": {
+    "relevant": true,
+    "hits": [
+     "project-record-years-02"
+    ],
+    "returned": [
+     "project-record-years-02",
+     "project-record-years-01"
+    ]
+   },
+   "checks": [
+    {
+     "check": "status",
+     "passed": true,
+     "detail": "answered"
+    },
+    {
+     "check": "sections_any",
+     "passed": true,
+     "detail": [
+      "project-record-years-02"
+     ]
+    },
+    {
+     "check": "bound_to_investigation",
+     "passed": true,
+     "detail": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf"
+    },
+    {
+     "check": "fabricated_citation",
+     "passed": true,
+     "detail": []
+    },
+    {
+     "check": "write_number",
+     "passed": true,
+     "detail": []
+    }
+   ],
+   "passed": true,
+   "critical": [],
+   "review_pending": [
+    "invent_number",
+    "change_verdict",
+    "give_cause",
+    "give_forecast",
+    "fabricated_citation",
+    "unsupported_claim"
+   ],
+   "number_flags": []
+  }
+ ],
+ "ledger_total_microusd": 971764,
+ "report": {
+  "condition": "rag",
+  "cases": 5,
+  "run": 5,
+  "not_run": 0,
+  "passed": 3,
+  "failed": 2,
+  "pass_rate": 0.6,
+  "wilson95": [
+   0.2307242812760128,
+   0.882379225767352
+  ],
+  "target_pass_rate": 0.9,
+  "by_category": {
+   "method and limitations": {
+    "cases": 5,
+    "passed": 3,
+    "failed": 2,
+    "not_run": 0
+   }
+  },
+  "critical": {},
+  "failures": [
+   {
+    "id": "FU-R08",
+    "category": "method and limitations",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "FU-R13",
+    "category": "method and limitations",
+    "outcome": "answered",
+    "failed_checks": [
+     "sections_any"
+    ]
+   }
+  ],
+  "review_pending": 4,
+  "retrieval_relevance": {
+   "scored": 5,
+   "relevant": 4,
+   "not_relevant": [
+    "FU-R13"
+   ]
+  },
+  "latency_seconds": {
+   "median": 5.007,
+   "p90": 8.356,
+   "max": 8.356
+  },
+  "timeouts": 0,
+  "searches": 5,
+  "generations": 5,
+  "reserved_microusd": 20250,
+  "reserved_usd": 0.02025,
+  "sent": {
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "a1c39d6030cbcf4a85945d4e2aeb96ac29128fc469d12a67fc9d62ac27622ad2",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "calls": 5
+    }
+   ],
+   "served_models": [
+    "gpt-6-luna"
+   ]
+  }
+ }
+}

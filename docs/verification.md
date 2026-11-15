@@ -11,6 +11,80 @@ target; [submission materials](submission.md) provide copy and final actions.
 The dated Draft 5 section below adds the container and browser checks of 15 November
 2026. The 14 November audit after it is kept as it was recorded.
 
+## Latest Draft 5 integration check
+
+On 15 November 2026, `fix-draft5-release` was fast-forwarded to
+`origin/draft-5` at `b1b4a5d` (UI fixes), then the local release changes were
+reapplied without conflicts. A backup remains in the
+`draft5-before-latest-integration` stash. Nothing was committed or pushed.
+
+The integrated working tree passed **1,617 backend tests**, Ruff lint and format
+checks, **771 frontend tests**, ESLint, Prettier and the TypeScript/Vite production
+build. Git reported no unresolved files or whitespace errors. The build still
+warns about large globe/Plotly chunks. These checks establish integration
+compatibility; they do not establish AI accuracy, browser behavior or deployment
+readiness. No paid model calls were made for this integration check.
+
+## Final submission-day candidate
+
+On 15 November 2026, `fix-draft5-release` passed **1,600 backend tests** with
+`python -m pytest -q -p no:cacheprovider`. Ruff lint/format checks and generated-type
+checks passed. The unchanged frontend's **758 tests**, lint, formatting and production
+build passed earlier in this follow-up. No tests were skipped or weakened to make the
+suite pass. Named-source fixtures were updated to exercise the new retrieval boundaries.
+
+The authorized live OpenAI runs and their limits are recorded in
+[evaluation results](evaluation-results.md#submission-day-follow-up). The latest complete
+prospective sample scored 50/50 planner/discovery and 33/40 explanations on automated
+checks. Subsequent targeted checks are development evidence; no full explanation gate
+or human factual-support review is claimed for the final candidate.
+
+The corpus's 173 section files match their manifest hashes. Both prospective suite
+hash sets are unchanged after the runs, and paired identities match. The committed
+NASA seed matches Git bytes. A check confirmed that the actual local API key does not
+appear in the public evaluation artifacts or documentation, and all release flags in
+the local `.env` remain false. The daily setting is USD 1; the evaluation ledger reserved
+USD 0.975993, including the prior USD 0.15 allowance. Source/metadata integrity checks
+are in [delivery checks](../backend/evaluation/submission-day/results/delivery-checks.json).
+
+The offline example/API/export verification below remains applicable; the final changes
+do not alter statistics, verdict templates, numerical contracts or frontend code. Public
+hosting/container runtime and a new interactive browser session were not verified here.
+
+## Submission-day fixes and offline checks
+
+Date: 15 November 2026. Branch `fix-draft5-release`, based on PR #8 head `3ea4d50`.
+This initial checkpoint covered local uncommitted fixes on Windows, before the later
+authorized live-model runs above. No paid API calls were made during this checkpoint.
+
+- Reproduced Windows corpus hash failures and comparison blocks borrowing another
+  place's outcome. Regression tests failed before the fixes and passed afterward.
+- Corpus section files and frozen evaluation JSON use LF checkout rules. The corpus
+  writer writes the exact UTF-8 bytes it hashes, without Windows newline translation.
+- Explanation checks use the named/referenced places of each block. Separate blocks
+  are required for differing comparison outcomes; unsupported commentary is withheld.
+- Backend: `python -m pytest -q -p no:cacheprovider` passed **1,574 tests**.
+  Ruff lint/format and `python -m scripts.generate_types --check` passed.
+- Frontend: `npm test -- --maxWorkers=2` passed **758 tests**. Lint, formatting and the
+  production build passed. This is not a new interactive browser/phone check.
+- A scratch cache copied from the committed seed served all four saved examples with
+  an HTTP transport that rejects every outbound request. Each example passed identical
+  pinned replay, PNG export, monthly/yearly CSV export for every place, and SHA-256
+  verification of the evidence downloads. Outbound requests: **0**. The seed was unchanged.
+- Health/readiness passed. With AI explicitly disabled, capabilities reported all AI
+  paths unavailable and `/api/plan`, `/api/discover`, `/api/explain` returned 503.
+- The Windows investigation IDs for walkthroughs A/B were respectively
+  `4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf` and
+  `de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a`.
+  Their evidence hashes match the original walkthrough record. Exact investigation
+  hashes were not reproduced across platforms; replay was identical locally. Do not
+  present the earlier recorded IDs as verified portable IDs.
+
+The historical live-model scores below and in `evaluation-results.md` do not validate
+these changes. Discovery and explanation remain gated off until a fresh evaluation
+passes and a teammate reviews source support. See the review checklist in
+[Draft 5 remaining work](draft5-remaining.md#submission-day-review).
+
 ## Draft 5 stage 7: container and browser checks
 
 Date: 15 November 2026. Branch `draft-5`, HEAD `5bfa2e4`, built from a working tree that also

@@ -858,6 +858,20 @@ about 0.2 °C; a sample that stops at 80° misses the fastest-warming polar caps
 
 ### Status and selected path
 
+Submission-day follow-up: the code and 173-section hosted corpus are implemented.
+The latest complete agent-authored sample scored 50/50 planner/discovery and 33/40
+explanations on automated checks. Subsequent topic/guard fixes have targeted development
+evidence, not a new complete prospective run. Human source-support review is pending;
+the 90% explanation gate has not been met and activation flags remain off. See the
+[current evaluation report](evaluation-results.md#submission-day-follow-up).
+
+Explicit interpretation topics restrict retrieval to the relevant reviewed source
+families: grid/measurement support, NASA/project reanalysis documentation, record-year
+comparisons, comparison interpretation and inference policy. The server rechecks source
+IDs after retrieval. General questions retain the full corpus. Result-field identifiers
+such as `requested.to` are plain labels, while actual URLs remain prohibited in generated
+text. Source attribution remains explicit; project methods are not NASA methods.
+
 Existing: question-to-settings extraction and manual confirmation; AI is disabled
 by default. Implemented for retrieval: the discovery/explanation contracts, the
 retrieval settings and separate capability flags, the bounded vector-store search,
@@ -977,6 +991,16 @@ returns unsupported_question; each with a manual-fallback notice. The instructio
 that the question, draft and passages are untrusted data; draft coordinates are not
 sent to the provider.
 
+Submission-day retrieval restriction: when the question names a catalogue quantity by
+name, code or keyword, discovery searches only `source_id=project-variables`, the
+guide generated from the actual application catalogue, and checks the returned source
+IDs again locally. This prevents a different product (for example IMERG) from being
+cited as the description of the app's supported precipitation series. Project citations
+remain labelled as project notes. Questions naming no quantity retain the wider corpus;
+a broad request without a scientific goal asks for clarification instead of selecting
+an arbitrary variable from whichever passage ranked first. Explanations retain the
+full NASA/project corpus. Source entailment still requires review.
+
 ### Planned corpus and retrieval
 
 Use reviewed NASA POWER methodology, variable/source/validation and resolution
@@ -1071,6 +1095,13 @@ filters, not proof of truth; assess entailment and factual support in human-revi
 evaluation. A number matcher alone cannot protect against the wrong place or claim.
 Questions requiring new calculations create a new proposal for confirmation.
 
+Comparison blocks are checked against every place they explicitly name or reference,
+using ordered server-side labels, verdict kinds and directions. A block with no place
+scope is checked against all comparison places. Mixed outcomes require separate blocks
+and canonical verdict references; one place's rising/significant result cannot justify
+another place's claim. This is a conservative filter, not proof of source entailment or
+correct interpretation of an unnamed place alias.
+
 Implemented (`backend/app/adapters/explain.py`): POST /api/explain takes an
 ExplanationRequest and looks the ID up with `Cache.find_investigation`. The recorded
 case query is rebuilt with the shared tools on a data source that refuses every fetch,
@@ -1146,6 +1177,13 @@ keep model identity and accounting rates current; activation is off by default. 
 Keep hosted mode off if accounting is unavailable. Counters need durable storage
 and concurrency/restart/redeployment checks. Local mode also needs compute bounds.
 No chat text is stored server-side.
+
+The evaluation CLI preserves the owner's configured daily allowance and uses the smaller
+of it and the historical USD 5 maximum as a cumulative ledger cap. The ledger never
+resets merely because a new suite, process, date or scratch directory is used. This is
+stricter than the runtime daily limit; a zero allowance refuses paid evaluation. A
+planner-only suite does not require a retrieval store. Corpus storage/upload limits are
+separate from per-request reservations and require the owner's explicit upload approval.
 
 /api/discover and /api/explain use independent readiness/evaluation flags
 so a working planner does not imply working RAG. Each accepts <=8 KiB and one
@@ -1597,11 +1635,18 @@ What remains is listed in [Draft 5: what is done and what remains](draft5-remain
 - [x] Prepare two walkthroughs and a truthful water-related demonstration.
   ([Walkthroughs](walkthroughs.md): Svalbard air temperature and the Athens-Helsinki
   precipitation comparison, which stays descriptive.)
-- [ ] Record a decision for every consideration and listed resource.
+- [x] Record a decision for every consideration and listed resource.
+  Submission scope decisions for every consideration and listed resource are recorded in
+  [resource assessment](resource-assessment.md#submission-day-scope-decision). This records
+  implemented versus deferred scope; it does not claim all optional integrations or
+  educational validation are complete.
 - [x] Run >=50 planner/discovery and >=40 RAG held-out cases plus matched no-RAG cases.
   (Round 1: 75 and 65 cases. Round 2, on new suites: 70 and 77 cases, with 77 matched
   no-RAG cases. Neither gate is met in either round. In round 2, planner/discovery passed
   60 of 70 with three critical citation errors, and RAG passed 65 of 77.)
 - [ ] Observe >=5 target users and report completion, assistance and interpretation errors.
+  (Deferred by the team for the 15 November submission deadline. No user testing was
+  conducted; do not claim demonstrated usability or learning outcomes. This remains a
+  future validation target.)
 - [ ] Verify public HTTPS, browser/mobile/keyboard, outages and persistent redeploy.
 - [ ] Publish accurate NASA/AI credits and complete the demo/submission requirements.

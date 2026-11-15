@@ -543,7 +543,7 @@ def write_corpus(corpus_dir: Path, manifest: dict[str, Any], files: dict[str, st
         if stale.name not in files:
             stale.unlink()
     for name, text in files.items():
-        (sections_dir / name).write_text(text, encoding="utf-8")
+        (sections_dir / name).write_bytes(text.encode("utf-8"))
     document = json.dumps(manifest, indent=2, ensure_ascii=False) + "\n"
     (corpus_dir / MANIFEST_FILE).write_text(document, encoding="utf-8")
 
