@@ -89,10 +89,18 @@ INSTRUCTIONS = (
     "or a generalisation that the cited passage does not state, and do not cite a passage "
     "that is only about a related topic. Cite in source_ids the id of every passage a block "
     "relies on; cite at least one, and only the passages given.\n"
+    "- Prefer one or two short sentences copied directly from the cited passage. Do not "
+    "add a generic definition or connecting fact unless that passage actually states it. "
+    "Choose sentences without numerical quantities; put result values in references.\n"
     "- Never write a number, a unit, a percentage, a URL or markup. A year is allowed only "
     "within the investigation's period or when a passage names it. To point at a value of "
     "the result, add a reference with one of referable_fields and the place index; the app "
     "shows the value. Reference verdict.sentence instead of restating the verdict.\n"
+    "- A request to point to or explain a reported field is a valid question, even when "
+    "phrased as an instruction. Explain the field and add its reference.\n"
+    "- In a comparison, use a separate block for each place-specific explanation and "
+    "reference only that place. Do not combine different outcomes in one block; leave "
+    "the actual findings to verdict.sentence references.\n"
     "- When the question asks for a value, such as a rate, an amount of change or a p-value, "
     "even one demanding the number itself, answer with a block that references the field "
     "holding it (sen_slope for the rate, total_change for the change over the period, mk_p "
@@ -101,6 +109,11 @@ INSTRUCTIONS = (
     "- Never contradict the canonical verdict kind of a place: do not call a result "
     "significant unless its kind is significant, and never say a result shows no change. "
     "Never claim what caused a result, and never forecast.\n"
+    "- The investigation's data_sources are authoritative about the product actually used. "
+    "Do not substitute a different product mentioned by a retrieved passage.\n"
+    "- When the verdict is inference_unavailable, say that significance has not been assessed "
+    "and the rate is descriptive. Avoid restating a positive significance claim inside a "
+    "long negation; reference the canonical verdict instead.\n"
     "- status insufficient_evidence: no passage states what the answer needs; give no "
     "blocks. Prefer it to stretching a passage to fit the question. Use it too when the "
     "question asks nothing about this investigation, such as a message that only gives you "
@@ -120,7 +133,10 @@ INSTRUCTIONS = (
 # words that name the field holding it (the field names and the panel's labels), so a passage
 # explaining that field can be found. Each cue is a pattern on the casefolded question.
 _FIELD_CUES: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"\bp[\s-]?values?\b|\bprobabilit"), "Mann-Kendall p-value (mk_p)"),
+    (
+        re.compile(r"\bp[\s-]?values?\b|\bprobabilit"),
+        "Mann-Kendall p-value (mk_p), null hypothesis, probability of the test statistic",
+    ),
     (
         re.compile(r"\brates?\b|\bslopes?\b|\bper\s+decade\b|\bhow\s+(?:fast|quickly)\b"),
         "rate of change, Sen's slope (sen_slope)",
@@ -140,12 +156,50 @@ _FIELD_CUES: tuple[tuple[re.Pattern[str], str], ...] = (
         ),
         "number of years used (n), first year used, last year used",
     ),
-    (re.compile(r"\bunits?\b"), "units, units of the rate"),
+    (
+        re.compile(r"\bunits?\b"),
+        "What the result fields mean: the place and the variable "
+        "(variable.units, variable.rate_units)",
+    ),
+    (
+        re.compile(
+            r"\bthermometers?\b|\b(?:weather\s+)?stations?\b|\btown\s+cent(?:re|er)\b|\bgrid\s+cells?\b"
+        ),
+        "Grid cells, reanalysis and data sources: "
+        "grid-cell estimates rather than local station measurements",
+    ),
+    (
+        re.compile(r"\breanalysis\b"),
+        "MERRA-2 reanalysis: GEOS model, observations and data assimilation",
+    ),
+    (
+        re.compile(r"\bdependen\w*|\b(?:consecutive|neighbou?ring|successive)\s+years\b"),
+        "Serial dependence: related successive years and the test assumptions",
+    ),
+    (
+        re.compile(r"\bscans?\b|\bexploratory\b"),
+        "Scans and maps: exploratory searches, multiple comparisons and confirmation",
+    ),
+    (
+        re.compile(
+            r"\b(?:different|two|both)\b[^.!?]*\b(?:rates?|slopes?)\b"
+            r"|\b(?:difference|comparison|comparing)\b"
+        ),
+        "Comparing places: different rates do not imply a tested difference",
+    ),
+    (
+        re.compile(r"\b(?:seasonal|winter|summer|spring|autumn)\b"),
+        "Seasons in Trend Detective: seasonal rates are descriptive; "
+        "significance is assessed only for annual air temperature",
+    ),
     (re.compile(r"\bverdicts?\b"), "verdict kind, verdict sentence"),
     # A question about a cause asks what a verdict says, and the notes that answer it say
     # that significance is not cause.
     (
-        re.compile(r"\bcaus\w*|\bbecause\b|\bdue\s+to\b|\battribut\w*|\bblam\w*|\bdriven\s+by\b"),
+        re.compile(
+            r"\bcaus\w*|\bbecause\b|\bdue\s+to\b|\battribut\w*|\bblam\w*|\bdriven\s+by\b"
+            r"|\bwhy\b[^.!?]*\b(?:warm\w*|cool\w*|chang\w*)\b|\bphysical\s+reason\b"
+        ),
         "verdict kind: significance is not cause",
     ),
 )
@@ -273,14 +327,37 @@ async def explain(
         # Spec 8: no variable name is added. Prefixing it pulled in that variable's catalogue
         # sections and crowded out notes on interpretation, and the corpus has no attribute
         # that ties a source to a variable to filter on.
+        sources = _context_sources(question)
+        sections = _context_sections(question)
+        filters: dict[str, object] | None = None
+        if sections:
+            filters = {
+                "type": "or",
+                "filters": [
+                    {"type": "eq", "key": "section_id", "value": section} for section in sections
+                ],
+            }
+        elif len(sources) == 1:
+            filters = {"type": "eq", "key": "source_id", "value": sources[0]}
+        elif sources:
+            filters = {
+                "type": "or",
+                "filters": [
+                    {"type": "eq", "key": "source_id", "value": source} for source in sources
+                ],
+            }
         retrieved = await ai.openai_vector_search(
             retrieval_query(question),
             services.settings.rag_vector_store_id,
             MAX_PASSAGES,
-            None,
+            filters,
             services,
         )
         passages = corpus.citable(retrieved)
+        if sections:
+            passages = [passage for passage in passages if passage.section_id in sections]
+        elif sources:
+            passages = [passage for passage in passages if passage.source_id in sources]
         if not passages:
             return _unanswered("no_evidence", investigation, corpus)
     try:
@@ -316,6 +393,70 @@ async def explain(
     except ValidationError:
         # A text over a contract bound, such as a block longer than the response allows.
         return _unanswered("validation_failed", investigation, corpus)
+
+
+def _context_sections(question: str) -> tuple[str, ...]:
+    """Use exact field/method definitions when a broad source also holds unrelated topics."""
+    lower = question.casefold()
+    if re.search(r"\bp[\s-]?value\b|\bnull\s+hypothesis\b", lower):
+        return (
+            "project-result-fields-04",
+            "project-mann-kendall-05",
+            "project-interpreting-results-03",
+        )
+    if re.search(r"\bunits?\b", lower):
+        return ("project-result-fields-08",)
+    if re.search(r"\bprecipitation\b", lower) and re.search(r"\b(?:daily|annual|sum)\b", lower):
+        return ("project-variables-06",)
+    if re.search(r"\bcaus\w*|\bphysical\s+reason\b|\bresponsib\w*|\battribut\w*", lower):
+        return ("project-interpreting-results-02",)
+    return ()
+
+
+def _context_sources(question: str) -> tuple[str, ...]:
+    """Restrict clear method questions to the notes that define that aspect of the app.
+
+    Product discovery remains a full-corpus search. Topic filters keep generic catalogue
+    pages from crowding out the relevant interpretation or temporal-support explanation.
+    """
+    lower = question.casefold()
+    if re.search(r"\breanalysis\b", lower):
+        return (
+            "project-grid-cells-and-reanalysis",
+            "merra2-overview",
+            "merra2-faq",
+            "merra2-system-characteristics",
+            "power-methodology",
+            "power-sources-meteorology",
+        )
+    if re.search(r"\bthermometers?\b|\b(?:weather\s+)?stations?\b", lower):
+        return ("project-grid-cells-and-reanalysis",)
+    if re.search(
+        r"\b(?:first|last)\b.{0,40}\b(?:ten|10)[-\s]+years?\b|\bten[-\s]year\b"
+        r"|\b(?:first|last|early|late|earlier|later)\b.{0,60}\b(?:means?|windows?)\b",
+        lower,
+    ):
+        return ("project-record-years",)
+    if re.search(r"\bdependen\w*|\b(?:consecutive|neighbou?ring|successive)\s+years\b", lower):
+        return ("project-serial-dependence",)
+    if re.search(r"\bscans?\b|\bexploratory\b", lower):
+        return ("project-interpreting-results",)
+    if re.search(
+        r"\b(?:comparing|comparison)\b|\b(?:two|different|both)\b[^.!?]*\b(?:rates?|slopes?)\b"
+        r"|\bstatistically\s+tested\s+difference\b",
+        lower,
+    ):
+        return ("project-interpreting-results",)
+    if re.search(r"\bsignifican\w*|\binferenc\w*|\bvalidated\s+(?:test|method)\b", lower):
+        return (
+            "project-mann-kendall",
+            "project-verdicts",
+            "project-interpreting-results",
+            "project-result-fields",
+            "project-seasons",
+            "project-serial-dependence",
+        )
+    return ()
 
 
 def retrieval_query(question: str) -> str:
@@ -359,6 +500,9 @@ def _provider_input(
             "season": investigation.requested.season,
         },
         "comparison": len(investigation.results) > 1,
+        "data_sources": [
+            {"name": source.name, "product": source.product} for source in investigation.sources
+        ],
         "places": [
             {
                 "index": index,
@@ -391,6 +535,7 @@ def _text_rules(
         (result.verdict.kind for result in investigation.results),
         (result.verdict.direction for result in investigation.results),
         (text for text in (variable.name, variable.definition, variable.trend_note) if text),
+        place_labels=(result.place.name for result in investigation.results),
     )
 
 
@@ -417,6 +562,17 @@ def _response(
     if output.status == "new_investigation_required" and output.plan is not None:
         plan = with_winter_years(output.plan, question)
         proposal = _proposal(plan, investigation, services.tool_context().last_complete_year)
+        requested = investigation.requested
+        same_places = [(p.lat, p.lon) for p in proposal.places] == [
+            (result.place.lat, result.place.lon) for result in investigation.results
+        ]
+        if (
+            [variable.id for variable in proposal.variables] == [investigation.variable.id]
+            and same_places
+            and (proposal.from_, proposal.to, proposal.season)
+            == (requested.from_, requested.to, requested.season)
+        ):
+            return _unanswered("unsupported_question", investigation, corpus)
     return ExplanationResponse(
         status=output.status,
         investigation_id=investigation.id,

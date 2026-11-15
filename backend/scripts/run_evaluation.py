@@ -24,16 +24,18 @@ first N cases. `--report RESULTS [--compare NO_RAG_RESULTS]` prints the report o
 file, and the paired RAG/no-RAG comparison, without any call.
 
 Settings come from the environment, with these overrides for this process only: discovery
-and explanations count as evaluated (that is what is being measured), the app's daily budget
-is USD 5, the rate limits are high enough for a sequential run, and the cache, operations
+and explanations count as evaluated (that is what is being measured), the configured daily
+budget is preserved, the rate limits allow a sequential run, and the cache, operations
 database and snapshots live in `--state-dir`. The cache there starts as a copy of the
 repository's state/power.sqlite, or of the shipped seed when there is none.
 
-Spend: the owner approved USD 5 for all evaluation runs together. The ledger at
+Spend: the historical maximum is USD 5 for all evaluation runs together. The CLI uses the
+smaller of that maximum and AI_DAILY_BUDGET_MICROUSD as its cumulative ledger cap; it
+never increases a configured daily allowance. The ledger at
 state/evaluation-spend.json (operational state, not committed) holds every reservation of
 every run, starting with USD 0.15 for the earlier smoke tests. Before each paid call (a search
 or a generation) the runner adds the call's reserved upper bound, which `app.ai` computes,
-and refuses to start a call that would take the total past USD 5; the ledger is written at
+and refuses to start a call that would take the total past that cap; the ledger is written at
 once, so a call that crashes still counts. A refusal ends the run: the case it interrupts and
 the remaining cases are recorded as not run, outside the pass rate, and the interrupted case
 keeps the reservations it made. The reserved cost is an upper bound, not the provider's billed
@@ -101,8 +103,7 @@ SEED_CACHE = DATA_DIR / "cache.sqlite"
 SPEND_CAP_MICROUSD = 5_000_000
 PRIOR_SMOKE_MICROUSD = 150_000
 MICROUSD_PER_USD = 1_000_000
-# This process's own app budget and rate limits: high enough that only the ledger stops a run.
-EVALUATION_DAILY_BUDGET_MICROUSD = 5_000_000
+# Rate limits allow a sequential suite; the configured budget is never overridden.
 EVALUATION_RATE_PER_MINUTE = 100_000
 # Spec 12: the predeclared pass target, used when a suite's header does not state its own.
 SPEC_TARGET_PASS_RATE = 0.9
@@ -410,6 +411,8 @@ def _passage_record(passage: RetrievedPassage) -> dict[str, Any]:
         "section_id": passage.section_id,
         "file_id": passage.file_id,
         "score": passage.score,
+        "text": passage.text,
+        "content_sha256": passage.content_sha256,
     }
 
 
@@ -1203,12 +1206,24 @@ def evaluation_settings(base: Settings, state_dir: Path) -> Settings:
         base,
         discovery_evaluated=True,
         rag_evaluated=True,
-        ai_daily_budget_microusd=EVALUATION_DAILY_BUDGET_MICROUSD,
         ai_rate_per_minute=EVALUATION_RATE_PER_MINUTE,
         rate_limit_per_minute=EVALUATION_RATE_PER_MINUTE,
         cache_path=state_dir / "power.sqlite",
         operational_path=state_dir / "operations.sqlite",
         snapshot_path=state_dir / "snapshots",
+    )
+
+
+def evaluation_ledger(settings: Settings) -> SpendLedger:
+    """Load the cumulative ledger without exceeding the configured daily allowance.
+
+    The ledger is deliberately stricter than a daily counter: it does not reset when
+    another suite, process, scratch state directory or calendar day starts.
+    """
+    if settings.ai_daily_budget_microusd <= 0:
+        raise SuiteError("Set a positive AI_DAILY_BUDGET_MICROUSD before paid evaluation.")
+    return SpendLedger.load(
+        LEDGER_PATH, cap_microusd=min(SPEND_CAP_MICROUSD, settings.ai_daily_budget_microusd)
     )
 
 
@@ -1278,6 +1293,22 @@ async def record_cases(client: httpx.AsyncClient, suite: Mapping[str, Any]) -> d
             "verdict_kinds": [result["verdict"]["kind"] for result in body["results"]]
             if ok
             else None,
+            "places": [
+                {
+                    "label": result["place"]["name"],
+                    "kind": result["verdict"]["kind"],
+                    "direction": result["verdict"]["direction"],
+                }
+                for result in body["results"]
+            ]
+            if ok
+            else [],
+            "variable": body["variable"]["id"] if ok else None,
+            "data_sources": [
+                {"name": source["name"], "product": source["product"]} for source in body["sources"]
+            ]
+            if ok
+            else [],
         }
     return recorded
 
@@ -1370,6 +1401,17 @@ async def run_case(
     }
 
 
+def suite_available(
+    settings: Settings, kind: SuiteKind, cases: Sequence[Mapping[str, Any]]
+) -> bool:
+    """Whether the configured capabilities cover every endpoint the suite exercises."""
+    if kind == "rag":
+        return settings.explanation_available
+    if any(case.get("endpoint") == "discover" for case in cases):
+        return settings.discovery_available
+    return settings.planner_available
+
+
 async def run_suite(
     suite_path: Path,
     condition: Condition,
@@ -1385,8 +1427,7 @@ async def run_suite(
         raise SuiteError("The no-rag condition applies to the RAG suites only.")
     prepare_state(state_dir)
     settings = evaluation_settings(load_settings(), state_dir)
-    available = settings.explanation_available if kind == "rag" else settings.discovery_available
-    if not available:
+    if not suite_available(settings, kind, suite["cases"]):
         raise SuiteError("The AI path of this suite is not configured in the environment.")
     corpus = load_corpus()
     services = build_services(settings)
@@ -1552,7 +1593,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.limit,
                 args.state_dir,
                 args.out,
-                SpendLedger.load(LEDGER_PATH),
+                evaluation_ledger(load_settings()),
             )
         )
     except SuiteError as error:

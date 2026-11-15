@@ -417,6 +417,47 @@ def test_a_comparison_may_name_the_significant_place() -> None:
     assert reasons("The other trend is not significant.", mixed) == []
 
 
+def test_the_app_name_does_not_turn_a_method_description_into_a_test_outcome() -> None:
+    text = (
+        "Trend Detective assesses significance only for annual air temperature. "
+        "Significance has not been assessed for seasonal rates."
+    )
+
+    assert reasons(text, rules("inference_unavailable")) == []
+
+
+def test_a_significance_detection_is_still_an_outcome() -> None:
+    assert "contradicts_verdict" in reasons(
+        "The significance test reports a detection.", rules("not_significant")
+    )
+
+
+def test_rather_than_negates_a_formal_significance_finding() -> None:
+    assert (
+        reasons(
+            "The rate is descriptive rather than a formal significance finding.",
+            rules("inference_unavailable"),
+        )
+        == []
+    )
+    assert "contradicts_verdict" in reasons("The trend is more than significant.", rules())
+
+
+def test_a_trusted_result_field_name_is_not_a_url() -> None:
+    assert (
+        reasons("The requested.from and requested.to fields give the years asked for.", rules())
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["https://requested.to", "requested.to/secret", "requested.to?key=x", "requested.to:8000"],
+)
+def test_a_url_using_a_field_name_is_still_rejected(text: str) -> None:
+    assert "url_in_text" in reasons(text, rules())
+
+
 def test_discovery_text_may_never_claim_significance() -> None:
     assert "contradicts_verdict" in reasons("Rainfall has a significant trend.", rules())
 
@@ -809,6 +850,67 @@ def test_an_abstention_is_only_checked_for_its_binding() -> None:
     blocks = [{"text": "It rose 9 degrees.", "source_ids": [], "references": []}]
 
     assert explanation_reasons(explanation(status="insufficient_evidence", blocks=blocks)) == []
+
+
+@pytest.mark.parametrize(
+    ("text", "reference_place"),
+    [
+        ("Helsinki has a rising trend.", 1),
+        ("Helsinki has a significant trend.", 1),
+        ("Helsinki has a rising trend.", 0),
+        ("The trend is rising.", 1),
+        ("The trend is significant.", 1),
+    ],
+)
+def test_comparison_claims_cannot_borrow_another_places_verdict(
+    text: str, reference_place: int
+) -> None:
+    output = explanation(
+        blocks=[
+            {
+                "text": text,
+                "source_ids": ["power-01"],
+                "references": [{"field": "verdict.sentence", "place": reference_place}],
+            }
+        ]
+    )
+    comparison_rules = text_rules(
+        (),
+        [],
+        ("significant", "not_significant"),
+        ("rising", "falling"),
+        place_labels=("Singapore", "Helsinki"),
+    )
+
+    problems = check_explanation(
+        output, INVESTIGATION_ID, 2, EVIDENCE, comparison_rules, VARIABLE_IDS
+    )
+
+    assert problems
+
+
+def test_a_comparison_block_can_explain_its_own_places_direction() -> None:
+    output = explanation(
+        blocks=[
+            {
+                "text": "Helsinki has a falling trend.",
+                "source_ids": ["power-01"],
+                "references": [{"field": "verdict.sentence", "place": 1}],
+            }
+        ]
+    )
+    comparison_rules = text_rules(
+        (),
+        [],
+        ("significant", "not_significant"),
+        ("rising", "falling"),
+        place_labels=("Singapore", "Helsinki"),
+    )
+
+    assert (
+        check_explanation(output, INVESTIGATION_ID, 2, EVIDENCE, comparison_rules, VARIABLE_IDS)
+        == []
+    )
 
 
 def test_a_new_investigation_needs_a_plan_with_a_catalogue_variable() -> None:

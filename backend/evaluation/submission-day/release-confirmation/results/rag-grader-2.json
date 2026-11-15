@@ -1,0 +1,1891 @@
+{
+ "label": "rag-grader-2",
+ "model": "gpt-6-luna",
+ "caveat": "AI grading by the generation model family; not independent human review.",
+ "results_sha256": "b2772c3dfe8214fc6a75150415f989e9eb7afcfb809769b8552929abfa41c7ad",
+ "grades": [
+  {
+   "id": "RC-01",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "Sen's slope is the median of all these pairwise rates.",
+     "reason": "The cited project description says the median is taken over the pairwise rates calculated from every pair of years in the record. The answer accurately describes how those rates are calculated."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 788,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 113,
+       "output_tokens_details": {
+        "reasoning_tokens": 29
+       },
+       "total_tokens": 901
+      },
+      "output": [
+       {
+        "id": "rs_0c6a5f67d4a61a28016af97c7c5c2887d283536a04e39cf238",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0c6a5f67d4a61a28016af97c7cb94c87d28c399442b23fd7e6",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"Sen's slope is the median of all these pairwise rates.\",\"reason\":\"The cited project description says the median is taken over the pairwise rates calculated from every pair of years in the record. The answer accurately describes how those rates are calculated.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-02",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "The app uses the real calendar years, so a missing year is not squeezed out and the remaining years are not treated as consecutive.",
+     "reason": "The answer accurately explains that elapsed time is calculated using the actual calendar years, so a missing year is not compressed away. The passage describes the app's method, which is relevant to the question."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 777,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 188,
+       "output_tokens_details": {
+        "reasoning_tokens": 86
+       },
+       "total_tokens": 965
+      },
+      "output": [
+       {
+        "id": "rs_0c3f0d5052e3fa07016af97c7ea78887d2930f32b40eb9cfbc",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0c3f0d5052e3fa07016af97c7fcf8487d2ad4b8b4c3dc04f65",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"The app uses the real calendar years, so a missing year is not squeezed out and the remaining years are not treated as consecutive.\",\"reason\":\"The answer accurately explains that elapsed time is calculated using the actual calendar years, so a missing year is not compressed away. The passage describes the app's method, which is relevant to the question.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-03",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "It is descriptive information about how sensitive the rate is to the choice of estimator.",
+     "reason": "The cited project passage supports the OLS cross-check as descriptive information about estimator sensitivity, and explicitly says it is not a second significance test and does not vote on the verdict. The block answers the question and does not misattribute the method to NASA."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 708,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 101,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 809
+      },
+      "output": [
+       {
+        "id": "msg_04958ca2460be040016af97c81dbc887d291df7cfcf5f69b11",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"It is descriptive information about how sensitive the rate is to the choice of estimator.\",\"reason\":\"The cited project passage supports the OLS cross-check as descriptive information about estimator sensitivity, and explicitly says it is not a second significance test and does not vote on the verdict. The block answers the question and does not misattribute the method to NASA.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-04",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-05",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "Significance is not practical importance: a statistically significant change can be small.",
+     "reason": "The cited passage directly supports that statistical significance does not establish practical importance and that a significant change can be small, answering the question."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 721,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 104,
+       "output_tokens_details": {
+        "reasoning_tokens": 26
+       },
+       "total_tokens": 825
+      },
+      "output": [
+       {
+        "id": "rs_0cdf500653fb7cd7016af97c8429f087d2beb3703d013bc8f0",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0cdf500653fb7cd7016af97c8491cc87d2bd996122eb4c940d",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"Significance is not practical importance: a statistically significant change can be small.\",\"reason\":\"The cited passage directly supports that statistical significance does not establish practical importance and that a significant change can be small, answering the question.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-06",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-07",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-08",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "This is evidence only for the declared simulation family.",
+     "reason": "The answer directly addresses whether the checks certify the method for every kind of real climate record. The cited project passage says the simulations do not establish validity for all climate noise, structural breaks, or arbitrary dependence, supporting the answer’s qualification."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 769,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 92,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 861
+      },
+      "output": [
+       {
+        "id": "msg_0ebceefb3fcce29f016af97c868e0487d2bdd0bc26d18097df",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"This is evidence only for the declared simulation family.\",\"reason\":\"The answer directly addresses whether the checks certify the method for every kind of real climate record. The cited project passage says the simulations do not establish validity for all climate noise, structural breaks, or arbitrary dependence, supporting the answer’s qualification.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-09",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "weighting each month by its number of days and respecting leap years",
+     "reason": "The cited passage directly supports that monthly values are weighted by the number of days and that leap years are respected."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "effort": "low",
+       "context": "all_turns",
+       "summary": null,
+       "mode": "standard"
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 721,
+       "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_30m_tokens": 0,
+         "ttl_12h_tokens": 0
+        }
+       },
+       "output_tokens": 124,
+       "output_tokens_details": {
+        "reasoning_tokens": 51
+       },
+       "total_tokens": 845
+      },
+      "output": [
+       {
+        "type": "reasoning",
+        "id": "rs_042c2d505d5c9edf016af97c891a5087d2bbbd2770a0e7bcc2",
+        "summary": [],
+        "content": []
+       },
+       {
+        "type": "message",
+        "id": "msg_042c2d505d5c9edf016af97c894bfc87d2ad455e28cad04aae",
+        "role": "assistant",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"weighting each month by its number of days and respecting leap years\",\"reason\":\"The cited passage directly supports that monthly values are weighted by the number of days and that leap years are respected.\"}]}",
+          "annotations": [],
+          "logprobs": []
+         }
+        ],
+        "phase": "final_answer"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-10",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "A year with a missing month has no yearly value; a missing value is never replaced by zero.",
+     "reason": "The cited project passage directly supports both claims and answers the question."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 712,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 68,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 780
+      },
+      "output": [
+       {
+        "id": "msg_0441bdc35064ad5c016af97c8b922087d2ace4a1440d92d350",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"A year with a missing month has no yearly value; a missing value is never replaced by zero.\",\"reason\":\"The cited project passage directly supports both claims and answers the question.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-11",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "For December to February, December counts toward the following year",
+     "reason": "The project passage directly supports the claim that December is assigned to the following year, which is the year the winter belongs to."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 744,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 72,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 816
+      },
+      "output": [
+       {
+        "id": "msg_0ed7a52685ef86c6016af97c8dc3bc87d29a9350ea65c1061a",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"For December to February, December counts toward the following year\",\"reason\":\"The project passage directly supports the claim that December is assigned to the following year, which is the year the winter belongs to.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-12",
+   "passed": false,
+   "critical_errors": [
+    "The claim that the rate describes the direction and amount of change per unit of time is not supported by the cited passages."
+   ],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": false,
+     "quote": "Each season's rate is a descriptive Sen's slope from the season's complete years.",
+     "reason": "The passage supports that the winter rate is a descriptive Sen's slope from complete winter years and that significance was not assessed. It does not support the additional description of what the rate represents."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 965,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 212,
+       "output_tokens_details": {
+        "reasoning_tokens": 97
+       },
+       "total_tokens": 1177
+      },
+      "output": [
+       {
+        "id": "rs_0af3a5878d7bec19016af97c8fae9c87d292fc6f4aa14fe1b8",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0af3a5878d7bec19016af97c910df087d28b43227865fae1d1",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":false,\"critical_errors\":[\"The claim that the rate describes the direction and amount of change per unit of time is not supported by the cited passages.\"],\"blocks\":[{\"index\":0,\"supported\":false,\"quote\":\"Each season's rate is a descriptive Sen's slope from the season's complete years.\",\"reason\":\"The passage supports that the winter rate is a descriptive Sen's slope from complete winter years and that significance was not assessed. It does not support the additional description of what the rate represents.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-13",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "Significance is not assessed for any variable other than annual two-metre air temperature",
+     "reason": "The cited project passage supports the explanation: precipitation is not annual two-metre air temperature, so its results are descriptive rather than formal significance verdicts."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 791,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 82,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 873
+      },
+      "output": [
+       {
+        "id": "msg_05b7e97e647b5a51016af97c932bd887d2b9ecc77053f43646",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"Significance is not assessed for any variable other than annual two-metre air temperature\",\"reason\":\"The cited project passage supports the explanation: precipitation is not annual two-metre air temperature, so its results are descriptive rather than formal significance verdicts.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-14",
+   "passed": false,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "Only the all-months row of annual two-metre air temperature can be assessed with the trend test; every other row with a rate says that significance was not assessed.",
+     "reason": "The cited project passages support that seasonal rates are descriptive and significance is not assessed. This directly addresses the seasonal record’s significance limitation."
+    },
+    {
+     "index": 1,
+     "supported": false,
+     "quote": "",
+     "reason": "The block has no references, so its claims are not supported by any cited passage, despite matching the supplied project passage."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 1074,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 1071
+       },
+       "output_tokens": 308,
+       "output_tokens_details": {
+        "reasoning_tokens": 174
+       },
+       "total_tokens": 1382
+      },
+      "output": [
+       {
+        "id": "rs_0b90c015cfd126a9016af97c94edb487d2aeb2106f86eb1a16",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0b90c015cfd126a9016af97c97089487d2abc60d77eeddf2a0",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":false,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"Only the all-months row of annual two-metre air temperature can be assessed with the trend test; every other row with a rate says that significance was not assessed.\",\"reason\":\"The cited project passages support that seasonal rates are descriptive and significance is not assessed. This directly addresses the seasonal record’s significance limitation.\"},{\"index\":1,\"supported\":false,\"quote\":\"\",\"reason\":\"The block has no references, so its claims are not supported by any cited passage, despite matching the supplied project passage.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-15",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "no test of the difference between the places' rates was performed.",
+     "reason": "The cited project guidance says place comparisons are descriptive and the difference between rates was not tested, supporting the warning to avoid claiming statistically different rates."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 771,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 76,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 847
+      },
+      "output": [
+       {
+        "id": "msg_05f1284199829209016af97c99536487d2abd5719be990a69c",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"no test of the difference between the places' rates was performed.\",\"reason\":\"The cited project guidance says place comparisons are descriptive and the difference between rates was not tested, supporting the warning to avoid claiming statistically different rates.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-16",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "A result describes that grid cell, not the exact point or a city weather station.",
+     "reason": "The cited project passage supports that the estimates refer to the grid cell containing the chosen place rather than an exact local thermometer or city weather station."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 896,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 130,
+       "output_tokens_details": {
+        "reasoning_tokens": 48
+       },
+       "total_tokens": 1026
+      },
+      "output": [
+       {
+        "id": "rs_08e10032e6947ddb016af97c9b005887d299450e133448c3e9",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_08e10032e6947ddb016af97c9b94a887d2a52555fffe9362e6",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"A result describes that grid cell, not the exact point or a city weather station.\",\"reason\":\"The cited project passage supports that the estimates refer to the grid cell containing the chosen place rather than an exact local thermometer or city weather station.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-17",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "The model seeks to assimilate and optimize observational data and model estimates of atmospheric variables.",
+     "reason": "The cited passage directly supports the claim that MERRA-2 assimilation brings observational data and model estimates together to optimize atmospheric variables."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 824,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 147,
+       "output_tokens_details": {
+        "reasoning_tokens": 68
+       },
+       "total_tokens": 971
+      },
+      "output": [
+       {
+        "id": "rs_0932469f5737bb63016af97c9d6c9087d29ec8df62f73b8431",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0932469f5737bb63016af97c9e418c87d2bc7fbd4852882737",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"The model seeks to assimilate and optimize observational data and model estimates of atmospheric variables.\",\"reason\":\"The cited passage directly supports the claim that MERRA-2 assimilation brings observational data and model estimates together to optimize atmospheric variables.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-18",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "These facts describe the yearly values used. They are not tests, and their significance was not assessed.",
+     "reason": "The passage supports that the comparison describes yearly values and is not a test of statistical significance. The block also correctly identifies the comparison as the difference between the means of the first and last years used; the cited project passage specifies the first and last ten years when at least twenty analysis years are available."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 758,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 114,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 872
+      },
+      "output": [
+       {
+        "id": "msg_0e4d2cf3f053fd6b016af97c9ff2d887d2b4285823749e6e16",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"These facts describe the yearly values used. They are not tests, and their significance was not assessed.\",\"reason\":\"The passage supports that the comparison describes yearly values and is not a test of statistical significance. The block also correctly identifies the comparison as the difference between the means of the first and last years used; the cited project passage specifies the first and last ten years when at least twenty analysis years are available.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-19",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "These are the up to three years with the highest yearly values, highest first, and the up to three with the lowest, lowest first.",
+     "reason": "The passage describes record years as ranked yearly values, while the other passage explains that Mann-Kendall is a separate trend test based on comparing every pair of years. Together they support the answer that the record-year rankings are not themselves an independent statistical trend test."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 969,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 241,
+       "output_tokens_details": {
+        "reasoning_tokens": 124
+       },
+       "total_tokens": 1210
+      },
+      "output": [
+       {
+        "id": "rs_0ec92618f0db55e4016af97ca1c37c87d292208efd09bffc01",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0ec92618f0db55e4016af97ca3605087d2862a5507d36b6177",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"These are the up to three years with the highest yearly values, highest first, and the up to three with the lowest, lowest first.\",\"reason\":\"The passage describes record years as ranked yearly values, while the other passage explains that Mann-Kendall is a separate trend test based on comparing every pair of years. Together they support the answer that the record-year rankings are not themselves an independent statistical trend test.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-20",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "It stays unavailable until a procedure that allows for serial dependence between years is specified and its coverage is tested.",
+     "reason": "The cited project passage directly supports the explanation that the interval is unavailable pending a procedure accounting for serial dependence and a coverage test."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 747,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 143,
+       "output_tokens_details": {
+        "reasoning_tokens": 60
+       },
+       "total_tokens": 890
+      },
+      "output": [
+       {
+        "id": "rs_0536be3362a23158016af97ca5addc87d2ac7ff9f923aa859c",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_0536be3362a23158016af97ca67c8087d2945bfd8b233d5c19",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"It stays unavailable until a procedure that allows for serial dependence between years is specified and its coverage is tested.\",\"reason\":\"The cited project passage directly supports the explanation that the interval is unavailable pending a procedure accounting for serial dependence and a coverage test.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-21",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "When many periods are tried, selection and multiple testing affect what a result means, so a favourable period found by scanning is never confirmation.",
+     "reason": "The cited project passage directly supports the answer that a favourable period selected by scanning is not confirmatory and explains the role of selection and multiple testing."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 697,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 133,
+       "output_tokens_details": {
+        "reasoning_tokens": 40
+       },
+       "total_tokens": 830
+      },
+      "output": [
+       {
+        "id": "rs_023d661e313cf36a016af97ca8381487d2889b6b1d0b65cfcb",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_023d661e313cf36a016af97ca8ef2887d2942ee2a2a2877f38",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"When many periods are tried, selection and multiple testing affect what a result means, so a favourable period found by scanning is never confirmation.\",\"reason\":\"The cited project passage directly supports the answer that a favourable period selected by scanning is not confirmatory and explains the role of selection and multiple testing.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-22",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "The field total_change, labelled \"Total change over the years used\", is the change along the drawn trend line from the first year used to the last.",
+     "reason": "The passage directly supports that total_change describes the trend-line change over the years used, and explicitly says it is not the difference between the first and last yearly values."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 744,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 159,
+       "output_tokens_details": {
+        "reasoning_tokens": 58
+       },
+       "total_tokens": 903
+      },
+      "output": [
+       {
+        "id": "rs_003fcf423b6ed5e6016af97caabb0487d2ad8976d59a034e75",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_003fcf423b6ed5e6016af97cab850887d2acacec5f5c49bcbe",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"The field total_change, labelled \\\"Total change over the years used\\\", is the change along the drawn trend line from the first year used to the last.\",\"reason\":\"The passage directly supports that total_change describes the trend-line change over the years used, and explicitly says it is not the difference between the first and last yearly values.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-23",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-24",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "the estimated change for the grid cell containing the place",
+     "reason": "The cited project passage directly supports that the estimate is spatially for the grid cell containing the selected place. The answer is relevant and makes no unsupported additional claims."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 733,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 78,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 811
+      },
+      "output": [
+       {
+        "id": "msg_04d5c5bd978d5c4d016af97cad74a087d2a8d0e162eda88f5a",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"the estimated change for the grid cell containing the place\",\"reason\":\"The cited project passage directly supports that the estimate is spatially for the grid cell containing the selected place. The answer is relevant and makes no unsupported additional claims.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-25",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "The rate of change, labelled \"Rate of change (Sen's slope)\", is the field sen_slope. It says how fast the yearly values changed over the years used.",
+     "reason": "The cited project description identifies sen_slope as the rate field and says it describes how fast yearly values changed. It also supports the median-of-pairwise-rates calculation; the block is relevant to the question."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 814,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 179,
+       "output_tokens_details": {
+        "reasoning_tokens": 63
+       },
+       "total_tokens": 993
+      },
+      "output": [
+       {
+        "id": "rs_05540ab6bb8a3338016af97caf4b6c87d2855aa4ce8a004e22",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_05540ab6bb8a3338016af97caff86c87d2a59cf8e2dd841c1f",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"The rate of change, labelled \\\"Rate of change (Sen's slope)\\\", is the field sen_slope. It says how fast the yearly values changed over the years used.\",\"reason\":\"The cited project description identifies sen_slope as the rate field and says it describes how fast yearly values changed. It also supports the median-of-pairwise-rates calculation; the block is relevant to the question.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-26",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "The field n, labelled \"Number of years used\", counts the complete yearly values the analysis used.",
+     "reason": "Directly answers where the count is displayed by naming the field label; no other factual claims are made."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 764,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 76,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 840
+      },
+      "output": [
+       {
+        "id": "msg_07fc33f80cff4243016af97cb203bc87d29d5b42ee55a10d0f",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"The field n, labelled \\\"Number of years used\\\", counts the complete yearly values the analysis used.\",\"reason\":\"Directly answers where the count is displayed by naming the field label; no other factual claims are made.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-27",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "the Mann-Kendall p-value (mk_p)",
+     "reason": "The cited project note identifies mk_p as the Mann–Kendall p-value, so the answer points to the investigation’s p-value field without inventing a value."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 720,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 81,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 801
+      },
+      "output": [
+       {
+        "id": "msg_09b186c6ef5e4f4e016af97cb4139887d29f1f910f34876d2c",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"the Mann-Kendall p-value (mk_p)\",\"reason\":\"The cited project note identifies mk_p as the Mann–Kendall p-value, so the answer points to the investigation’s p-value field without inventing a value.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-28",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "For a verdict from the trend test it states the estimated change per decade over the years used and what the evidence does or does not show",
+     "reason": "The result is a significant verdict, and the cited passage explains that the app’s fixed verdict sentence for a trend-test verdict states the estimated change over the years used and what the evidence shows. The response directly answers which sentence to read without inventing its wording."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 843,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 115,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 958
+      },
+      "output": [
+       {
+        "id": "msg_04e84ce5ae50ec17016af97cb5f58087d29b4648d4922696a6",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"For a verdict from the trend test it states the estimated change per decade over the years used and what the evidence does or does not show\",\"reason\":\"The result is a significant verdict, and the cited passage explains that the app’s fixed verdict sentence for a trend-test verdict states the estimated change over the years used and what the evidence shows. The response directly answers which sentence to read without inventing its wording.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-29",
+   "passed": true,
+   "critical_errors": [],
+   "blocks": [
+    {
+     "index": 0,
+     "supported": true,
+     "quote": "The fields requested.from and requested.to, labelled \"First year asked for\" and \"Last year asked for\", are the period the investigation asked for, before incomplete years were left out.",
+     "reason": "The cited project passage directly identifies requested.from and requested.to as the first and last years asked for, before incomplete years are excluded. This answers the question."
+    }
+   ],
+   "method": "ai_source_review",
+   "prompts": [
+    {
+     "schema_name": "source_support_grade",
+     "instructions_sha256": "57f44f3e1a142708d6dd892848f64b50d2c9ba50e1fae8a230ced1d174253cff",
+     "schema_sha256": "d464c2141deefb8e0552a520778e1895dceac8d059296fe9c1f56b7745172056",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 768,
+      "usage": {
+       "input_tokens": 769,
+       "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 0
+        },
+        "cached_tokens": 0
+       },
+       "output_tokens": 127,
+       "output_tokens_details": {
+        "reasoning_tokens": 22
+       },
+       "total_tokens": 896
+      },
+      "output": [
+       {
+        "id": "rs_048f405549372894016af97cb82bc887d28827a2e0574da9d0",
+        "type": "reasoning",
+        "content": [],
+        "summary": []
+       },
+       {
+        "id": "msg_048f405549372894016af97cb8955487d2b091e79af1dcda83",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"passed\":true,\"critical_errors\":[],\"blocks\":[{\"index\":0,\"supported\":true,\"quote\":\"The fields requested.from and requested.to, labelled \\\"First year asked for\\\" and \\\"Last year asked for\\\", are the period the investigation asked for, before incomplete years were left out.\",\"reason\":\"The cited project passage directly identifies requested.from and requested.to as the first and last years asked for, before incomplete years are excluded. This answers the question.\"}]}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "RC-30",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-31",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-32",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-33",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-34",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-35",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-36",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-37",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-38",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-39",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-40",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  }
+ ],
+ "reserved_microusd": 1236826
+}

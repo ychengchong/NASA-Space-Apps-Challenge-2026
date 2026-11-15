@@ -1,0 +1,11 @@
+{
+  "started_utc": "2026-11-15T08:03:31.906028+00:00",
+  "suite_hashes": {
+    "planner_suite.json": "9b90a16e609ac5d9d094fee7744de658cc5eb17723f6612af783001353eb4c06",
+    "rag_suite.json": "09104f7eef02bb279f6f13b3f532d34db9902c6c43daaf7dc38a0fc4195a5aff"
+  },
+  "tracked_backend_diff_sha256": "f9b2df032701e4b1bd8ac60721bdd41c79badf935a80d24200151bcdb7972d8c",
+  "git_head": "3ea4d5015889ae420fdca6f9cccc48f39cdf54ec",
+  "reviewer": "pending teammate source-support review",
+  "cap_usd": 1
+}

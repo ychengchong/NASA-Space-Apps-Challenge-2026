@@ -2,6 +2,32 @@
 
 This record distinguishes development assistance from runtime AI.
 
+## Submission-day follow-up
+
+OpenAI Codex implemented Windows corpus-byte preservation, per-place explanation
+checks, product/topic-aware retrieval, guard corrections and explicit season guidance.
+It corrected the evaluation runner's budget override, preserving the owner's USD 1
+allowance with a cumulative ledger that is never reset for another suite. After the
+owner explicitly approved the payload and destination, it indexed the existing
+173 NASA/project sections in the owner's OpenAI project. The key remains in local `.env`.
+
+Codex authored the new questions/expectations, fixed them before each prospective run,
+and used automated checks. It also implemented the code, so these are not independent
+blind or human-reviewed evaluations. The original failed scores were preserved.
+The latest complete sample scored 50/50 planner/discovery and 33/40 explanations;
+later targeted development checks are separate. No human source-support review or
+student study has occurred, and release flags stay off. See the
+[current report](evaluation-results.md#submission-day-follow-up).
+
+The final code passed 1,600 backend tests; the unchanged frontend passed 758 tests
+and its production build. Lint, formatting and generated-type checks passed. Four
+cached NASA examples passed replay/export/evidence checks with outbound requests
+blocked and the shipped seed unchanged. Public deployment and final submission were
+not performed. The evaluation ledger reserved USD 0.975993 within USD 1, including
+the runner's USD 0.15 prior allowance; invoiced usage was not retrieved.
+
+## Earlier contribution records
+
 On 15 November 2026, Codex fixed the new-stats review findings and added regression
 tests: visible settings for keyword/LLM proposals and picked-point choices from
 overview/world pages, Python-rendered overview cautions, rejection of differing

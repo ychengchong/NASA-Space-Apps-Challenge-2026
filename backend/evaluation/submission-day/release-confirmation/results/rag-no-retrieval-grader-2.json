@@ -1,0 +1,249 @@
+{
+ "label": "rag-no-retrieval-grader-2",
+ "model": "gpt-6-luna",
+ "caveat": "AI grading by the generation model family; not independent human review.",
+ "results_sha256": "bb4708ea2bdcfc75441a414ca7c1e3200bb4a75aae64347243420c616057f62b",
+ "grades": [
+  {
+   "id": "RC-01",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-02",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-03",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-04",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-05",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-06",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-07",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-08",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-09",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-10",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-11",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-12",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-13",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-14",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-15",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-16",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-17",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-18",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-19",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-20",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-21",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-22",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-23",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-24",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-25",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-26",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-27",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-28",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-29",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-30",
+   "passed": false,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-31",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-32",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-33",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-34",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-35",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-36",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-37",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-38",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-39",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  },
+  {
+   "id": "RC-40",
+   "passed": true,
+   "critical_errors": [],
+   "method": "static_outcome_and_no_claims"
+  }
+ ],
+ "reserved_microusd": 1236826
+}

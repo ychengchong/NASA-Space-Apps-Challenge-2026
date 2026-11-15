@@ -347,6 +347,11 @@ Ask the students:
 
 ## Checked against
 
+The IDs below are the original recorded run. The Windows submission-day check confirmed
+the same evidence hashes and identical local pinned replay, but produced different
+investigation IDs; see [verification](verification.md#submission-day-fixes-and-offline-checks).
+Copy the current app's pinned link for the demo instead of relying on an ID from this table.
+
 | Walkthrough | Example query | Investigation ID | Evidence IDs |
 | --- | --- | --- | --- |
 | A | `v=air_temp&p=78.22,15.65&label=Longyearbyen&from=1981&to=2025&s=annual` | `99cc2d40ab9465a4276527e85687ccba6e8642442678b77c6f6c9ff3c2123f1a` | `b5789d547f55e8374dff65e6010f62e4466b5f9035ebd71278f4740432c4ce08` |

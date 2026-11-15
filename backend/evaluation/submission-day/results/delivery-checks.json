@@ -1,0 +1,17 @@
+{
+  "at_utc": "2026-11-15T08:58:15.873459+00:00",
+  "source_diff_sha256": "9514036434c4125efa0495b46055e6ee8d89f10003279ea6079b2cbbaa748315",
+  "corpus_hashes_match": true,
+  "seed_matches_committed_bytes": true,
+  "release_flags": {
+    "AI_ENABLED": "false",
+    "AI_EVALUATED": "false",
+    "RAG_ENABLED": "false",
+    "RAG_EVALUATED": "false",
+    "DISCOVERY_EVALUATED": "false"
+  },
+  "app_daily_budget_microusd": 1000000,
+  "actual_key_absent_from_public_artifacts": true,
+  "full_gate_for_final_postfix_candidate": "not established; targeted development only",
+  "suite_hashes_unchanged": true
+}

@@ -208,6 +208,75 @@ def test_a_question_naming_no_field_is_searched_as_asked() -> None:
     assert explain.retrieval_query("What is MERRA-2?") == "What is MERRA-2?"
 
 
+@pytest.mark.parametrize(
+    "question, cue",
+    [
+        ("Are these thermometer readings in the town centre?", "Grid cells, reanalysis"),
+        ("Does this tell us why the place warmed?", "significance is not cause"),
+        ("Where are the measurement units recorded?", "variable.units"),
+        ("Are the two rates significantly different?", "Comparing places"),
+        ("Why is winter significance unavailable?", "seasonal rates are descriptive"),
+        ("Are consecutive years independent?", "Serial dependence"),
+        ("Can a scan confirm the strongest trend?", "Scans and maps"),
+    ],
+)
+def test_concept_questions_retrieve_the_relevant_method_context(question: str, cue: str) -> None:
+    assert cue in explain.retrieval_query(question)
+
+
+def test_station_context_uses_the_grid_cell_guide(
+    services: Services, investigation: Investigation, fake: FakeOpenAI
+) -> None:
+    response = ask(services, investigation, "Are these local station measurements?")
+
+    assert fake.searches[0]["filters"] == {
+        "type": "eq",
+        "key": "source_id",
+        "value": "project-grid-cells-and-reanalysis",
+    }
+    # A hit from another product cannot bypass the requested topic boundary.
+    assert response.json()["reason"] == "no_evidence"
+    assert fake.generations == []
+
+
+def test_station_context_can_answer_from_its_reviewed_guide(
+    services: Services,
+    investigation: Investigation,
+    fake: FakeOpenAI,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dataclasses import replace
+
+    corpus = make_corpus(tmp_path)
+    source_id = "project-grid-cells-and-reanalysis"
+    document = corpus.sections[METHODOLOGY_SECTION].model_copy(
+        update={"source_id": source_id, "kind": "project"}
+    )
+    monkeypatch.setattr(
+        explain, "load_corpus", lambda: replace(corpus, sections={METHODOLOGY_SECTION: document})
+    )
+    hit = search_hit(METHODOLOGY_SECTION)
+    hit["attributes"]["source_id"] = source_id
+    fake.hits = [hit]
+
+    response = ask(services, investigation, "Are these local station measurements?")
+
+    assert response.json()["status"] == "answered"
+    assert response.json()["blocks"][0]["citations"][0]["source_id"] == source_id
+
+
+def test_reanalysis_context_retains_primary_nasa_sources(
+    services: Services, investigation: Investigation, fake: FakeOpenAI
+) -> None:
+    response = ask(services, investigation, "What does reanalysis combine?")
+
+    sources = {item["value"] for item in fake.searches[0]["filters"]["filters"]}
+    assert {"power-methodology", "merra2-overview", "project-grid-cells-and-reanalysis"} <= sources
+    assert response.json()["status"] == "answered"
+    assert response.json()["blocks"][0]["citations"][0]["kind"] == "agency"
+
+
 def test_the_model_sees_verdict_kinds_and_field_names_but_no_value_of_the_result(
     services: Services, investigation: Investigation, fake: FakeOpenAI
 ) -> None:
@@ -225,6 +294,9 @@ def test_the_model_sees_verdict_kinds_and_field_names_but_no_value_of_the_result
     assert place["direction"] == result.verdict.direction
     assert "sen_slope" in provider_input["referable_fields"]
     assert provider_input["investigation_id"] == investigation.id
+    assert provider_input["data_sources"] == [
+        {"name": source.name, "product": source.product} for source in investigation.sources
+    ]
     # The verdict sentence states the rate, so it is not shown; neither is any statistic.
     assert result.verdict.sentence not in generation["input"]
     assert set(place) == {"index", "label", "verdict_kind", "direction", "cautions"}
@@ -252,6 +324,22 @@ def test_a_question_needing_a_new_calculation_returns_a_proposal_to_confirm(
     assert body["proposal"]["variables"][0]["id"] == "precipitation"
     assert body["proposal"]["places"][0]["name"] == "Helsinki"
     assert source_calls(services) == []
+
+
+def test_a_new_analysis_cannot_claim_to_change_an_unsupported_quantity_with_an_unchanged_plan(
+    services: Services, investigation: Investigation, fake: FakeOpenAI
+) -> None:
+    fake.output = answer(
+        investigation.id,
+        status="new_investigation_required",
+        blocks=[],
+        plan={**PLAN, "variable": None, "place_queries": []},
+    )
+
+    response = ask(services, investigation)
+
+    assert response.json()["status"] == "insufficient_evidence"
+    assert response.json()["reason"] == "unsupported_question"
 
 
 def pinned_case(services: Services, **params: str) -> Investigation:
@@ -528,6 +616,45 @@ def test_output_failing_validation_is_withheld(
     assert body["blocks"] == []
     assert body["proposal"] is None
     assert body["investigation_id"] == investigation.id
+
+
+def test_a_comparison_explanation_cannot_borrow_the_other_places_direction(
+    services: Services, fake: FakeOpenAI
+) -> None:
+    services.source = FakeSource(
+        monthly_from_yearly(line(0.1)),
+        by_point={(1.5, 103.75): monthly_from_yearly(line(-0.1))},
+    )
+    with TestClient(create_app(services)) as client:
+        response = client.get(
+            "/api/case",
+            params=[
+                ("v", "air_temp"),
+                ("p", "60.17,24.94"),
+                ("p", "1.35,103.82"),
+                ("label", "Helsinki"),
+                ("label", "Singapore"),
+            ],
+        )
+    assert response.status_code == 200
+    comparison = Investigation.model_validate(response.json())
+    assert [result.verdict.direction for result in comparison.results] == ["rising", "falling"]
+    fake.output = answer(
+        comparison.id,
+        blocks=[
+            block(
+                text="Singapore has a rising trend.",
+                references=[{"field": "verdict.sentence", "place": 1}],
+            )
+        ],
+    )
+
+    response = ask(services, comparison)
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "insufficient_evidence"
+    assert response.json()["reason"] == "validation_failed"
+    assert response.json()["blocks"] == []
 
 
 def test_injection_in_the_question_cannot_rebind_the_investigation(

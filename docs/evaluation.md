@@ -14,6 +14,21 @@ student study has been run.
 This protocol implements the planned [Draft 5 release gates](technical-spec.md#12-build-plan-and-submission).
 Existing software checks are recorded separately in [verification](verification.md).
 
+## Submission-day follow-up
+
+The follow-up uses `gpt-6-luna` with a USD 1 cumulative evaluation ledger, preserving
+the configured daily request allowance rather than overriding it with USD 5. Existing
+development cases were used to diagnose product-mismatched discovery citations and
+over-specific selection for broad goals. They remain development evidence.
+
+[Prospective confirmation suites](../backend/evaluation/submission-day/README.md) contain
+50 planner/discovery and 40 explanation questions, plus a matched no-retrieval run.
+Their questions/expectations are fixed before their first prospective calls. They were
+written by the implementing agent, not independently or by a person. Automated scores
+and pending source-support review must be distinguished; no new activation attestation
+is implied. The older round-2 scores above remain historical evidence for the prior code.
+User testing was deferred by the team for the submission deadline and was not conducted.
+
 ## Student interpretation study
 
 Use the same tasks with at least five target students. Record assistance and errors,
@@ -89,7 +104,9 @@ Run matched RAG/no-RAG conditions on the same questions and record regressions a
 well as improvements. Freeze corpus/model/prompt/schema identities and report all
 counts, uncertainty, latency, timeouts and generation/retrieval costs. Set practical
 latency/cost limits before running the suite; measure ingestion/storage separately.
-User-study and AI targets are release requirements, not achieved outcomes.
+AI targets remain release requirements, not achieved outcomes. The team deferred the
+user study for this submission; it remains a future validation target, and no measured
+usability or educational impact is claimed.
 
 ## Final public demonstration
 
