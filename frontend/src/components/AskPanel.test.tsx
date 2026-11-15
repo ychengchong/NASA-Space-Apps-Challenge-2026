@@ -1,8 +1,8 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
-import type { ExplanationResponse, Proposal } from "../api";
+import type { Capabilities, ExplanationResponse, Proposal } from "../api";
 import type { AskState } from "../explanation";
-import { AskPanel, AskPanelView } from "./AskPanel";
+import { AskPanel, AskPanelOff, AskPanelView } from "./AskPanel";
 import { AIR_TEMP, CITATION, investigation, SIGNIFICANT_RISE } from "./testData";
 
 const HELSINKI = investigation(SIGNIFICANT_RISE);
@@ -158,5 +158,51 @@ describe("AskPanel", () => {
     );
     expect(html).toContain("&lt;a href=&quot;https://evil.example&quot;&gt;click&lt;/a&gt;");
     expect(html).not.toContain('href="https://evil.example"');
+  });
+});
+
+describe("AskPanelOff", () => {
+  const PLANNER_ONLY: Capabilities = {
+    ai_planner_available: true,
+    ai_discovery_available: false,
+    ai_explanation_available: false,
+    ai_explanation_gaps: ["no_vector_store", "corpus_version_mismatch"],
+  };
+
+  test("keeps the heading but takes no question", () => {
+    const html = renderToStaticMarkup(<AskPanelOff capabilities={PLANNER_ONLY} />);
+    expect(html).toContain('<h2 id="ask-heading">Ask about this investigation</h2>');
+    expect(html).toContain("The AI assistant is not set up on this server");
+    expect(html).not.toContain("<input");
+    expect(html).not.toContain("<button");
+  });
+
+  test("says which AI features are on", () => {
+    const html = renderToStaticMarkup(<AskPanelOff capabilities={PLANNER_ONLY} />);
+    expect(html).toContain("Answers in this panel: <strong>off</strong>");
+    expect(html).toContain("Suggested variables in the question bar: <strong>off</strong>");
+    expect(html).toContain("Case settings proposed from a question: <strong>on</strong>");
+  });
+
+  test("names each setting that keeps it off, in the server's order", () => {
+    const html = renderToStaticMarkup(<AskPanelOff capabilities={PLANNER_ONLY} />);
+    const store = html.indexOf("<code>RAG_VECTOR_STORE_ID</code> is empty.");
+    const version = html.indexOf("<code>RAG_CORPUS_VERSION</code> does not match the corpus");
+    expect(store).toBeGreaterThan(-1);
+    expect(version).toBeGreaterThan(store);
+  });
+
+  test("lists no settings when the server names none", () => {
+    const html = renderToStaticMarkup(
+      <AskPanelOff capabilities={{ ai_planner_available: false, ai_explanation_available: false }} />,
+    );
+    expect(html).toContain("AI features on this server");
+    expect(html).not.toContain("What keeps this panel off");
+  });
+
+  test("says it cannot tell when the server could not be asked", () => {
+    const html = renderToStaticMarkup(<AskPanelOff capabilities={null} />);
+    expect(html).toContain("The server did not say whether its AI assistant is set up");
+    expect(html).not.toContain("AI features on this server");
   });
 });

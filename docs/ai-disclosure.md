@@ -366,5 +366,25 @@ here were later retired on `main`, as described above):
   the assistant shortened the pauses, played the lines 1.15 times faster to fit, and mixed
   them. It checked the words and their timing with OpenAI's transcription model, and could
   not listen to the result. The video and its subtitle file are in `demo-video/`.
+- On 15 November 2026, at the user's request, the same assistant checked the README's setup
+  steps on Windows, macOS and Linux and rewrote them. It followed them in a fresh copy of the
+  repository on an Apple Silicon Mac, where the app, its proxy, a cached example and every
+  listed check worked, and the backend tests also passed on Python 3.12. It did not run them on
+  Windows or Linux. The new text gives macOS and Linux their own command for copying `.env`,
+  states the Node versions the lockfile supports, says to start the backend after building the
+  frontend, and adds two install notes: the PowerShell `npm` block, and the Rust toolchain that
+  the locked `cryptography` package would need on an Intel Mac or an ARM Windows PC, which was
+  read from `uv.lock` and not tried.
+- Later on 15 November 2026 the user found that a fresh copy of the repository with their key
+  showed no "Ask about this investigation" panel: its `.env` lacked the corpus upload's
+  `RAG_VECTOR_STORE_ID` and `RAG_CORPUS_VERSION`. At the user's request the same assistant made
+  the panel appear on every case. While explanations are off it takes no question, says which
+  AI features are on, and names each setting that keeps it off. The server reports these as
+  fixed codes in `/api/capabilities` (`AiSetupGap`, and `planner_gaps`, `rag_gaps` and the
+  path gaps in `backend/app/config.py`), never as values; availability is now read from those
+  lists, and the earlier availability tests pass unchanged. It chose the panel's wording and
+  the codes, rewrote the README's "Configure the AI assistant" section as numbered steps with
+  a table of what the panel can say, and wrote the tests and the specification and walkthrough
+  text. It checked the panel in Chrome, not with a screen reader.
 
 </details>

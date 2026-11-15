@@ -403,14 +403,44 @@ class PlannerRequest(Model):
     question: str = Field(min_length=1, max_length=QUESTION_MAX_LENGTH)
 
 
+# Spec 8, "When the AI is off": one setting that keeps an AI path off. Each names the setting to
+# change, never its value, so a key or a store ID is never reported.
+AiSetupGap = Literal[
+    "ai_disabled",
+    "no_ai_provider",
+    "ai_not_evaluated",
+    "no_ai_model",
+    "no_openai_api_key",
+    "no_anthropic_api_key",
+    "no_ollama_digest",
+    "budget_not_durable",
+    "no_daily_budget",
+    "no_token_prices",
+    "provider_not_openai",
+    "rag_disabled",
+    "no_vector_store",
+    "malformed_vector_store",
+    "no_corpus_version",
+    "no_corpus_manifest",
+    "corpus_version_mismatch",
+    "no_search_price",
+    "discovery_not_evaluated",
+    "explanations_not_evaluated",
+]
+
+
 class Capabilities(Model):
     """Spec 8: each AI path reports its availability separately; a working planner does not
-    imply working retrieval. The newer flags default to False so older clients still parse.
+    imply working retrieval. A path's gaps list what keeps it off, and are empty when it is
+    available. The newer fields have defaults so older clients still parse.
     """
 
     ai_planner_available: bool
     ai_discovery_available: bool = False
     ai_explanation_available: bool = False
+    ai_planner_gaps: list[AiSetupGap] = Field(default_factory=list)
+    ai_discovery_gaps: list[AiSetupGap] = Field(default_factory=list)
+    ai_explanation_gaps: list[AiSetupGap] = Field(default_factory=list)
 
 
 class ExtractedPlan(Model):

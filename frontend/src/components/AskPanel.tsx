@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import type { FormEvent, JSX } from "react";
-import type { ExplanationBlock, ExplanationResponse, Investigation, Proposal } from "../api";
+import { aiFeatureStates, setupGapText } from "../aiSetup";
+import type { Capabilities, ExplanationBlock, ExplanationResponse, Investigation, Proposal } from "../api";
 import { proposalSummary } from "../discovery";
 import {
   ASK_IDLE,
@@ -170,6 +171,65 @@ export function AskPanelView(props: AskPanelViewProps): JSX.Element {
       {state.kind === "answered" ? (
         <AskAnswer investigation={investigation} response={state.response} onProposal={props.onProposal} />
       ) : null}
+    </section>
+  );
+}
+
+interface AskPanelOffProps {
+  /** What the server reported; null when it could not be asked. */
+  capabilities: Capabilities | null;
+}
+
+/**
+ * The panel while the server offers no explanations (spec 3 and 8). It takes no question, and
+ * says which AI features are on and which settings keep this one off.
+ */
+export function AskPanelOff({ capabilities }: AskPanelOffProps): JSX.Element {
+  const gaps = capabilities?.ai_explanation_gaps ?? [];
+  return (
+    <section className="panel sheet ask-panel" aria-labelledby="ask-heading">
+      <h2 id="ask-heading">Ask about this investigation</h2>
+      <p className="panel-note">
+        {capabilities === null
+          ? "The server did not say whether its AI assistant is set up, so this panel cannot take questions."
+          : "The AI assistant is not set up on this server, so this panel cannot take questions."}{" "}
+        The result and its "Evidence" and "Learn" tabs work without it.
+      </p>
+      {capabilities !== null ? (
+        <div>
+          <h3 id="ask-features-heading" className="ask-setup-heading">
+            AI features on this server
+          </h3>
+          <ul className="plain-list ask-setup-list" aria-labelledby="ask-features-heading">
+            {aiFeatureStates(capabilities).map((feature) => (
+              <li key={feature.label}>
+                {feature.label}: <strong>{feature.on ? "on" : "off"}</strong>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {gaps.length > 0 ? (
+        <div>
+          <h3 id="ask-gaps-heading" className="ask-setup-heading">
+            What keeps this panel off
+          </h3>
+          <ul className="plain-list ask-setup-list" aria-labelledby="ask-gaps-heading">
+            {gaps.map((gap) => {
+              const text = setupGapText(gap);
+              return (
+                <li key={gap}>
+                  <code>{text.setting}</code> {text.problem}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+      <p className="field-hint">
+        Whoever runs the server sets these in its .env file and then restarts it. The README's "Configure the
+        AI assistant" section explains each one.
+      </p>
     </section>
   );
 }

@@ -22,8 +22,9 @@ its answers are written by AI and change from question to question.
 - The rate, the evidence for a trend and the cause are three different questions. The app
   answers the first, answers the second only where its test is validated, and never answers
   the third.
-- The "Ask about this investigation" panel appears only when the server reports
-  explanations available. The team enabled experimental AI for its local demo despite
+- The "Ask about this investigation" panel is on every case, but takes questions only when
+  the server reports explanations available; otherwise it names the settings that keep it
+  off. The team enabled experimental AI for its local demo despite
   the unmet evaluation target (see [evaluation results](evaluation-results.md)).
   Inspect its citations and do not present the explanation as a verified scientific
   conclusion. If unavailable, use the "Evidence" and "Learn" tabs instead.
@@ -149,8 +150,9 @@ Ask the students:
 
 This step applies when the configured server reports explanations available. The
 team's local demo enables them experimentally despite the unmet evaluation target
-(see [evaluation results](evaluation-results.md)).
-When it is shown, this panel follows the case file; on a wide screen it heads the
+(see [evaluation results](evaluation-results.md)). On a server without them, the panel
+takes no question and lists the settings that keep it off.
+The panel follows the case file; on a wide screen it heads the
 right-hand column, above the globe. Its line says
 "Questions are sent to OpenAI. Answers are written by AI and checked against this result."
 It offers five prompts as links: "Explain this simply", "What does this dataset actually
@@ -331,8 +333,8 @@ Ask the students:
 
 ### Step 8. The "Ask about this investigation" panel and the limits
 
-This step, too, applies only once explanations have passed their evaluation gate; today the
-panel is disabled. If the panel is shown, choose "What are the limitations here?" and read the answer as in
+This step, too, applies only on a server that reports explanations available; elsewhere the
+panel lists the settings that keep it off. Where it takes questions, choose "What are the limitations here?" and read the answer as in
 walkthrough A: AI text under "Written by AI", the result's own values under "From this
 result, not written by AI:", and the cited passages behind "Show the cited passage". If a
 student asks for a new calculation, such as another city, the panel proposes settings

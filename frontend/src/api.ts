@@ -24,6 +24,7 @@ export type VerdictKind = Models.VerdictKind;
 export type Direction = Models.Direction;
 export type Contrast = Models.Contrast;
 export type Caution = Models.Caution;
+export type AiSetupGap = Models.AiSetupGap;
 export type PlaceKind = Models.PlaceKind;
 export type Box = Models.Box;
 export type VariableSummary = Models.VariableSummary;

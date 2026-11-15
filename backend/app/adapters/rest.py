@@ -129,12 +129,16 @@ async def api_variables(request: Request) -> list[VariableSummary]:
 
 @router.get("/capabilities")
 async def api_capabilities(services: ServicesDep) -> Capabilities:
-    """Describe user flows without exposing credentials or contacting a provider."""
+    """Describe user flows and what keeps each AI path off, without exposing credentials or
+    contacting a provider."""
     settings = services.settings
     return Capabilities(
         ai_planner_available=settings.planner_available,
         ai_discovery_available=settings.discovery_available,
         ai_explanation_available=settings.explanation_available,
+        ai_planner_gaps=settings.planner_gaps,
+        ai_discovery_gaps=settings.discovery_gaps,
+        ai_explanation_gaps=settings.explanation_gaps,
     )
 
 

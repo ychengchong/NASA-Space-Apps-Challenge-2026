@@ -2676,6 +2676,26 @@ details > summary::-webkit-details-marker {
   margin-top: 12px;
 }
 
+/* While explanations are off, the panel lists the AI features and the settings to change. */
+.ask-setup-heading {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+}
+
+.ask-setup-list {
+  margin-bottom: 0;
+}
+
+/* A setting's name is typed, as a label on a case file is, and may break anywhere on a phone. */
+.ask-setup-list code {
+  font-family: var(--type);
+  overflow-wrap: anywhere;
+}
+
+.ask-panel > .field-hint {
+  margin: 0;
+}
+
 .unverified-number {
   text-decoration: underline wavy var(--error-line);
   text-decoration-thickness: 1px;

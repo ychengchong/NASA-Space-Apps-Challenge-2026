@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
 import { discover, explain, getCapabilities, getCase, getExamples, getVariables, proposeCase } from "./api";
-import type { ExampleCase, Investigation, Proposal, VariableSummary } from "./api";
+import type { Capabilities, ExampleCase, Investigation, Proposal, VariableSummary } from "./api";
 import {
   applyPlaceAction,
   caseFromDraft,
@@ -16,7 +16,7 @@ import type { CaseDraft, MissingSetting, PlaceAction } from "./caseDraft";
 import { buildCaseQuery, buildMapQuery, parseCaseQuery } from "./caseUrl";
 import type { CaseParams, CasePlace } from "./caseUrl";
 import type { ChatResult } from "./chat";
-import { AskPanel } from "./components/AskPanel";
+import { AskPanel, AskPanelOff } from "./components/AskPanel";
 import type { Explain } from "./components/AskPanel";
 import { CopyLink, ExploreFurther } from "./components/CaseActions";
 import type { RegionLink } from "./components/CaseActions";
@@ -317,13 +317,20 @@ export default function App(): JSX.Element {
           onFailure: setAiFailure,
         }
       : undefined;
-  // Spec 8: the "Ask about this investigation" panel shows only once the server says so.
-  const explanationAvailable =
-    capabilities.state.status === "done" && capabilities.state.value.ai_explanation_available === true;
   const loadExplanationProposal = (proposal: Proposal): void => {
     regionTypes.remember(proposal.places);
     fillFromAi(draftFromAiProposal(currentDraft(), proposal), false, true);
   };
+  // Spec 3 and 8: "Ask about this investigation" is on every case once the server has said what it
+  // offers; while explanations are off, it says which settings keep it off.
+  const caseAsk = ((): CaseAsk | undefined => {
+    const { state } = capabilities;
+    if (state.status === "failed") return { kind: "off", capabilities: null };
+    if (state.status !== "done") return undefined;
+    return state.value.ai_explanation_available === true
+      ? { kind: "on", explain, onProposal: loadExplanationProposal }
+      : { kind: "off", capabilities: state.value };
+  })();
   const ai: AiHelper | undefined =
     aiFailure === null &&
     capabilities.state.status === "done" &&
@@ -447,7 +454,7 @@ export default function App(): JSX.Element {
                   notes={notes}
                   catalogue={catalogue}
                   regionTypes={regionTypes.known}
-                  ask={explanationAvailable ? { explain, onProposal: loadExplanationProposal } : undefined}
+                  ask={caseAsk}
                   onOpenCase={openCase}
                   onOpenPage={openPage}
                   onNormalised={showNormalisedCase}
@@ -620,11 +627,14 @@ function StartView(props: StartViewProps): JSX.Element {
   );
 }
 
-/** "Ask about this investigation", when the server offers explanations (spec 8). */
-interface CaseAsk {
-  explain: Explain;
-  onProposal: (proposal: Proposal) => void;
-}
+/**
+ * "Ask about this investigation" (spec 3 and 8): the panel that takes questions when the server
+ * offers explanations, or the one that says what keeps them off, with what the server reported
+ * (null when it could not be asked).
+ */
+type CaseAsk =
+  | { kind: "on"; explain: Explain; onProposal: (proposal: Proposal) => void }
+  | { kind: "off"; capabilities: Capabilities | null };
 
 interface CaseViewProps {
   params: CaseParams;
@@ -639,7 +649,7 @@ interface CaseViewProps {
   /** The catalogue, empty until it loads. */
   catalogue: readonly VariableSummary[];
   regionTypes: RegionTypes;
-  /** The panel for questions about the case; left out while explanations are unavailable. */
+  /** The panel for questions about the case; left out until the server has said what it offers. */
   ask?: CaseAsk;
   onOpenCase: (params: CaseParams) => void;
   onOpenPage: (url: string) => void;
@@ -739,12 +749,16 @@ function CaseView(props: CaseViewProps): JSX.Element {
                       />
                       {!loading && props.ask !== undefined ? (
                         <CaseRail>
-                          <AskPanel
-                            key={shown.id}
-                            investigation={shown}
-                            explain={props.ask.explain}
-                            onProposal={props.ask.onProposal}
-                          />
+                          {props.ask.kind === "on" ? (
+                            <AskPanel
+                              key={shown.id}
+                              investigation={shown}
+                              explain={props.ask.explain}
+                              onProposal={props.ask.onProposal}
+                            />
+                          ) : (
+                            <AskPanelOff capabilities={props.ask.capabilities} />
+                          )}
                         </CaseRail>
                       ) : null}
                     </>

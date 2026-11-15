@@ -307,10 +307,24 @@ def test_case_is_not_recorded_while_explanations_are_off(
 
 
 def test_capabilities_report_each_ai_path_separately(client: TestClient) -> None:
+    planner_gaps = [
+        "ai_disabled",
+        "no_ai_provider",
+        "ai_not_evaluated",
+        "no_ai_model",
+        "budget_not_durable",
+        "no_daily_budget",
+        "no_token_prices",
+    ]
+    retrieval_gaps = ["no_vector_store", "no_corpus_version", "no_search_price"]
+
     assert client.get("/api/capabilities").json() == {
         "ai_planner_available": False,
         "ai_discovery_available": False,
         "ai_explanation_available": False,
+        "ai_planner_gaps": planner_gaps,
+        "ai_discovery_gaps": planner_gaps + retrieval_gaps,
+        "ai_explanation_gaps": planner_gaps + retrieval_gaps,
     }
 
 
@@ -342,7 +356,41 @@ def test_capabilities_follow_the_settings_of_each_path(services: Services, tmp_p
         "ai_planner_available": True,
         "ai_discovery_available": False,
         "ai_explanation_available": True,
+        "ai_planner_gaps": [],
+        "ai_discovery_gaps": ["discovery_not_evaluated"],
+        "ai_explanation_gaps": [],
     }
+
+
+def test_capabilities_name_the_settings_to_change_but_never_their_values(
+    services: Services, tmp_path: Path
+) -> None:
+    # A key and a store ID are set, but the corpus version does not match the manifest.
+    key = "sk-openai-never-shown-0123"
+    store = "vs_never_shown_0123"
+    services.settings = replace(
+        services.settings,
+        ai_enabled=True,
+        ai_evaluated=True,
+        ai_provider="openai",
+        ai_model="test-model",
+        openai_api_key=key,
+        ai_budget_durable=True,
+        ai_daily_budget_microusd=1_000_000,
+        ai_input_microusd_per_million=100_000,
+        ai_output_microusd_per_million=500_000,
+        rag_vector_store_id=store,
+        rag_corpus_version="v1-cut",
+        rag_manifest_version="v1",
+        rag_search_microusd_per_call=2500,
+    )
+
+    response = client_for(services, tmp_path).get("/api/capabilities")
+
+    assert response.json()["ai_explanation_gaps"] == ["corpus_version_mismatch"]
+    assert key not in response.text
+    assert store not in response.text
+    assert "v1-cut" not in response.text
 
 
 # /api/series

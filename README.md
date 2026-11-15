@@ -32,13 +32,34 @@ experimental, as described in [AI evaluation](docs/evaluation-results.md).
 
 ## Run locally
 
-Tested on Windows with **Python 3.14.5** and **Node 22.23.5**. The backend package
-allows Python >=3.12; the lockfile pins dependencies. Install uv and Node first.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
+[Node.js](https://nodejs.org/) **22.13 or later**, but not 23 or 25: the frontend tools
+support 22.13+, 24 and 26 onward. You do not need to install Python: uv reads
+the root `.python-version` and downloads **Python 3.14.5** if it is missing. The
+backend also runs on Python 3.12 and later, and the lockfiles pin every dependency.
 
-From the repository root, create a local environment file only if one does not exist:
+Tested on Windows (Python 3.14.5, Node 22.23.5) and on an Apple Silicon Mac (Python
+3.14.5 and 3.12.5). Linux was checked only as the container image (see
+[Deployment](#deployment)). Apart from the first step, every command below works
+unchanged in PowerShell, bash and zsh.
+
+From the repository root, create a local environment file only if one does not exist.
+
+On Windows (PowerShell):
 
 ```powershell
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
+```
+
+On macOS or Linux (bash or zsh):
+
+```sh
+[ -f .env ] || cp .env.example .env
+```
+
+Then start the backend:
+
+```sh
 cd backend
 uv sync --locked
 uv run --env-file ../.env uvicorn app.main:app --reload
@@ -46,7 +67,7 @@ uv run --env-file ../.env uvicorn app.main:app --reload
 
 In a second terminal, from the repository root:
 
-```powershell
+```sh
 cd frontend
 npm ci
 npm run dev
@@ -54,41 +75,104 @@ npm run dev
 
 Open **http://localhost:5173**. Manual controls and the four cached examples work
 without an AI key or a live NASA connection. New locations/quantities require NASA
-POWER. After `npm run build` in `frontend/`, the backend also serves the built app
-at http://localhost:8000.
+POWER.
+
+The backend can also serve the built app at http://localhost:8000. Run `npm run build`
+in `frontend/`, then start the backend, or restart it if it is already running: it
+looks for `frontend/dist` only when it starts.
+
+If an install step fails:
+
+- In PowerShell, the script execution policy can block `npm` ("running scripts is
+  disabled on this system"). Use `npm.cmd` in its place, as in `npm.cmd ci`.
+- On an Intel Mac or a Windows PC with an ARM processor, the locked `cryptography`
+  package (used by the MCP library) has no prebuilt wheel, so `uv sync` compiles it,
+  which needs a [Rust toolchain](https://www.rust-lang.org/tools/install). This has
+  not been tried on such a machine.
 
 ### Configure the AI assistant
 
-The team selected an AI-enabled demo template. `.env.example` selects OpenAI and
-sets the planner, discovery and explanation switches to `true`. These are activation
-settings, not a claim that an evaluation target was passed. Without loaded
-environment settings, the main AI switch defaults off. Existing `.env` files are
-not overwritten by Git or by the command above.
+Everything above works without AI. Three optional AI features run on OpenAI:
 
-To use AI, set your own `OPENAI_API_KEY`, retain the configured model/pricing and
-upload the reviewed corpus to a vector store accessible to that key. Set the
-resulting `RAG_VECTOR_STORE_ID` and `RAG_CORPUS_VERSION`; the version must match
-`backend/data/corpus/manifest.json`. No local model download is required. A teammate
-cannot assume that their key can access another person's store.
+| Feature | Where it appears | What it needs |
+| --- | --- | --- |
+| Case settings proposed from a question (the planner) | The question bar | An OpenAI API key |
+| Suggested variables (guided discovery) | The question bar | The key and the uploaded documentation corpus |
+| Answers about a result (RAG) | "Ask about this investigation", on every case page | The key and the uploaded corpus |
 
-From `backend/`, an owner can upload the existing corpus after reviewing the
-payload and provider storage implications:
+The "Ask about this investigation" panel is on every case page. While its feature is
+off, it says which AI features are on and names each `.env` setting that keeps it
+off, so you can see what is missing without reading any logs.
 
-```powershell
-uv run --env-file ../.env python -m scripts.upload_corpus --max-bytes 1000000
-```
+`.env.example` already holds the team's settings: the model `gpt-6-luna` and its
+prices, a **USD 1 daily budget**, and every AI switch set to `true`. These switches
+turn the features on; they do not claim that an evaluation target was passed. You
+fill in three values in the root `.env`:
 
-This sends the corpus to OpenAI and can incur usage/storage charges. It is not
-part of normal app startup. See [deployment and retrieval setup](docs/deployment.md).
+1. **Add your key.** Set `OPENAI_API_KEY=` to your own OpenAI API key, then restart
+   the backend. The planner turns on.
+2. **Upload the documentation corpus once.** From `backend/`:
 
-Keep the root `state/` directory across restarts. The sample declares durable
-budget storage and uses a **USD 1 daily reservation limit**; a hosted deployment
-must mount persistent state. Credentials belong only in the backend environment,
-never Git or frontend variables. Restart the backend after editing `.env`.
+   ```sh
+   uv run --env-file ../.env python -m scripts.upload_corpus --max-bytes 1000000
+   ```
 
-Check http://localhost:8000/api/capabilities. AI planning, discovery and explanations
-are available only when their configuration conditions are met. Checking readiness
-does not call a model or verify answer quality. Manual controls remain available.
+   This sends 173 reviewed text sections (about 195 KB) to a new vector store in the
+   OpenAI project your key belongs to. It costs a little in usage and storage, and it
+   is not part of normal startup. `--max-bytes` is a safety cap: the upload refuses
+   a larger corpus before sending anything. It ends by printing two lines:
+
+   ```text
+   RAG_VECTOR_STORE_ID=vs_...
+   RAG_CORPUS_VERSION=...
+   ```
+
+3. **Copy both lines into `.env`**, in place of the empty `RAG_VECTOR_STORE_ID=` and
+   `RAG_CORPUS_VERSION=` lines. Copy each line whole: the version has 64 characters,
+   and one missing character keeps discovery and the panel off. Restart the backend.
+
+To check, open any case: the panel now has a question box. Or open
+http://localhost:8000/api/capabilities, which should report `true` for all three
+features and empty `_gaps` lists. Checking never calls a model and does not test
+answer quality.
+
+If something stays off, the panel's list says why:
+
+| The panel says | What to do |
+| --- | --- |
+| `OPENAI_API_KEY` is empty | Step 1. Start the backend with `--env-file ../.env`, as in [Run locally](#run-locally): without it the backend reads no `.env` and the AI stays off. |
+| `RAG_VECTOR_STORE_ID` or `RAG_CORPUS_VERSION` is empty | Steps 2 and 3. |
+| `RAG_CORPUS_VERSION` does not match the corpus | The version was cut short or comes from another corpus. Copy the whole line again. |
+| The server did not say whether its AI assistant is set up | The backend is not running, or the frontend cannot reach it on port 8000. |
+
+Good to know:
+
+- **Lost the two lines?** The upload also saved them in `state/corpus-files.json` of
+  the copy that ran it: the version is the top-level key, and the store ID is its
+  `vector_store_id`. The upload refuses to send the same corpus version twice from
+  one copy unless you add `--force`, which makes a new store.
+- **Each key needs a store it can read.** A store belongs to one OpenAI project, so a
+  teammate whose key is from another project runs their own upload. A fresh copy of
+  the repository can reuse your store: copy the same two lines into its `.env`.
+- **Unused stores expire** 30 days after their last use. If answers stop finding
+  sources after a long pause, upload again with `--force` and copy the new lines.
+- **Keep the root `state/` directory** across restarts: it records the day's AI
+  spending, and AI requests are refused once the day's budget cannot pay for another.
+  A hosted deployment must mount persistent state. See the
+  [deployment and retrieval guide](docs/deployment.md).
+- **Keys stay on the server.** Put them only in the backend's `.env`, never in Git
+  or in frontend variables. Restart the backend after editing `.env`.
+
+Settings you can normally leave as they are:
+
+| Setting | What it does |
+| --- | --- |
+| `AI_ENABLED`, `AI_EVALUATED` | The main AI switches. |
+| `AI_PROVIDER` | `openai`. With `anthropic` or `ollama` only the planner works. |
+| `AI_MODEL`, `AI_INPUT_MICROUSD_PER_MILLION`, `AI_OUTPUT_MICROUSD_PER_MILLION` | The model and its prices, in microdollars (USD 1 = 1,000,000). Change the prices if you change the model. |
+| `AI_DAILY_BUDGET_MICROUSD`, `AI_BUDGET_DURABLE` | The daily budget, and that its spending is kept in `state/`. |
+| `RAG_SEARCH_MICROUSD_PER_CALL` | The price reserved for one documentation search. |
+| `RAG_ENABLED`, `DISCOVERY_EVALUATED`, `RAG_EVALUATED` | Retrieval, suggested variables and the answers panel. Set one to `false` to turn that feature off. |
 
 ### AI scope and limitations
 
@@ -130,7 +214,7 @@ local pinned replay was verified. See [verification](docs/verification.md).
 
 Run in `backend/`:
 
-```powershell
+```sh
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
@@ -139,7 +223,7 @@ uv run python -m scripts.generate_types --check
 
 Run in `frontend/`:
 
-```powershell
+```sh
 npm run test
 npm run lint
 npm run format:check
@@ -155,7 +239,7 @@ not be treated as measured student impact or a successful public deployment.
 
 The backend can serve the API and built frontend in one container:
 
-```powershell
+```sh
 docker compose up --build
 ```
 
