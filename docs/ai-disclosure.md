@@ -375,5 +375,16 @@ here were later retired on `main`, as described above):
   frontend, and adds two install notes: the PowerShell `npm` block, and the Rust toolchain that
   the locked `cryptography` package would need on an Intel Mac or an ARM Windows PC, which was
   read from `uv.lock` and not tried.
+- Later on 15 November 2026 the user found that a fresh copy of the repository with their key
+  showed no "Ask about this investigation" panel: its `.env` lacked the corpus upload's
+  `RAG_VECTOR_STORE_ID` and `RAG_CORPUS_VERSION`. At the user's request the same assistant made
+  the panel appear on every case. While explanations are off it takes no question, says which
+  AI features are on, and names each setting that keeps it off. The server reports these as
+  fixed codes in `/api/capabilities` (`AiSetupGap`, and `planner_gaps`, `rag_gaps` and the
+  path gaps in `backend/app/config.py`), never as values; availability is now read from those
+  lists, and the earlier availability tests pass unchanged. It chose the panel's wording and
+  the codes, rewrote the README's "Configure the AI assistant" section as numbered steps with
+  a table of what the panel can say, and wrote the tests and the specification and walkthrough
+  text. It checked the panel in Chrome, not with a screen reader.
 
 </details>

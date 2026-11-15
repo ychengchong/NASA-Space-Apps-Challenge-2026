@@ -92,36 +92,87 @@ If an install step fails:
 
 ### Configure the AI assistant
 
-The team selected an AI-enabled demo template. `.env.example` selects OpenAI and
-sets the planner, discovery and explanation switches to `true`. These are activation
-settings, not a claim that an evaluation target was passed. Without loaded
-environment settings, the main AI switch defaults off. Existing `.env` files are
-not overwritten by Git or by the commands above.
+Everything above works without AI. Three optional AI features run on OpenAI:
 
-To use AI, set your own `OPENAI_API_KEY`, retain the configured model/pricing and
-upload the reviewed corpus to a vector store accessible to that key. Set the
-resulting `RAG_VECTOR_STORE_ID` and `RAG_CORPUS_VERSION`; the version must match
-`backend/data/corpus/manifest.json`. No local model download is required. A teammate
-cannot assume that their key can access another person's store.
+| Feature | Where it appears | What it needs |
+| --- | --- | --- |
+| Case settings proposed from a question (the planner) | The question bar | An OpenAI API key |
+| Suggested variables (guided discovery) | The question bar | The key and the uploaded documentation corpus |
+| Answers about a result (RAG) | "Ask about this investigation", on every case page | The key and the uploaded corpus |
 
-From `backend/`, an owner can upload the existing corpus after reviewing the
-payload and provider storage implications:
+The "Ask about this investigation" panel is on every case page. While its feature is
+off, it says which AI features are on and names each `.env` setting that keeps it
+off, so you can see what is missing without reading any logs.
 
-```sh
-uv run --env-file ../.env python -m scripts.upload_corpus --max-bytes 1000000
-```
+`.env.example` already holds the team's settings: the model `gpt-6-luna` and its
+prices, a **USD 1 daily budget**, and every AI switch set to `true`. These switches
+turn the features on; they do not claim that an evaluation target was passed. You
+fill in three values in the root `.env`:
 
-This sends the corpus to OpenAI and can incur usage/storage charges. It is not
-part of normal app startup. See [deployment and retrieval setup](docs/deployment.md).
+1. **Add your key.** Set `OPENAI_API_KEY=` to your own OpenAI API key, then restart
+   the backend. The planner turns on.
+2. **Upload the documentation corpus once.** From `backend/`:
 
-Keep the root `state/` directory across restarts. The sample declares durable
-budget storage and uses a **USD 1 daily reservation limit**; a hosted deployment
-must mount persistent state. Credentials belong only in the backend environment,
-never Git or frontend variables. Restart the backend after editing `.env`.
+   ```sh
+   uv run --env-file ../.env python -m scripts.upload_corpus --max-bytes 1000000
+   ```
 
-Check http://localhost:8000/api/capabilities. AI planning, discovery and explanations
-are available only when their configuration conditions are met. Checking readiness
-does not call a model or verify answer quality. Manual controls remain available.
+   This sends 173 reviewed text sections (about 195 KB) to a new vector store in the
+   OpenAI project your key belongs to. It costs a little in usage and storage, and it
+   is not part of normal startup. `--max-bytes` is a safety cap: the upload refuses
+   a larger corpus before sending anything. It ends by printing two lines:
+
+   ```text
+   RAG_VECTOR_STORE_ID=vs_...
+   RAG_CORPUS_VERSION=...
+   ```
+
+3. **Copy both lines into `.env`**, in place of the empty `RAG_VECTOR_STORE_ID=` and
+   `RAG_CORPUS_VERSION=` lines. Copy each line whole: the version has 64 characters,
+   and one missing character keeps discovery and the panel off. Restart the backend.
+
+To check, open any case: the panel now has a question box. Or open
+http://localhost:8000/api/capabilities, which should report `true` for all three
+features and empty `_gaps` lists. Checking never calls a model and does not test
+answer quality.
+
+If something stays off, the panel's list says why:
+
+| The panel says | What to do |
+| --- | --- |
+| `OPENAI_API_KEY` is empty | Step 1. Start the backend with `--env-file ../.env`, as in [Run locally](#run-locally): without it the backend reads no `.env` and the AI stays off. |
+| `RAG_VECTOR_STORE_ID` or `RAG_CORPUS_VERSION` is empty | Steps 2 and 3. |
+| `RAG_CORPUS_VERSION` does not match the corpus | The version was cut short or comes from another corpus. Copy the whole line again. |
+| The server did not say whether its AI assistant is set up | The backend is not running, or the frontend cannot reach it on port 8000. |
+
+Good to know:
+
+- **Lost the two lines?** The upload also saved them in `state/corpus-files.json` of
+  the copy that ran it: the version is the top-level key, and the store ID is its
+  `vector_store_id`. The upload refuses to send the same corpus version twice from
+  one copy unless you add `--force`, which makes a new store.
+- **Each key needs a store it can read.** A store belongs to one OpenAI project, so a
+  teammate whose key is from another project runs their own upload. A fresh copy of
+  the repository can reuse your store: copy the same two lines into its `.env`.
+- **Unused stores expire** 30 days after their last use. If answers stop finding
+  sources after a long pause, upload again with `--force` and copy the new lines.
+- **Keep the root `state/` directory** across restarts: it records the day's AI
+  spending, and AI requests are refused once the day's budget cannot pay for another.
+  A hosted deployment must mount persistent state. See the
+  [deployment and retrieval guide](docs/deployment.md).
+- **Keys stay on the server.** Put them only in the backend's `.env`, never in Git
+  or in frontend variables. Restart the backend after editing `.env`.
+
+Settings you can normally leave as they are:
+
+| Setting | What it does |
+| --- | --- |
+| `AI_ENABLED`, `AI_EVALUATED` | The main AI switches. |
+| `AI_PROVIDER` | `openai`. With `anthropic` or `ollama` only the planner works. |
+| `AI_MODEL`, `AI_INPUT_MICROUSD_PER_MILLION`, `AI_OUTPUT_MICROUSD_PER_MILLION` | The model and its prices, in microdollars (USD 1 = 1,000,000). Change the prices if you change the model. |
+| `AI_DAILY_BUDGET_MICROUSD`, `AI_BUDGET_DURABLE` | The daily budget, and that its spending is kept in `state/`. |
+| `RAG_SEARCH_MICROUSD_PER_CALL` | The price reserved for one documentation search. |
+| `RAG_ENABLED`, `DISCOVERY_EVALUATED`, `RAG_EVALUATED` | Retrieval, suggested variables and the answers panel. Set one to `false` to turn that feature off. |
 
 ### AI scope and limitations
 

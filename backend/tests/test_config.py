@@ -189,6 +189,107 @@ def test_unready_retrieval_turns_off_only_discovery_and_explanation(
     assert not settings.explanation_available
 
 
+NOT_OPENAI = "provider_not_openai"
+
+
+@pytest.mark.parametrize(
+    ("changes", "planner_gaps", "retrieval_gaps"),
+    [
+        pytest.param({"ai_enabled": False}, ["ai_disabled"], ["ai_disabled"], id="ai-off"),
+        pytest.param(
+            {"ai_provider": "disabled"}, ["no_ai_provider"], ["no_ai_provider"], id="no-provider"
+        ),
+        pytest.param(
+            {"ai_evaluated": False}, ["ai_not_evaluated"], ["ai_not_evaluated"], id="not-evaluated"
+        ),
+        pytest.param({"ai_model": ""}, ["no_ai_model"], ["no_ai_model"], id="no-model"),
+        pytest.param(
+            {"openai_api_key": None},
+            ["no_openai_api_key"],
+            ["no_openai_api_key"],
+            id="no-openai-key",
+        ),
+        pytest.param(
+            {"ai_provider": "anthropic", "anthropic_api_key": None},
+            ["no_anthropic_api_key"],
+            ["no_anthropic_api_key", NOT_OPENAI],
+            id="no-anthropic-key",
+        ),
+        pytest.param(
+            {"ai_provider": "ollama", "ollama_digest": ""},
+            ["no_ollama_digest"],
+            ["no_ollama_digest", NOT_OPENAI],
+            id="no-ollama-digest",
+        ),
+        pytest.param(
+            {"ai_budget_durable": False},
+            ["budget_not_durable"],
+            ["budget_not_durable"],
+            id="budget-not-durable",
+        ),
+        pytest.param(
+            {"ai_daily_budget_microusd": 0},
+            ["no_daily_budget"],
+            ["no_daily_budget"],
+            id="no-budget",
+        ),
+        pytest.param(
+            {"ai_output_microusd_per_million": 0},
+            ["no_token_prices"],
+            ["no_token_prices"],
+            id="no-prices",
+        ),
+        pytest.param(
+            {"ai_provider": "anthropic", "anthropic_api_key": API_KEY},
+            [],
+            [NOT_OPENAI],
+            id="anthropic",
+        ),
+        pytest.param({"rag_enabled": False}, [], ["rag_disabled"], id="rag-off"),
+        pytest.param({"rag_vector_store_id": ""}, [], ["no_vector_store"], id="no-store"),
+        pytest.param(
+            {"rag_vector_store_id": "vs-test"}, [], ["malformed_vector_store"], id="malformed-id"
+        ),
+        pytest.param({"rag_corpus_version": ""}, [], ["no_corpus_version"], id="no-corpus-version"),
+        pytest.param({"rag_manifest_version": None}, [], ["no_corpus_manifest"], id="no-manifest"),
+        pytest.param(
+            {"rag_corpus_version": CORPUS_VERSION[:-1]},
+            [],
+            ["corpus_version_mismatch"],
+            id="version-cut-short",
+        ),
+        pytest.param(
+            {"rag_search_microusd_per_call": 0}, [], ["no_search_price"], id="no-search-price"
+        ),
+    ],
+)
+def test_each_gap_names_the_setting_that_keeps_its_paths_off(
+    changes: dict[str, object], planner_gaps: list[str], retrieval_gaps: list[str]
+) -> None:
+    settings = hosted_settings(**changes)
+
+    assert settings.planner_gaps == planner_gaps
+    assert settings.discovery_gaps == retrieval_gaps
+    assert settings.explanation_gaps == retrieval_gaps
+    assert settings.planner_available is (planner_gaps == [])
+
+
+def test_each_evaluation_flag_is_a_gap_of_its_own_path_only() -> None:
+    assert hosted_settings(discovery_evaluated=False).discovery_gaps == ["discovery_not_evaluated"]
+    assert hosted_settings(discovery_evaluated=False).explanation_gaps == []
+    assert hosted_settings(rag_evaluated=False).explanation_gaps == ["explanations_not_evaluated"]
+    assert hosted_settings(rag_evaluated=False).discovery_gaps == []
+
+
+def test_every_gap_is_listed_not_only_the_first() -> None:
+    # A fresh .env.example with a key: the corpus upload's two values are still empty.
+    settings = hosted_settings(rag_vector_store_id="", rag_corpus_version="")
+
+    assert settings.planner_gaps == []
+    assert settings.explanation_gaps == ["no_vector_store", "no_corpus_version"]
+    assert not settings.explanation_available
+
+
 def test_each_retrieval_path_has_its_own_evaluation_flag() -> None:
     assert not hosted_settings(discovery_evaluated=False).discovery_available
     assert hosted_settings(discovery_evaluated=False).explanation_available

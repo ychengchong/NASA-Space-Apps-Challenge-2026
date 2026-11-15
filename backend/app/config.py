@@ -8,6 +8,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from app.models import AiSetupGap
+
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = BACKEND_DIR / "data"
 FRONTEND_DIST_DIR = BACKEND_DIR.parent / "frontend" / "dist"
@@ -117,61 +119,108 @@ class Settings:
     @property
     def planner_available(self) -> bool:
         """Whether /api/plan can run (spec 8): some provider is active."""
-        return self.active_ai_provider is not None
-
-    @property
-    def rag_configured(self) -> bool:
-        """Whether retrieval is set up: enabled, a well-formed store ID, a priced search and a
-        corpus version equal to the manifest's. A mismatch turns off only discovery and
-        explanation (spec 8).
-        """
-        return (
-            self.rag_enabled
-            and VECTOR_STORE_ID_PATTERN.fullmatch(self.rag_vector_store_id) is not None
-            and self.rag_corpus_version != ""
-            and self.rag_search_microusd_per_call > 0
-            and self.rag_manifest_version == self.rag_corpus_version
-        )
+        return not self.planner_gaps
 
     @property
     def discovery_available(self) -> bool:
         """Whether /api/discover can run: hosted OpenAI planning, retrieval set up, and the
         discovery suite evaluated (DISCOVERY_EVALUATED).
         """
-        return (
-            self.active_ai_provider == "openai" and self.rag_configured and self.discovery_evaluated
-        )
+        return not self.discovery_gaps
 
     @property
     def explanation_available(self) -> bool:
         """Whether /api/explain can run: hosted OpenAI with the planner's budget and evaluation
         gates, retrieval set up, and the retrieval suite evaluated (RAG_EVALUATED).
         """
-        return self.active_ai_provider == "openai" and self.rag_configured and self.rag_evaluated
+        return not self.explanation_gaps
+
+    @property
+    def rag_configured(self) -> bool:
+        """Whether retrieval is set up; a gap there turns off only discovery and explanation
+        (spec 8).
+        """
+        return not self.rag_gaps
 
     @property
     def active_ai_provider(self) -> AiProvider | None:
-        """The provider the AI runs on; None when the AI is turned off or that provider's key
-        is not set (spec 8, "When the AI is off").
+        """The provider the AI runs on; None while anything in `planner_gaps` keeps the AI off
+        (spec 8, "When the AI is off").
         """
-        if (
-            not self.ai_enabled
-            or not self.ai_evaluated
-            or not self.ai_model
-            or self.ai_provider == "disabled"
-        ):
-            return None
+        return None if self.planner_gaps else self.ai_provider
+
+    @property
+    def planner_gaps(self) -> list[AiSetupGap]:
+        """What keeps every AI path off (spec 8, "When the AI is off"); empty when the named
+        provider is active. Ollama needs a model digest; a hosted provider needs its key and a
+        durable, priced budget. Every gap is listed, not only the first.
+        """
+        gaps: list[AiSetupGap] = []
+        if not self.ai_enabled:
+            gaps.append("ai_disabled")
+        if self.ai_provider == "disabled":
+            gaps.append("no_ai_provider")
+        if not self.ai_evaluated:
+            gaps.append("ai_not_evaluated")
+        if not self.ai_model:
+            gaps.append("no_ai_model")
         if self.ai_provider == "ollama":
-            return "ollama" if self.ollama_digest else None
-        if (
-            not self.ai_budget_durable
-            or self.ai_daily_budget_microusd <= 0
-            or self.ai_input_microusd_per_million <= 0
-            or self.ai_output_microusd_per_million <= 0
-        ):
-            return None
-        key = self.openai_api_key if self.ai_provider == "openai" else self.anthropic_api_key
-        return self.ai_provider if key is not None else None
+            if not self.ollama_digest:
+                gaps.append("no_ollama_digest")
+            return gaps
+        if self.ai_provider == "openai" and self.openai_api_key is None:
+            gaps.append("no_openai_api_key")
+        if self.ai_provider == "anthropic" and self.anthropic_api_key is None:
+            gaps.append("no_anthropic_api_key")
+        if not self.ai_budget_durable:
+            gaps.append("budget_not_durable")
+        if self.ai_daily_budget_microusd <= 0:
+            gaps.append("no_daily_budget")
+        if self.ai_input_microusd_per_million <= 0 or self.ai_output_microusd_per_million <= 0:
+            gaps.append("no_token_prices")
+        return gaps
+
+    @property
+    def rag_gaps(self) -> list[AiSetupGap]:
+        """What keeps retrieval off (spec 8); empty when it is enabled, the store ID is
+        well-formed, a search is priced and the corpus version equals the manifest's.
+        """
+        gaps: list[AiSetupGap] = []
+        if not self.rag_enabled:
+            gaps.append("rag_disabled")
+        if self.rag_vector_store_id == "":
+            gaps.append("no_vector_store")
+        elif VECTOR_STORE_ID_PATTERN.fullmatch(self.rag_vector_store_id) is None:
+            gaps.append("malformed_vector_store")
+        if self.rag_corpus_version == "":
+            gaps.append("no_corpus_version")
+        if self.rag_manifest_version is None:
+            gaps.append("no_corpus_manifest")
+        elif self.rag_corpus_version not in ("", self.rag_manifest_version):
+            gaps.append("corpus_version_mismatch")
+        if self.rag_search_microusd_per_call <= 0:
+            gaps.append("no_search_price")
+        return gaps
+
+    @property
+    def discovery_gaps(self) -> list[AiSetupGap]:
+        """What keeps /api/discover off; empty when `discovery_available`."""
+        return self._retrieval_path_gaps(self.discovery_evaluated, "discovery_not_evaluated")
+
+    @property
+    def explanation_gaps(self) -> list[AiSetupGap]:
+        """What keeps /api/explain off; empty when `explanation_available`."""
+        return self._retrieval_path_gaps(self.rag_evaluated, "explanations_not_evaluated")
+
+    def _retrieval_path_gaps(self, evaluated: bool, not_evaluated: AiSetupGap) -> list[AiSetupGap]:
+        """The gaps of a path that needs hosted OpenAI planning and retrieval (spec 8)."""
+        gaps = self.planner_gaps
+        if self.ai_provider in ("ollama", "anthropic"):
+            gaps.append("provider_not_openai")
+        gaps.extend(self.rag_gaps)
+        if not evaluated:
+            gaps.append(not_evaluated)
+        return gaps
 
 
 def load_settings() -> Settings:

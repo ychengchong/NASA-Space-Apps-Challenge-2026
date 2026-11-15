@@ -255,10 +255,26 @@ describe("App's panel for questions about the investigation", () => {
     };
   }
 
-  test("is absent while the server offers no explanations", () => {
-    server.capabilities = { ai_planner_available: true, ai_explanation_available: false };
+  test("says which settings keep it off while the server offers no explanations", () => {
+    server.capabilities = {
+      ai_planner_available: true,
+      ai_explanation_available: false,
+      ai_explanation_gaps: ["no_vector_store", "no_corpus_version"],
+    };
     server.investigation = withRecords();
-    expect(renderAt("/case", HELSINKI_CASE)).not.toContain(ASK_HEADING);
+    const html = renderAt("/case", HELSINKI_CASE);
+    expect(html).toContain(ASK_HEADING);
+    expect(html).toContain("<code>RAG_VECTOR_STORE_ID</code>");
+    expect(html).toContain("<code>RAG_CORPUS_VERSION</code>");
+    expect(html).not.toContain('id="ask-question"');
+  });
+
+  test("takes questions while the server offers explanations", () => {
+    server.capabilities = { ai_planner_available: true, ai_explanation_available: true };
+    server.investigation = withRecords();
+    const html = renderAt("/case", HELSINKI_CASE);
+    expect(html).toContain('id="ask-question"');
+    expect(html).not.toContain("What keeps this panel off");
   });
 
   test("is absent before the server has said what it offers", () => {

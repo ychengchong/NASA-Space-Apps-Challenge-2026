@@ -6,6 +6,7 @@ export type VerdictKind = "significant" | "not_significant" | "too_few_years" | 
 export type Direction = "rising" | "falling";
 export type Contrast = "opposite_directions" | "same_direction" | "unclear";
 export type Caution = "source_change" | "variable_note" | "short_record" | "autocorrelated" | "methods_disagree" | "borderline";
+export type AiSetupGap = "ai_disabled" | "no_ai_provider" | "ai_not_evaluated" | "no_ai_model" | "no_openai_api_key" | "no_anthropic_api_key" | "no_ollama_digest" | "budget_not_durable" | "no_daily_budget" | "no_token_prices" | "provider_not_openai" | "rag_disabled" | "no_vector_store" | "malformed_vector_store" | "no_corpus_version" | "no_corpus_manifest" | "corpus_version_mismatch" | "no_search_price" | "discovery_not_evaluated" | "explanations_not_evaluated";
 export type PlaceKind = PlaceCandidate["kind"];
 
 export interface AnalyzeTrendInput {
@@ -30,6 +31,9 @@ export interface Capabilities {
   "ai_planner_available": boolean;
   "ai_discovery_available"?: boolean;
   "ai_explanation_available"?: boolean;
+  "ai_planner_gaps"?: ("ai_disabled" | "no_ai_provider" | "ai_not_evaluated" | "no_ai_model" | "no_openai_api_key" | "no_anthropic_api_key" | "no_ollama_digest" | "budget_not_durable" | "no_daily_budget" | "no_token_prices" | "provider_not_openai" | "rag_disabled" | "no_vector_store" | "malformed_vector_store" | "no_corpus_version" | "no_corpus_manifest" | "corpus_version_mismatch" | "no_search_price" | "discovery_not_evaluated" | "explanations_not_evaluated")[];
+  "ai_discovery_gaps"?: ("ai_disabled" | "no_ai_provider" | "ai_not_evaluated" | "no_ai_model" | "no_openai_api_key" | "no_anthropic_api_key" | "no_ollama_digest" | "budget_not_durable" | "no_daily_budget" | "no_token_prices" | "provider_not_openai" | "rag_disabled" | "no_vector_store" | "malformed_vector_store" | "no_corpus_version" | "no_corpus_manifest" | "corpus_version_mismatch" | "no_search_price" | "discovery_not_evaluated" | "explanations_not_evaluated")[];
+  "ai_explanation_gaps"?: ("ai_disabled" | "no_ai_provider" | "ai_not_evaluated" | "no_ai_model" | "no_openai_api_key" | "no_anthropic_api_key" | "no_ollama_digest" | "budget_not_durable" | "no_daily_budget" | "no_token_prices" | "provider_not_openai" | "rag_disabled" | "no_vector_store" | "malformed_vector_store" | "no_corpus_version" | "no_corpus_manifest" | "corpus_version_mismatch" | "no_search_price" | "discovery_not_evaluated" | "explanations_not_evaluated")[];
 }
 
 export interface Cell {
