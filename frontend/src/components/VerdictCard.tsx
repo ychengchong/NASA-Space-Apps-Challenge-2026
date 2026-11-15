@@ -3,7 +3,7 @@ import type { Investigation, PlaceResult, Verdict, VariableSummary } from "../ap
 import { cautionText } from "../cautions";
 import { MORE_YEARS_NOTE, SIGNIFICANCE_DEFINITION } from "../definitions";
 import { formatSignedRate, splitSign } from "../format";
-import { KIND_LABELS, stampDirection, stampInk, verdictLine } from "../verdictStamp";
+import { KIND_LABELS, stampDirection, stampInk, verdictLine, verdictTone } from "../verdictStamp";
 import { FileTab } from "./FileTab";
 import { ShapeSwatch } from "./ShapeSwatch";
 
@@ -34,7 +34,10 @@ export function VerdictCard({ investigation }: VerdictCardProps): JSX.Element {
     </>
   );
   return (
-    <section className="panel verdict-card" aria-labelledby="verdict-heading">
+    <section
+      className={`panel verdict-card verdict-tone-${verdictTone(investigation)}`}
+      aria-labelledby="verdict-heading"
+    >
       <FileTab label="Case file" />
       <h2 id="verdict-heading">Verdict</h2>
       {summary ? <p className="verdict-summary">{summary}</p> : null}

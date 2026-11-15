@@ -35,18 +35,18 @@ export const SEA_IMAGE = "sea-lines";
 /** The `index` no cell has, so the hover outline shows nothing. */
 export const NO_CELL = -1;
 
-// The sea is the darker paper, under its engraved lines and wherever their image is not ready.
-const SEA = "#e0d5b8";
-// Land is the paler paper, shaded by the relief image in grey.
-const LAND = "#efe6cf";
-const GRATICULE = "#6b5846";
-const BORDER = "#7a5a3a";
-const STATE_BORDER = "rgba(122, 90, 58, 0.55)";
-const LABEL = "#2a2018";
-const LABEL_HALO = "rgba(239, 230, 208, 0.95)";
-const WATER_LABEL = "#5b4a3a";
-const INK = "#2a2018";
-const PAPER = "#f7f0de";
+// The poster's globe (spec 3, "The globe"): a teal sea under its engraved lines, wherever
+// their image is not ready too, and pale land shaded by the relief image in grey.
+const SEA = "#3f8f88";
+const LAND = "#e6f0ea";
+const GRATICULE = "#0f4b4a";
+const BORDER = "#0f4b4a";
+const STATE_BORDER = "rgba(15, 75, 74, 0.5)";
+const LABEL = "#0f3b3a";
+const LABEL_HALO = "rgba(230, 240, 234, 0.95)";
+const WATER_LABEL = "#0b3433";
+const INK = "#13302f";
+const PAPER = "#fbf7ee";
 // The detective's red (styles.css, --accent), for the line between the places of one example.
 const STRING = "#a3321c";
 const HOVER_LINE_WIDTH = 2;

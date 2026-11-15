@@ -88,8 +88,8 @@ const HATCH_GROUND_RGBA = [239, 230, 207, 255] as const;
 // follow the parallels, so they stay still while the Earth turns.
 const SEA_LINE_SPACING_PX = 4;
 const SEA_TILE_WIDTH_PX = 8;
-const SEA_LINE_RGBA = [191, 177, 146, 255] as const;
-const SEA_GROUND_RGBA = [224, 213, 184, 255] as const;
+const SEA_LINE_RGBA = [47, 127, 121, 255] as const;
+const SEA_GROUND_RGBA = [63, 143, 136, 255] as const;
 
 /** Where the camera sits: on the whole Earth facing a point, or on an area that fills the stage. */
 type View =
