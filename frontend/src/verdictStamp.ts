@@ -36,22 +36,6 @@ export function stampInk(verdict: Verdict): "rising" | "falling" | "faded" {
   return verdict.direction;
 }
 
-/** The colour of the case file: the direction every place's verdict shares, if any. */
-export type VerdictTone = "rising" | "falling" | "plain";
-
-/**
- * The case file's colour (spec 3, "Verdict card"): rising or falling when every place's stamp is
- * in that ink, so only significant trends colour it; plain for anything else, mixed directions
- * included.
- */
-export function verdictTone(investigation: Investigation): VerdictTone {
-  const inks = investigation.results.map((result) => stampInk(result.verdict));
-  if (inks.length === 0) return "plain";
-  if (inks.every((ink) => ink === "rising")) return "rising";
-  if (inks.every((ink) => ink === "falling")) return "falling";
-  return "plain";
-}
-
 /**
  * The rate per decade the verdict card prints as its large figure, such as "+0.79 °C per decade",
  * or null. Only a significant trend gets the figure: a rate that year-to-year variation alone

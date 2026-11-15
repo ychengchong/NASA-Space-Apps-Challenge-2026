@@ -40,23 +40,6 @@ describe("ExampleCases", () => {
     expect(render(EXAMPLES)).toContain('href="/case?v=air_temp&amp;p=78.22,15.65');
   });
 
-  test("holds a pin for the string on each card when the examples are on the globe", () => {
-    expect(
-      render(EXAMPLES, true).match(/<span class="example-tack" aria-hidden="true"><\/span>/g),
-    ).toHaveLength(2);
-    expect(render(EXAMPLES)).not.toContain("example-tack");
-  });
-
-  test("marks each entry with its number, so a pin on the globe can find its card", () => {
-    const html = render(EXAMPLES, true);
-    expect(html).toContain('<li data-example="1"><a class="example-card"');
-    expect(html).toContain('<li data-example="2"><a class="example-card"');
-  });
-
-  test("draws no string until an example is singled out", () => {
-    expect(render(EXAMPLES, true)).not.toContain("case-string");
-  });
-
   test("shows nothing when there is no example", () => {
     expect(render([])).toBe("");
   });

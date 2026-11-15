@@ -8,6 +8,7 @@ resolve_plan. Nothing runs and NASA is never called: the user confirms every set
 
 import asyncio
 import json
+import math
 
 import httpx
 from fastapi import APIRouter, Request
@@ -29,6 +30,8 @@ from app.models import (
     DiscoveryResponse,
     DraftField,
     ExtractedPlan,
+    PlaceCandidate,
+    PlaceInput,
     Proposal,
     RetrievedPassage,
     UnansweredReason,
@@ -44,6 +47,9 @@ SCHEMA_NAME = "variable_discovery"
 SCHEMA = ai_guard.ProviderDiscovery.model_json_schema()
 DRAFT_FIELDS: tuple[DraftField, ...] = ("variable", "place", "from", "to", "season")
 DEFAULT_SEASON = "annual"
+# The browser sends back a chosen place with the server's own coordinates; the tolerance only
+# absorbs their round trip through JSON.
+SAME_POINT_DEGREES = 1e-6
 
 CORPUS_UNREADABLE = "The reviewed corpus cannot be read. Use manual controls."
 SUGGESTION_NOTICE = (
@@ -157,7 +163,8 @@ async def discover(
     give an "unsupported" response with its reason and a manual-fallback notice, never the
     provider's text. A suggestion keeps only the citations whose passages name its variable
     (`ai_guard.supported_suggestions`); a "ready" output left with no suggestion gives
-    `no_evidence`. Raises `httpx.HTTPError` or `KeyError`/`TypeError` for a failed call.
+    `no_evidence`. A clarification that the draft already answers is not asked again
+    (`_answered`). Raises `httpx.HTTPError` or `KeyError`/`TypeError` for a failed call.
     """
     settings = services.settings
     query = retrieval_query(discovery.question)
@@ -305,6 +312,10 @@ def _response(
     corpus: Corpus,
     last_complete_year: int,
 ) -> DiscoveryResponse:
+    clarification = _clarification(output.clarification)
+    held = _held_choice(clarification, draft)
+    if held is not None and draft is not None:
+        return _answered(output, held, question, draft, corpus, last_complete_year)
     entries = {entry.id: entry for entry in load_catalogue()}
     suggestions = [
         VariableSuggestion(
@@ -315,35 +326,122 @@ def _response(
         for suggestion in output.suggestions
     ]
     proposal = (
-        _proposal(output, question, draft, last_complete_year) if output.status == "ready" else None
+        _proposal(
+            output,
+            output.suggestions[0].variable_id,
+            output.place_queries,
+            question,
+            draft,
+            last_complete_year,
+        )
+        if output.status == "ready"
+        else None
     )
     return DiscoveryResponse(
         status=output.status,
         suggestions=suggestions,
         proposal=proposal,
         missing=[field for field in DRAFT_FIELDS if field in output.missing],
-        clarification=_clarification(output.clarification),
+        clarification=clarification,
         notices=[SUGGESTION_NOTICE],
         corpus_version=corpus.version,
     )
 
 
+def _answered(
+    output: ai_guard.ProviderDiscovery,
+    held: ClarificationChoice,
+    question: str,
+    draft: DiscoveryDraft,
+    corpus: Corpus,
+    last_complete_year: int,
+) -> DiscoveryResponse:
+    """Spec 8: the draft already holds one of the clarification's choices, such as the one the
+    learner has just picked, so the question is not asked again. The answer is "ready", with no
+    suggestion and a proposal of the draft's variable, the held choice's place or else the
+    places the question names, and the dates as for a suggestion. What the choice sets is no
+    longer missing, and with no suggestion there is no notice about suggestions.
+    """
+    queries = [] if held.place is not None else output.place_queries
+    proposal = _proposal(output, draft.variable, queries, question, draft, last_complete_year)
+    if held.place is not None:
+        proposal = proposal.model_copy(update={"places": [held.place]})
+    answered = _choice_fields(held)
+    return DiscoveryResponse(
+        status="ready",
+        suggestions=[],
+        proposal=proposal,
+        missing=[
+            field for field in DRAFT_FIELDS if field in output.missing and field not in answered
+        ],
+        clarification=None,
+        notices=[],
+        corpus_version=corpus.version,
+    )
+
+
+def _held_choice(
+    clarification: Clarification | None, draft: DiscoveryDraft | None
+) -> ClarificationChoice | None:
+    """The first choice whose every field already has its value in `draft`; None when no choice
+    is held, or there is no clarification or no draft."""
+    if clarification is None or draft is None:
+        return None
+    return next((choice for choice in clarification.choices if _draft_holds(draft, choice)), None)
+
+
+def _draft_holds(draft: DiscoveryDraft, choice: ClarificationChoice) -> bool:
+    """True when each field `choice` sets has that value in `draft`. A choice's place replaces
+    the draft's places, so only a draft of that one place holds it."""
+    if choice.place is not None and not (
+        len(draft.places) == 1 and _same_point(draft.places[0], choice.place)
+    ):
+        return False
+    pairs = (
+        (choice.variable, draft.variable),
+        (choice.from_, draft.from_),
+        (choice.to, draft.to),
+        (choice.season, draft.season),
+    )
+    return all(chosen is None or chosen == current for chosen, current in pairs)
+
+
+def _same_point(place: PlaceInput, candidate: PlaceCandidate) -> bool:
+    return math.isclose(place.lat, candidate.lat, abs_tol=SAME_POINT_DEGREES) and math.isclose(
+        place.lon, candidate.lon, abs_tol=SAME_POINT_DEGREES
+    )
+
+
+def _choice_fields(choice: ClarificationChoice) -> set[DraftField]:
+    """The draft fields a clarification choice sets."""
+    values: dict[DraftField, object] = {
+        "variable": choice.variable,
+        "place": choice.place,
+        "from": choice.from_,
+        "to": choice.to,
+        "season": choice.season,
+    }
+    return {field for field, value in values.items() if value is not None}
+
+
 def _proposal(
     output: ai_guard.ProviderDiscovery,
+    variable: str | None,
+    place_queries: list[str],
     question: str,
     draft: DiscoveryDraft | None,
     last_complete_year: int,
 ) -> Proposal:
-    """The first suggestion's variable with the extracted place and dates; a date or season
-    the question leaves open keeps the draft's value. A winter the question writes as
+    """`variable` with the places `place_queries` name and the extracted dates; a date or
+    season the question leaves open keeps the draft's value. A winter the question writes as
     "1990/91" is the DJF year 1991 (spec 7). Resolved as /api/plan resolves a plan.
     """
     if draft is None:
         draft = DiscoveryDraft()
     plan = ExtractedPlan.model_validate(
         {
-            "variable": output.suggestions[0].variable_id,
-            "place_queries": output.place_queries,
+            "variable": variable,
+            "place_queries": place_queries,
             "from": output.from_ if output.from_ is not None else draft.from_,
             "to": output.to if output.to is not None else draft.to,
             "season": output.season or draft.season or DEFAULT_SEASON,

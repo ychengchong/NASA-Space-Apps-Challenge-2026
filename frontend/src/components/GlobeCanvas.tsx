@@ -176,10 +176,7 @@ class Globe implements GlobeHandle {
     this.map.on("mousemove", (event) => this.handleHover(event));
     this.map.on("mouseout", () => this.endHover());
     this.map.on("moveend", () => this.continueSpin());
-    this.map.on("move", () => {
-      this.drawRing();
-      this.reportExample();
-    });
+    this.map.on("move", () => this.drawRing());
     for (const gesture of ["mousedown", "touchstart", "wheel"] as const) {
       this.map.on(gesture, () => this.takeOver());
     }
@@ -305,7 +302,6 @@ class Globe implements GlobeHandle {
     if (centre === undefined) this.stopSpin();
     else this.moveTo({ kind: "earth", centre, spin: false });
     this.spinHeld = held;
-    this.reportExample();
   }
 
   zoomToCells(): void {
@@ -458,19 +454,6 @@ class Globe implements GlobeHandle {
     return this.examples.find((example) => example.pin.number === exampleLink.number)?.pin;
   }
 
-  /** Tells the example that is singled out where its pins are now. */
-  private reportExample(): void {
-    const linked = this.linkedExample();
-    if (linked === undefined) return;
-    this.exampleLink?.onMove(
-      linked.places.map((place) => {
-        if (!this.sees(place)) return null;
-        const { x, y } = this.map.project([place.lon, place.lat]);
-        return { x, y };
-      }),
-    );
-  }
-
   /** True when the point is on the side of the Earth the camera sees. */
   private sees(point: LatLon): boolean {
     const { map } = this;
@@ -535,8 +518,8 @@ class Globe implements GlobeHandle {
   }
 
   /**
-   * The padding that puts the globe's centre in the middle of the stage. Beside the case file the
-   * canvas fills the screen behind a fixed stage; on a phone it fills the stage itself, which
+   * The padding that puts the globe's centre in the middle of the stage. From 640px to 959px the
+   * canvas fills the screen behind a fixed stage; elsewhere it fills the stage itself, which
    * scrolls with the page (styles.css), so the padding is measured between the two on screen.
    */
   private padding(): ReturnType<typeof stagePadding> {

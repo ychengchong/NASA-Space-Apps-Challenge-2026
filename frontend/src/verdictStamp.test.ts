@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import type { Verdict } from "./api";
 import { investigation, placeResult, SIGNIFICANT_RISE } from "./components/testData";
-import { verdictLine, verdictTone } from "./verdictStamp";
+import { verdictLine } from "./verdictStamp";
 
 const NOT_SIGNIFICANT_FALL: Verdict = {
   kind: "not_significant",
@@ -55,27 +55,5 @@ describe("verdictLine", () => {
       [0, "Athens", "+0.05 °C per decade"],
       [1, "Helsinki", null],
     ]);
-  });
-});
-
-describe("verdictTone", () => {
-  test("colours the case file rising when every place rises significantly", () => {
-    expect(verdictTone(investigation(SIGNIFICANT_RISE))).toBe("rising");
-  });
-
-  test("colours it falling when every place falls significantly", () => {
-    expect(verdictTone(investigation({ ...SIGNIFICANT_RISE, direction: "falling" }))).toBe("falling");
-  });
-
-  test("keeps it plain for a verdict that is not significant", () => {
-    expect(verdictTone(investigation(NOT_SIGNIFICANT_FALL))).toBe("plain");
-  });
-
-  test("keeps it plain when the places of a comparison disagree", () => {
-    const both = {
-      ...investigation(SIGNIFICANT_RISE),
-      results: [placeResult(SIGNIFICANT_RISE), placeResult({ ...SIGNIFICANT_RISE, direction: "falling" })],
-    };
-    expect(verdictTone(both)).toBe("plain");
   });
 });

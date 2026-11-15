@@ -447,5 +447,20 @@ runner's USD 0.15 historical allowance; this is not a provider invoice. See
 [evaluation results](docs/evaluation-results.md#submission-day-follow-up).
 AI stays gated off, and user testing was deferred, so educational impact is unmeasured.
 
+Claude Code (model Claude Opus 5.5) restyled the interface in a poster look on 15 November
+2026, from a poster the user supplied and two page mock-ups the assistant drew from it (the
+mock-ups are not in this repository): cream paper, rounded sheets, deep-teal ink, pill tabs and
+buttons, a coral case file and a teal globe. It laid the
+app out as those two pages. The first screen has the question on a coral card, the settings
+open beside the globe and the example cases as a row of coloured cards. A results page has the
+case file on the left, with "Copy link" and "Change this case" in it, and "Ask about this
+investigation" above a smaller globe on the right (`CaseRail`, `caseRailContext.ts`). It wrote
+the tests and the specification text. It checked the pages in Chrome at 1440, 800 and 375
+pixels wide, not on a real phone and not with a screen reader. At the user's request it then
+made the case file coral for every verdict, removed the red string from an example to its
+pins, and stopped guided discovery from asking a clarification again once the settings hold
+the answer the learner picked (`backend/app/adapters/discover.py`); that fix was tested with a
+fake provider, not against the live model.
+
 The team has not selected a project licence. NASA/GeoNames/OpenStreetMap/OpenFreeMap,
 the typefaces and software dependencies retain their own applicable terms.

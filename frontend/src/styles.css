@@ -21,11 +21,10 @@
   --teal: #0f4b4a;
   --teal-line: #9cc9c3;
   --coral: #ff7155;
-  --sky: #8ec5e8;
   --mustard: #f7c234;
   --radius: 24px;
-  /* The detective's red, for the marks on the first screen: case labels, pins and string. It is
-     not used for links or buttons, so that on a case red only ever means rising. */
+  /* The detective's red, for the marks on the first screen: case labels and pins. It is not
+     used for links or buttons, so that on a case red only ever means rising. */
   --accent: #b8361c;
   /* Text on a ground of ink. */
   --on-ink: #fbf7ee;
@@ -304,10 +303,10 @@ a:hover {
   background: var(--teal);
 }
 
-/* A phone's stage scrolls with the page, and on a page with an answer it starts below the first
-   screen, so there the globe fills the stage itself and travels with it. The stacking context
-   keeps the globe's own layers, such as a singled-out pin, under the frame's paper. */
-@media (max-width: 639.98px) {
+/* A phone's stage and the globe's panel from 960px scroll with the page, so there the globe fills
+   the stage itself and travels with it. The stacking context keeps the globe's own layers, such
+   as a singled-out pin, under the frame's paper. */
+@media (max-width: 639.98px), (min-width: 960px) {
   .stage-globe {
     position: absolute;
     z-index: 0;
@@ -759,21 +758,16 @@ a:hover {
   box-shadow: var(--shadow);
 }
 
-/* The case file takes the colour of its verdict (spec 3): coral when every place rises
-   significantly, blue when every place falls significantly, and plain paper otherwise. The
-   stamp is then printed in ink, so its words, not its colour, carry the direction. */
-.verdict-card.verdict-tone-rising {
+/* The case file is the coral sheet of every results page, whatever its verdict (spec 3). The
+   red and the blue of a direction would not read on coral, so there a significant stamp is
+   printed in ink, and its words and arrow carry the direction. */
+.verdict-card {
   --ink-muted: var(--ink);
   background: var(--coral);
 }
 
-.verdict-card.verdict-tone-falling {
-  --ink-muted: var(--ink);
-  background: var(--sky);
-}
-
-.verdict-tone-rising .stamp,
-.verdict-tone-falling .stamp {
+.verdict-card .stamp-rising,
+.verdict-card .stamp-falling {
   color: var(--ink);
 }
 
@@ -2371,40 +2365,8 @@ details > summary::-webkit-details-marker {
   text-underline-offset: 3px;
 }
 
-/* The red string from the example under the pointer to its pin, drawn over the whole screen.
-   Only a wide screen has the card and the globe side by side. */
-.case-string {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-}
-
-.case-string-shadow {
-  fill: none;
-  stroke: rgb(60 40 20 / 0.35);
-  stroke-width: 3;
-  filter: blur(2px);
-}
-
-.case-string-thread {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-}
-
-@media (min-width: 960px) {
-  .case-string {
-    display: block;
-  }
-}
-
 /* Example cases: the entries of a list, each under its typed number. The one under the pointer
-   lifts off the page as a sheet, with a pin for its string. */
+   lifts off the page as a sheet. */
 
 .example-list {
   list-style: none;
@@ -2464,25 +2426,6 @@ details > summary::-webkit-details-marker {
 .example-teaser {
   color: var(--ink-muted);
   font-size: 0.92rem;
-}
-
-/* Where the string leaves the card: a pin in its top right corner, shown with the string. */
-.example-tack {
-  display: none;
-  position: absolute;
-  top: -8px;
-  right: 20px;
-  width: 17px;
-  height: 17px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #ffb0a3 0%, #d8432f 34%, #9c2415 72%, #66140b 100%);
-  box-shadow: 2px 4px 5px rgb(40 25 10 / 0.5);
-}
-
-@media (min-width: 960px) {
-  .example-card.is-linked .example-tack {
-    display: block;
-  }
 }
 
 /* A notice has a tinted ground of its own, so its entries stay flat. */
@@ -2905,4 +2848,382 @@ details > summary::-webkit-details-marker {
 .badge-inference_unavailable {
   background: var(--caution-bg);
   color: var(--ink);
+}
+
+/* The poster pages (spec 3, "Interface"). Every width: the first screen's question is the coral
+   "New case" card, panel titles are set in the display serif, the record years are three cards,
+   and "Change this case" stands beside the tabs. */
+
+h2 {
+  font-family: var(--display);
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* The case file's own label stays typed, like its tab. */
+.verdict-card > h2 {
+  font-family: var(--type);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.verdict-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.verdict-actions .case-actions-row,
+.verdict-actions .status-text {
+  margin: 0;
+}
+
+.question-bar:not(.is-quiet) {
+  --ink-muted: var(--ink);
+  position: relative;
+  margin-top: 30px;
+  padding: 22px 26px 24px;
+  border-bottom: 0;
+  border-radius: 0 28px 28px 28px;
+  background: var(--coral);
+}
+
+.question-bar:not(.is-quiet)::before {
+  content: "New case";
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  padding: 8px 20px 4px;
+  border-radius: 16px 16px 0 0;
+  background: var(--coral);
+  font-family: var(--type);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.question-bar:not(.is-quiet) .question-label {
+  font-size: 2.1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* The question box is one pill: the field and its button inside a single ink line. */
+.question-row {
+  flex-wrap: nowrap;
+  align-items: center;
+  padding: 4px 4px 4px 16px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--field);
+}
+
+/* The field takes the room the pill leaves it, never its own default width, so the pill fits a
+   phone. */
+.question-input {
+  width: 0;
+  border: 0;
+  background: transparent;
+}
+
+.site-top {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* The parts the page holds after the case file are ordered with it, so they keep the page's order
+   on screen, and the example cases never come between the question and the settings. */
+.case-rail,
+.home-examples {
+  order: 1;
+}
+
+.question-input:focus-visible {
+  outline: none;
+}
+
+.question-row:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.question-bar .ready-card {
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1.5px solid var(--ink);
+  border-radius: 0;
+  background: transparent;
+}
+
+.question-bar.is-quiet {
+  border-bottom: 0;
+}
+
+.case-settings {
+  padding: 22px 26px;
+  border-top: 0;
+  border-radius: var(--radius);
+  background: var(--sheet);
+}
+
+.case-settings input,
+.case-settings select {
+  border-radius: 14px;
+}
+
+.home-section h2::before,
+.home-section h2::after {
+  display: none;
+}
+
+.home-section .panel-intro {
+  text-align: left;
+}
+
+.example-list {
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 14px;
+}
+
+.example-list > li:nth-child(4n + 1) .example-card {
+  background: var(--coral);
+}
+
+.example-list > li:nth-child(4n + 2) .example-card {
+  --ink-muted: var(--on-ink);
+  background: var(--teal);
+  color: var(--on-ink);
+}
+
+.example-list > li:nth-child(4n + 3) .example-card {
+  background: var(--mustard);
+}
+
+.example-list > li:nth-child(4n + 4) .example-card {
+  background: var(--sheet);
+}
+
+.example-card {
+  --ink-muted: var(--ink);
+  padding: 14px 40px 16px 18px;
+  border-bottom: 0;
+  border-radius: 22px;
+}
+
+.example-card .example-number {
+  color: inherit;
+}
+
+/* "Change this case" stands beside the tabs; open, it takes the whole row under them. */
+.case-tab-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.case-tab-row > .fold {
+  flex: 1 1 16rem;
+}
+
+.case-tab-row > .fold:has(> .fold-toggle[aria-expanded="true"]),
+.case-tab-row > .fold:not(:has(> .fold-toggle)) {
+  flex-basis: 100%;
+}
+
+.case-tab-row .fold-toggle {
+  height: 100%;
+  min-height: 54px;
+  padding: 8px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sheet);
+}
+
+.case-tab-row .fold-label {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* The record years as three cards: the highest in mustard, the lowest in teal, and the two
+   ten-year means on paper. */
+.record-years {
+  padding: 0;
+  background: transparent;
+}
+
+.record-table tbody {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 12px;
+}
+
+.record-table tr {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 18px;
+  border-radius: 22px;
+  background: var(--sheet);
+}
+
+.record-table tr:nth-child(1) {
+  background: var(--mustard);
+}
+
+.record-table tr:nth-child(2) {
+  --ink-muted: var(--on-ink);
+  background: var(--teal);
+  color: var(--on-ink);
+}
+
+.record-table th,
+.record-table td {
+  width: auto;
+  padding: 0;
+  border: 0;
+  white-space: normal;
+}
+
+.record-table th {
+  font-family: var(--display);
+  font-size: 1.3rem;
+}
+
+.record-years-list {
+  flex-direction: column;
+  gap: 2px;
+}
+
+.record-years-list > li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.record-years-list .record-year {
+  color: inherit;
+  font-weight: 700;
+}
+
+/* From 960px the page is a grid of two columns and the globe is a panel inside it: beside the
+   question and the settings on the first screen, and under "Ask about this result" on a page
+   with an answer. Narrower screens keep the layouts above. */
+@media (min-width: 960px) {
+  :root {
+    --stage-width: 38vw;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto auto;
+    grid-template-areas:
+      "head head"
+      "question stage"
+      "main stage"
+      "examples examples"
+      "foot foot";
+    align-content: start;
+    gap: 22px 32px;
+    width: auto;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 48px 24px;
+  }
+
+  .site-top {
+    display: contents;
+  }
+
+  .site-header {
+    grid-area: head;
+  }
+
+  .question-bar {
+    grid-area: question;
+    align-self: start;
+  }
+
+  .site-main {
+    grid-area: main;
+    align-content: start;
+  }
+
+  .home-examples {
+    grid-area: examples;
+  }
+
+  .site-footer {
+    grid-area: foot;
+  }
+
+  .case-rail {
+    grid-area: rail;
+    display: grid;
+    gap: var(--gap);
+    align-content: start;
+  }
+
+  .case-rail:empty {
+    display: none;
+  }
+
+  /* The globe's panel keeps the height of a screen beside the cards. */
+  .stage {
+    grid-area: stage;
+    position: relative;
+    inset: auto;
+    align-self: start;
+    height: min(700px, calc(100vh - 48px));
+    overflow: hidden;
+    border-radius: 28px;
+  }
+
+  .stage::before {
+    inset: 0;
+    box-shadow: none;
+  }
+
+  .app.has-answer {
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-areas:
+      "head question"
+      "main rail"
+      "main stage"
+      "main ."
+      "foot foot";
+  }
+
+  .app.has-answer .question-bar {
+    align-self: center;
+    padding: 0;
+  }
+
+  .app.has-answer .site-tagline {
+    display: none;
+  }
+
+  /* The box keeps its label for screen readers; on screen its placeholder asks the question. */
+  .app.has-answer .question-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .app.has-answer .stage {
+    height: 440px;
+  }
 }

@@ -6,7 +6,7 @@ interface CaseLayoutProps {
   /** The verdict, on a case its chart, and the AI's notes, first on the page. */
   answer: ReactNode;
   /** The settings, under the answer. */
-  side: ReactNode;
+  side?: ReactNode;
   /**
    * The rest of the evidence under the settings, such as a map's evidence. An open case has none:
    * its evidence is in the tabs of its answer.
@@ -26,7 +26,7 @@ export function CaseLayout({ pinned, answer, side, main }: CaseLayoutProps): JSX
       {pinned}
       <div className="case-layout case-layout-open">
         <div className="case-answer">{answer}</div>
-        <div className="case-side">{side}</div>
+        {side !== undefined ? <div className="case-side">{side}</div> : null}
         {main !== undefined ? <div className="case-main">{main}</div> : null}
       </div>
     </div>
