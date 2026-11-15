@@ -8,7 +8,9 @@ import {
   EMPTY_DRAFT,
   parseYearText,
   placeActions,
+  readySummary,
   placeFromCandidate,
+  questionIsReady,
   removePlace,
   samePoint,
 } from "./caseDraft";
@@ -148,6 +150,28 @@ describe("draftFromProposal", () => {
   });
 });
 
+describe("questionIsReady", () => {
+  const airTemperature = { id: "air_temp" } as VariableSummary;
+  const nairobi: PlaceCandidate = { name: "Nairobi", lat: -1.2833, lon: 36.8167, kind: "city" };
+
+  test("is ready when the question itself names a variable and a place", () => {
+    const proposal = { variables: [airTemperature], places: [nairobi] };
+    expect(questionIsReady(proposal, draftFromProposal(EMPTY_DRAFT, proposal))).toBe(true);
+  });
+
+  test("is not ready when the question names no place, though the open case's places are kept", () => {
+    const proposal = { variables: [airTemperature], places: [] };
+    const draft = draftFromProposal(draftFromCase(HELSINKI_CASE), proposal);
+    expect(caseFromDraft(draft)).not.toBeNull();
+    expect(questionIsReady(proposal, draft)).toBe(false);
+  });
+
+  test("is not ready when the question names no variable, though the open case's variable is kept", () => {
+    const proposal = { variables: [], places: [nairobi] };
+    expect(questionIsReady(proposal, draftFromProposal(draftFromCase(HELSINKI_CASE), proposal))).toBe(false);
+  });
+});
+
 describe("parseYearText", () => {
   test("reads a four-digit year", () => {
     expect(parseYearText(" 1990 ")).toBe(1990);
@@ -160,5 +184,50 @@ describe("parseYearText", () => {
   test("rejects anything else", () => {
     expect(parseYearText("90")).toBe("invalid");
     expect(parseYearText("1990.5")).toBe("invalid");
+  });
+});
+
+describe("draftFromProposal with years", () => {
+  test("takes the years the question names", () => {
+    const draft = draftFromProposal(EMPTY_DRAFT, { variables: [], places: [], from: 1990, to: 2010 });
+    expect(draft.from).toBe(1990);
+    expect(draft.to).toBe(2010);
+  });
+
+  test("drops an earlier last year when the question names only a first year", () => {
+    const draft = draftFromProposal(
+      { ...EMPTY_DRAFT, from: 1981, to: 2000 },
+      { variables: [], places: [], from: 2005 },
+    );
+    expect(draft.from).toBe(2005);
+    expect(draft.to).toBeUndefined();
+  });
+});
+
+describe("readySummary", () => {
+  const AIR: VariableSummary = {
+    id: "air_temp",
+    name: "Air temperature",
+    definition: "",
+    units: "°C",
+    rate_units: "°C",
+    decimals: 2,
+    theme: "temperature",
+    record_start: 1981,
+    related: [],
+  };
+  const HELSINKI = { lat: 60.17, lon: 24.94, name: "Helsinki" };
+
+  test("says the variable, the places, the period and the months", () => {
+    const draft = { ...EMPTY_DRAFT, variable: "air_temp", places: [HELSINKI] };
+    expect(readySummary(draft, [AIR])).toBe("Air temperature · Helsinki · the full record, all months");
+    expect(readySummary({ ...draft, from: 2000, season: "JJA" as const }, [AIR])).toBe(
+      "Air temperature · Helsinki · from 2000, June to August",
+    );
+  });
+
+  test("is null for a draft without a place or with an unknown variable", () => {
+    expect(readySummary({ ...EMPTY_DRAFT, variable: "air_temp" }, [AIR])).toBeNull();
+    expect(readySummary({ ...EMPTY_DRAFT, variable: "nope", places: [HELSINKI] }, [AIR])).toBeNull();
   });
 });

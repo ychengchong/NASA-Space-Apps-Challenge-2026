@@ -24,6 +24,7 @@ import { SettingsFold } from "./SettingsFold";
 import { VerdictSkeleton } from "./Skeleton";
 import { StageNote } from "./StageNote";
 import { PlaceVerdict } from "./VerdictCard";
+import { RecordYears } from "./RecordYears";
 import { WordsUsedHere } from "./WordsUsedHere";
 
 const APP_NAME = "Trend Detective";
@@ -160,6 +161,9 @@ export function RegionView(props: RegionViewProps): JSX.Element {
           </div>
           {trendMap !== null && state.status !== "failed" ? (
             <>
+              <div className={resultsClass} aria-busy={loading}>
+                <RecordYears results={[trendMap.area_mean]} variable={trendMap.variable} />
+              </div>
               {!loading ? <CaseActions key={key} subject="map" /> : null}
               <StageNote>
                 <StageLegend trendMap={trendMap} limit={limit} />

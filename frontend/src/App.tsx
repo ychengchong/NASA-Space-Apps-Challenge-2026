@@ -2,16 +2,25 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import type { JSX } from "react";
 import { getCapabilities, getCase, getExamples, getVariables, proposeCase } from "./api";
 import type { ExampleCase, Investigation, VariableSummary } from "./api";
-import { applyPlaceAction, caseFromDraft, draftFromCase, draftFromProposal, EMPTY_DRAFT } from "./caseDraft";
+import {
+  applyPlaceAction,
+  caseFromDraft,
+  draftFromCase,
+  draftFromProposal,
+  EMPTY_DRAFT,
+  questionIsReady,
+  readySummary,
+} from "./caseDraft";
 import type { CaseDraft, PlaceAction } from "./caseDraft";
 import { buildCaseQuery, buildMapQuery, parseCaseQuery } from "./caseUrl";
 import type { CaseParams, CasePlace } from "./caseUrl";
 import type { ChatResult } from "./chat";
-import { CaseActions } from "./components/CaseActions";
+import { CopyLink, ExploreFurther } from "./components/CaseActions";
 import type { RegionLink } from "./components/CaseActions";
 import { CaseLayout } from "./components/CaseLayout";
 import { CaseProblem } from "./components/CaseProblem";
 import { CaseSettings } from "./components/CaseSettings";
+import { CaseTabs } from "./components/CaseTabs";
 import { CrossChecks } from "./components/CrossChecks";
 import { EvidencePanel } from "./components/EvidencePanel";
 import { EvidenceLesson } from "./components/EvidenceLesson";
@@ -24,8 +33,9 @@ import { PickedPoint } from "./components/PickedPoint";
 import { PlaceLegend } from "./components/PlaceLegend";
 import { ProgressLine } from "./components/ProgressLine";
 import { QuestionBar } from "./components/QuestionBar";
-import type { AiAnswer, AiHelper } from "./components/QuestionBar";
+import type { AiAnswer, AiHelper, ReadyCase } from "./components/QuestionBar";
 import { PlaceOverviewView } from "./components/PlaceOverviewView";
+import { RecordYears } from "./components/RecordYears";
 import { RegionView } from "./components/RegionView";
 import { WorldView } from "./components/WorldView";
 import { SeasonsPanel } from "./components/SeasonsPanel";
@@ -36,6 +46,7 @@ import { StageNote } from "./components/StageNote";
 import type { PreloadedMap } from "./components/RegionView";
 import { TrendChart } from "./components/TrendChart";
 import { VerdictCard } from "./components/VerdictCard";
+import { VerdictLine } from "./components/VerdictLine";
 import { formatCoordinates } from "./format";
 import {
   GLOBE_LOADING,
@@ -63,6 +74,7 @@ import {
 import type { Route } from "./route";
 import { useRegionTypes } from "./useRegionTypes";
 import { useRequest } from "./useRequest";
+import { useScrolledPast } from "./useScrolledPast";
 import type { RequestState } from "./useRequest";
 
 const GlobeCanvas = lazy(() => import("./components/GlobeCanvas"));
@@ -107,6 +119,9 @@ export default function App(): JSX.Element {
   const [pendingDraft, setPendingDraft] = useState<CaseDraft | null>(null);
   const [pickedPoint, setPickedPoint] = useState<CasePlace | null>(null);
   const [settingsFocusRequest, setSettingsFocusRequest] = useState(0);
+  // True while the settings waiting for "Run this case" came from a question, so the question bar
+  // offers to run them.
+  const [readyFromQuestion, setReadyFromQuestion] = useState(false);
   const [mainFocusRequest, setMainFocusRequest] = useState(0);
   // Counts the times the screen moved on from the last question, for the question bar.
   const [screenChanges, setScreenChanges] = useState(0);
@@ -144,6 +159,7 @@ export default function App(): JSX.Element {
       setRoute(currentRoute());
       setPendingDraft(null);
       setPickedPoint(null);
+      setReadyFromQuestion(false);
       setScreenChanges((count) => count + 1);
     };
     window.addEventListener("popstate", showAddress);
@@ -167,6 +183,7 @@ export default function App(): JSX.Element {
     setRoute(currentRoute());
     setPendingDraft(null);
     setPickedPoint(null);
+    setReadyFromQuestion(false);
   };
   const openCase = (params: CaseParams): void => navigate(casePageUrl(params));
   const openPage = (url: string): void => {
@@ -232,12 +249,17 @@ export default function App(): JSX.Element {
       </section>
     ) : null;
 
+  // A complete case from a question waits under the question bar, where the user is looking; an
+  // incomplete one sends focus to the settings, where the missing part is filled in.
   const handleProposal = (proposal: KeywordProposal): void => {
     const base = pendingDraft ?? (route.kind === "case" ? draftFromCase(route.params) : EMPTY_DRAFT);
     showSettingsPage();
     regionTypes.remember(proposal.places);
-    setPendingDraft(draftFromProposal(base, proposal));
-    setSettingsFocusRequest((count) => count + 1);
+    const next = draftFromProposal(base, proposal);
+    setPendingDraft(next);
+    const ready = questionIsReady(proposal, next);
+    setReadyFromQuestion(ready);
+    if (!ready) setSettingsFocusRequest((count) => count + 1);
   };
 
   // The case settings as they stand: of the open case, or waiting for "Run this case". Every
@@ -265,6 +287,17 @@ export default function App(): JSX.Element {
     />
   );
 
+  const readyParams = readyFromQuestion && pendingDraft !== null ? caseFromDraft(pendingDraft) : null;
+  const readySummaryText = pendingDraft !== null ? readySummary(pendingDraft, catalogue) : null;
+  const readyCase: ReadyCase | null =
+    readyParams !== null && readySummaryText !== null
+      ? {
+          summary: readySummaryText,
+          onRun: () => openPage(casePageUrl(readyParams)),
+          onEdit: () => setSettingsFocusRequest((count) => count + 1),
+        }
+      : null;
+
   // The picked point's buttons leave the page once one is pressed, so focus moves on to the
   // settings, where the point waits for "Run this case".
   const choosePickedPoint = (action: PlaceAction, place: CasePlace): void => {
@@ -281,7 +314,7 @@ export default function App(): JSX.Element {
   return (
     <GlobeContext value={globe}>
       <StageNoteContext value={stageNote}>
-        <div className="app">
+        <div className={route.kind === "home" || route.kind === "bad_link" ? "app" : "app has-answer"}>
           <div className="site-top">
             <header className="site-header">
               <BrandMark />
@@ -299,6 +332,7 @@ export default function App(): JSX.Element {
               ai={ai}
               aiNotice={aiFailure === null ? null : { message: aiFailure, onRetry: () => setAiFailure(null) }}
               firstScreen={route.kind === "home" || route.kind === "bad_link"}
+              ready={readyCase}
               screenChanges={screenChanges}
             />
           </div>
@@ -520,6 +554,9 @@ function CaseView(props: CaseViewProps): JSX.Element {
     [state, params.places],
   );
   useGlobePlaces(mapPlaces, props.pickedPoint, props.onPick);
+  const verdictRef = useRef<HTMLDivElement>(null);
+  const verdictScrolledPast = useScrolledPast(verdictRef);
+  const cellCount = mapPlaces.filter((place) => place.cell !== undefined).length;
 
   useEffect(() => {
     document.title = investigation === null ? APP_NAME : `${caseTitle(investigation)} · ${APP_NAME}`;
@@ -530,6 +567,7 @@ function CaseView(props: CaseViewProps): JSX.Element {
 
   return (
     <CaseLayout
+      pinned={shown !== null ? <VerdictLine investigation={shown} shown={verdictScrolledPast} /> : null}
       side={
         <SettingsFold
           label="Change this case"
@@ -552,60 +590,72 @@ function CaseView(props: CaseViewProps): JSX.Element {
             />
           ) : null}
           {/* In the page while empty, so screen readers announce the verdict when it arrives. */}
-          <div className="live-region" aria-live="polite">
+          <div className="live-region" aria-live="polite" ref={verdictRef}>
             {shown !== null ? (
               <div className={resultsClass} aria-busy={loading}>
                 <VerdictCard investigation={shown} />
               </div>
             ) : null}
           </div>
-          {/* The chart follows the verdict at once: the proof beside the answer. It stays out of
-              the live region, whose text is read aloud when it changes. */}
+          {/* The chart follows the verdict at once, in the first tab: the proof beside the answer.
+              The tabs stay out of the live region, whose text is read aloud when it changes. */}
           {shown !== null ? (
             <div className={resultsClass} aria-busy={loading}>
-              <TrendChart investigation={shown} />
+              <CaseTabs
+                panels={{
+                  answer: (
+                    <>
+                      <TrendChart investigation={shown} />
+                      <RecordYears
+                        results={shown.results}
+                        variable={shown.variable}
+                        showNames={shown.results.length > 1}
+                      />
+                      {!loading ? <CopyLink key={key} subject="case" /> : null}
+                    </>
+                  ),
+                  explore: (
+                    <>
+                      {!loading ? (
+                        <ExploreFurther
+                          region={regionLink(params, props.onOpenPage)}
+                          overview={overviewLink(params, props.onOpenPage)}
+                          world={worldLink(params, props.catalogue, props.onOpenPage)}
+                          more={
+                            <CrossChecks
+                              params={params}
+                              variables={props.catalogue}
+                              regionTypes={props.regionTypes}
+                              onOpenPage={props.onOpenPage}
+                            />
+                          }
+                        />
+                      ) : null}
+                      <SeasonsPanel params={params} investigation={shown} onOpenPage={props.onOpenPage} />
+                      <PeriodExplorer params={params} investigation={shown} onOpenCase={props.onOpenCase} />
+                      <GapChart investigation={shown} />
+                    </>
+                  ),
+                  evidence: (
+                    <>
+                      <EvidencePanel investigation={shown} />
+                      <PlaceLegend places={mapPlaces} pickedPoint={props.pickedPoint} folded />
+                    </>
+                  ),
+                  learn: <EvidenceLesson />,
+                }}
+              />
             </div>
           ) : firstLoad ? (
             <ChartSkeleton />
           ) : null}
           {shown !== null ? (
-            <>
-              {!loading ? (
-                <CaseActions
-                  key={key}
-                  subject="case"
-                  region={regionLink(params, props.onOpenPage)}
-                  overview={overviewLink(params, props.onOpenPage)}
-                  world={worldLink(params, props.catalogue, props.onOpenPage)}
-                />
-              ) : null}
-              <StageNote>
-                <StageCaption investigation={shown} />
-              </StageNote>
-            </>
+            <StageNote>
+              <StageCaption investigation={shown} cellCount={cellCount} />
+            </StageNote>
           ) : null}
           {props.notes}
-          {shown !== null ? (
-            <CrossChecks
-              params={params}
-              variables={props.catalogue}
-              regionTypes={props.regionTypes}
-              onOpenPage={props.onOpenPage}
-            />
-          ) : null}
         </>
-      }
-      main={
-        shown !== null ? (
-          <div className={resultsClass} aria-busy={loading}>
-            <PlaceLegend places={mapPlaces} pickedPoint={props.pickedPoint} />
-            <PeriodExplorer params={params} investigation={shown} onOpenCase={props.onOpenCase} />
-            <GapChart investigation={shown} />
-            <SeasonsPanel params={params} investigation={shown} onOpenPage={props.onOpenPage} />
-            <EvidencePanel investigation={shown} />
-            <EvidenceLesson />
-          </div>
-        ) : null
       }
     />
   );

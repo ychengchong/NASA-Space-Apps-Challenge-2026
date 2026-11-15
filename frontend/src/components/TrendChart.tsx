@@ -6,6 +6,8 @@ import type { Investigation, PlaceResult, Season, Series, VariableSummary } from
 import { joinWords } from "../cautions";
 import { AXIS_STYLE, BASE_LAYOUT, HOVER_TEXT_ONLY, plotlyText, SURFACE } from "../chartStyle";
 import { formatNumber, formatRatePerDecade, formatSignedRate, withUnits } from "../format";
+import { legendEntry } from "../chartLegend";
+import type { ChartMark } from "../chartLegend";
 import { placeStyle } from "../placeStyles";
 import { seasonAverageText } from "../seasons";
 import { useRequest } from "../useRequest";
@@ -13,7 +15,9 @@ import { ShapeSwatch } from "./ShapeSwatch";
 
 const PlotlyChart = lazy(() => import("./PlotlyChart"));
 
-const CHART_HEIGHT_PX = 380;
+// With the legend on one row and no axis title, this leaves the plot about the drawing area it had
+// at 380px with a legend of three rows (spec 3, "Chart").
+const CHART_HEIGHT_PX = 300;
 
 // Each yearly point sits in the middle of the months it averages, so it lines up with the
 // monthly values; December to February centres on January of its year (spec 7, step 2).
@@ -43,6 +47,7 @@ export function TrendChart({ investigation, monthly: withMonthly = true }: Trend
   const data = useMemo(() => chartTraces(investigation, monthlySeries), [investigation, monthlySeries]);
   const layout = useMemo(() => chartLayout(investigation.variable), [investigation.variable]);
   const summary = chartSummary(investigation);
+  const placeCount = investigation.results.length;
 
   return (
     <section className="panel sheet" aria-labelledby="chart-heading">
@@ -68,23 +73,31 @@ export function TrendChart({ investigation, monthly: withMonthly = true }: Trend
       <Suspense fallback={<div className="chart-placeholder">Loading the chart…</div>}>
         <PlotlyChart data={data} layout={layout} description={summary.join(" ")} />
       </Suspense>
-      <p className="panel-intro">
+      <p className="panel-intro chart-intro">
         Each point is {seasonAverageText(investigation.requested.season)} in one year, from{" "}
-        {investigation.requested.from} to {investigation.requested.to}. A gap means a year with a missing
-        month.
-        {investigation.results.some((result) => recordMarks(result).length > 0)
-          ? investigation.results.length > 1
-            ? " Rings mark the highest and lowest of the yearly values used, as listed under the verdict; in a comparison those are the years every place has."
-            : " Rings mark the highest and lowest of the yearly values used, as listed under the verdict."
-          : null}
+        {investigation.requested.from} to {investigation.requested.to}.
+        {placeCount > 1 ? " Dashed lines are trend lines; rings mark record years." : null}
       </p>
-      <ul className="chart-summary">
-        {investigation.results.map((result, index) => (
-          <li key={index}>
-            <ShapeSwatch index={index} /> {placeSummary(result, investigation.variable)}
-          </li>
-        ))}
-      </ul>
+      {/* The plot draws each trend line without its uncertainty, so the summary in words stays in
+          the page, as the chart's text alternative too (spec 3, "Chart"). */}
+      <details className="disclosure">
+        <summary>Read the chart in words</summary>
+        <p className="panel-intro">
+          A gap means a year with a missing month.
+          {investigation.results.some((result) => recordMarks(result).length > 0)
+            ? investigation.results.length > 1
+              ? " Rings mark the highest and lowest of the yearly values used, as listed under the chart; in a comparison those are the years every place has."
+              : " Rings mark the highest and lowest of the yearly values used, as listed under the chart."
+            : null}
+        </p>
+        <ul className="chart-summary">
+          {investigation.results.map((result, index) => (
+            <li key={index}>
+              <ShapeSwatch index={index} /> {placeSummary(result, investigation.variable)}
+            </li>
+          ))}
+        </ul>
+      </details>
       <details className="disclosure">
         <summary>Show the yearly values as a table</summary>
         <YearlyTable investigation={investigation} />
@@ -125,16 +138,18 @@ function valueText(value: number, variable: VariableSummary): string {
 function chartTraces(investigation: Investigation, monthly: Series[] | null): ScatterTrace[] {
   const { variable, requested } = investigation;
   const traces: ScatterTrace[] = [];
+  const placeCount = investigation.results.length;
   investigation.results.forEach((result, index) => {
     const style = placeStyle(index);
     const name = plotlyText(result.place.name);
+    const legend = (mark: ChartMark) => legendEntry(name, mark, placeCount);
     const monthlySeries = monthly?.[index];
     if (monthlySeries !== undefined) {
       traces.push({
         type: "scatter",
         // A season's months are months apart from one year to the next, so they are not joined.
         mode: requested.season === "annual" ? "lines" : "markers",
-        name: `${name}: monthly values`,
+        ...legend("monthly values"),
         legendgroup: name,
         x: monthlySeries.values.map((point) => `${point.date}-${MID_MONTH_DAY}`),
         y: monthlySeries.values.map((point) => point.value),
@@ -153,7 +168,7 @@ function chartTraces(investigation: Investigation, monthly: Series[] | null): Sc
     traces.push({
       type: "scatter",
       mode: "lines+markers",
-      name: `${name}: yearly values`,
+      ...legend("yearly values"),
       legendgroup: name,
       x: result.series.map((point) => yearDate(point.year, requested.season)),
       y: result.series.map((point) => point.value),
@@ -177,7 +192,7 @@ function chartTraces(investigation: Investigation, monthly: Series[] | null): Sc
       traces.push({
         type: "scatter",
         mode: "markers",
-        name: `${name}: record years`,
+        ...legend("record years"),
         legendgroup: name,
         x: records.map((mark) => yearDate(mark.year, requested.season)),
         y: records.map((mark) => mark.value),
@@ -202,7 +217,7 @@ function chartTraces(investigation: Investigation, monthly: Series[] | null): Sc
       traces.push({
         type: "scatter",
         mode: "lines",
-        name: `${name}: trend line`,
+        ...legend("trend line"),
         legendgroup: name,
         x: ends.map(([year]) => yearDate(year, requested.season)),
         y: ends.map(([, value]) => value),
@@ -235,7 +250,10 @@ function chartLayout(variable: VariableSummary): Layout {
   return {
     ...BASE_LAYOUT,
     height: CHART_HEIGHT_PX,
-    xaxis: { ...AXIS_STYLE, type: "date", title: { text: "Year" } },
+    // One row: entries of one place share a legend group, which Plotly would otherwise stack.
+    legend: { ...BASE_LAYOUT.legend, traceorder: "normal" },
+    // The ticks are years, so the axis needs no title.
+    xaxis: { ...AXIS_STYLE, type: "date" },
     yaxis: { ...AXIS_STYLE, title: { text: `${variable.name} (${variable.units})` } },
   };
 }

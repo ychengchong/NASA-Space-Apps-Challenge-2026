@@ -5,6 +5,8 @@ import type { JSX } from "react";
 
 // The axes do not zoom and the values are in a table, so the chart needs no toolbar.
 const CONFIG: Config = { responsive: true, displayModeBar: false };
+// The class Plotly gives an element once it has drawn a chart in it.
+const PLOTTED_CLASS = "js-plotly-plot";
 
 interface PlotlyChartProps {
   data: ScatterTrace[];
@@ -50,6 +52,20 @@ export default function PlotlyChart({
     return () => {
       if (container !== null) Plotly.purge(container);
     };
+  }, []);
+
+  // Plotly follows only the window's size. A chart drawn in a hidden tab of the case file has no
+  // width of its own, so it is redrawn to its box once the tab shows it (spec 3, "Case file tabs").
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container === null || typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(() => {
+      if (container.offsetWidth > 0 && container.classList.contains(PLOTTED_CLASS)) {
+        void Plotly.Plots.resize(container);
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
   }, []);
 
   return <div className="plotly-chart" ref={containerRef} role="img" aria-label={description} />;

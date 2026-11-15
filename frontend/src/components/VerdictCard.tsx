@@ -1,8 +1,9 @@
 import type { JSX } from "react";
-import type { Investigation, PlaceResult, Records, Verdict, VariableSummary } from "../api";
+import type { Investigation, PlaceResult, Verdict, VariableSummary } from "../api";
 import { cautionText } from "../cautions";
 import { MORE_YEARS_NOTE, SIGNIFICANCE_DEFINITION } from "../definitions";
 import { formatSignedRate, splitSign } from "../format";
+import { KIND_LABELS, stampDirection, stampInk } from "../verdictStamp";
 import { FileTab } from "./FileTab";
 import { ShapeSwatch } from "./ShapeSwatch";
 
@@ -83,63 +84,8 @@ export function PlaceVerdict({ result, index, variable, showName }: PlaceVerdict
           <strong>Caution:</strong> {caution}
         </p>
       ) : null}
-      {result.records !== null && result.records !== undefined ? (
-        <RecordFacts records={result.records} />
-      ) : null}
     </>
   );
-}
-
-/**
- * A place's record years and its last ten years against its first ten (spec 7, "Record years"),
- * with the note that they are not tests. The sentences come from the API as they are.
- */
-function RecordFacts({ records }: { records: Records }): JSX.Element | null {
-  if (records.sentences.length === 0) return null;
-  return (
-    <div className="record-facts">
-      <ul className="plain-list">
-        {records.sentences.map((sentence, index) => (
-          <li key={index}>{sentence}</li>
-        ))}
-      </ul>
-      <p className="panel-note">{records.note}</p>
-    </div>
-  );
-}
-
-const KIND_LABELS: Readonly<Record<Verdict["kind"], string>> = {
-  significant: "Significant",
-  not_significant: "Not significant",
-  too_few_years: "Too few years",
-  no_data: "No data",
-  inference_unavailable: "Significance unavailable",
-};
-
-/** A verdict's direction as the stamp prints it: an arrow, a word, and the word's own style. */
-interface StampDirection {
-  arrow: string;
-  word: string;
-  tone: "rising" | "falling" | "level";
-}
-
-function stampDirection(verdict: Verdict): StampDirection | null {
-  if (verdict.direction === "rising") return { arrow: "↑", word: "Rising", tone: "rising" };
-  if (verdict.direction === "falling") return { arrow: "↓", word: "Falling", tone: "falling" };
-  // Spec 7: a zero Sen's slope is a test with no direction.
-  if (verdict.kind === "not_significant") {
-    return { arrow: "→", word: "Zero estimated slope", tone: "level" };
-  }
-  return null;
-}
-
-/**
- * The ink of the stamp (spec 3): the red or the blue of the region map's scale for a significant
- * rise or fall, and a faded ink for every other verdict, whose direction the test did not settle.
- */
-function stampInk(verdict: Verdict): "rising" | "falling" | "faded" {
-  if (verdict.kind !== "significant" || verdict.direction === null) return "faded";
-  return verdict.direction;
 }
 
 /**

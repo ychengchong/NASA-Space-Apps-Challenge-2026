@@ -37,6 +37,21 @@ describe("PlaceLegend", () => {
     expect(html).toContain("You picked 1.3°S, 36.8°E. Choose what to do with it on the globe.");
   });
 
+  test("is one open panel on the first screen, where no answer stands above it", () => {
+    const html = renderToStaticMarkup(<PlaceLegend places={[HELSINKI]} pickedPoint={null} />);
+    expect(html).not.toContain("<details");
+  });
+
+  test("folds to one line under an answer, and keeps the whole key behind it", () => {
+    const html = renderToStaticMarkup(<PlaceLegend places={[HELSINKI_SUNLIGHT]} pickedPoint={null} folded />);
+    expect(html).toContain("<details");
+    expect(html).not.toContain("<details open");
+    expect(html).toContain("The grid cell behind each place, and how to pick a point");
+    expect(html).toContain("Helsinki: grid cell centred on 60.5°N, 24.5°E");
+    expect(html).toContain("press Enter to pick the point at its centre");
+    expect(html).toContain("Zoom in to the grid cell");
+  });
+
   test("points to the place search when the browser cannot draw the globe", () => {
     const html = renderToStaticMarkup(
       <GlobeContext value={GLOBE_UNAVAILABLE}>

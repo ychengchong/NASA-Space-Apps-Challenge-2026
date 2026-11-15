@@ -3,11 +3,13 @@
  * place yet; only a complete draft becomes a case (spec 3, "The investigation flow").
  */
 
-import type { PlaceCandidate, Season } from "./api";
+import type { PlaceCandidate, Season, VariableSummary } from "./api";
+import { joinWords } from "./cautions";
 import { linkCoordinate, MAX_PLACES, PLACE_LABEL_MAX_LENGTH } from "./caseUrl";
 import type { CaseParams, CasePlace } from "./caseUrl";
 import { formatCoordinates } from "./format";
 import type { KeywordProposal } from "./keywordMatch";
+import { seasonMonthsText } from "./seasons";
 
 export interface CaseDraft {
   variable: string | null;
@@ -93,7 +95,42 @@ export function draftFromProposal(base: CaseDraft, proposal: KeywordProposal): C
   const variable = proposal.variables[0]?.id ?? base.variable;
   const places =
     proposal.places.length > 0 ? proposal.places.slice(0, MAX_PLACES).map(placeFromCandidate) : base.places;
-  return { ...base, variable, places };
+  const draft: CaseDraft = { ...base, variable, places };
+  if (proposal.from !== undefined) {
+    draft.from = proposal.from;
+    delete draft.to;
+  }
+  if (proposal.to !== undefined) draft.to = proposal.to;
+  return draft;
+}
+
+/**
+ * Whether the question bar offers its "Ready to test" card for `draft`, the settings after
+ * `proposal` (spec 3, "Question bar"): only when the question itself named a variable and a
+ * place, and the draft is a whole case. A variable or places kept from the open case do not
+ * count, so a place the matcher could not find never runs as the open case's places.
+ */
+export function questionIsReady(proposal: KeywordProposal, draft: CaseDraft): boolean {
+  return proposal.variables.length > 0 && proposal.places.length > 0 && caseFromDraft(draft) !== null;
+}
+
+/**
+ * The case a complete draft describes, in words, for the question bar's "Ready to test" card:
+ * "Air temperature · Helsinki · the full record, all months". Null while the draft lacks a
+ * variable or a place, or names a variable the catalogue does not list.
+ */
+export function readySummary(draft: CaseDraft, catalogue: readonly VariableSummary[]): string | null {
+  const variable = catalogue.find((item) => item.id === draft.variable);
+  if (variable === undefined || draft.places.length === 0) return null;
+  const places = joinWords(draft.places.map(placeName));
+  return `${variable.name} · ${places} · ${draftPeriodText(draft)}, ${seasonMonthsText(draft.season)}`;
+}
+
+function draftPeriodText(draft: CaseDraft): string {
+  if (draft.from !== undefined && draft.to !== undefined) return `${draft.from} to ${draft.to}`;
+  if (draft.from !== undefined) return `from ${draft.from}`;
+  if (draft.to !== undefined) return `to ${draft.to}`;
+  return "the full record";
 }
 
 const YEAR_TEXT = /^\d{4}$/;

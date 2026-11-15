@@ -3,8 +3,9 @@
  * through `search_variables` and `find_place`, and the user confirms the match in the case settings.
  *
  * Place names are looked up as single words and as runs of a few words, such as "Rio de Janeiro".
- * A lookup counts only when a place's name equals the words, ignoring case and accents, so "Is"
- * never turns into Istanbul.
+ * A lookup counts only when a place's name, or the country of a capital the search offers, equals
+ * the words, ignoring case and accents, so "Is" never turns into Istanbul and "Finland" finds
+ * Helsinki.
  */
 
 import type { PlaceCandidate, VariableSummary } from "./api";
@@ -158,6 +159,28 @@ export interface KeywordProposal {
   variables: VariableSummary[];
   /** Places named in the question, in the order the question names them. */
   places: PlaceCandidate[];
+  /** Years named in the question: one is the first year, two are the first and the last. */
+  from?: number;
+  to?: number;
+}
+
+// A year a question can name, such as "since 2000": a four-digit year from 1900 to 2099.
+const YEAR_WORD = /\b(19\d\d|20\d\d)\b/g;
+
+/**
+ * The period a question names, for the user to confirm in the settings: one year is the first
+ * year ("since 2000"), two years are the first and the last ("from 1990 to 2010"), in either
+ * order. No year, or more than two, names no period. Whether the variable's record covers it is
+ * the API's to say when the case runs.
+ */
+export function periodFromQuestion(question: string): { from?: number; to?: number } {
+  const years = [...question.matchAll(YEAR_WORD)].map((match) => Number(match[1]));
+  if (years.length === 1) return { from: years[0] };
+  if (years.length === 2) {
+    const [first = 0, second = 0] = years;
+    return { from: Math.min(first, second), to: Math.max(first, second) };
+  }
+  return {};
 }
 
 /** The calls the matcher makes; the app passes the API client, tests pass fakes. */
@@ -220,8 +243,9 @@ export function placePhrases(question: string, words: readonly QuestionWord[]): 
 
 /**
  * The places named in the question, from the search results of each phrase (keyed by
- * `PlacePhrase.key`). A phrase names a place only when a candidate's name equals the phrase,
- * ignoring case and accents; the first such candidate, the most populous, is taken. Longer
+ * `PlacePhrase.key`). A phrase names a place only when a candidate's name, or its country's name,
+ * equals the phrase, ignoring case and accents; the first such candidate in the search's order is
+ * taken, which puts a country's capital first, then the most populous place of that name. Longer
  * phrases win over the words inside them. Matches come back in question order, without
  * repeating a place, at most MAX_PLACES of them.
  */
@@ -235,7 +259,7 @@ export function pickPlaces(
   const matches: PlaceMatch[] = [];
   for (const phrase of longestFirst) {
     if (matches.some((match) => overlaps(match.phrase, phrase))) continue;
-    const candidate = found.get(phrase.key)?.find((place) => nameKey(place.name) === phrase.key);
+    const candidate = found.get(phrase.key)?.find((place) => namedBy(place, phrase.key));
     if (candidate === undefined) continue;
     if (
       matches.some((match) => match.candidate.lat === candidate.lat && match.candidate.lon === candidate.lon)
@@ -245,6 +269,14 @@ export function pickPlaces(
     matches.push({ phrase, candidate });
   }
   return matches.sort((a, b) => a.phrase.first - b.phrase.first).slice(0, MAX_PLACES);
+}
+
+/**
+ * Whether the words `key` name the candidate: its own name, or the name of its country, which the
+ * place search answers with the country's capital (spec 5, "find_place").
+ */
+function namedBy(place: PlaceCandidate, key: string): boolean {
+  return nameKey(place.name) === key || (place.country != null && nameKey(place.country) === key);
 }
 
 function overlaps(a: PlacePhrase, b: PlacePhrase): boolean {
@@ -281,5 +313,5 @@ export async function matchQuestion(
 
   const query = variableQuery(words, matches);
   const variables = query === "" ? [] : await lookups.searchVariables(query, signal);
-  return { variables, places: matches.map((match) => match.candidate) };
+  return { variables, places: matches.map((match) => match.candidate), ...periodFromQuestion(question) };
 }

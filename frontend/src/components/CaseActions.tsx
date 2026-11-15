@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { JSX } from "react";
+import type { JSX, MouseEvent, ReactNode } from "react";
 import { copyText } from "../clipboard";
 import { followInApp } from "../links";
 
@@ -18,76 +18,120 @@ interface CaseActionsProps {
   overview?: RegionLink;
   /** "The whole world": the same variable, period and season in the world sample. */
   world?: RegionLink;
+  /** Further ways on, set under the links of "Explore further": the other variables to test. */
+  more?: ReactNode;
 }
 
 type CopyState = "idle" | "copied" | "failed";
 
 /**
  * What to do with an answer, right under it (spec 3): copy the link that holds the whole case or
- * map, and, for a case, map the region around its first place. Give it the case or the map as
- * its key, so a new answer starts without the last one's "Link copied".
+ * map, and, for a case, every way on to another page in one "Explore further" sheet. Give it the
+ * case or the map as its key, so a new answer starts without the last one's "Link copied".
  */
-export function CaseActions({ subject, region, overview, world }: CaseActionsProps): JSX.Element {
+export function CaseActions({ subject, region, overview, world, more }: CaseActionsProps): JSX.Element {
+  return (
+    <div className="case-actions">
+      <CopyLink subject={subject} />
+      <ExploreFurther region={region} overview={overview} world={world} more={more} />
+    </div>
+  );
+}
+
+/**
+ * "Copy link" and the line that says whether it worked. Give it the case or the map as its key,
+ * so a new answer starts without the last one's "Link copied".
+ */
+export function CopyLink({ subject }: { subject: "case" | "map" }): JSX.Element {
   const [copy, setCopy] = useState<CopyState>("idle");
   const copyLink = (): void => {
     void copyText(window.location.href).then((copied) => setCopy(copied ? "copied" : "failed"));
   };
   return (
-    <div className="case-actions">
+    <>
       <p className="case-actions-row">
         <button type="button" className="button button-secondary" onClick={copyLink}>
           Copy link
         </button>
-        {region !== undefined ? (
-          <a
-            className="button button-secondary"
-            href={region.url}
-            onClick={(event) => followInApp(event, region.url, region.onOpenPage)}
-          >
-            Map this region
-          </a>
-        ) : null}
-        {overview !== undefined ? (
-          <a
-            className="button button-secondary"
-            href={overview.url}
-            onClick={(event) => followInApp(event, overview.url, overview.onOpenPage)}
-          >
-            What is changing here?
-          </a>
-        ) : null}
-        {world !== undefined ? (
-          <a
-            className="button button-secondary"
-            href={world.url}
-            onClick={(event) => followInApp(event, world.url, world.onOpenPage)}
-          >
-            The whole world
-          </a>
-        ) : null}
       </p>
       <p className="status-text" role="status">
         {copyStatusText(copy, subject)}
       </p>
-      {region !== undefined ? (
-        <p className="field-hint">
-          “Map this region” shows the rate of change in every grid cell of a 10° by 10° box around{" "}
-          {region.placeName}. Significance is not assessed for the map.
-        </p>
-      ) : null}
-      {overview !== undefined ? (
-        <p className="field-hint">
-          “What is changing here?” lists the descriptive rate of every variable at {overview.placeName}.
-        </p>
-      ) : null}
-      {world !== undefined ? (
-        <p className="field-hint">
-          “The whole world” shows the same variable, period and season averaged over a fixed sample of grid
-          points across the world.
-        </p>
-      ) : null}
-    </div>
+    </>
   );
+}
+
+type ExploreFurtherProps = Omit<CaseActionsProps, "subject">;
+
+/** The "Explore further" sheet: the ways on to other pages, then `more`. Nothing without a way on. */
+export function ExploreFurther({ region, overview, world, more }: ExploreFurtherProps): JSX.Element | null {
+  const cards = exploreCards(region, overview, world);
+  if (cards.length === 0) return null;
+  return (
+    <nav className="panel sheet explore" aria-labelledby="explore-heading">
+      <h2 id="explore-heading">Explore further</h2>
+      <ul className="explore-list">
+        {cards.map((card) => (
+          <li key={card.title}>
+            <a className="explore-card" href={card.href} onClick={card.onClick}>
+              <span className="explore-title">
+                {card.title} <span aria-hidden="true">→</span>
+              </span>
+              <span className="explore-hint">{card.hint}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      {more}
+    </nav>
+  );
+}
+
+interface ExploreCard {
+  title: string;
+  hint: string;
+  href: string;
+  onClick: (event: MouseEvent<HTMLAnchorElement>) => void;
+}
+
+/**
+ * The ways on from an answer that open a page of their own, most used first. The seasons and
+ * the period are folded panels of the case's own page, so they are not repeated here.
+ */
+function exploreCards(
+  region: RegionLink | undefined,
+  overview: RegionLink | undefined,
+  world: RegionLink | undefined,
+): ExploreCard[] {
+  const cards: ExploreCard[] = [];
+  if (overview !== undefined) {
+    cards.push(
+      pageCard("What is changing here?", `The rate of every variable at ${overview.placeName}.`, overview),
+    );
+  }
+  if (world !== undefined) {
+    cards.push(
+      pageCard(
+        "The whole world",
+        "The same variable, period and season averaged over a world sample.",
+        world,
+      ),
+    );
+  }
+  if (region !== undefined) {
+    cards.push(
+      pageCard(
+        "Map this region",
+        `A map that shows the rate of change in every grid cell of a 10° by 10° box around ${region.placeName}. Significance is not assessed for the map.`,
+        region,
+      ),
+    );
+  }
+  return cards;
+}
+
+function pageCard(title: string, hint: string, link: RegionLink): ExploreCard {
+  return { title, hint, href: link.url, onClick: (event) => followInApp(event, link.url, link.onOpenPage) };
 }
 
 function copyStatusText(copy: CopyState, subject: "case" | "map"): string {

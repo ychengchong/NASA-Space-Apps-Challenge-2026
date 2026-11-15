@@ -43,6 +43,14 @@ export interface AiNotice {
   onRetry: () => void;
 }
 
+/** A complete case the question set up, waiting for the user to run it (spec 3, "Ask"). */
+export interface ReadyCase {
+  /** The case in words, such as "Air temperature · Helsinki · the full record, all months". */
+  summary: string;
+  onRun: () => void;
+  onEdit: () => void;
+}
+
 interface QuestionBarProps {
   /** Called with what keyword mode found, for the user to confirm in the case settings. */
   onProposal: (proposal: KeywordProposal) => void;
@@ -63,6 +71,8 @@ interface QuestionBarProps {
    * back or forward, or the settings a keyword match filled in are cancelled.
    */
   screenChanges: number;
+  /** The case a keyword match set up, when it is complete; shown under the question to run. */
+  ready?: ReadyCase | null;
 }
 
 /** The entry point: a question in plain words becomes a case, through the AI or keywords. */
@@ -72,6 +82,7 @@ export function QuestionBar({
   aiNotice,
   firstScreen,
   screenChanges,
+  ready,
 }: QuestionBarProps): JSX.Element {
   const [question, setQuestion] = useState("");
   const [status, setStatus] = useState<QuestionStatus>({ kind: "idle" });
@@ -188,7 +199,7 @@ export function QuestionBar({
       ) : null}
       <p className="mode-note">
         {ai === undefined
-          ? "The AI helper is off. The app looks for a variable and a place among your words, and you check what it found in the case settings."
+          ? "The AI helper is off. The app looks for a variable, a place and any years among your words, and you check what it found before the case runs."
           : "An AI reads your question, runs the tests and writes notes. You can change everything it sets up."}
       </p>
       <p className="status-text" role="status">
@@ -196,6 +207,21 @@ export function QuestionBar({
           ? "The AI is proposing settings. It will not run an analysis until you confirm."
           : statusText(status)}
       </p>
+      {ready ? (
+        <div className="notice notice-compact ready-card" role="group" aria-labelledby="ready-label">
+          <p>
+            <strong id="ready-label">Ready to test:</strong> {ready.summary}
+          </p>
+          <span className="ready-card-actions">
+            <button type="button" className="button button-primary" onClick={ready.onRun}>
+              Run this case
+            </button>
+            <button type="button" className="button button-secondary" onClick={ready.onEdit}>
+              Change the settings
+            </button>
+          </span>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -219,7 +245,7 @@ function foundText({ variables, places }: KeywordProposal): string {
   const variable = variables[0]?.name;
   const placeNames = joinWords(places.map((place) => place.name));
   if (variable !== undefined && places.length > 0) {
-    return `Found ${variable} and ${placeNames}. Check the case settings, then run the case.`;
+    return `Found ${variable} and ${placeNames}. Check the case below, then run it.`;
   }
   if (variable !== undefined) {
     return `Found ${variable}, but no place. Search for a place in the case settings.`;

@@ -56,7 +56,13 @@ declare module "plotly.js-basic-dist-min" {
     margin?: { l?: number; r?: number; t?: number; b?: number };
     xaxis?: Axis;
     yaxis?: Axis;
-    legend?: { orientation?: "h" | "v"; x?: number; y?: number; yanchor?: "top" | "bottom" };
+    legend?: {
+      orientation?: "h" | "v";
+      x?: number;
+      y?: number;
+      yanchor?: "top" | "bottom";
+      traceorder?: "normal" | "grouped";
+    };
     hovermode?: "closest" | "x" | "x unified" | false;
     paper_bgcolor?: string;
     plot_bgcolor?: string;
@@ -85,6 +91,7 @@ declare module "plotly.js-basic-dist-min" {
   interface PlotlyStatic {
     react(root: HTMLElement, data: ScatterTrace[], layout: Layout, config?: Config): Promise<PlotlyElement>;
     purge(root: HTMLElement): void;
+    Plots: { resize(root: HTMLElement): Promise<void> };
   }
 
   const Plotly: PlotlyStatic;

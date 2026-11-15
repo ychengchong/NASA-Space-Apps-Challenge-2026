@@ -1,7 +1,7 @@
 """Build data/places.json, the list that find_place searches (spec 6, "Places and grid cells").
 
-The list holds every GeoNames city of 100,000 people or more, plus about twenty natural regions
-picked by hand. Download cities15000.zip and countryInfo.txt from
+The list holds every GeoNames city of 100,000 people or more and every capital, marked as one,
+plus about twenty natural regions picked by hand. Download cities15000.zip and countryInfo.txt from
 https://download.geonames.org/export/dump/ into an empty directory, then run from backend/:
 
     uv run python -I scripts/build_places.py --downloaded YYYY-MM-DD CITIES_ZIP COUNTRY_INFO
@@ -19,8 +19,11 @@ from typing import Any
 OUTPUT_PATH = Path(__file__).resolve().parents[1] / "data" / "places.json"
 CITIES_MEMBER = "cities15000.txt"
 
-# Spec 6 (decided with the team): cities of 100,000 people or more.
+# Spec 6 (decided with the team): cities of 100,000 people or more, and every capital whatever
+# its size, so each country's name finds its capital.
 MIN_CITY_POPULATION = 100_000
+# The GeoNames feature code of a country's capital.
+CAPITAL_FEATURE_CODE = "PPLC"
 # A city of this many people or more gets the region type "megacity".
 MEGACITY_POPULATION = 10_000_000
 # Four decimals is about 11 m, far finer than a grid cell of about 50 km.
@@ -212,6 +215,8 @@ def city_record(row: list[str], country_names: dict[str, str]) -> dict[str, Any]
     record["kind"] = "city"
     if population >= MEGACITY_POPULATION:
         record["region_type"] = "megacity"
+    if row[FEATURE_CODE_COLUMN] == CAPITAL_FEATURE_CODE:
+        record["capital"] = True
     return record
 
 
@@ -235,7 +240,8 @@ def attribution(downloaded: date) -> str:
         "Cities (kind 'city'): GeoNames (https://www.geonames.org/), file cities15000 from "
         f"https://download.geonames.org/export/dump/, downloaded {downloaded.isoformat()}, "
         "licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Changed: only places "
-        f"of {MIN_CITY_POPULATION:,} people or more are kept, with fewer fields and coordinates "
+        f"of {MIN_CITY_POPULATION:,} people or more and capitals (marked capital) are kept, with "
+        "fewer fields and coordinates "
         f"rounded to {COORDINATE_DECIMALS} decimals. Natural regions (kind 'region', marked "
         "hand_picked) were picked by hand with an AI coding assistant; each point is a "
         "representative spot inside the region, on land or at sea for an ocean, not a boundary."
@@ -248,10 +254,20 @@ def build_places(cities_zip: Path, country_info: Path, downloaded: date) -> dict
     rows = [
         row
         for row in read_city_rows(cities_zip)
-        if int(row[POPULATION_COLUMN] or 0) >= MIN_CITY_POPULATION
+        if (
+            int(row[POPULATION_COLUMN] or 0) >= MIN_CITY_POPULATION
+            or row[FEATURE_CODE_COLUMN] == CAPITAL_FEATURE_CODE
+        )
         and row[FEATURE_CODE_COLUMN] not in EXCLUDED_FEATURE_CODES
     ]
-    cities = [city_record(row, country_names) for row in rows]
+    # A hand-picked region that names a town as one of its names stands for it, as Svalbard does
+    # for Longyearbyen, so the town is not listed twice.
+    region_names = {
+        name for region in REGIONS for name in (region["name"], *region.get("alt_names", ()))
+    }
+    cities = [
+        city_record(row, country_names) for row in rows if row[NAME_COLUMN] not in region_names
+    ]
     # A fixed order keeps the file stable between runs, so a rebuild gives a readable diff.
     cities.sort(key=lambda city: (-city["population"], city["name"], city["lat"], city["lon"]))
     regions = [region_record(region) for region in REGIONS]
