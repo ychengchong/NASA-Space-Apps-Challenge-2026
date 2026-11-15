@@ -99,6 +99,14 @@ saved challenge description and organizer information supplied by the team were 
 
 ## Historical contribution records
 
+For PR #11, Codex added the demo links, playback notes and subtitle references,
+corrected stale missing-demo statements and updated the submission checklist.
+It checked the MP4's duration and AI metadata, decoded all video/audio with a
+temporary FFmpeg inspection tool, inspected representative frames and measured
+audio levels. Public links were checked without authentication. This is not a
+listening review or an official-submission confirmation, and no application code
+or recorded media was changed by this follow-up.
+
 The records below are retained as recorded. References to features being off,
 earlier test counts, budgets or "current" results describe their original stages,
 not the latest status above. They distinguish contributor-reported observations
@@ -342,5 +350,21 @@ here were later retired on `main`, as described above):
   already holds as answered, and return the case ready to confirm (`_answered` in
   `backend/app/adapters/discover.py`), with tests through a fake provider. It was not checked
   against the live model.
+- On the evening of 15 November 2026 the team asked the same assistant to make the 30-second
+  demo video. It recorded the running app frame by frame in headless Chrome, with the AI
+  switched on at the team's request (OpenAI, model `gpt-6-luna`): the question "Is Svalbard
+  getting warmer?", the AI's proposal, "Run this case", the verdict, the chart, and the prompt
+  "What can't we conclude?" in "Ask about this investigation" with its cited answer. The waits
+  for the AI's replies are cut from the video. It wrote the animation around that footage: the
+  scenes, the captions and their wording, and the timing. AI reviewers checked frames of the
+  cuts and the assistant applied their findings. When it tried the panel's five fixed prompts
+  once on that case, four returned "No checked answer". The team supplied the two team photos
+  and the team name. Every frame carries the visible watermark "SI / AI-GENERATED VIDEO AND
+  VOICE-OVER", and the file's metadata says the same, as the challenge's rule on AI use
+  requires. At the team's request the voice-over is an AI voice:
+  OpenAI's speech model `gpt-4o-mini-tts` (voice "coral") read the seven caption lines, and
+  the assistant shortened the pauses, played the lines 1.15 times faster to fit, and mixed
+  them. It checked the words and their timing with OpenAI's transcription model, and could
+  not listen to the result. The video and its subtitle file are in `demo-video/`.
 
 </details>
