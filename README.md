@@ -151,7 +151,7 @@ The [Draft 5 technical spec](docs/technical-spec.md) plans OpenAI-assisted varia
 discovery and RAG explanations using a reviewed documentation corpus. The corpus,
 its upload, the retrieval settings, the response contracts, the /api/discover and
 /api/explain endpoints and their interface (guided discovery in the question bar and the
-"Ask about this investigation" panel) exist and are unit-tested with fake providers. One
+"Ask about this investigation" panel) exist and are unit-tested with fake providers.
 Two held-out evaluation rounds with OpenAI `gpt-6-luna`, graded by automated checks and AI
 agents (no person), met neither gate. In round 2, the current evidence, discovery and planning
 passed 60 of 70 cases with three critical citation errors, and explanations (RAG) passed 65
@@ -376,8 +376,14 @@ check withheld an output, the served model and the raw provider output), and the
 wrote the project note "What the result fields mean" (`backend/data/corpus/project/result-fields.md`)
 from the spec and the interface labels, rebuilt the corpus and uploaded it to a new vector
 store, and deleted the previous store and its files. These changes have been checked by unit
-tests and development questions only; no held-out run has measured them and no person has
-reviewed them.
+tests and development questions first, then measured by the round-2 held-out run on new
+suites (see the [evaluation results](docs/evaluation-results.md)); no person has reviewed them.
+
+Claude Code (model Claude Opus 5.5) also fixed the phone-width globe on 15 November 2026 (the
+globe now sits inside its frame below 640px, so it is drawn there and "Zoom in to the grid
+cell" works), wrote the [deployment guide](docs/deployment.md) and the container and browser
+checks in [verification](docs/verification.md), and listed what is left of Draft 5 in
+[Draft 5: what is done and what remains](docs/draft5-remaining.md).
 
 Claude Code (model Claude Opus 5.5) then tuned the AI paths on the round-2 development
 suites only (`backend/evaluation/round2/planner_dev.json` and `rag_dev.json`, both AI-written),

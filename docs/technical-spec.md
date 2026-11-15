@@ -223,7 +223,7 @@ This section and "The globe" describe the delivered interface: an atlas page wit
 
 ### The globe
 
-One globe serves every screen. It fills the whole screen behind the page and is seen through the stage. The stage is drawn as a plate: a frame of a heavy line with a fine one inside it, 12px in from the stage's edges and 6px below 640px. The map shows inside the frame only; everything outside it is paper.
+One globe serves every screen. From 640px wide it fills the whole screen behind the page and is seen through the stage; below 640px, where the stage scrolls with the page, it fills the stage only, so it is drawn inside the frame wherever the frame sits. The stage is drawn as a plate: a frame of a heavy line with a fine one inside it, 12px in from the stage's edges and 6px below 640px. The map shows inside the frame only; everything outside it is paper.
 
 - **The Earth.** The Earth is drawn as an engraving in the ink and paper of the page, so that nothing on it is coloured but data. Land is pale paper, shaded in grey by the Natural Earth relief image. The sea is a darker paper under fine lines that follow the parallels, so they stay still while the Earth turns. A line of longitude and of latitude is drawn every 15°. Country borders and place names are in ink, the names in Latin script and the countries in spaced capitals. The whole-Earth view names the countries of the tiles' first rank, where their names have room; the other countries, the oceans, the seas and the bays are named from zoom 3, and the best known country keeps its name where two would overlap. An ocean's name lies near the edge of the whole Earth, where it would run under the ring, which is why it waits for zoom 3. The three longest country names are printed short: "DR Congo", "Congo" and "Central African Rep.". North is always up and the view is always from straight overhead, so a grid cell is always a plain rectangle.
 - **The ring.** A ring of degree marks surrounds the whole Earth, as round a hemisphere in an atlas: a full circle just outside the Earth, a fine one further out, and a mark every 5°, longer at every 10° and longest at every 30°. It is decoration and is hidden from screen readers. The globe sizes it to the Earth's disc as the view zooms, and hides it when the Earth with its ring does not fit the stage, as on a region map.
@@ -1571,6 +1571,7 @@ and simulation claims lacking artifacts are leads to verify, not validation.
 
 These boxes remain unchecked until implementation and observed evidence exist.
 Specification approval alone does not activate AI or complete a release gate.
+What remains is listed in [Draft 5: what is done and what remains](draft5-remaining.md).
 
 - [x] Implement guided clarification/discovery and source-backed variable suggestions.
 - [x] Select and evaluate an exact OpenAI model; retain manual confirmation/fallback.
@@ -1583,10 +1584,15 @@ Specification approval alone does not activate AI or complete a release gate.
 - [ ] Review/version the corpus, ingest/index it and verify retrieval/source mapping.
   (Round 2 measured retrieval relevance at 46 of 55 scored cases, below full relevance.
   It is left unticked.)
-- [ ] Implement cited qualitative explanations bound to server-loaded investigations.
-- [ ] Render numerical references from Python fields; reject invalid citations/claims.
+- [x] Implement cited qualitative explanations bound to server-loaded investigations.
+  (Built and unit-tested; off until its gate passes.)
+- [x] Render numerical references from Python fields; reject invalid citations/claims.
+  (`ResultReference` fields rendered by the frontend from the investigation; `ai_guard.py`
+  withholds invalid citations and claims. Unit-tested.)
 - [ ] Verify ingestion/retrieval/storage accounting and independent capability flags.
-- [ ] Prepare two walkthroughs and a truthful water-related demonstration.
+- [x] Prepare two walkthroughs and a truthful water-related demonstration.
+  ([Walkthroughs](walkthroughs.md): Svalbard air temperature and the Athens-Helsinki
+  precipitation comparison, which stays descriptive.)
 - [ ] Record a decision for every consideration and listed resource.
 - [x] Run >=50 planner/discovery and >=40 RAG held-out cases plus matched no-RAG cases.
   (Round 1: 75 and 65 cases. Round 2, on new suites: 70 and 77 cases, with 77 matched
