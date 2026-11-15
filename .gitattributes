@@ -2,3 +2,6 @@
 backend/data/inference-v1.json -text
 research/*.json text eol=lf
 frontend/src/generatedModels.ts text eol=lf
+# Corpus and evaluation manifests identify content by its exact bytes.
+backend/data/corpus/sections/*.txt text eol=lf
+backend/evaluation/**/*.json text eol=lf

@@ -21,8 +21,10 @@ the team. More datasets, AI and MCP are not prerequisites for the challenge.
 | [AI disclosure](docs/ai-disclosure.md) | Development assistance and runtime AI status |
 
 The current prototype is available as source; a public demo link has not been
-provided. OpenAI discovery/RAG remains planned and must not be described as
-working in the submission. Final recording, public-link checks and submission
+provided. OpenAI planning, discovery and RAG are implemented and have been live-tested;
+discovery and explanations are on by default by the owner's decision of 15 November 2026,
+although explanations have not met their quality gate.
+Final recording, public-link checks and submission
 through the official team page remain team actions.
 
 ## Run locally
@@ -36,6 +38,10 @@ cd backend
 uv sync --locked
 uv run uvicorn app.main:app --reload
 ```
+
+To load your repository-root `.env` after configuring it, run the backend with
+`uv run --env-file ../.env uvicorn app.main:app --reload` instead. The default flags
+keep AI off even when a key is present. Never put the server key in frontend settings.
 
 In another terminal:
 
@@ -426,6 +432,20 @@ gate has been met. Round 2's AI-graded pass rates (60 of 70 for planner/discover
 for RAG) are sample results below the 90% target, and discovery also has critical citation
 errors. Run the user study, verify the public deployment and finish the required
 demonstration before claiming those criteria. A prototype cannot guarantee an award or global ranking.
+
+On 15 November 2026, OpenAI Codex prepared `fix-draft5-release`: deterministic corpus
+bytes on Windows, per-place explanation checks, product/topic-aware retrieval, guard
+fixes, budget protection and regression tests. It indexed the 173 existing NASA/project
+sections in the owner's OpenAI project after explicit approval. All **1,600 backend**
+and **758 frontend** tests passed, with lint, formatting, generated types and build checks.
+The four saved NASA cases passed offline API/export checks. The latest complete
+agent-authored sample scored **50/50 planner/discovery** and **33/40 explanations** on
+automated checks; it has not received human source-support review. Later targeted
+development checks are reported separately, not counted as a release-gate pass.
+The cumulative evaluation reservation is **USD 0.975993 of USD 1**, including the
+runner's USD 0.15 historical allowance; this is not a provider invoice. See
+[evaluation results](docs/evaluation-results.md#submission-day-follow-up).
+AI stays gated off, and user testing was deferred, so educational impact is unmeasured.
 
 The team has not selected a project licence. NASA/GeoNames/OpenStreetMap/OpenFreeMap,
 the typefaces and software dependencies retain their own applicable terms.

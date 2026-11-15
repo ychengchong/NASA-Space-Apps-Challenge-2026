@@ -1,14 +1,82 @@
 # Evaluation results: Draft 5 AI release gates
 
-Status: two rounds have been run, both on 15 November 2026 with OpenAI `gpt-6-luna`.
-**Round 2**, on new held-out suites, is the current evidence. **Neither gate is met in
-round 2.** The planner and discovery run passed 60 of 70 cases (85.7%), below the 90%
-target, and it has 3 critical fabricated-citation errors. The RAG (explanation) run passed
-65 of 77 cases (84.4%) under the automated checks and both AI graders together. That is
-below the 90% target, although it had no critical error. On 15 November 2026 the owner decided to turn guided discovery and cited explanations on by default for the submission, although neither evaluation gate was met: `DISCOVERY_EVALUATED` and `RAG_EVALUATED` now default to `true`, so both
-run wherever the AI and the corpus are configured. All grading was
-done by automated checks and by AI agents. No person has reviewed the cases, the answers or
-the grades, and no user observations have been made.
+The latest complete follow-up scored **50/50 planner/discovery** and **33/40 explanations**
+on automated checks. Human source-support review is pending. Final topic/guard fixes have
+known-case development evidence only, so the explanation release gate is **not met**.
+Later on 15 November 2026 the owner decided to turn guided discovery and cited explanations
+on by default for the submission, knowing this gate is not met: `DISCOVERY_EVALUATED` and
+`RAG_EVALUATED` now default to `true` (`backend/app/config.py`), and either can be set `false`. The PR #8 round-1/round-2 records below are retained
+as historical evidence; their scores do not describe the final candidate.
+
+## Submission-day follow-up
+
+Branch `fix-draft5-release`, based on PR #8 head `3ea4d50`; local uncommitted changes.
+OpenAI `gpt-6-luna` was requested and reported as served. The implementing Codex agent
+also authored the new questions and expectations. They were fixed before each prospective
+run, but are **not independently authored, blind or human-reviewed**. Nothing was retuned
+during a prospective run. Earlier failed results and answer keys were not overwritten.
+
+| Sample | Planner/discovery | RAG | Matched no-retrieval | Grading |
+| --- | --- | --- | --- | --- |
+| First submission-day sample | 44/50 (88%) | 29/40 (72.5%) | 10/40 (25%) | Automated only |
+| Fresh-wording follow-up | 50/50 (100%) | 33/40 (82.5%) | 10/40 (25%) | Automated only |
+
+The explanation target remains at least 90% fully supported answers or appropriate
+abstentions, with zero critical factual errors. The automatic critical-error checks
+reported no flags in these complete runs; factual support is still ungraded, so this
+is not a claim of zero hallucinations. Both matched pairs have matching recorded
+identities. The baseline has no retrieved evidence under the same citation guards;
+these rates do not measure unrestricted chatbot ability or form a general causal
+estimate of RAG's benefit. Samples differ and are not pooled into one accuracy figure.
+
+After the follow-up, targeted source-family filtering and guard corrections were checked
+on five already-seen development cases: 3/5 passed the original automated expectations.
+One was a reanalysis abstention, and one answered with relevant sections outside the
+fixed list. A final NASA reanalysis check then returned an answer citing
+`power-sources-meteorology-02`; it still failed the original expected-section list.
+These are development results, not a fresh full confirmation or a release-gate pass.
+
+The complete follow-up's seven failed IDs are `FU-R08`, `FU-R13`, `FU-R14`, `FU-R15`,
+`FU-R17`, `FU-R27` and `FU-R32`. Review missing context/abstention, the guard that withheld
+an inference-scope explanation, actual citation support versus the expected section list,
+whether a verdict-reference instruction should be answered, and the valid-limits answer
+returned where the suite demanded abstention. Do not silently change the old scores to
+resolve disagreements. Reviewers can record separate adjudications and define the next
+confirmation suite before making new calls.
+
+Evidence:
+
+- [Machine-readable summary](../backend/evaluation/submission-day/results/summary.json)
+  and [delivery checks](../backend/evaluation/submission-day/results/delivery-checks.json).
+- [Original new suites and limits](../backend/evaluation/submission-day/README.md),
+  [follow-up suites and frozen hashes](../backend/evaluation/submission-day/follow-up/README.md).
+- [Planner/discovery responses](../backend/evaluation/submission-day/follow-up/results/planner.json),
+  [RAG responses](../backend/evaluation/submission-day/follow-up/results/rag.json),
+  [no-retrieval responses](../backend/evaluation/submission-day/follow-up/results/rag-no-retrieval.json),
+  and [paired comparison](../backend/evaluation/submission-day/follow-up/results/paired-comparison.json).
+- [Teammate review packet](../backend/evaluation/submission-day/follow-up/results/teammate-review.md):
+  every explanation, its checks, references and links to the actual corpus sections,
+  plus separate later development examples. Human grades are explicitly pending.
+
+Budget: **USD 0.975993 reserved within USD 1**, including the runner's USD 0.15
+historical allowance. The ledger was never reset or raised. Reservations are conservative
+upper bounds, not the provider invoice. A full new RAG suite cannot fit the remaining
+allowance. Storage is separate: after explicit owner approval, 173 sections containing
+194,910 source bytes were indexed into 379,943 store bytes. Uploaded file IDs are retained
+in local `state/corpus-files.json`; uploaded files persist separately from store expiry.
+
+Final software checks: **1,600 backend tests**, **758 frontend tests**, lint, formatting,
+generated types and frontend build passed. The frontend is unchanged from its earlier
+check. Four cached examples passed offline replay, export and evidence checks. User
+testing was deferred by the team. Public deployment, final recording and submission
+remain team actions. The candidate is ready for teammate code/source review; the full
+Draft 5 release is not claimed complete.
+
+## PR #8 historical evidence
+
+The contributor's round-2 run passed 60/70 planner/discovery cases with three critical
+citation errors and 65/77 RAG cases under automated checks and two AI graders. No human
+review was recorded. These older suites/results were not re-graded by this follow-up.
 
 Round 1 is kept below as history, under [Round 1 (history)](#round-1-history). Its suites
 and results are separate files and were not re-graded.
@@ -29,7 +97,7 @@ results and grades are in `backend/evaluation/round2/results/`:
 | `post-run-check.json` | Suite hashes and the backend diff hash after the runs |
 | `grader-1.json`, `grader-2.json` | The two AI graders' grades, each with a reason for every item |
 
-## Round 2 (current)
+## Round 2 (PR baseline)
 
 ### Gate decisions
 

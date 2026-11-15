@@ -4,8 +4,10 @@ No test makes a provider call; the one request that runs goes to a fake OpenAI.
 """
 
 import asyncio
+import hashlib
 import json
 from collections.abc import Iterator
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -633,6 +635,9 @@ def test_a_case_records_its_reservations_prompt_hash_and_checks(
     (prompt,) = outcome["prompts"]
     assert prompt["schema_name"] == discover.SCHEMA_NAME
     assert len(fake.searches) == 1
+    recorded = outcome["retrievals"][0]["passages"][0]
+    assert recorded["text"]
+    assert len(recorded["content_sha256"]) == 64
 
 
 def test_a_case_records_the_model_the_provider_served(
@@ -669,12 +674,15 @@ def test_a_case_records_each_retrieved_passage_with_its_score(
 
     (retrieval,) = outcome["retrievals"]
     assert retrieval["query"] == DISCOVERY_CASE["question"]
+    text = search_hit(METHODOLOGY_SECTION)["content"][0]["text"]
     assert retrieval["passages"] == [
         {
             "source_id": METHODOLOGY_ID,
             "section_id": METHODOLOGY_SECTION,
             "file_id": f"file-{METHODOLOGY_SECTION}",
             "score": 0.8,
+            "text": text,
+            "content_sha256": hashlib.sha256(text.encode()).hexdigest(),
         }
     ]
 
@@ -1039,8 +1047,43 @@ def test_the_evaluation_settings_override_only_this_process(tmp_path: Path) -> N
     settings = runner.evaluation_settings(base, tmp_path)
 
     assert settings.discovery_evaluated and settings.rag_evaluated
-    assert settings.ai_daily_budget_microusd == runner.EVALUATION_DAILY_BUDGET_MICROUSD
+    assert settings.ai_daily_budget_microusd == base.ai_daily_budget_microusd
     assert settings.cache_path == tmp_path / "power.sqlite"
     assert settings.operational_path == tmp_path / "operations.sqlite"
     assert settings.snapshot_path == tmp_path / "snapshots"
     assert settings.ai_model == base.ai_model
+
+
+@pytest.mark.parametrize("budget", [0, 100_000, 1_000_000])
+def test_evaluation_never_increases_the_configured_daily_budget(
+    tmp_path: Path, budget: int
+) -> None:
+    base = replace(load_settings(), ai_daily_budget_microusd=budget)
+
+    assert runner.evaluation_settings(base, tmp_path).ai_daily_budget_microusd == budget
+
+
+@pytest.mark.parametrize(
+    "budget, expected", [(100_000, 100_000), (1_000_000, 1_000_000), (10_000_000, 5_000_000)]
+)
+def test_cli_ledger_obeys_the_smaller_configured_cap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, budget: int, expected: int
+) -> None:
+    monkeypatch.setattr(runner, "LEDGER_PATH", tmp_path / "spend.json")
+
+    ledger = runner.evaluation_ledger(replace(load_settings(), ai_daily_budget_microusd=budget))
+
+    assert ledger.cap_microusd == expected
+
+
+def test_cli_evaluation_refuses_an_unfunded_configuration() -> None:
+    with pytest.raises(runner.SuiteError, match="positive AI_DAILY_BUDGET_MICROUSD"):
+        runner.evaluation_ledger(replace(load_settings(), ai_daily_budget_microusd=0))
+
+
+def test_planner_only_evaluation_does_not_require_a_retrieval_store(services: Services) -> None:
+    settings = replace(services.settings, rag_enabled=False)
+
+    assert runner.suite_available(settings, "planner", [{"endpoint": "plan"}])
+    assert not runner.suite_available(settings, "planner", [{"endpoint": "discover"}])
+    assert not runner.suite_available(settings, "rag", [{}])

@@ -368,6 +368,17 @@ def test_robots_txt_that_allows_the_page_lets_the_build_run(tmp_path: Path) -> N
     assert len(manifest["sections"]) == 2
 
 
+def test_written_section_bytes_match_the_manifest_on_every_platform(tmp_path: Path) -> None:
+    manifest, files = _build(tmp_path, [_agency()])
+
+    write_corpus(tmp_path / "corpus", manifest, files)
+
+    for section in manifest["sections"]:
+        content = (tmp_path / "corpus" / section["path"]).read_bytes()
+        assert b"\r\n" not in content
+        assert hashlib.sha256(content).hexdigest() == section["sha256"]
+
+
 def test_write_corpus_removes_section_files_the_manifest_no_longer_lists(tmp_path: Path) -> None:
     sections_dir = tmp_path / "sections"
     sections_dir.mkdir()

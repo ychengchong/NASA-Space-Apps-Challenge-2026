@@ -104,6 +104,21 @@ def fake(monkeypatch: pytest.MonkeyPatch) -> FakeOpenAI:
     return openai
 
 
+@pytest.fixture
+def variable_guide(fake: FakeOpenAI, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Named-quantity tests retrieve the same reviewed text from the scoped variable guide."""
+    corpus = make_corpus(tmp_path)
+    document = corpus.sections[METHODOLOGY_SECTION].model_copy(
+        update={"source_id": "project-variables", "kind": "project"}
+    )
+    monkeypatch.setattr(
+        discover, "load_corpus", lambda: replace(corpus, sections={METHODOLOGY_SECTION: document})
+    )
+    hit = search_hit(METHODOLOGY_SECTION)
+    hit["attributes"]["source_id"] = "project-variables"
+    fake.hits = [hit]
+
+
 def post(services: Services, payload: object) -> Any:
     with TestClient(create_app(services)) as client:
         return client.post("/api/discover", json=payload)
@@ -286,7 +301,7 @@ def test_a_suggestion_whose_passages_never_name_its_variable_is_not_shown(
 
 
 def test_a_period_of_split_winters_is_proposed_in_its_djf_years(
-    services: Services, fake: FakeOpenAI
+    services: Services, fake: FakeOpenAI, variable_guide: None
 ) -> None:
     fake.output = ready_output(**{"from": 1990, "to": 2020, "season": "DJF", "missing": []})
 
@@ -346,7 +361,7 @@ def test_a_place_query_that_is_not_a_place_name_is_withheld(
 
 
 def test_clarification_choices_resolve_places_on_the_server(
-    services: Services, fake: FakeOpenAI
+    services: Services, fake: FakeOpenAI, variable_guide: None
 ) -> None:
     fake.output = clarify_output(choice(), choice(label="Summer", place_query=None, season="JJA"))
 
@@ -362,7 +377,7 @@ def test_clarification_choices_resolve_places_on_the_server(
 
 
 def test_a_choice_whose_place_matches_no_reviewed_place_is_dropped(
-    services: Services, fake: FakeOpenAI
+    services: Services, fake: FakeOpenAI, variable_guide: None
 ) -> None:
     fake.output = clarify_output(choice(label="Nowhere", place_query="Qqqzzx"))
 
@@ -647,6 +662,41 @@ def test_a_question_naming_a_variable_by_a_keyword_is_searched_with_its_catalogu
     assert search["query"] == discover.retrieval_query(question)
     assert search["query"].startswith(question)
     assert "Air temperature (T2M)" in search["query"]
+
+
+def test_named_variable_discovery_filters_out_other_products(
+    services: Services, fake: FakeOpenAI
+) -> None:
+    body = post(services, {"question": "Help me choose precipitation in Mumbai."}).json()
+
+    assert fake.searches[0]["filters"] == {
+        "type": "eq",
+        "key": "source_id",
+        "value": "project-variables",
+    }
+    # A stale or misconfigured store must not bypass the filter by returning other sources.
+    assert body["reason"] == "no_evidence"
+    assert fake.generations == []
+
+
+def test_named_variable_discovery_accepts_reviewed_variable_guide_passages(
+    services: Services, fake: FakeOpenAI, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    corpus = make_corpus(tmp_path)
+    document = corpus.sections[METHODOLOGY_SECTION].model_copy(
+        update={"source_id": "project-variables", "kind": "project"}
+    )
+    corpus = replace(corpus, sections={METHODOLOGY_SECTION: document})
+    monkeypatch.setattr(discover, "load_corpus", lambda: corpus)
+    hit = search_hit(METHODOLOGY_SECTION)
+    hit["attributes"]["source_id"] = "project-variables"
+    fake.hits = [hit]
+
+    body = post(services, {"question": "Help me choose air temperature in Helsinki."}).json()
+
+    assert body["status"] == "ready"
+    assert body["suggestions"][0]["citations"][0]["source_id"] == "project-variables"
+    assert body["suggestions"][0]["citations"][0]["kind"] == "project"
 
 
 def test_the_search_adds_at_most_as_many_variables_as_an_answer_may_suggest() -> None:
