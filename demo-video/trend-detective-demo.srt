@@ -1,0 +1,27 @@
+1
+00:00:00,100 --> 00:00:03,950
+We’re Johannes and Yi Cheng, team Half-Stack Developers.
+
+2
+00:00:04,200 --> 00:00:06,550
+Climate claims are everywhere, and hard to check.
+
+3
+00:00:06,800 --> 00:00:10,700
+Trend Detective: test a claim about the Earth against NASA data.
+
+4
+00:00:11,000 --> 00:00:15,000
+Ask a question. AI suggests what to test, and you confirm.
+
+5
+00:00:15,300 --> 00:00:19,200
+45 years of NASA POWER data give the verdict.
+
+6
+00:00:19,500 --> 00:00:24,300
+Ask a follow-up: the AI answers only when it can cite a source.
+
+7
+00:00:24,700 --> 00:00:28,800
+Imagine any student testing a claim about where they live.
