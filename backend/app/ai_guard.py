@@ -335,9 +335,10 @@ def supported_suggestions(
 
     A cited passage supports a suggestion only when it names the variable by one of its
     `variable_terms` (its catalogue name or POWER code) as a whole word, ignoring case. Each
-    suggestion keeps the section IDs of its supporting passages, in the order cited, so a cited source ID becomes the sections of that source that name the
-    variable. A suggestion left with no citation is dropped. The citations must already have
-    passed `check_citations`. A mention is necessary, not sufficient: it does not show that
+    suggestion keeps the section IDs of its supporting passages, in the order cited, so a
+    cited source ID becomes the sections of that source that name the variable. A suggestion
+    left with no citation is dropped. The citations must already have passed
+    `check_citations`. A mention is necessary, not sufficient: it does not show that
     the passage supports the reason.
     """
     kept: list[ProviderSuggestion] = []
