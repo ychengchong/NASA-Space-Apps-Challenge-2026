@@ -358,5 +358,14 @@ here were later retired on `main`, as described above):
   the assistant shortened the pauses, played the lines 1.15 times faster to fit, and mixed
   them. It checked the words and their timing with OpenAI's transcription model, and could
   not listen to the result. The video and its subtitle file are in `demo-video/`.
+- On 15 November 2026, at the user's request, the same assistant checked the README's setup
+  steps on Windows, macOS and Linux and rewrote them. It followed them in a fresh copy of the
+  repository on an Apple Silicon Mac, where the app, its proxy, a cached example and every
+  listed check worked, and the backend tests also passed on Python 3.12. It did not run them on
+  Windows or Linux. The new text gives macOS and Linux their own command for copying `.env`,
+  states the Node versions the lockfile supports, says to start the backend after building the
+  frontend, and adds two install notes: the PowerShell `npm` block, and the Rust toolchain that
+  the locked `cryptography` package would need on an Intel Mac or an ARM Windows PC, which was
+  read from `uv.lock` and not tried.
 
 </details>

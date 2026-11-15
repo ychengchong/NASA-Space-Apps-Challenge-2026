@@ -26,13 +26,34 @@ provided in this repository. A local demo is not a public deployment.
 
 ## Run locally
 
-Tested on Windows with **Python 3.14.5** and **Node 22.23.5**. The backend package
-allows Python >=3.12; the lockfile pins dependencies. Install uv and Node first.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
+[Node.js](https://nodejs.org/) **22.13 or later**, but not 23 or 25: the frontend tools
+support 22.13+, 24 and 26 onward. You do not need to install Python: uv reads
+the root `.python-version` and downloads **Python 3.14.5** if it is missing. The
+backend also runs on Python 3.12 and later, and the lockfiles pin every dependency.
 
-From the repository root, create a local environment file only if one does not exist:
+Tested on Windows (Python 3.14.5, Node 22.23.5) and on an Apple Silicon Mac (Python
+3.14.5 and 3.12.5). Linux was checked only as the container image (see
+[Deployment](#deployment)). Apart from the first step, every command below works
+unchanged in PowerShell, bash and zsh.
+
+From the repository root, create a local environment file only if one does not exist.
+
+On Windows (PowerShell):
 
 ```powershell
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
+```
+
+On macOS or Linux (bash or zsh):
+
+```sh
+[ -f .env ] || cp .env.example .env
+```
+
+Then start the backend:
+
+```sh
 cd backend
 uv sync --locked
 uv run --env-file ../.env uvicorn app.main:app --reload
@@ -40,7 +61,7 @@ uv run --env-file ../.env uvicorn app.main:app --reload
 
 In a second terminal, from the repository root:
 
-```powershell
+```sh
 cd frontend
 npm ci
 npm run dev
@@ -48,8 +69,20 @@ npm run dev
 
 Open **http://localhost:5173**. Manual controls and the four cached examples work
 without an AI key or a live NASA connection. New locations/quantities require NASA
-POWER. After `npm run build` in `frontend/`, the backend also serves the built app
-at http://localhost:8000.
+POWER.
+
+The backend can also serve the built app at http://localhost:8000. Run `npm run build`
+in `frontend/`, then start the backend, or restart it if it is already running: it
+looks for `frontend/dist` only when it starts.
+
+If an install step fails:
+
+- In PowerShell, the script execution policy can block `npm` ("running scripts is
+  disabled on this system"). Use `npm.cmd` in its place, as in `npm.cmd ci`.
+- On an Intel Mac or a Windows PC with an ARM processor, the locked `cryptography`
+  package (used by the MCP library) has no prebuilt wheel, so `uv sync` compiles it,
+  which needs a [Rust toolchain](https://www.rust-lang.org/tools/install). This has
+  not been tried on such a machine.
 
 ### Configure the AI assistant
 
@@ -57,7 +90,7 @@ The team selected an AI-enabled demo template. `.env.example` selects OpenAI and
 sets the planner, discovery and explanation switches to `true`. These are activation
 settings, not a claim that an evaluation target was passed. Without loaded
 environment settings, the main AI switch defaults off. Existing `.env` files are
-not overwritten by Git or by the command above.
+not overwritten by Git or by the commands above.
 
 To use AI, set your own `OPENAI_API_KEY`, retain the configured model/pricing and
 upload the reviewed corpus to a vector store accessible to that key. Set the
@@ -68,7 +101,7 @@ cannot assume that their key can access another person's store.
 From `backend/`, an owner can upload the existing corpus after reviewing the
 payload and provider storage implications:
 
-```powershell
+```sh
 uv run --env-file ../.env python -m scripts.upload_corpus --max-bytes 1000000
 ```
 
@@ -124,7 +157,7 @@ local pinned replay was verified. See [verification](docs/verification.md).
 
 Run in `backend/`:
 
-```powershell
+```sh
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
@@ -133,7 +166,7 @@ uv run python -m scripts.generate_types --check
 
 Run in `frontend/`:
 
-```powershell
+```sh
 npm run test
 npm run lint
 npm run format:check
@@ -149,7 +182,7 @@ not be treated as measured student impact or a successful public deployment.
 
 The backend can serve the API and built frontend in one container:
 
-```powershell
+```sh
 docker compose up --build
 ```
 
