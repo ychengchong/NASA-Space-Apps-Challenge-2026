@@ -136,11 +136,47 @@ describe("DiscoveryResult", () => {
   test("gives each suggestion the catalogue's definition, record start and note, apart from the AI's words", () => {
     const variable = { ...AIR_TEMP, trend_note: "Read early years with care." };
     const html = render(response({ suggestions: [{ variable, reason: "Why.", citations: [CITATION] }] }));
-    expect(html).toContain("From the catalogue, not written by AI:");
-    expect(html).toContain(AIR_TEMP.definition);
-    expect(html).toContain("The record starts in 1981.");
-    expect(html).toContain("Note: Read early years with care.");
-    expect(html).toContain("Why, in the AI&#x27;s words:");
+    const details = html.slice(html.indexOf('<details class="disclosure suggestion-catalogue">'));
+    expect(details).toContain(
+      "<summary>About this variable (from the catalogue, not written by AI)</summary>",
+    );
+    expect(details).toContain(AIR_TEMP.definition);
+    expect(details).toContain("The record starts in 1981.");
+    expect(details).toContain("Note: Read early years with care.");
+    expect(details).not.toContain("Why.");
+  });
+
+  test("puts the AI's reason, its sources and the button before the catalogue's facts", () => {
+    const html = render(
+      response({ suggestions: [{ variable: AIR_TEMP, reason: "Why.", citations: [CITATION] }] }),
+    );
+    const reason = html.indexOf('<p class="ai-body">Why.</p>');
+    const sources = html.indexOf('class="citation-list"');
+    const button = html.indexOf(">Use this variable</button>");
+    const facts = html.indexOf('<details class="disclosure suggestion-catalogue">');
+    expect(reason).toBeGreaterThan(-1);
+    expect([reason, sources, button, facts]).toEqual(
+      [...[reason, sources, button, facts]].sort((a, b) => a - b),
+    );
+  });
+
+  test("shows every note in one paragraph after the suggestions", () => {
+    const html = render(
+      response({
+        proposal: {
+          variables: [AIR_TEMP],
+          places: [],
+          from: 1981,
+          to: 2025,
+          season: "annual",
+          notices: ["Dates were unspecified."],
+          written_by_ai: true,
+        },
+        notices: ["These suggestions are written by AI."],
+      }),
+    );
+    expect(html.match(/class="panel-note discovery-notes"/g)).toHaveLength(1);
+    expect(html).toContain("Dates were unspecified. These suggestions are written by AI.</p>");
   });
 
   test("says why there is no suggestion and offers the manual way and keyword matching", () => {

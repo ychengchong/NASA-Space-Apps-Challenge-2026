@@ -159,6 +159,22 @@ export function missingText(missing: DiscoveryResponse["missing"], proposal: Pro
   return lines.join(" ");
 }
 
+/**
+ * Every note on a discovery answer as one paragraph, so the suggestions are not buried under
+ * separate notes: what is still open, then the proposal's notices, then the answer's own, each in
+ * the server's words and once only. Null when there is no note.
+ */
+export function discoveryNotes(response: DiscoveryResponse): string | null {
+  const missing = missingText(response.missing, response.proposal ?? null);
+  const notes = [
+    ...(missing === null ? [] : [missing]),
+    ...(response.proposal?.notices ?? []),
+    ...response.notices,
+  ];
+  const unique = [...new Set(notes.map((note) => note.trim()).filter((note) => note !== ""))];
+  return unique.length > 0 ? unique.join(" ") : null;
+}
+
 function proposalFills(proposal: Proposal, field: DiscoveryResponse["missing"][number]): boolean {
   switch (field) {
     case "variable":

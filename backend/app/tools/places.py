@@ -147,6 +147,26 @@ def find_place(inp: FindPlaceInput) -> list[PlaceCandidate]:
     return [_to_candidate(record) for _, record in matches[:MAX_PLACE_CANDIDATES]]
 
 
+def resolve_place_name(query: str) -> PlaceCandidate | None:
+    """The one reviewed place a name from a question means, or None (spec 8, "Planned guided
+    discovery": location resolution stays deterministic and catalogue-backed).
+
+    A country's name means its capital, as in find_place ("Finland" is Helsinki). Otherwise the
+    place is the single one whose name or alternative name equals the query, ignoring case and
+    accents ("Sao Paulo" is São Paulo, "Longyearbyen" is the Svalbard region). A name several
+    places share, such as London, a partial name, or no match gives None, so the user chooses
+    in the place search.
+    """
+    query_key = _normalise(query)
+    if not query_key:
+        return None
+    capitals = [record for record, _, capital_of in _search_index() if capital_of == query_key]
+    if len(capitals) == 1:
+        return _to_candidate(capitals[0])
+    named = [record for record, names, _ in _search_index() if query_key in names]
+    return _to_candidate(named[0]) if len(named) == 1 else None
+
+
 def _nearest_multiple(value: float, step: float) -> float:
     """The multiple of `step` nearest to `value`; a value exactly halfway goes up."""
     return math.floor(value / step + 0.5) * step

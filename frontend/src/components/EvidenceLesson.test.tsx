@@ -10,9 +10,8 @@ test("asks the learner to interpret evidence before revealing feedback", () => {
   expect(html).toContain('type="radio"');
 });
 
-test("is folded to one line until the learner opens it", () => {
+test("is open in its tab, which is its fold", () => {
   const html = renderToStaticMarkup(<EvidenceLesson />);
-  expect(html).toContain("<details");
-  expect(html).not.toContain("<details open");
-  expect(html).toContain("One question on reading a result that is not significant");
+  expect(html).not.toContain("<details");
+  expect(html).toContain("Try the evidence lesson");
 });

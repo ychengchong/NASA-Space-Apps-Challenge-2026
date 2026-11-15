@@ -33,6 +33,20 @@ export function draftFromCase(params: CaseParams): CaseDraft {
   return draft;
 }
 
+/** A setting a draft still needs before it is a case. */
+export type MissingSetting = "variable" | "place";
+
+/**
+ * The first setting a draft still needs before "Run this case" can run it, in the order the
+ * settings show them, or null when the draft is a whole case. Settings the AI filled send focus
+ * to this field, so the user lands on what is left to choose.
+ */
+export function missingSetting(draft: CaseDraft): MissingSetting | null {
+  if (draft.variable === null) return "variable";
+  if (draft.places.length === 0) return "place";
+  return null;
+}
+
 /** The case a draft describes, or null while it lacks a variable or a place. */
 export function caseFromDraft(draft: CaseDraft): CaseParams | null {
   if (draft.variable === null || draft.places.length === 0) return null;

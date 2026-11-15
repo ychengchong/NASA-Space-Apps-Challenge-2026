@@ -17,6 +17,7 @@ from app.tools.places import (
     format_coordinates,
     load_places,
     resolve_place,
+    resolve_place_name,
     round_link_coordinate,
     snap_to_grid,
 )
@@ -378,6 +379,48 @@ def test_find_place_finds_a_capital_smaller_than_the_minimum_population() -> Non
 
     assert (first.name, first.country) == ("Valletta", "Malta")
     assert population_of(first) < MIN_CITY_POPULATION
+
+
+# The one place a name in a question means (spec 8, "Planned guided discovery")
+
+
+@pytest.mark.parametrize(
+    ("query", "name", "country"),
+    [
+        ("Finland", "Helsinki", "Finland"),
+        ("indonesia", "Jakarta", "Indonesia"),
+        ("Armenia", "Yerevan", "Armenia"),
+    ],
+)
+def test_resolve_place_name_takes_the_capital_of_a_named_country(
+    query: str, name: str, country: str
+) -> None:
+    place = resolve_place_name(query)
+
+    assert place is not None
+    assert (place.name, place.country) == (name, country)
+
+
+@pytest.mark.parametrize(("query", "name"), [("Sao Paulo", "São Paulo"), ("lodz", "Łódź")])
+def test_resolve_place_name_ignores_case_and_accents(query: str, name: str) -> None:
+    place = resolve_place_name(query)
+
+    assert place is not None
+    assert place.name == name
+
+
+def test_resolve_place_name_accepts_an_alternative_name() -> None:
+    place = resolve_place_name("Longyearbyen")
+
+    assert place is not None
+    assert (place.name, place.kind) == ("Svalbard", "region")
+
+
+@pytest.mark.parametrize("query", ["London", "Helsin", "Qqqzzx", "   "])
+def test_resolve_place_name_leaves_a_shared_partial_or_unknown_name_to_the_user(
+    query: str,
+) -> None:
+    assert resolve_place_name(query) is None
 
 
 # The bundled places.json and the script that builds it

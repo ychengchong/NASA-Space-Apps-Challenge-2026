@@ -176,3 +176,8 @@ here were later retired on `main`, as described above):
   its size and mark it, rebuilt `places.json` (77 capitals added, no other place changed),
   ranked a country's capital first in `find_place`, and let the question bar's keyword matching
   accept it (`pickPlaces`). It wrote the tests and the specification and README text.
+- Later on 15 November 2026 the same assistant reviewed the interface on the `draft-5` branch
+  and, at the user's request, made two changes it had proposed: the evidence panel and the
+  evidence lesson are open in their tabs instead of folded (`EvidencePanel`, `EvidenceLesson`),
+  and the verdict card of a comparison shows each place in one row and keeps the full verdicts
+  and cautions behind one fold (`VerdictCard`). It wrote the tests and the specification text.

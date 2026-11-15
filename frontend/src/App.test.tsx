@@ -208,11 +208,23 @@ describe("App", () => {
     expect(live).toContain("</section></div></div>");
   });
 
-  test("offers on the first screen a way to set up a case by hand, down to the settings", () => {
-    const html = renderAt("/", "");
-    expect(html).toContain('<a href="#settings-heading">set up a case by hand</a>');
+  test("shows the settings unfolded under a link that does not open a case", () => {
+    const html = renderAt("/case", "?v=air_temp");
+    expect(html).toContain("This link does not open a case");
+    expect(html).not.toContain('<span class="fold-label">Set up a case by hand</span>');
     expect(html).toContain('id="settings-heading"');
-    expect(renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki")).not.toContain("by hand");
+  });
+
+  test("offers on the first screen the settings folded under the question, before the examples", () => {
+    const html = renderAt("/", "");
+    const fold = html.indexOf('<span class="fold-label">Set up a case by hand</span>');
+    expect(fold).toBeGreaterThan(-1);
+    expect(html.slice(html.lastIndexOf("<button", fold), fold)).toContain('aria-expanded="false"');
+    expect(html.indexOf('id="settings-heading"')).toBeGreaterThan(fold);
+    expect(html.indexOf('id="examples-heading"')).toBeGreaterThan(html.indexOf('id="settings-heading"'));
+    expect(renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki")).not.toContain(
+      "Set up a case by hand",
+    );
   });
 
   test("shows no placeholder on a page that is not loading", () => {

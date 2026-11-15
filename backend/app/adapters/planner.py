@@ -13,9 +13,9 @@ from app import ai
 from app.adapters.rest import get_services
 from app.catalogue import load_catalogue, to_summary
 from app.errors import AiUnavailableError, BadRequestError
-from app.models import ExtractedPlan, FindPlaceInput, PlaceCandidate, PlannerRequest, Proposal
+from app.models import ExtractedPlan, PlaceCandidate, PlannerRequest, Proposal
 from app.services import Services
-from app.tools.places import find_place
+from app.tools.places import resolve_place_name
 
 router = APIRouter()
 MAX_OUTPUT_TOKENS = 512
@@ -111,12 +111,11 @@ def resolve_plan(plan: ExtractedPlan, cutoff: int) -> Proposal:
 
 
 def resolve_place_query(query: str) -> PlaceCandidate | None:
-    """The one reviewed place whose name equals `query`, ignoring case; None when there is no
-    such place or more than one, so the user chooses in the place search.
+    """The one reviewed place a proposed place name means, or None so the user chooses in the
+    place search (`resolve_place_name`: a country's capital, or the single place of that name,
+    ignoring case and accents).
     """
-    candidates = find_place(FindPlaceInput(query=query))
-    exact = [candidate for candidate in candidates if candidate.name.casefold() == query.casefold()]
-    return exact[0] if len(exact) == 1 else None
+    return resolve_place_name(query)
 
 
 @router.post("/api/plan")

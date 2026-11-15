@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 import type { ClarificationChoice, DiscoveryResponse, VariableSummary } from "../api";
-import { catalogueFacts, missingText, shownSuggestions } from "../discovery";
+import { catalogueFacts, discoveryNotes, shownSuggestions } from "../discovery";
 import { CitationList } from "./CitationList";
 
 interface DiscoveryResultProps {
@@ -19,8 +19,9 @@ interface DiscoveryResultProps {
 
 /**
  * Guided discovery's answer under the question (spec 8): a short clarification question with its
- * choices, up to three variables with the AI's reason and the cited sources, or why there is no
- * suggestion with a way on. The AI's words are plain text under an AI label. Nothing runs from
+ * choices, up to three variables with the AI's reason and the cited sources (the catalogue's facts
+ * folded under each), then every note in one paragraph, or why there is no suggestion with a way
+ * on. The AI's words are plain text under an AI label. Nothing runs from
  * here: every button fills the settings, which wait for "Run this case".
  */
 export function DiscoveryResult(props: DiscoveryResultProps): JSX.Element {
@@ -48,7 +49,7 @@ export function DiscoveryResult(props: DiscoveryResultProps): JSX.Element {
     );
   }
   const suggestions = shownSuggestions(response);
-  const missing = missingText(response.missing, response.proposal ?? null);
+  const notes = discoveryNotes(response);
   const { clarification } = response;
   return (
     <section className="discovery" aria-labelledby="discovery-heading">
@@ -87,13 +88,6 @@ export function DiscoveryResult(props: DiscoveryResultProps): JSX.Element {
               <h3 id={`suggestion-${suggestion.variable.id}`} className="suggestion-name">
                 {suggestion.variable.name}
               </h3>
-              <div className="suggestion-catalogue">
-                <p className="field-hint">From the catalogue, not written by AI:</p>
-                {catalogueFacts(suggestion.variable).map((fact, index) => (
-                  <p key={index}>{fact}</p>
-                ))}
-              </div>
-              <p className="field-hint">Why, in the AI&apos;s words:</p>
               <p className="ai-body">{suggestion.reason}</p>
               <CitationList citations={suggestion.citations} />
               <button
@@ -104,21 +98,19 @@ export function DiscoveryResult(props: DiscoveryResultProps): JSX.Element {
               >
                 Use this variable
               </button>
+              {/* The catalogue's own facts stay one tap away, so the AI's reason and its source
+                  are read first. */}
+              <details className="disclosure suggestion-catalogue">
+                <summary>About this variable (from the catalogue, not written by AI)</summary>
+                {catalogueFacts(suggestion.variable).map((fact, index) => (
+                  <p key={index}>{fact}</p>
+                ))}
+              </details>
             </li>
           ))}
         </ul>
       ) : null}
-      {missing !== null ? <p className="field-hint">{missing}</p> : null}
-      {(response.proposal?.notices ?? []).map((notice, index) => (
-        <p key={`proposal-${index}`} className="panel-note">
-          {notice}
-        </p>
-      ))}
-      {response.notices.map((notice, index) => (
-        <p key={index} className="panel-note">
-          {notice}
-        </p>
-      ))}
+      {notes !== null ? <p className="panel-note discovery-notes">{notes}</p> : null}
     </section>
   );
 }

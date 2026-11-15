@@ -15,4 +15,10 @@ describe("EvidencePanel", () => {
     );
     expect(html).toContain("centred on 60.5°N, 24.5°E, 1° by 1°");
   });
+
+  test("is open in its tab, so the numbers are one click from the answer", () => {
+    const html = renderToStaticMarkup(<EvidencePanel investigation={investigation(SIGNIFICANT_RISE)} />);
+    expect(html).not.toContain("<details");
+    expect(html).toContain("<h3>Numbers</h3>");
+  });
 });

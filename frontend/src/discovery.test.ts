@@ -6,6 +6,7 @@ import { AIR_TEMP, CITATION } from "./components/testData";
 import {
   applyChoice,
   catalogueFacts,
+  discoveryNotes,
   discoveryStatusText,
   draftFromAiProposal,
   draftWithSuggestion,
@@ -227,6 +228,35 @@ describe("missingText", () => {
     expect(missingText(["variable"], proposal({ variables: [] }))).toBe(
       "Still to choose in the case settings: the variable.",
     );
+  });
+});
+
+describe("discoveryNotes", () => {
+  test("says nothing when the answer has no note", () => {
+    expect(discoveryNotes(response())).toBeNull();
+  });
+
+  test("joins what is open, the proposal's notices and the answer's notices into one paragraph", () => {
+    const notes = discoveryNotes(
+      response({
+        missing: ["place"],
+        proposal: proposal({ places: [], notices: ["Dates were unspecified."] }),
+        notices: ["These suggestions are written by AI."],
+      }),
+    );
+    expect(notes).toBe(
+      "Still to choose in the case settings: the place. Dates were unspecified. These suggestions are written by AI.",
+    );
+  });
+
+  test("keeps each note once, in the server's words", () => {
+    const notes = discoveryNotes(
+      response({
+        proposal: proposal({ notices: ["Review the settings."] }),
+        notices: ["Review the settings."],
+      }),
+    );
+    expect(notes).toBe("Review the settings.");
   });
 });
 

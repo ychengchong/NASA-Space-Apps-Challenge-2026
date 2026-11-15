@@ -71,6 +71,11 @@ export interface ReadyCase {
   summary: string;
   onRun: () => void;
   onEdit: () => void;
+  /**
+   * Counts requests to bring "Run this case" into view with focus, as after "Use this variable",
+   * whose button lies below the card.
+   */
+  focusRequest?: number;
 }
 
 interface QuestionBarProps {
@@ -119,6 +124,13 @@ export function QuestionBar({
   // The discovery request on its way, which a screen change cancels (afterScreenChange).
   const discoveryRef = useRef<AbortController | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const runRef = useRef<HTMLButtonElement>(null);
+  const readyFocusRequest = ready?.focusRequest ?? 0;
+  useEffect(() => {
+    if (readyFocusRequest === 0) return;
+    runRef.current?.focus({ preventScroll: true });
+    runRef.current?.scrollIntoView({ block: "center" });
+  }, [readyFocusRequest]);
 
   useEffect(() => {
     discoveryRef.current?.abort();
@@ -272,6 +284,23 @@ export function QuestionBar({
           ? "The AI is proposing settings. It will not run an analysis until you confirm."
           : statusText(status)}
       </p>
+      {/* The case a question proposes comes first, where the user is looking, so the next step
+          is in view; discovery's suggestions and sources follow it. */}
+      {ready ? (
+        <div className="notice notice-compact ready-card" role="group" aria-labelledby="ready-label">
+          <p>
+            <strong id="ready-label">Ready to test:</strong> {ready.summary}
+          </p>
+          <span className="ready-card-actions">
+            <button type="button" className="button button-primary" onClick={ready.onRun} ref={runRef}>
+              Run this case
+            </button>
+            <button type="button" className="button button-secondary" onClick={ready.onEdit}>
+              Change the settings
+            </button>
+          </span>
+        </div>
+      ) : null}
       {discovery !== undefined && status.kind === "discovered" ? (
         <DiscoveryResult
           response={status.response}
@@ -288,21 +317,6 @@ export function QuestionBar({
             matchKeywords(status.question);
           }}
         />
-      ) : null}
-      {ready ? (
-        <div className="notice notice-compact ready-card" role="group" aria-labelledby="ready-label">
-          <p>
-            <strong id="ready-label">Ready to test:</strong> {ready.summary}
-          </p>
-          <span className="ready-card-actions">
-            <button type="button" className="button button-primary" onClick={ready.onRun}>
-              Run this case
-            </button>
-            <button type="button" className="button button-secondary" onClick={ready.onEdit}>
-              Change the settings
-            </button>
-          </span>
-        </div>
       ) : null}
     </section>
   );

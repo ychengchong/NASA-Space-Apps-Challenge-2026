@@ -8,10 +8,11 @@ import {
   draftFromCase,
   draftFromProposal,
   EMPTY_DRAFT,
+  missingSetting,
   questionIsReady,
   readySummary,
 } from "./caseDraft";
-import type { CaseDraft, PlaceAction } from "./caseDraft";
+import type { CaseDraft, MissingSetting, PlaceAction } from "./caseDraft";
 import { buildCaseQuery, buildMapQuery, parseCaseQuery } from "./caseUrl";
 import type { CaseParams, CasePlace } from "./caseUrl";
 import type { ChatResult } from "./chat";
@@ -105,8 +106,11 @@ const REGION_HINT: StageHint = {
   touch: "Tap a cell to open it. Move with two fingers.",
 };
 
-// The heading of the case settings (CaseSettings), which the first screen's manual way in jumps to.
-const SETTINGS_HEADING_ID = "settings-heading";
+// The ids of the case settings' fields (CaseSettings, PlaceSearch), focused when one is still empty.
+const SETTING_FIELD_IDS: Readonly<Record<MissingSetting, string>> = {
+  variable: "variable",
+  place: "place-search",
+};
 
 const NO_PLACES: readonly CasePlace[] = [];
 const NO_VARIABLES: readonly VariableSummary[] = [];
@@ -128,6 +132,12 @@ export default function App(): JSX.Element {
   const [pendingDraft, setPendingDraft] = useState<CaseDraft | null>(null);
   const [pickedPoint, setPickedPoint] = useState<CasePlace | null>(null);
   const [settingsFocusRequest, setSettingsFocusRequest] = useState(0);
+  // Focus for settings the AI left incomplete: the field still to choose, so the user lands on it.
+  const [fieldFocus, setFieldFocus] = useState<{ field: MissingSetting | null; count: number }>({
+    field: null,
+    count: 0,
+  });
+  const [readyFocusRequest, setReadyFocusRequest] = useState(0);
   // True while the settings waiting for "Run this case" came from a question, so the question bar
   // offers to run them.
   const [readyFromQuestion, setReadyFromQuestion] = useState(false);
@@ -178,6 +188,18 @@ export default function App(): JSX.Element {
   useEffect(() => {
     if (settingsFocusRequest > 0) settingsHeadingRef.current?.focus();
   }, [settingsFocusRequest]);
+
+  useEffect(() => {
+    if (fieldFocus.count === 0) return;
+    const target =
+      fieldFocus.field === null ? null : document.getElementById(SETTING_FIELD_IDS[fieldFocus.field]);
+    if (target === null) {
+      settingsHeadingRef.current?.focus();
+      return;
+    }
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: "center" });
+  }, [fieldFocus]);
 
   // The control that opened a page may leave with the old view, so focus moves to the start of
   // the new page instead of falling back to the document.
@@ -249,7 +271,11 @@ export default function App(): JSX.Element {
     showSettingsPage();
     setPendingDraft(next);
     setReadyFromQuestion(ready);
-    if (!ready && focusIfIncomplete) setSettingsFocusRequest((count) => count + 1);
+    if (!focusIfIncomplete) return;
+    // After the user's own choice, focus goes where the next step is: "Run this case" for a
+    // whole case, otherwise the setting still to choose.
+    if (ready) setReadyFocusRequest((count) => count + 1);
+    else setFieldFocus((last) => ({ field: missingSetting(next), count: last.count + 1 }));
   };
   const askDiscovery: DiscoveryHelper["discover"] = async (question, choice, signal) => {
     let draft = currentDraft();
@@ -281,6 +307,8 @@ export default function App(): JSX.Element {
           },
           onManual: () => {
             showSettingsPage();
+            // Pending settings show unfolded, so the heading that takes focus is on screen.
+            setPendingDraft(currentDraft());
             setSettingsFocusRequest((count) => count + 1);
           },
           onFailure: setAiFailure,
@@ -357,6 +385,7 @@ export default function App(): JSX.Element {
           summary: readySummaryText,
           onRun: () => openPage(casePageUrl(readyParams)),
           onEdit: () => setSettingsFocusRequest((count) => count + 1),
+          focusRequest: readyFocusRequest,
         }
       : null;
 
@@ -445,6 +474,7 @@ export default function App(): JSX.Element {
               <StartView
                 badLinkReason={route.kind === "bad_link" ? route.reason : null}
                 settings={settings}
+                settingsNeeded={pendingDraft !== null || route.kind === "bad_link"}
                 draftPlaces={draft.places}
                 pickedPoint={pickedPoint}
                 examples={examples.state}
@@ -529,6 +559,8 @@ function preloadedMap(result: ChatResult | null): PreloadedMap | null {
 interface StartViewProps {
   badLinkReason: string | null;
   settings: JSX.Element;
+  /** True while the settings hold something to check or finish, so they show unfolded. */
+  settingsNeeded: boolean;
   draftPlaces: readonly CasePlace[];
   pickedPoint: CasePlace | null;
   examples: RequestState<ExampleCase[]>;
@@ -538,7 +570,10 @@ interface StartViewProps {
   onPick: (point: CasePlace) => void;
 }
 
-/** The first screen: example cases, and a case set up by hand. Never an empty chart (spec 3). */
+/**
+ * The first screen: under the question, a case set up by hand (folded until something needs
+ * choosing), then the example cases and the key to the globe. Never an empty chart (spec 3).
+ */
 function StartView(props: StartViewProps): JSX.Element {
   const mapPlaces = useMemo(() => placesOfDraft(props.draftPlaces), [props.draftPlaces]);
   useGlobePlaces(mapPlaces, props.pickedPoint, props.onPick);
@@ -552,10 +587,19 @@ function StartView(props: StartViewProps): JSX.Element {
         </div>
       ) : null}
       {props.notes}
-      <p className="home-manual">
-        Or <a href={`#${SETTINGS_HEADING_ID}`}>set up a case by hand</a>: choose the variable, the place and
-        the period yourself.
-      </p>
+      {/* The settings come right after the question and its answer, folded to one row, so a
+          question that leaves something to choose opens them in place, above the examples. */}
+      <div className="case-layout">
+        <div className="case-side">
+          <SettingsFold
+            label="Set up a case by hand"
+            hint="Choose the variable, the place and the period yourself"
+            needed={props.settingsNeeded}
+          >
+            {props.settings}
+          </SettingsFold>
+        </div>
+      </div>
       <section className="home-section" aria-labelledby="examples-heading">
         <h2 id="examples-heading">Example cases</h2>
         <p className="panel-intro">
@@ -564,7 +608,6 @@ function StartView(props: StartViewProps): JSX.Element {
         <ExampleCases examples={props.examples} onOpen={props.onOpenPage} onGlobe />
       </section>
       <div className="case-layout">
-        <div className="case-side">{props.settings}</div>
         <div className="case-main">
           <PlaceLegend places={mapPlaces} pickedPoint={props.pickedPoint} />
         </div>

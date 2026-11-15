@@ -911,13 +911,6 @@ a:hover {
   text-align: center;
 }
 
-/* The first screen's third way in, said in a line right under the question bar. */
-.home-manual {
-  margin: 0;
-  color: var(--ink-muted);
-  font-size: 0.92rem;
-}
-
 /* Controls */
 
 .button {
@@ -1863,6 +1856,33 @@ html:has(.verdict-line.is-shown) {
   line-height: 1.3;
 }
 
+/* A comparison's verdict at a glance (spec 3): one row per place with its figure, if it has one,
+   and its stamp's words. The full verdicts wait behind one fold under the rows. */
+.verdict-glance {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+}
+
+.verdict-glance li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+.verdict-glance-name,
+.verdict-glance-figure {
+  font-weight: 700;
+}
+
+.verdict-full > .verdict-note {
+  margin-top: 10px;
+}
+
 .verdict-list {
   list-style: none;
   margin: 0;
@@ -1950,7 +1970,6 @@ html:has(.verdict-line.is-shown) {
 }
 
 .disclosure,
-.evidence,
 .explorer {
   margin-top: 12px;
 }
@@ -1971,7 +1990,6 @@ details > summary::-webkit-details-marker {
 }
 
 .disclosure > summary::before,
-.evidence > summary::before,
 .explorer > summary::before {
   content: "▸";
   display: inline-block;
@@ -1981,17 +1999,14 @@ details > summary::-webkit-details-marker {
 }
 
 .disclosure[open] > summary::before,
-.evidence[open] > summary::before,
 .explorer[open] > summary::before {
   content: "▾";
 }
 
-.evidence,
 .explorer {
   margin-top: 0;
 }
 
-.evidence > summary,
 .explorer > summary {
   display: flex;
   flex-wrap: wrap;
@@ -1999,7 +2014,6 @@ details > summary::-webkit-details-marker {
   gap: 2px 12px;
 }
 
-.evidence > summary h2,
 .explorer > summary h2 {
   display: inline;
   margin: 0;
