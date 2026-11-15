@@ -1,7 +1,8 @@
 # Trend Detective: submission materials
 
-Status: prepared text for the current prototype. No public demo or hosted app URL
-has been supplied. The Draft 5 LLM/RAG plan is not implemented. Complete the final
+Status: prepared text for the current prototype, updated 15 November 2026. No public
+demo or hosted app URL exists yet. The Draft 5 AI paths are built; their evaluation
+status is in the [evaluation results](evaluation-results.md). Complete the final
 actions below before describing the submission as finished.
 
 ## Project summary
@@ -17,8 +18,9 @@ source and geographic grid cell, while downloadable values, retained snapshots
 and pinned case links make investigations inspectable and reproducible. Worked
 examples, place comparisons and an interpretation question help users reason
 about the evidence rather than merely read a chart. Manual settings and keyword
-questions work without an AI key. Optional LLM planning can propose settings for
-confirmation; cited RAG explanations are planned future work.
+questions work without an AI key. Optional AI planning, guided discovery and cited
+explanations are built and off by default; see the
+[evaluation results](evaluation-results.md) for their status.
 
 ## Project details
 
@@ -53,22 +55,28 @@ versions, access dates and provenance limits are exposed with the evidence.
 
 ## What works and what is planned
 
-| Current prototype | Planned, not claimed in this submission |
-| --- | --- |
-| Manual settings and keyword question matching | Guided AI discovery with sourced suggestions |
-| NASA measurements, charts, rates and scoped significance | Hosted document corpus and RAG explanations |
-| Examples, descriptive comparisons, learning question | Live-model accuracy and target-user impact evidence |
-| Evidence/CSV/PNG downloads and frozen case links | Verified public deployment and recorded demo |
-| Optional provider planner integration, off by default | Enabling an exact provider/model after evaluation |
+Status on 15 November 2026:
 
-If runtime AI is later enabled, update this table and the disclosure with the
-actual provider/model and evaluation evidence. Screenshots of templated verdicts
-are not evidence of LLM or RAG usage.
+| Area | Status |
+| --- | --- |
+| Manual settings, keyword question matching, NASA data, charts, rates and scoped significance | Works, with AI off |
+| Examples, descriptive comparisons and the learning question | Works |
+| Evidence, CSV and PNG downloads and pinned case links | Works |
+| Draft 5 AI paths: planner, guided discovery with cited suggestions, cited explanations over the reviewed document corpus | Built and off by default. Evaluation status: see the [evaluation results](evaluation-results.md). |
+| Observations of intended users | None yet. The [user study kit](user-study-kit.md) is prepared. |
+| Container image | Builds for linux/arm64 and linux/amd64; runtime checked on arm64 only ([verification](verification.md#draft-5-stage-7-container-and-browser-checks)) |
+| Public deployment | None yet. The [deployment guide](deployment.md) exists. |
+| Demo video or slides | Not made |
+
+If an AI path is turned on for the submission, update this table and the
+[AI disclosure](ai-disclosure.md) with the provider, the exact model and the evaluation
+evidence. Screenshots of templated verdicts are not evidence of LLM or RAG usage.
 
 ## Demonstration script
 
 Aim for approximately 27 seconds and verify the final recording stays below
-30 seconds. Record the working prototype, not a mock-up of planned RAG features.
+30 seconds. Record the working prototype with AI off. Do not show discovery or
+explanations unless an AI path is turned on for the submission.
 
 | Time | Screen action |
 | --- | --- |
@@ -82,8 +90,7 @@ Suggested narration:
 > Is the Arctic warming? Trend Detective lets students investigate environmental
 > questions using NASA POWER data. Choose a place and period, inspect the time
 > series, and see the estimated change and conditional statistical evidence.
-> Open the sources, download the values, and test your interpretation. AI planning
-> is optional; cited RAG explanations are planned.
+> Open the sources, download the values, and test your interpretation.
 
 Rehearse against the recording. Use the actual displayed results if adding numbers;
 never insert a desired rate or verdict. A presentation of up to seven slides is
@@ -96,12 +103,16 @@ the alternative format; no finished recording or presentation exists in this rep
 | Challenge | [Be an Earth System Trend Detective!](https://www.spaceappschallenge.org/2026/challenges/earth-system-trend-detective/) |
 | Source repository | [NASA-Space-Apps-Challenge-2026](https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026) |
 | Public demo video/presentation | Pending: record and upload, then supply a public link |
-| Hosted app | Not supplied; optional if accessible source/supporting materials are provided |
+| Hosted app | Not deployed; optional if accessible source/supporting materials are provided. Steps are in the [deployment guide](deployment.md). |
 | Final reviewed source revision | Pending: commit/publish the selected submission changes |
 | Team page and contributor details | Team must complete in the official submission form |
 
 - [ ] Review and finalize this text against what is actually demonstrated.
 - [ ] Commit/publish the intended changes so judges can access the matching source.
+- [ ] Observe at least five intended users with the [user study kit](user-study-kit.md), with their agreement, and record the results; or disclose that no study was run.
+- [ ] Decide whether any AI path is turned on, based on the [evaluation results](evaluation-results.md); keep AI off otherwise.
+- [ ] Deploy the image from the submitted commit with a persistent `/app/state` volume, following the [deployment guide](deployment.md), or decide not to host the app.
+- [ ] Run the deployment checks of the guide on the public HTTPS address and record them in [verification](verification.md).
 - [ ] Record and upload the video, or prepare and publish up to seven slides.
 - [ ] Open final project and demo links in a private browser without special access.
 - [ ] Complete project details, NASA attribution and [AI disclosure](ai-disclosure.md).

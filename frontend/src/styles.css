@@ -277,9 +277,9 @@ a:hover {
   pointer-events: auto;
 }
 
-/* The plate's frame: a heavy line with a fine one inside it. The globe fills the whole screen
-   behind the page, so the frame also lays plain paper over everything outside itself: the map
-   is seen through the plate and nowhere else. */
+/* The plate's frame: a heavy line with a fine one inside it. The globe reaches past the frame,
+   over the whole screen from 640px, so the frame also lays plain paper over everything outside
+   itself: the map is seen through the plate and nowhere else. */
 .stage::before {
   content: "";
   position: absolute;
@@ -298,6 +298,16 @@ a:hover {
   background:
     var(--grain), radial-gradient(ellipse at 60% 50%, rgb(255 251 238 / 0.6) 0%, transparent 55%),
     radial-gradient(ellipse at 50% 50%, transparent 58%, rgb(120 88 45 / 0.24) 100%), var(--page);
+}
+
+/* A phone's stage scrolls with the page, and on a page with an answer it starts below the first
+   screen, so there the globe fills the stage itself and travels with it. The stacking context
+   keeps the globe's own layers, such as a singled-out pin, under the frame's paper. */
+@media (max-width: 639.98px) {
+  .stage-globe {
+    position: absolute;
+    z-index: 0;
+  }
 }
 
 /* MapLibre makes its container `position: relative`, so the canvas is sized, not pinned. The

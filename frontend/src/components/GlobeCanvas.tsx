@@ -535,16 +535,12 @@ class Globe implements GlobeHandle {
   }
 
   /**
-   * The padding that puts the globe's centre in the middle of the stage. The stage is either
-   * fixed to the viewport or in the page's flow from its top, so its offsets are also its place
-   * in the viewport before any scrolling.
+   * The padding that puts the globe's centre in the middle of the stage. Beside the case file the
+   * canvas fills the screen behind a fixed stage; on a phone it fills the stage itself, which
+   * scrolls with the page (styles.css), so the padding is measured between the two on screen.
    */
   private padding(): ReturnType<typeof stagePadding> {
-    const { stage } = this;
-    return stagePadding(
-      { top: stage.offsetTop, left: stage.offsetLeft, width: stage.offsetWidth, height: stage.offsetHeight },
-      { width: window.innerWidth, height: window.innerHeight },
-    );
+    return stagePadding(this.stage.getBoundingClientRect(), this.map.getContainer().getBoundingClientRect());
   }
 
   private setData(source: string, data: Parameters<GeoJSONSource["setData"]>[0]): void {

@@ -51,7 +51,7 @@ export interface Size {
   height: number;
 }
 
-/** Distances in pixels from each edge of the viewport. */
+/** Distances in pixels from each edge of the globe's canvas. */
 export interface Edges {
   top: number;
   right: number;
@@ -59,7 +59,7 @@ export interface Edges {
   left: number;
 }
 
-/** A rectangle in the viewport, in pixels from its top left corner. */
+/** A rectangle on the screen, in pixels from the viewport's top left corner. */
 export interface Rect extends Size {
   top: number;
   left: number;
@@ -216,16 +216,22 @@ export function earthZoom(stage: Size, lat: number): number {
 }
 
 /**
- * The part of the viewport outside the stage, as the padding that keeps the globe's centre in
- * the middle of the stage. A stage that reaches past the viewport gives no negative padding.
+ * The part of the globe's canvas outside the stage, as the padding that keeps the globe's centre
+ * in the middle of the stage. Both rectangles are measured on the screen at the same moment, so
+ * the padding holds wherever the page has scrolled the stage to. No side is negative, and the
+ * padding never adds up to more than the canvas: a stage that reaches past the canvas is cut at
+ * its edge.
  */
-export function stagePadding(stage: Rect, viewport: Size): Edges {
-  const inside = (distance: number): number => Math.max(0, Math.round(distance));
+export function stagePadding(stage: Rect, canvas: Rect): Edges {
+  const within = (distance: number, room: number): number =>
+    Math.min(room, Math.max(0, Math.round(distance)));
+  const top = within(stage.top - canvas.top, canvas.height);
+  const left = within(stage.left - canvas.left, canvas.width);
   return {
-    top: inside(stage.top),
-    left: inside(stage.left),
-    right: inside(viewport.width - (stage.left + stage.width)),
-    bottom: inside(viewport.height - (stage.top + stage.height)),
+    top,
+    left,
+    right: within(canvas.left + canvas.width - (stage.left + stage.width), canvas.width - left),
+    bottom: within(canvas.top + canvas.height - (stage.top + stage.height), canvas.height - top),
   };
 }
 

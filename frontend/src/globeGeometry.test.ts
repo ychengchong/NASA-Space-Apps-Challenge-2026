@@ -206,26 +206,39 @@ describe("earthZoom", () => {
 });
 
 describe("stagePadding", () => {
+  const SCREEN = { top: 0, left: 0, width: 1440, height: 900 };
+  const PHONE_SCREEN = { top: 0, left: 0, width: 375, height: 812 };
+
   test("pads the left of a stage that sits beside the case file", () => {
-    const padding = stagePadding(
-      { top: 0, left: 600, width: 840, height: 900 },
-      { width: 1440, height: 900 },
-    );
+    const padding = stagePadding({ top: 0, left: 600, width: 840, height: 900 }, SCREEN);
     expect(padding).toEqual({ top: 0, left: 600, right: 0, bottom: 0 });
   });
 
-  test("pads above and below a stage that sits in the page of a phone", () => {
-    const padding = stagePadding(
-      { top: 240, left: 12, width: 351, height: 292 },
-      { width: 375, height: 812 },
-    );
+  test("pads above and below a stage that sits inside a larger canvas", () => {
+    const padding = stagePadding({ top: 240, left: 12, width: 351, height: 292 }, PHONE_SCREEN);
     expect(padding).toEqual({ top: 240, left: 12, right: 12, bottom: 280 });
   });
 
-  test("gives no negative padding when the stage reaches past the viewport", () => {
-    const padding = stagePadding({ top: 700, left: 0, width: 400, height: 300 }, { width: 375, height: 812 });
-    expect(padding.right).toBe(0);
-    expect(padding.bottom).toBe(0);
+  test("gives no padding to a stage below the first screen that the canvas fills", () => {
+    const stage = { top: 1530.5, left: 12, width: 351, height: 243.6 };
+    expect(stagePadding(stage, stage)).toEqual({ top: 0, left: 0, right: 0, bottom: 0 });
+  });
+
+  test("measures the stage from the canvas, not from the viewport", () => {
+    const canvas = { top: 1500, left: 12, width: 351, height: 300 };
+    const padding = stagePadding({ top: 1520, left: 32, width: 311, height: 260 }, canvas);
+    expect(padding).toEqual({ top: 20, left: 20, right: 20, bottom: 20 });
+  });
+
+  test("never pads more than the canvas holds when the stage lies below it", () => {
+    const padding = stagePadding({ top: 1500, left: 12, width: 351, height: 244 }, PHONE_SCREEN);
+    expect(padding.top + padding.bottom).toBeLessThanOrEqual(PHONE_SCREEN.height);
+    expect(padding.left + padding.right).toBeLessThanOrEqual(PHONE_SCREEN.width);
+  });
+
+  test("gives no negative padding when the stage reaches past the canvas", () => {
+    const padding = stagePadding({ top: 700, left: -20, width: 420, height: 300 }, PHONE_SCREEN);
+    expect(padding).toEqual({ top: 700, left: 0, right: 0, bottom: 0 });
   });
 });
 
