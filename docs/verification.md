@@ -24,7 +24,15 @@ changed by this cleanup.
 
 The [AI evaluation report](evaluation-results.md) records the unmet quality target
 and the team's activation decision. No student study or public deployment is
-verified, and no final demo/presentation URL has been provided. The
+verified. PR #11 adds the [demo and subtitles](../demo-video/README.md). The movie
+duration is 29 seconds (audio track about 29.02 seconds). Full H.264/AAC decoding
+completed without errors. Metadata discloses AI-generated video and voice-over;
+representative frames covering the introduction, planning, chart, cited follow-up
+and final screen showed the visible watermark. Measured audio peaks were -4.4 dBFS
+and mean level -20.1 dBFS; no clipping was indicated by the peak check. Audio was
+not listened to, so pronunciation, intelligibility and subjective quality still
+need a teammate's review. Public repository/video URLs responded to unauthenticated
+HTTP checks; this is not a browser playback or official-submission confirmation. The
 [submission guide](submission.md) contains the requirements audit and final actions.
 
 ## Historical verification checkpoints

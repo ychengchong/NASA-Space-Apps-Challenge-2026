@@ -99,6 +99,14 @@ saved challenge description and organizer information supplied by the team were 
 
 ## Historical contribution records
 
+For PR #11, Codex added the demo links, playback notes and subtitle references,
+corrected stale missing-demo statements and updated the submission checklist.
+It checked the MP4's duration and AI metadata, decoded all video/audio with a
+temporary FFmpeg inspection tool, inspected representative frames and measured
+audio levels. Public links were checked without authentication. This is not a
+listening review or an official-submission confirmation, and no application code
+or recorded media was changed by this follow-up.
+
 The records below are retained as recorded. References to features being off,
 earlier test counts, budgets or "current" results describe their original stages,
 not the latest status above. They distinguish contributor-reported observations
