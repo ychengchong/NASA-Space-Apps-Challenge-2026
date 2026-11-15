@@ -1,0 +1,29 @@
+{
+  "checked_utc": "2026-11-15T02:22:25+00:00",
+  "readme": "backend/evaluation/round2/README.md",
+  "git_head": "5bfa2e4f6b810b240d75cdc4dcf9e27f8542e971",
+  "files": {
+    "planner_dev.json": {
+      "recorded_sha256": "f2b896643e580bc16d4a2cae7e1daba3813f8ce85d602824caa8021105eff623",
+      "actual_sha256": "f2b896643e580bc16d4a2cae7e1daba3813f8ce85d602824caa8021105eff623",
+      "match": true
+    },
+    "planner_suite.json": {
+      "recorded_sha256": "187efe655cfb23989a90f8a1433a24af83b835a2af1f4e84d3cfa49cedd7852f",
+      "actual_sha256": "187efe655cfb23989a90f8a1433a24af83b835a2af1f4e84d3cfa49cedd7852f",
+      "match": true
+    },
+    "rag_dev.json": {
+      "recorded_sha256": "5992a11bc2f5f97eff0d302754f93f1a1ddd3e1cebfd450ed0e12647623a433c",
+      "actual_sha256": "5992a11bc2f5f97eff0d302754f93f1a1ddd3e1cebfd450ed0e12647623a433c",
+      "match": true
+    },
+    "rag_suite.json": {
+      "recorded_sha256": "e3b763b97cc2b57a61a737eb97e82dfee520139c2db4eca4fc216297049e3d78",
+      "actual_sha256": "e3b763b97cc2b57a61a737eb97e82dfee520139c2db4eca4fc216297049e3d78",
+      "match": true
+    }
+  },
+  "all_match": true,
+  "note": "Checked before any held-out call. The files were not modified."
+}

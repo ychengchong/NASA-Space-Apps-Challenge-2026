@@ -1,0 +1,4 @@
+What the result fields mean: The total change (total_change)
+Publisher: Trend Detective project
+
+The field total_change, labelled "Total change over the years used", is the change along the drawn trend line from the first year used to the last. It is the slope per year multiplied by the number of years between the first and the last year used, in the units of the rate. It is not the difference between the first and the last yearly value. The drawn line has the rate's slope and passes through the median year and the median value of the record.

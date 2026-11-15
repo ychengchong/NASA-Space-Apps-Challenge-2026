@@ -18,6 +18,8 @@ from app.ai_guard import (
     check_place_query,
     check_plain_text,
     check_text,
+    mentions_any,
+    supported_suggestions,
     text_rules,
     years_in,
 )
@@ -426,6 +428,11 @@ def test_discovery_text_may_never_claim_significance() -> None:
         "There is no trend.",
         "There is no real warming here.",
         "The temperature has not changed.",
+        "Helsinki has not warmed this century.",
+        "The temperature has not changed this decade.",
+        "It has not risen any further.",
+        "Snow depth has not decreased a lot.",
+        "Rainfall did not increase a lot.",
         "Rainfall remained the same.",
         "The values stayed constant.",
         "The series is unchanged.",
@@ -456,6 +463,7 @@ def test_negated_no_change_statements_pass(text: str) -> None:
         "The null hypothesis is that there is no change.",
         "Mann-Kendall checks the data against the idea of no trend.",
         "POWER documents no change of source for haze.",
+        "The place name is only a label and does not change the data.",
     ],
 )
 def test_the_null_hypothesis_and_no_change_of_source_are_not_no_change_claims(text: str) -> None:
@@ -834,3 +842,71 @@ def test_provider_schemas_are_strict_objects() -> None:
 def test_provider_output_is_strictly_typed() -> None:
     with pytest.raises(ValueError):
         ai_guard.ProviderDiscovery.model_validate({**discovery().model_dump(), "from": "1990"})
+
+
+# Citation support of discovery suggestions
+
+
+TERMS = {"air_temp": ("Air temperature", "T2M", "temperature"), "max_temp": ("T2M_MAX",)}
+SUPPORT_EVIDENCE = Evidence(
+    passages=[
+        passage("power", "power-01", "POWER serves T2M from MERRA-2."),
+        passage("power", "power-02", "Precipitation comes from MERRA-2."),
+        passage("project", "project-01", "Monthly air  temperature is averaged by day."),
+    ],
+    known_source_ids=frozenset({"power", "project"}),
+    known_section_ids=frozenset({"power-01", "power-02", "project-01"}),
+)
+
+
+def provider_suggestion(variable_id: str, *source_ids: str) -> ai_guard.ProviderSuggestion:
+    return ai_guard.ProviderSuggestion(
+        variable_id=variable_id, reason="A reason.", source_ids=list(source_ids)
+    )
+
+
+def test_a_citation_whose_passage_never_names_the_variable_is_dropped() -> None:
+    (kept,) = supported_suggestions(
+        [provider_suggestion("air_temp", "power-02", "power-01")], SUPPORT_EVIDENCE, TERMS
+    )
+
+    assert kept.source_ids == ["power-01"]
+
+
+def test_a_suggestion_left_without_a_citation_is_dropped() -> None:
+    suggestions = [
+        provider_suggestion("air_temp", "power-02"),
+        provider_suggestion("air_temp", "project-01"),
+    ]
+
+    kept = supported_suggestions(suggestions, SUPPORT_EVIDENCE, TERMS)
+
+    assert [item.source_ids for item in kept] == [["project-01"]]
+
+
+def test_a_cited_source_keeps_only_its_sections_naming_the_variable() -> None:
+    (kept,) = supported_suggestions(
+        [provider_suggestion("air_temp", "power")], SUPPORT_EVIDENCE, TERMS
+    )
+
+    assert kept.source_ids == ["power-01"]
+
+
+def test_a_variable_without_terms_has_no_support() -> None:
+    assert (
+        supported_suggestions([provider_suggestion("sea_ice", "power-01")], SUPPORT_EVIDENCE, TERMS)
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    ("text", "found"),
+    [
+        pytest.param("POWER serves T2M.", True, id="code"),
+        pytest.param("monthly AIR\nTEMPERATURE values", True, id="case-and-whitespace"),
+        pytest.param("POWER serves T2M_MAX.", False, id="code-inside-a-longer-code"),
+        pytest.param("Temperatures vary.", False, id="part-of-a-word"),
+    ],
+)
+def test_a_term_counts_only_as_a_whole_word(text: str, found: bool) -> None:
+    assert mentions_any(text, ("T2M", "air temperature", "temperature")) is found

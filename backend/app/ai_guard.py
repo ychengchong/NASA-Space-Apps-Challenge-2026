@@ -13,7 +13,7 @@ such as MERRA-2 that the retrieved passages or the catalogue names use verbatim.
 
 import re
 import unicodedata
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Literal
 
@@ -326,6 +326,46 @@ def check_citations(
     return problems
 
 
+def supported_suggestions(
+    suggestions: Sequence[ProviderSuggestion],
+    evidence: Evidence,
+    variable_terms: Mapping[str, Sequence[str]],
+) -> list[ProviderSuggestion]:
+    """The suggestions with only the citations that mention the suggested variable (spec 8).
+
+    A cited passage supports a suggestion only when it names the variable by one of its
+    `variable_terms` (its catalogue name or POWER code) as a whole word, ignoring case. Each
+    suggestion keeps the section IDs of its supporting passages, in the order cited, so a cited source ID becomes the sections of that source that name the
+    variable. A suggestion left with no citation is dropped. The citations must already have
+    passed `check_citations`. A mention is necessary, not sufficient: it does not show that
+    the passage supports the reason.
+    """
+    kept: list[ProviderSuggestion] = []
+    for suggestion in suggestions:
+        terms = variable_terms.get(suggestion.variable_id, ())
+        section_ids: list[str] = []
+        for source_id in suggestion.source_ids:
+            for passage in evidence.cited(source_id):
+                if passage.section_id not in section_ids and mentions_any(passage.text, terms):
+                    section_ids.append(passage.section_id)
+        if section_ids:
+            kept.append(suggestion.model_copy(update={"source_ids": section_ids}))
+    return kept
+
+
+def mentions_any(text: str, terms: Iterable[str]) -> bool:
+    """Whether `text` holds one of `terms` as a whole word or phrase, ignoring case and
+    differences in whitespace. A word joined by "_" is one word, so "T2M" is not found in
+    "T2M_MAX".
+    """
+    normal = " ".join(unicodedata.normalize("NFKC", text).casefold().split())
+    return any(
+        re.search(rf"(?<!\w){re.escape(' '.join(term.casefold().split()))}(?!\w)", normal)
+        for term in terms
+        if term.strip()
+    )
+
+
 # Text
 
 
@@ -448,13 +488,19 @@ _TOO_WEAK_TO = re.compile(r"\btoo\s+\w+\s+to\s*$")
 # describes the other verdict, not this one.
 _CONDITIONAL = re.compile(r"\b(?:if|were|would|a\s+result\s+that|results\s+that)\b")
 # Spec 3: "not significant" means insufficient evidence, never "no change". "No change of
-# source" describes the data, not the result.
+# source" describes the data, not the result, and "change" with the data or a result as its
+# object ("the label does not change the data") says what something does to the data, not
+# how the record behaved. Only those named objects are exempt: "has not changed this decade"
+# is still a no-change claim.
 _NO_CHANGE = re.compile(
     r"\b(?:no\s+(?:real\s+|actual\s+|clear\s+|meaningful\s+)?"
     r"(?:trend|change(?!\s+(?:of|in\s+(?:source|method|data)))|warming|cooling|increase"
     r"|decrease)\b"
-    r"|unchanged\b|(?:has|have|did|does|is|was)\s+not\s+(?:changed?|risen|fallen|increased"
-    r"|decreased|warmed|cooled)\b|(?:stayed|remained)\s+(?:the\s+same|constant|stable|flat)\b)"
+    r"|unchanged\b|(?:has|have|did|does|is|was)\s+not\s+(?:changed?\b"
+    r"(?!\s+(?:the|its|their|any)\s+(?:data|values|record|results?|grid\s+cell|series)\b)"
+    r"|risen|fallen|increased|decreased|warmed|cooled)\b"
+    r"|did\s+not\s+(?:rise|fall|increase|decrease|warm|cool)\b"
+    r"|(?:stayed|remained)\s+(?:the\s+same|constant|stable|flat)\b)"
 )
 # The null hypothesis of the trend test ("the probability if there were no trend") is a
 # hypothesis, not a claim about the result.

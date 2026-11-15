@@ -1,0 +1,4 @@
+What the result fields mean: The place and the variable (place.name, variable.name, variable.units, variable.rate_units)
+Publisher: Trend Detective project
+
+The field place.name, labelled "Place", is the name of a place in the investigation. The values describe the grid cell containing that place, not a single point or station. The field variable.name, labelled "Variable", is the quantity analysed. The field variable.units, labelled "Units", gives the units of the yearly values, and variable.rate_units, labelled "Units of the rate", gives the units of the rate and of the total change. The two can differ, and a variable whose values or rate have no units shows "None".

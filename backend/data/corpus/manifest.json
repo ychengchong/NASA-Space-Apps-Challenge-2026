@@ -211,6 +211,16 @@
       "sha256": "35798e6e71691563dcbef4e36599f11a71806e94d595ba76e5c66f39161501c6"
     },
     {
+      "source_id": "project-result-fields",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "What the result fields mean",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/result-fields.md",
+      "version": null,
+      "accessed": "2026-11-15",
+      "sha256": "ec1389302cd07613388e8c6b097acb654404cb28a42e94caeabec7747c2bdc31"
+    },
+    {
       "source_id": "project-variables",
       "kind": "project",
       "publisher": "Trend Detective project",
@@ -1367,6 +1377,78 @@
       "sha256": "46ebff126443b6caa50139c85ae1a82d43481eebda6cbe2d44bcb19c2ae2a137"
     },
     {
+      "section_id": "project-result-fields-01",
+      "source_id": "project-result-fields",
+      "title": "What the result fields mean",
+      "path": "sections/project-result-fields-01.txt",
+      "chars": 475,
+      "sha256": "161dddc899e2103bb7746c2a6b2d8b90e913a8657877a2567429040fe70a6e17"
+    },
+    {
+      "section_id": "project-result-fields-02",
+      "source_id": "project-result-fields",
+      "title": "The rate of change (sen_slope)",
+      "path": "sections/project-result-fields-02.txt",
+      "chars": 802,
+      "sha256": "28e3fd2a8d7efe622c09edd26e793ab4687c0417d9b81b8c80c71f608fd44b67"
+    },
+    {
+      "section_id": "project-result-fields-03",
+      "source_id": "project-result-fields",
+      "title": "The interval of the rate (sen_ci95)",
+      "path": "sections/project-result-fields-03.txt",
+      "chars": 563,
+      "sha256": "2d243fa7af20ed8b15f9f907676e428089c7509cb390c3c9d79b0305f2206231"
+    },
+    {
+      "section_id": "project-result-fields-04",
+      "source_id": "project-result-fields",
+      "title": "The p-value of the trend test (mk_p)",
+      "path": "sections/project-result-fields-04.txt",
+      "chars": 850,
+      "sha256": "b4858475e616093030c0559177eb6d83e7999fd937fbdd6ad1b3513b429f7500"
+    },
+    {
+      "section_id": "project-result-fields-05",
+      "source_id": "project-result-fields",
+      "title": "The total change (total_change)",
+      "path": "sections/project-result-fields-05.txt",
+      "chars": 549,
+      "sha256": "7d63f0115a4b3881f9018d8a5221dde52c5a7a68ca0f1575bde916e2b1172425"
+    },
+    {
+      "section_id": "project-result-fields-06",
+      "source_id": "project-result-fields",
+      "title": "The years used (n, first_year, last_year)",
+      "path": "sections/project-result-fields-06.txt",
+      "chars": 654,
+      "sha256": "3c6074b7ea1b0b51f474b6f3fec1e8e17c0b2b2e6d1256d3efb7b2fa940903f7"
+    },
+    {
+      "section_id": "project-result-fields-07",
+      "source_id": "project-result-fields",
+      "title": "The verdict (verdict.kind and verdict.sentence)",
+      "path": "sections/project-result-fields-07.txt",
+      "chars": 1047,
+      "sha256": "275f65ffd6ada340e034e3d03d2d16b3c28e9a52ecb40993341764dc0d64e410"
+    },
+    {
+      "section_id": "project-result-fields-08",
+      "source_id": "project-result-fields",
+      "title": "The place and the variable (place.name, variable.name, variable.units, variable.rate_units)",
+      "path": "sections/project-result-fields-08.txt",
+      "chars": 676,
+      "sha256": "5695fcaab447c34536dc4e8f2340b110947b980955dd5f0c6ca01cb718fb52f5"
+    },
+    {
+      "section_id": "project-result-fields-09",
+      "source_id": "project-result-fields",
+      "title": "The period and the months asked for (requested.from, requested.to, requested.season)",
+      "path": "sections/project-result-fields-09.txt",
+      "chars": 690,
+      "sha256": "59263e9aa887ae6b82faf9b27a5ca69b9b96b47e4e64f2b28dada085c9e1c83a"
+    },
+    {
       "section_id": "project-variables-01",
       "source_id": "project-variables",
       "title": "Variables in Trend Detective",
@@ -1535,5 +1617,5 @@
       "sha256": "7b890cab4297f47cc124f5b3cfe9b21a2dfd6cb83540ca10f98f6177eb5fb660"
     }
   ],
-  "corpus_version": "cc397f969e22f9d69e390df8777432d46cfcbc1f6ba682c03e07330644166422"
+  "corpus_version": "1592032ec6d77064140a4ad4c1e2666c81c885f1bb78721d3ce10570edf4037c"
 }

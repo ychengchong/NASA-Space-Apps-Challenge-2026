@@ -152,11 +152,11 @@ discovery and RAG explanations using a reviewed documentation corpus. The corpus
 its upload, the retrieval settings, the response contracts, the /api/discover and
 /api/explain endpoints and their interface (guided discovery in the question bar and the
 "Ask about this investigation" panel) exist and are unit-tested with fake providers. One
-held-out evaluation with OpenAI `gpt-6-luna`, graded by automated checks and AI agents
-(no person), met neither gate: discovery met its pass-rate target but three of its cases
-cite a section that does not support the suggestion, a critical error, and the explanation
-(RAG) gate failed; see the [evaluation results](docs/evaluation-results.md). A user study and a deployment are not yet
-done. No local model is required for that plan. The retrieval settings are described under
+Two held-out evaluation rounds with OpenAI `gpt-6-luna`, graded by automated checks and AI
+agents (no person), met neither gate. In round 2, the current evidence, discovery and planning
+passed 60 of 70 cases with three critical citation errors, and explanations (RAG) passed 65
+of 77, both below the 90% target; see the [evaluation results](docs/evaluation-results.md).
+A user study and a deployment are not yet done. No local model is required for that plan. The retrieval settings are described under
 "Retrieval settings" below; the rest of this section describes the planner.
 Without an enabled provider, the question box matches keywords and fills settings;
 it does not generate conversational explanations.
@@ -199,8 +199,8 @@ all off by default (see `.env.example`):
 | `RAG_VECTOR_STORE_ID` | The `vs_...` store the upload script printed; any other shape keeps retrieval off |
 | `RAG_CORPUS_VERSION` | The uploaded corpus version; must equal `corpus_version` in `backend/data/corpus/manifest.json` |
 | `RAG_SEARCH_MICROUSD_PER_CALL` | Owner-supplied integer microdollar price of one vector-store search |
-| `RAG_EVALUATED` | Enables explanations. Only the owner sets it, as an attestation after the explanation suite has passed its gate. Keep it `false`: the held-out run of 15 November 2026 did not pass |
-| `DISCOVERY_EVALUATED` | Enables discovery. Only the owner sets it, as an attestation after the discovery suite has passed its gate. Keep it `false`: the held-out run of 15 November 2026 met the pass-rate target but not the zero-critical-error target |
+| `RAG_EVALUATED` | Enables explanations. Only the owner, or someone the owner delegates to, sets it, as an attestation after the explanation suite has passed its gate. Keep it `false`: neither held-out round of 15 November 2026 passed (round 2: 65 of 77, below 90%) |
+| `DISCOVERY_EVALUATED` | Enables discovery. Only the owner, or someone the owner delegates to, sets it, as an attestation after the discovery suite has passed its gate. Keep it `false`: neither held-out round of 15 November 2026 passed (round 2: 60 of 70, below 90%, with three critical citation errors) |
 
 `/api/capabilities` reports `ai_planner_available`, `ai_discovery_available` and
 `ai_explanation_available` separately; a missing or mismatched retrieval setting turns
@@ -352,7 +352,7 @@ cause, forecast, number and URL rules and checks of model-written place queries,
 interface shows proposal notices and catalogue facts, announces finished answers, keeps
 focus after a choice and cancels a discovery question when the page changes.
 
-On 15 November 2026 Claude Code (model Claude Opus 5.5) ran the Draft 5 held-out
+On 15 November 2026 Claude Code (model Claude Opus 5.5) ran the Draft 5 round-1 held-out
 evaluation with OpenAI `gpt-6-luna` and wrote the [evaluation results](docs/evaluation-results.md).
 Before the frozen run it tuned, with model calls on development questions only, the
 instructions of /api/plan (when a question may be marked ambiguous), /api/discover and
@@ -366,9 +366,56 @@ gate did not pass (39 of 65 under both graders). The agent that wrote the result
 `DISCOVERY_EVALUATED=true` in the local `.env` itself; a review step set it back to `false`,
 because that flag is the owner's attestation. Both discovery and explanations are off.
 
-Educational impact is not established: no user observations have been made. The
->=90% planner/discovery pass-rate target was met on one AI-graded suite run, which is a
-sample result, and its zero-critical-error target was not. Run the user study, verify the public deployment and finish the required
+After that run Claude Code (model Claude Opus 5.5) addressed the round-1 failure causes on
+15 November 2026, as general behaviour and without opening the new suites: a deterministic
+check that keeps only discovery citations whose passage names the suggested variable, tighter
+explanation instructions, field names added to the explanation search, low reasoning effort
+for every OpenAI generation, the split-winter year rule for December-February periods, more
+per-case records in the evaluation runner (all retrieved passages and scores, which guard
+check withheld an output, the served model and the raw provider output), and their tests. It
+wrote the project note "What the result fields mean" (`backend/data/corpus/project/result-fields.md`)
+from the spec and the interface labels, rebuilt the corpus and uploaded it to a new vector
+store, and deleted the previous store and its files. These changes have been checked by unit
+tests and development questions only; no held-out run has measured them and no person has
+reviewed them.
+
+Claude Code (model Claude Opus 5.5) then tuned the AI paths on the round-2 development
+suites only (`backend/evaluation/round2/planner_dev.json` and `rag_dev.json`, both AI-written),
+on 15 November 2026, with two runs each through the evaluation runner and OpenAI
+`gpt-6-luna`; the round-2 held-out suites were not opened. It made the runner score the
+round-2 additions (citation support of every discovery suggestion against the suite's
+section map, and retrieval relevance of explanations), and made general fixes with tests:
+discovery searches with the catalogue names of the variables its question names, its
+instructions ask for a describing passage and forbid refusing a question for its assumed
+premise, the explanation search adds a cue for questions about causes, the explanation
+instructions abstain on a message that asks nothing, and the "no change" guard no longer
+flags a verb with an object. The development results were graded by the runner's automated
+checks only, not by a person or an AI grader, and are not held-out evidence.
+
+On 15 November 2026 Claude Code (model Claude Opus 5.5) then ran the round-2 held-out
+evaluation with OpenAI `gpt-6-luna`. The run used the suites in `backend/evaluation/round2/`,
+which an AI wrote blind, and their hashes were checked before and after the run. Each suite
+ran once, and no code, prompt, schema, guard, corpus or suite was changed during or after
+the run.
+
+Two AI grader agents (Claude Opus 5.5), working apart, graded every RAG answer in both
+conditions, every discovery suggestion's citation support and every planner text, with a
+reason for each item (`backend/evaluation/round2/results/grader-1.json` and `grader-2.json`).
+They agreed on every item.
+
+- Planner/discovery passed 60 of 70 cases, with three critical fabricated citations.
+- RAG passed 65 of 77 combined, with no critical error.
+- Both are below the 90% target.
+
+The workflow's lead agent wrote the round-2 [evaluation results](docs/evaluation-results.md)
+and made the gate decisions under a delegation from the owner that it reported. It set
+`DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false` in the local `.env`. No person reviewed
+any case or grade.
+
+Educational impact is not established: no user observations have been made. Neither AI
+gate has been met. Round 2's AI-graded pass rates (60 of 70 for planner/discovery, 65 of 77
+for RAG) are sample results below the 90% target, and discovery also has critical citation
+errors. Run the user study, verify the public deployment and finish the required
 demonstration before claiming those criteria. A prototype cannot guarantee an award or global ranking.
 
 The team has not selected a project licence. NASA/GeoNames/OpenStreetMap/OpenFreeMap,

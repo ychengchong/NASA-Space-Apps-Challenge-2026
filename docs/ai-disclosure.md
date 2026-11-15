@@ -17,8 +17,8 @@ revalidated by the current verification run.
 The app defaults to keyword matching and manual settings. Its optional configured
 LLM planner proposes settings for confirmation. Statistics and verdicts come from
 Python/templates. Draft 5 guided discovery and RAG explanations are implemented
-([Draft 5](technical-spec.md)); after the held-out evaluation of 15 November 2026 neither
-passed its gate, and both stay disabled
+([Draft 5](technical-spec.md)). After two held-out evaluation rounds on 15 November 2026,
+neither passed its gate, and both stay disabled
 ([evaluation results](evaluation-results.md)). No local model was installed by
 this cleanup. No generated images/video are included in the repository.
 
@@ -26,7 +26,37 @@ AI-assisted commits carry the disclosure trailer required by the repository.
 Use this record when completing the submission disclosure; identify any actual
 runtime provider/model separately if enabled and evaluated.
 
-## Draft 5 held-out evaluation (15 November 2026)
+## Draft 5 round-2 held-out evaluation (15 November 2026)
+
+- **Who did the work:** Claude Code (model Claude Opus 5.5), working as agents of one
+  workflow. No person reviewed any case, response or grade.
+- **The suites:** an AI wrote new planner/discovery and RAG suites for round 2, blind,
+  before any model call. They are in `backend/evaluation/round2/`, with their SHA-256
+  hashes in that directory's README. Round 2 added predeclared citation support for
+  discovery and retrieval relevance for RAG. The hashes were checked before and after the
+  run.
+- **Development before the run:** general fixes for the round-1 failure causes, and tuning
+  on the round-2 development files only. They are described in the README's AI-use section
+  and in spec 8.
+- **The frozen run:** each held-out suite ran once with OpenAI `gpt-6-luna` through
+  `backend/scripts/run_evaluation.py`. No case was re-run, and nothing was changed during
+  or after the run. That produced `backend/evaluation/round2/results/`.
+- **Grading:** the runner's automated checks graded every case. Two AI grader agents
+  (Claude Opus 5.5), each without seeing the other's output, graded every RAG case in both
+  conditions, the citation support of every discovery suggestion and every planner text,
+  with a reason for each item. Their grades are in `grader-1.json` and `grader-2.json`, and
+  they agreed on every item. They are the same model family that wrote the suites and the
+  code.
+- **The report and the decisions:** the workflow's lead agent wrote the round-2
+  [evaluation results](evaluation-results.md) and decided both gates. It reports that the
+  owner delegated those decisions to it on 15 November 2026. Planner/discovery passed 60 of
+  70 cases, with 3 critical fabricated citations. RAG passed 65 of 77 combined. Neither gate
+  passed, so it set `DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false` in the uncommitted
+  local `.env`.
+- **Spend:** the round-2 held-out runs reserved USD 0.595980. The evaluation ledger now
+  totals USD 1.761232 of the USD 5.00 cap, as reserved upper bounds.
+
+## Draft 5 round-1 held-out evaluation (15 November 2026)
 
 - **Who did the work:** Claude Code (model Claude Opus 5.5), working as agents of one
   workflow, ran and reported this stage. No person reviewed any case, response or grade.

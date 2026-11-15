@@ -249,6 +249,7 @@ async def test_openai_json_sends_one_unstored_strict_schema_request(
     assert requests[0].headers["Authorization"] == "Bearer test-key"
     assert body["store"] is False
     assert body["max_output_tokens"] == 256
+    assert body["reasoning"] == {"effort": ai.REASONING_EFFORT}
     assert body["text"]["format"] == {
         "type": "json_schema",
         "name": "answer",

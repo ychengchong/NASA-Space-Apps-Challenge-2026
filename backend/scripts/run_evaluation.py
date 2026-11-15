@@ -6,6 +6,10 @@ body bound, validation, the generation slot, retrieval, generation and the serve
 Each case is sent once; nothing is retried. Per case it records the request, the HTTP status,
 the response's status and reason, a summary of the body, the latency, the reserved cost, the
 automated checks against the case's `expected` object, and what is left for the reviewer.
+From inside the app process it also records, without changing what the app returns or logs,
+every passage each search returned with its score, the provider's response bodies (raw output
+and token usage), the guard problems of every check of a provider output, and the citations
+the discovery support check kept.
 
 Run from backend/, with the key loaded from ../.env and never printed:
 
@@ -42,9 +46,12 @@ and collected for the run by `sent_identities`.
 
 Suites: the planner/discovery format is described in backend/evaluation/README.md and the
 RAG format in the `scoring_notes` of backend/evaluation/rag_suite.json; `check_planner_case`
-and `check_rag_case` implement them. A case passes when every automated check passes. Checks
-that need reading the text (a premise endorsed, a cause or forecast claimed, an answer the
-cited passages do not support) cannot be automated: they are listed per case under
+and `check_rag_case` implement them. The round-2 additions (backend/evaluation/round2/README.md)
+are read too: a planner case's `expected.citation_support` is checked against the suite's
+`citation_sections_by_variable`, and a RAG case's `expected.expected_retrieval_any` scores
+retrieval relevance apart from the pass result. A case passes when every automated check
+passes. Checks that need reading the text (a premise endorsed, a cause or forecast claimed, an
+answer the cited passages do not support) cannot be automated: they are listed per case under
 `review_pending` for the reviewer pass, which an AI may do only if the results say so.
 """
 
@@ -71,7 +78,7 @@ from typing import Any, Literal
 import httpx
 from fastapi import FastAPI
 
-from app import ai
+from app import ai, ai_guard
 from app.adapters import discover as discover_adapter
 from app.adapters import explain as explain_adapter
 from app.adapters.planner import resolve_place_query
@@ -81,7 +88,7 @@ from app.config import BACKEND_DIR, DATA_DIR, Settings, load_settings
 from app.corpus import Corpus, load_corpus
 from app.errors import RateLimitedError
 from app.main import create_app
-from app.models import MAX_PASSAGES, ExtractedPlan
+from app.models import MAX_PASSAGES, ExtractedPlan, RetrievedPassage
 from app.services import Services, build_services, close_services
 
 REPO_DIR = BACKEND_DIR.parent
@@ -141,6 +148,9 @@ RAG_EXPECTED_KEYS = frozenset({"statuses", "sections_any", "must_not"})
 RAG_SUITE_FILE = "rag_suite.json"
 # Settings without a default: a discover "ready" that lists one as missing asks the user.
 CHOOSABLE_FIELDS = ("variable", "place")
+# Round 2 (backend/evaluation/round2/README.md): every suggestion must cite a section about its
+# own variable, or the case does not ask for that check.
+CITATION_SUPPORT_VALUES = frozenset({"every_suggestion", "not_applicable"})
 # Checks that are critical errors whatever a suite's vocabulary says.
 ALWAYS_CRITICAL = frozenset({"bound_to_investigation", "fabricated_citation"})
 CRITICAL_MARK = "Critical."
@@ -151,6 +161,19 @@ _IDENTIFIER = re.compile(r"[A-Za-z][A-Za-z0-9_]*(?:-[A-Za-z0-9]+)*")
 _YEARS = re.compile(r"(?:19|20)[0-9]{2}(?:[-/](?:19|20)[0-9]{2})?")
 _URL = re.compile(r"https?://|www\.", re.IGNORECASE)
 _SECRET = re.compile(r"sk-[A-Za-z0-9_-]{8,}")
+# The parts of a Responses body kept per generation: what was served, how it ended, the token
+# usage (hidden reasoning included) and the raw output. The echoed instructions and schema
+# are left out; their hashes are recorded instead. No body holds a credential.
+PROVIDER_RESPONSE_KEYS = (
+    "model",
+    "status",
+    "incomplete_details",
+    "error",
+    "reasoning",
+    "max_output_tokens",
+    "usage",
+    "output",
+)
 
 
 class SuiteError(ValueError):
@@ -221,9 +244,11 @@ class SpendLedger:
 
 @dataclass
 class CallRecorder:
-    """The paid calls of the case being run: their reservations, and per generation the
-    hashes of the instructions and schema sent and the model the provider reports it served.
-    `cap_reached` stays set once the ledger refuses a call.
+    """What the case being run did inside the app: the reservations of its paid calls; per
+    generation the hashes of the instructions and schema sent, the model the provider reports
+    it served and the provider's response body; per search every passage returned, with its
+    score; the guard problems of every check of a provider output; and the citations the
+    discovery support check kept. `cap_reached` stays set once the ledger refuses a call.
     """
 
     ledger: SpendLedger
@@ -231,13 +256,19 @@ class CallRecorder:
     case_id: str = ""
     kind: CallKind = "generation"
     reservations: list[dict[str, Any]] = field(default_factory=list)
-    prompts: list[dict[str, str]] = field(default_factory=list)
+    prompts: list[dict[str, Any]] = field(default_factory=list)
+    retrievals: list[dict[str, Any]] = field(default_factory=list)
+    guard_checks: list[dict[str, Any]] = field(default_factory=list)
+    citation_support: list[dict[str, Any]] = field(default_factory=list)
     cap_reached: bool = False
 
     def start_case(self, case_id: str) -> None:
         self.case_id = case_id
         self.reservations = []
         self.prompts = []
+        self.retrievals = []
+        self.guard_checks = []
+        self.citation_support = []
 
     def reserve(self, amount_microusd: int) -> None:
         try:
@@ -263,25 +294,67 @@ def _patched(module: object, name: str, value: object) -> Iterator[None]:
 @contextmanager
 def instrumented(recorder: CallRecorder, condition: Condition) -> Iterator[None]:
     """Route every budget reservation of `app.ai` through the ledger, label it as a search or
-    a generation, and record the hashes of each generation's instructions and schema and the
-    `model` field of its response body. Under "no-rag", the explanation adapter runs with
-    `retrieval=False`. Every original is restored on exit.
+    a generation, and record what `CallRecorder` describes: the passages and scores of each
+    search, the hashes of each generation's instructions and schema, the `model` field and
+    the body of its response, which guard checks withheld an output, and which citations the
+    discovery support check kept. Nothing the app returns or logs changes. Under "no-rag",
+    the explanation adapter runs with `retrieval=False`. Every original is restored on exit.
     """
     reserve_budget = ai.reserve_budget
     vector_search = ai.openai_vector_search
     openai_json = ai.openai_json
     output_text = ai._output_text
+    check_discovery = ai_guard.check_discovery
+    check_explanation = ai_guard.check_explanation
+    supported_suggestions = ai_guard.supported_suggestions
 
     def guarded_reserve(services: Services, amount_microusd: int) -> None:
         recorder.reserve(amount_microusd)
         reserve_budget(services, amount_microusd)
 
-    async def labelled_search(*args: Any, **kwargs: Any) -> Any:
+    async def labelled_search(
+        query: str,
+        vector_store_id: str,
+        max_results: int,
+        filters: Mapping[str, object] | None,
+        services: Services,
+    ) -> list[RetrievedPassage]:
         recorder.kind = "search"
         try:
-            return await vector_search(*args, **kwargs)
+            passages = await vector_search(query, vector_store_id, max_results, filters, services)
         finally:
             recorder.kind = "generation"
+        recorder.retrievals.append(
+            {"query": query, "passages": [_passage_record(item) for item in passages]}
+        )
+        return passages
+
+    def recorded_check(name: str, check: Any) -> Any:
+        def wrapper(*args: Any, **kwargs: Any) -> list[ai_guard.GuardProblem]:
+            problems: list[ai_guard.GuardProblem] = check(*args, **kwargs)
+            recorder.guard_checks.append(
+                {
+                    "check": name,
+                    "problems": [
+                        {"reason": problem.reason, "where": problem.where} for problem in problems
+                    ],
+                }
+            )
+            return problems
+
+        return wrapper
+
+    def recorded_support(
+        suggestions: Sequence[ai_guard.ProviderSuggestion], *args: Any
+    ) -> list[ai_guard.ProviderSuggestion]:
+        kept: list[ai_guard.ProviderSuggestion] = supported_suggestions(suggestions, *args)
+        recorder.citation_support.append(
+            {
+                "cited": [_suggestion_record(item) for item in suggestions],
+                "kept": [_suggestion_record(item) for item in kept],
+            }
+        )
+        return kept
 
     async def recorded_json(
         instructions: str,
@@ -303,10 +376,12 @@ def instrumented(recorder: CallRecorder, condition: Condition) -> Iterator[None]
         )
 
     def served_model_text(body: Mapping[str, object]) -> str:
-        # Read before the output is parsed, so an incomplete answer still names its model.
+        # Read before the output is parsed, so an incomplete answer still names its model and
+        # keeps its raw output.
         if recorder.prompts:
             served = body.get("model")
             recorder.prompts[-1]["served_model"] = served if isinstance(served, str) else None
+            recorder.prompts[-1]["provider_response"] = provider_response_record(body)
         return output_text(body)
 
     with ExitStack() as stack:
@@ -314,10 +389,32 @@ def instrumented(recorder: CallRecorder, condition: Condition) -> Iterator[None]
         stack.enter_context(_patched(ai, "openai_vector_search", labelled_search))
         stack.enter_context(_patched(ai, "openai_json", recorded_json))
         stack.enter_context(_patched(ai, "_output_text", served_model_text))
+        stack.enter_context(
+            _patched(ai_guard, "check_discovery", recorded_check("discovery", check_discovery))
+        )
+        stack.enter_context(
+            _patched(
+                ai_guard, "check_explanation", recorded_check("explanation", check_explanation)
+            )
+        )
+        stack.enter_context(_patched(ai_guard, "supported_suggestions", recorded_support))
         if condition == "no-rag":
             no_retrieval = partial(explain_adapter.explain, retrieval=False)
             stack.enter_context(_patched(explain_adapter, "explain", no_retrieval))
         yield
+
+
+def _passage_record(passage: RetrievedPassage) -> dict[str, Any]:
+    return {
+        "source_id": passage.source_id,
+        "section_id": passage.section_id,
+        "file_id": passage.file_id,
+        "score": passage.score,
+    }
+
+
+def _suggestion_record(suggestion: ai_guard.ProviderSuggestion) -> dict[str, Any]:
+    return {"variable_id": suggestion.variable_id, "source_ids": list(suggestion.source_ids)}
 
 
 # The suite
@@ -350,7 +447,7 @@ def load_suite(path: Path) -> dict[str, Any]:
         raise SuiteError("A suite has a non-empty list of cases.")
     seen: set[str] = set()
     for case in cases:
-        problem = _planner_problem(case) if kind == "planner" else _rag_problem(case, suite)
+        problem = _planner_problem(case, suite) if kind == "planner" else _rag_problem(case, suite)
         if problem is None and case["id"] in seen:
             problem = "a repeated id"
         if problem is not None:
@@ -384,14 +481,23 @@ def _common_problem(case: object, required: frozenset[str]) -> str | None:
     return f"no expected {sorted(absent)}" if absent else None
 
 
-def _planner_problem(case: object) -> str | None:
+def _planner_problem(case: object, suite: Mapping[str, Any]) -> str | None:
     problem = _common_problem(case, PLANNER_EXPECTED_KEYS)
     if problem is not None or not isinstance(case, dict):
         return problem
     if case.get("endpoint") not in ("discover", "plan"):
         return 'an endpoint other than "discover" or "plan"'
     unknown = set(case["expected"]["notices"]) - set(NOTICE_PREFIXES)
-    return f"unknown notice keys {sorted(unknown)}" if unknown else None
+    if unknown:
+        return f"unknown notice keys {sorted(unknown)}"
+    support = case["expected"].get("citation_support", "not_applicable")
+    if support not in CITATION_SUPPORT_VALUES:
+        return f"an unknown citation_support {support!r}"
+    if support == "every_suggestion" and not isinstance(
+        suite.get("citation_sections_by_variable"), dict
+    ):
+        return "citation_support but no citation_sections_by_variable in the suite"
+    return None
 
 
 def _rag_problem(case: object, suite: Mapping[str, Any]) -> str | None:
@@ -405,7 +511,12 @@ def _rag_problem(case: object, suite: Mapping[str, Any]) -> str | None:
     elif investigation not in suite.get("investigations", {}):
         return f"an unknown investigation {investigation!r}"
     unknown = set(case["expected"]["must_not"]) - set(suite.get("must_not_vocabulary", {}))
-    return f"must_not items outside the vocabulary {sorted(unknown)}" if unknown else None
+    if unknown:
+        return f"must_not items outside the vocabulary {sorted(unknown)}"
+    retrieval = case["expected"].get("expected_retrieval_any", [])
+    if not isinstance(retrieval, list) or not all(isinstance(item, str) for item in retrieval):
+        return "an expected_retrieval_any that is not a list of section IDs"
+    return None
 
 
 def case_endpoint(case: Mapping[str, Any], kind: SuiteKind) -> str:
@@ -515,8 +626,11 @@ def check_planner_case(
     http_status: int | None,
     body: object,
     cutoff: int,
+    citation_sections: Mapping[str, Sequence[str]],
 ) -> dict[str, Any]:
-    """The automated checks, critical errors and reviewer items of one planner case."""
+    """The automated checks, critical errors and reviewer items of one planner case.
+    `citation_sections` is the suite's `citation_sections_by_variable` (empty when it has none).
+    """
     outcome = planner_outcome(endpoint, http_status, body)
     proposal = _proposal(endpoint, http_status, body)
     data = body if isinstance(body, dict) else {}
@@ -533,8 +647,15 @@ def check_planner_case(
         )
     if expected["must_refuse"]:
         checks.append(_check("must_refuse", _refuses(endpoint, outcome, data, proposal), outcome))
+    support = _citation_support_check(expected, data, citation_sections)
+    if support is not None:
+        checks.append(support)
     texts = generated_texts(body)
     critical = _planner_critical(expected, data, proposal, cutoff)
+    # Round-2 README: a suggestion citing no section about its own variable is a fabricated
+    # citation, a critical error.
+    if support is not None and not support["passed"]:
+        critical.append("fabricated_citation")
     # README "Critical errors": generated text that writes a number is critical.
     if any(has_unlisted_number(text) for text in texts):
         critical.append("write_number")
@@ -544,6 +665,26 @@ def check_planner_case(
         if expected["premise_must_not_be_endorsed"]:
             review.append("premise_must_not_be_endorsed")
     return {"outcome": outcome, "checks": checks, "critical": critical, "review_pending": review}
+
+
+def _citation_support_check(
+    expected: Mapping[str, Any],
+    data: Mapping[str, Any],
+    citation_sections: Mapping[str, Sequence[str]],
+) -> dict[str, Any] | None:
+    """Round-2 `citation_support`: with "every_suggestion", every suggestion in the response,
+    whatever its status, cites at least one section listed for its own variable. The detail
+    names the variables whose suggestions do not. None when the case does not ask for it.
+    """
+    if expected.get("citation_support") != "every_suggestion":
+        return None
+    unsupported = [
+        item["variable"]["id"]
+        for item in data.get("suggestions") or []
+        if not {citation["section_id"] for citation in item["citations"]}
+        & set(citation_sections.get(item["variable"]["id"], ()))
+    ]
+    return _check("citation_support", not unsupported, unsupported)
 
 
 def _field_checks(
@@ -819,6 +960,23 @@ def _rag_result(
     return {"outcome": outcome, "checks": checks, "critical": critical, "review_pending": review}
 
 
+def retrieval_relevance(
+    expected: Mapping[str, Any], retrievals: Sequence[Mapping[str, Any]]
+) -> dict[str, Any] | None:
+    """Round-2 retrieval relevance, scored apart from the pass result: relevant when any
+    search of the case returned a section in `expected_retrieval_any`. None when the case
+    lists no section (nothing in the corpus is on topic) or predates the key.
+    """
+    wanted = expected.get("expected_retrieval_any") or []
+    if not wanted:
+        return None
+    returned = [
+        passage["section_id"] for retrieval in retrievals for passage in retrieval["passages"]
+    ]
+    hits = sorted(set(returned) & set(wanted))
+    return {"relevant": bool(hits), "hits": hits, "returned": returned}
+
+
 def timed_out(http_status: int | None, body: object) -> bool:
     """Whether the request hit a deadline: the runner's own, or the endpoint's 30-second one,
     which answers 503 with a message saying the deadline expired.
@@ -907,9 +1065,10 @@ def percentile(values: Sequence[float], fraction: float) -> float | None:
 
 def report(results: Mapping[str, Any]) -> dict[str, Any]:
     """Counts by category, the automated pass rate with its Wilson 95% interval, critical
-    errors, the failures, cases awaiting review, latency (median, 90th percentile, maximum, in
-    seconds), timeouts, the total reserved cost and the identities sent. Cases not run (the
-    spend cap) are counted apart, outside the pass rate; their reservations count in the cost.
+    errors, the failures, cases awaiting review, retrieval relevance where a case scores it,
+    latency (median, 90th percentile, maximum, in seconds), timeouts, the total reserved cost
+    and the identities sent. Cases not run (the spend cap) are counted apart, outside the pass
+    rate; their reservations count in the cost.
     """
     cases = results["cases"]
     run = [case for case in cases if "not_run" not in case]
@@ -928,6 +1087,7 @@ def report(results: Mapping[str, Any]) -> dict[str, Any]:
     interval = wilson_interval(passed, len(run))
     # A case the spend cap interrupted keeps the reservations it made.
     reserved = sum(item["microusd"] for case in cases for item in case.get("reservations", []))
+    relevance = [case["retrieval_relevance"] for case in run if case.get("retrieval_relevance")]
     return {
         "condition": results.get("condition"),
         "cases": len(cases),
@@ -953,6 +1113,15 @@ def report(results: Mapping[str, Any]) -> dict[str, Any]:
             if not case["passed"]
         ],
         "review_pending": sum(1 for case in run if case["review_pending"]),
+        "retrieval_relevance": {
+            "scored": len(relevance),
+            "relevant": sum(1 for item in relevance if item["relevant"]),
+            "not_relevant": [
+                case["id"]
+                for case in run
+                if case.get("retrieval_relevance") and not case["retrieval_relevance"]["relevant"]
+            ],
+        },
         "latency_seconds": {
             "median": statistics.median(latencies) if latencies else None,
             "p90": percentile(latencies, LATENCY_PERCENTILE),
@@ -1081,6 +1250,7 @@ def identities(settings: Settings, corpus: Corpus, suite_path: Path, cutoff: int
             "discover_max_output_tokens": discover_adapter.MAX_OUTPUT_TOKENS,
             "explain_max_output_tokens": explain_adapter.MAX_OUTPUT_TOKENS,
             "deadline_seconds": ai.DEADLINE_SECONDS,
+            "reasoning_effort": ai.REASONING_EFFORT,
         },
         "prices_microusd": {
             "input_per_million_tokens": settings.ai_input_microusd_per_million,
@@ -1166,7 +1336,14 @@ async def run_case(
             context.suite.get("must_not_vocabulary", {}),
         )
     else:
-        result = check_planner_case(case["expected"], endpoint, http_status, body, context.cutoff)
+        result = check_planner_case(
+            case["expected"],
+            endpoint,
+            http_status,
+            body,
+            context.cutoff,
+            context.suite.get("citation_sections_by_variable", {}),
+        )
     return {
         "id": case["id"],
         "category": case["category"],
@@ -1181,6 +1358,10 @@ async def run_case(
         "reservations": recorder.reservations,
         "reserved_microusd": sum(item["microusd"] for item in recorder.reservations),
         "prompts": recorder.prompts,
+        "retrievals": recorder.retrievals,
+        "guard_checks": recorder.guard_checks,
+        "citation_support": recorder.citation_support,
+        "retrieval_relevance": retrieval_relevance(case["expected"], recorder.retrievals),
         "checks": result["checks"],
         "passed": all(check["passed"] for check in result["checks"]),
         "critical": result["critical"],
@@ -1307,6 +1488,24 @@ def _sha256(text: str) -> str:
 
 def _canonical(value: object) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+
+def provider_response_record(body: Mapping[str, object]) -> dict[str, object]:
+    """The parts of a Responses body that a results file keeps (`PROVIDER_RESPONSE_KEYS`).
+    A reasoning item of the output keeps everything but its `encrypted_content`, an opaque
+    provider token that no reviewer can read.
+    """
+    record = {key: body[key] for key in PROVIDER_RESPONSE_KEYS if key in body}
+    output = record.get("output")
+    if isinstance(output, list):
+        record["output"] = [_without_encrypted_content(item) for item in output]
+    return record
+
+
+def _without_encrypted_content(item: object) -> object:
+    if isinstance(item, dict) and item.get("type") == "reasoning":
+        return {key: value for key, value in item.items() if key != "encrypted_content"}
+    return item
 
 
 def _now() -> str:

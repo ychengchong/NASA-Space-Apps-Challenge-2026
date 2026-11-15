@@ -1,0 +1,4 @@
+What the result fields mean: The interval of the rate (sen_ci95)
+Publisher: Trend Detective project
+
+The field sen_ci95, labelled "95% confidence interval of the rate", is empty in every result: the app does not report an interval for the rate. It stays unavailable until a procedure that allows for serial dependence between years is specified and its coverage is tested. Where a confidence interval is reported, it describes how often the procedure would cover the true value if it were repeated; it is not a probability that a fixed true value lies inside it.

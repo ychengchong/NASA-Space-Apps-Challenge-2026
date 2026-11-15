@@ -6,11 +6,12 @@ Status: the implementation baseline on `main` at 1fa0cf1 includes core manual wo
 bounded confirmed AI planner integration and globe interface. Draft 5 defines the
 approved next plan on `new-plan`: OpenAI-assisted discovery, documentation retrieval/RAG and
 cited qualitative explanations. Their endpoints and interface are implemented and unit-tested
-with fake providers. One held-out evaluation with `gpt-6-luna` was run on 15 November 2026 and
-graded by automated checks and AI agents, not by people
-([results](evaluation-results.md)): neither gate is met. Planner/discovery met its pass-rate
-target but has three critical citation errors, and the RAG gate failed, so discovery and
-explanations stay disabled. A user study and a deployment are still planned.
+with fake providers. Two held-out evaluation rounds with `gpt-6-luna` were run on
+15 November 2026 and graded by automated checks and AI agents, not by people
+([results](evaluation-results.md)). Neither gate is met in round 2, the current evidence:
+planner/discovery passed 60 of 70 cases with three critical citation errors, and RAG passed
+65 of 77, both below the 90% target. Discovery and explanations stay disabled. A user study
+and a deployment are still planned.
 Unit tests use fake providers; the suite results are sample results, not a general accuracy
 guarantee.
 The statistical study is retained in
@@ -393,7 +394,9 @@ kind is significant, except in a conditional or definitional clause ("if the res
 were not significant"); discovery text may never affirm it; "significance has not been
 assessed", the canonical wording of a verdict without inference, is neutral; and
 asserting "no change" is always rejected, except in the trend test's null hypothesis
-("if there were no trend") and "no change of source". In an explanation, a direction
+("if there were no trend"), "no change of source" and a verb with an object ("the place
+name does not change the data"), which says what something does to the data rather than
+how the record behaved. In an explanation, a direction
 word (rising, increase, warming; falling, decline, cooling) not negated and not
 describing the method or a hypothetical ("how fast values tend to rise", "whether it is
 warming") is rejected unless some place's canonical direction matches it, so any
@@ -863,14 +866,33 @@ has uploaded the reviewed corpus to an OpenAI vector store. The /api/discover an
 /api/explain endpoints and their interface (guided discovery in the question bar and
 the "Ask about this investigation" panel) are implemented, unit-tested with fake
 providers and given one local live smoke check. The selected model is OpenAI
-`gpt-6-luna` (the requested name; the served model version was not recorded). One frozen
-held-out run on 15 November 2026, graded by automated checks and AI agents (no person), met
-neither gate. Planner/discovery passed 70 of 75 (Wilson 95% 0.85-0.97), but a citation
-review after the run found 3 cases whose suggestions cite a section that does not support
-them, a fabricated citation under section 12. The RAG gate failed (39 of 65 under both
-graders, Wilson 95% 0.48-0.71, and 3 critical errors under the suite's definitions); see
-[evaluation results](evaluation-results.md). DISCOVERY_EVALUATED and RAG_EVALUATED stay
-false, so discovery and explanations remain disabled; only the owner sets either flag. Planned: a user study and a
+`gpt-6-luna` (round 1 recorded only the requested name; the runner now records the
+response's `model` field, which reported `gpt-6-luna` in every round-2 call, with no dated
+snapshot name). Two frozen held-out rounds on 15 November 2026, graded by automated checks
+and AI agents (no person), met neither gate; see
+[evaluation results](evaluation-results.md). Round 1: planner/discovery passed 70 of 75,
+but 3 cases cite a section that does not support their suggestion, a fabricated citation
+under section 12; RAG passed 39 of 65 under both graders. Round 2, on new suites:
+planner/discovery passed 60 of 70 (85.7%, Wilson 95% 75.7-92.1%), with 3 critical
+fabricated citations (air temperature suggestions citing degree-day or parameter-table
+sections); RAG passed 65 of 77 under the automated checks and both graders combined (84.4%,
+Wilson 95% 74.7-90.9%), with no critical error, against 42 of 77 without retrieval.
+DISCOVERY_EVALUATED and RAG_EVALUATED stay false, so discovery and explanations remain
+disabled. The round-2 decisions were made by the workflow's lead agent under a delegation
+from the owner that it reported (see [evaluation](evaluation.md)).
+After round 1, the round-1 failure causes were addressed as general behaviour, not per
+question (the round-1 results were read for their causes; the new suites were not opened): the discovery citation-support check, tighter explanation instructions, field
+names in the explanation search, the result-fields project note in the corpus, low
+reasoning effort and the split-winter year rule, each described below. They were checked
+by unit tests and development questions, and then measured by the round-2 held-out run
+above. Tuning on the round-2 development suites (`backend/evaluation/round2/planner_dev.json`
+and `rag_dev.json`; the round-2 held-out suites were not opened) added discovery's
+catalogue names in its search, two discovery instruction rules, a cause cue in the
+explanation search, one explanation instruction rule and a narrower "no change" guard
+pattern, each described below. In those development runs, graded by the runner's automated
+checks only, discovery and planning passed 12 of 14 before and 12 of 14 after (with one
+critical citation-support error in each run, in a different case), and explanations 8 of 10
+before and 10 of 10 after; these are development results, not held-out evidence. Planned: a user study and a
 deployment. The target is OpenAI-only for these new features; existing Ollama/Anthropic
 planner support is an alternative, not a required installation.
 
@@ -881,6 +903,15 @@ proposes a variable ID, place query, explicit/unspecified dates and ambiguity.
 Server validation/resolution and user confirmation precede the shared tools.
 Never invent coordinates or silently replace unsupported inputs. Missing dates
 offer supported defaults for confirmation. No training/fine-tuning is required.
+
+A December-February period written in split winters follows section 7 (December counts
+toward the following year): "the winters 1990/91 to 2019/20" is from 1991 to 2020. After
+extraction, and before resolve_plan, the server (`planner.with_winter_years`) moves a DJF
+plan's `from` when it equals the first year of the question's first split winter
+("1990/91", "1990-91", "1990/1991", "1999/00"; the second year must be the next one, so
+"1990-2020" is a range), and `to` when it equals the first year of the last one. A year
+already given as the DJF year, or a plan for another season, is unchanged. /api/plan,
+the discovery proposal and the explanation proposal all apply it.
 
 AI_PROVIDER=disabled|ollama|anthropic|openai; default disabled until evaluated. Local Ollama
 structured output is implemented with a loopback HTTP endpoint and verified model digest. Select an exact model,
@@ -911,15 +942,26 @@ No investigation or NASA call executes from a model proposal. Confirmation is
 required even when every setting is filled automatically.
 
 Implemented (`backend/app/adapters/discover.py`): POST /api/discover takes a
-DiscoveryRequest, searches the vector store once with the question (at most four
-passages; a hit whose source and section the manifest does not list, or whose text is not
-part of that section's reviewed file, is dropped), and,
+DiscoveryRequest, searches the vector store once with the question shaped by
+`discover.retrieval_query` (at most four passages; a hit whose source and section the
+manifest does not list, or whose text is not part of that section's reviewed file, is
+dropped; see "Planned corpus and retrieval"), and,
 only when a citable passage remains, makes one strict-schema generation. The model
 returns a status, up to three catalogue variable IDs each with a reason and cited
 passage IDs (a passage's section ID, or a source ID naming every retrieved passage of
 that source), up to two place queries, from/to/season or null, missing fields and an
 optional clarification with up to four choices, each a typed patch (variable, place
-query, from, to, season). After the checks of section 5, "ready" builds the Proposal
+query, from, to, season). After the checks of section 5, a deterministic support check
+(`ai_guard.supported_suggestions`) keeps, for each suggestion, only the cited passages
+that name the suggested variable as a whole word or phrase, ignoring case: its catalogue
+name, its POWER code or one of its catalogue keywords. A cited source ID becomes those of
+its retrieved sections that name the variable; a suggestion left with no citation is
+dropped, and a "ready" output left with no suggestion returns no_evidence. The
+instructions tell the model the same rule, ask it to cite a passage that describes the
+variable rather than one that only mentions it in passing, and say that a question
+assuming a change or its cause is not unsupported for that reason: the model suggests the
+variables for the quantities it names, with reasons that neither accept nor reject the
+assumption. A mention is necessary for support, not proof of it. Then "ready" builds the Proposal
 with the planner's resolve_plan from the first suggestion, the place queries and the
 dates, keeping the draft's dates and season where the question gave none; a choice's
 place query resolves to one exact reviewed find_place match, and a choice left with
@@ -952,13 +994,38 @@ relevant source/product/variable where possible. Tune these starting bounds only
 against development questions, then freeze them before held-out evaluation. Preserve
 enough section context; do not remove qualifiers to meet a length cap. Retrieval
 scores are ranking signals, not probabilities that an answer is correct.
-Both endpoints search with the question as asked and no attribute filter: the corpus has
-no attribute that ties a source to a variable, and prefixing the variable's name pulled
-in that variable's catalogue sections ahead of the notes on interpretation in a local
-development check (a causal-premise question then found no project note). The development
-rounds left this unchanged and it was frozen for the held-out run, where several answers,
-among them answers to questions asking for a value, cited a variable's catalogue note
-instead of the project notes that answer the question. A retrieved passage is citable only
+Neither endpoint uses an attribute filter, and explain never names the investigation's
+variable in its query: the corpus has no attribute that ties a source to a variable, and
+prefixing the variable's name pulled in that variable's catalogue sections ahead of the
+notes on interpretation in a local development check (a causal-premise question then found
+no project note). Discovery wants those catalogue sections: in the round-2 development
+questions, a question that names a quantity only in everyday words ("warmer summers",
+"snowier", "pollution") retrieved no passage describing a catalogue variable, and a
+suggestion then cited a passage that merely mentioned it. Discovery therefore searches with
+`discover.retrieval_query(question)`: the question, followed by the catalogue names and
+POWER codes ("Air temperature (T2M)") of the variables that the question names by their
+catalogue name, POWER code or a catalogue keyword (whole words, ignoring case), at most
+three (the most suggestions an answer may give), those matching the most terms first and
+then in catalogue order. A question that names no variable is searched as asked. In the round-1 held-out run, where
+explain did the same, several answers to questions asking for a value cited a
+variable's catalogue note instead of the project notes that answer the question. Explain
+therefore searches with `explain.retrieval_query(question)`: the question, followed by
+the names and panel labels of the result fields it asks about when a fixed pattern on
+the casefolded question finds one (a p-value or probability: mk_p; a rate, slope,
+"per decade" or "how fast": sen_slope; "total" or "how much": total_change; an
+interval or confidence: sen_ci95; the years used or the first/last year: n, first and
+last year used; units: units and units of the rate; a verdict: verdict kind and
+sentence; a question about a cause, such as "caused", "because", "due to", "attributed",
+"blame" or "driven by": "verdict kind: significance is not cause", so the note saying
+that significance is not cause can be found). It is still one search. A question naming no field is searched as asked. The
+project note "What the result fields mean" (`project/result-fields.md`, written from
+sections 5 and 7 and the interface labels) explains each allowlisted field in plain
+words, so these searches have a section to find. There is no minimum score. In the ten
+development explanation questions after this change, the top passage of the answered
+questions scored 0.46 to 0.97, the top passage of a causal-premise question the corpus
+does not answer scored 0.50, and a request for another place, which needs a generation
+to be proposed, retrieved nothing above 0.21: the ranges overlap and a threshold would
+also block such proposals, so none is set. A retrieved passage is citable only
 when its whitespace-normalised text is part of the reviewed section file that the
 manifest lists by path and SHA-256 (checked when the manifest is read), so a stale or
 foreign file in the vector store carrying a section's attributes is never shown or cited.
@@ -1008,7 +1075,8 @@ and that every snapshot is retained and passes its checksum; the rebuilt ID must
 the requested ID. An ID that is not on record (or whose record is older than 24
 hours), a missing or corrupt snapshot, or a different rebuilt ID fails with 409
 `investigation_unavailable` before any paid call, and NASA is never called. Retrieval
-then searches once with the question (at most four passages); no citable passage
+then searches once with the question shaped by `retrieval_query` (at most four
+passages; see "Planned corpus and retrieval"); no citable passage
 returns insufficient_evidence with no_evidence and no generation. The model receives
 the variable's catalogue name, definition and note, the period, place labels, each
 place's canonical verdict kind, direction and caution codes, the allowlisted field
@@ -1024,13 +1092,31 @@ no place, or names a place of the investigation (one of its labels, or a reviewe
 lying at its exact coordinates, as "Svalbard" for a case labelled "Longyearbyen"), keeps
 those places with their labels and exact coordinates; only other place queries go to
 find_place. The plan's season is
-always given by the model. Every block of an answer must cite a
-retrieved passage. A model abstention returns no_evidence; refusals, incomplete
+always given by the model, and its years follow the split-winter rule of "Planner and
+provider boundary". Every block of an answer must cite a
+retrieved passage. The instructions ask for one or two sentences per block, each claim
+stated in a passage the block cites (no background knowledge, inference or
+generalisation the passage does not state, and no passage that is only about a related
+topic), and for insufficient_evidence rather than stretching a passage, and also when
+the question asks nothing about the investigation (a message that only gives
+instructions). They reserve
+new_investigation_required for a question asking for a different variable, place,
+period or season than the investigation; a question the passages cannot answer, a
+forecast or a record value is insufficient_evidence. No deterministic block-to-passage
+support check (such as a shared-word threshold) is applied: no development data graded
+for support exists to set a threshold from, and setting one from the held-out grades
+would tailor it to those questions. A model abstention returns no_evidence; refusals, incomplete
 output and failed checks return their reasons; no provider text is returned then.
 For the matched no-RAG evaluation only, `scripts/run_evaluation.py` runs the same
 endpoint code with the adapter's internal `retrieval=False`: no search, no passages,
 the same instructions, schema and checks, so an answer that cites anything is withheld.
-The public endpoint always retrieves.
+The public endpoint always retrieves. Inside its own process the runner also records,
+per case and without changing what the app returns or logs, every passage each search
+returned with its section ID and score, which guard check (`check_discovery`,
+`check_explanation`) withheld an output and with which problems, the citations the
+discovery support check kept, and per generation the provider's `model`, status,
+incomplete details, reasoning settings, token usage and raw output (not the echoed
+instructions or schema, whose hashes are recorded, and no credential).
 
 User and retrieved text are untrusted evidence, never instructions authorizing
 tools, URLs, uploads, secret access or source changes. Render plain text and curated
@@ -1064,6 +1150,17 @@ generation, has a 30-second total deadline and a 1,024-token output cap, and sha
 the operational generation lease/rate limits. No automatic retry or agent loop.
 The typed current draft and server-loaded investigation are separately size-bounded.
 Future changes to these limits need recorded latency/cost evaluation.
+
+Every OpenAI Responses generation (/api/plan, /api/discover and /api/explain, through
+`ai.openai_json`) sends `reasoning: {"effort": "low"}` (`ai.REASONING_EFFORT`) with the
+unchanged output caps. Hidden reasoning tokens count against the cap: at the model's
+default effort a development diagnostic spent 483 of 644 output tokens on reasoning,
+and 2 of 75 round-1 held-out discovery outputs were cut off. In development runs through
+the evaluation ledger on 15 November 2026, `gpt-6-luna` accepted the setting and reported
+`effort: "low"` in all 16 recorded generations; every output completed and the hidden
+reasoning used 0 to 254 tokens. In the round-2 held-out runs, all 211 generations reported
+`effort: "low"` and completed, with none cut off, and hidden reasoning used at most 321
+tokens.
 
 Configuration (all off by default): RAG_ENABLED, RAG_VECTOR_STORE_ID (must have
 the shape of an OpenAI vector store ID, `vs_` and up to 128 letters, digits, `_`
@@ -1278,25 +1375,31 @@ Acceptance evidence:
   link in a fresh session, exports, NASA/OpenAI/tile outages, cancellation, rate and
   budget exhaustion, Linux container build and persistent-volume replacement.
 
-Acceptance evidence status of the AI gates (15 November 2026; details in
-[evaluation results](evaluation-results.md)). Grading was done by automated checks and AI
-graders; no person reviewed cases or grades, and no user has been observed.
+Acceptance evidence status of the AI gates (15 November 2026, round 2 on new held-out
+suites; round 1 is kept as history in the [evaluation results](evaluation-results.md)).
+Grading was done by automated checks and two AI graders (Claude Opus 5.5), who agreed on
+every item. No person reviewed cases or grades, and no user has been observed. The gate
+decisions were made by the evaluation workflow's lead agent under a delegation from the
+owner that it reported.
 
-- AI planner/discovery: run on 75 held-out cases with `gpt-6-luna`; 70 passed (93.3%,
-  Wilson 95% 0.85-0.97) against the predeclared 90% target, on the point estimate; the
-  interval's lower end is below 90%. The automated checks and the text reading found no
-  critical error, but 4 of the 20 discovery suggestions, in 3 cases, cite a section that
-  does not support them (an AI review after the run, not predeclared for this suite). Gate
-  not met.
-- RAG: run on 65 held-out questions with a matched no-RAG run. 39 passed under both AI
-  graders (60.0%, Wilson 95% 0.48-0.71); without retrieval 30 passed. Retrieval relevance
-  was not measured separately from answer support. Gate not passed.
+- AI planner/discovery: run on 70 held-out cases with `gpt-6-luna`. 60 passed (85.7%,
+  Wilson 95% 75.7-92.1%), below the predeclared 90% target: discover 35 of 45, plan 25 of
+  25. 24 of 27 discovery suggestions are supported by their citations under both graders.
+  The other 3 are critical fabricated citations. Gate not met.
+- RAG: run on 77 held-out questions with a matched no-RAG run. 65 passed under the
+  automated checks and both graders combined (84.4%, Wilson 95% 74.7-90.9%), below 90%.
+  Without retrieval 42 passed. Against no retrieval there were 24 improvements and 1
+  regression. Retrieval relevance, measured separately, was 46 of 55 scored cases. The
+  guard withheld 5 answers where an answer was expected, and an AI reading judged several
+  of them false positives. Gate not passed.
 - Critical AI gate: no invented number, verdict change, cause, forecast, URL or successful
-  injection was observed. Three RAG answers cited a section that does not support a claim
-  in the block, which the RAG suite defines as critical, and three discovery cases cite a
-  section that does not support the suggestion. The gate is not met for either path.
+  injection was observed. Every answered RAG block was judged supported. Three discovery
+  suggestions cite a section that does not support them, so the gate is met for RAG and not
+  met for planner/discovery.
 - Performance: latency and reserved cost were recorded per run from the development
-  machine, not on a named deployment host. Impact and deployment evidence are not started.
+  machine, not on a named deployment host. No call reached the 30-second deadline. The
+  ledger total is USD 1.761232 of the USD 5.00 evaluation cap. Impact and deployment
+  evidence are not started.
 
 No outcome is claimed until run. Full significance scope remains incomplete if
 only descriptive fallback exists. Label illustrative screens and unbuilt features.
@@ -1335,7 +1438,7 @@ remain unavailable until independently coverage-tested. No extra source is manda
 
 Draft 5 additionally requires implementation and held-out evaluation of discovery,
 corpus ingestion/retrieval, cited explanation contracts/UI and expanded cost
-accounting. Resolved by the recorded held-out run of 15 November 2026
+accounting. Resolved by the recorded held-out runs of 15 November 2026
 ([evaluation results](evaluation-results.md)):
 
 - Model and prices: OpenAI `gpt-6-luna`, at the standard prices of $0.10 per 1M input
@@ -1343,19 +1446,50 @@ accounting. Resolved by the recorded held-out run of 15 November 2026
   15 November 2026), and $2.50 per 1,000 vector-store searches. The configured
   reservation rates are 100,000 and 500,000 microUSD per 1M tokens and 2,500 microUSD
   per search.
-- Corpus: version `cc397f969e22f9d69e390df8777432d46cfcbc1f6ba682c03e07330644166422`
-  (22 sources, 164 sections) in vector store `vs_6af8b41c338081919920d534cc76a7cf`.
-- Retrieval bounds, frozen for the held-out run: one search with the bare question, no
+- Corpus of the round-1 run: version
+  `cc397f969e22f9d69e390df8777432d46cfcbc1f6ba682c03e07330644166422` (22 sources, 164
+  sections) in vector store `vs_6af8b41c338081919920d534cc76a7cf`, since deleted with its
+  files. The current corpus adds the result-fields project note: version
+  `1592032ec6d77064140a4ad4c1e2666c81c885f1bb78721d3ce10570edf4037c` (23 sources, 173
+  sections) in vector store `vs_6af8dcbe791481918775f5c707b2cbad`.
+- Retrieval bounds, frozen for the round-1 run: one search with the bare question, no
   attribute filter and no score threshold, at most four passages of at most 1,200
   characters; 1,024 output tokens for discover and explain, 512 for plan, and a
-  30-second deadline.
+  30-second deadline. Since then explain adds the asked-about field names (and a cause
+  cue) to its one search, discovery adds the catalogue names of the variables its question
+  names to its one search, there is still no score threshold (section 8 gives the
+  development data), and every generation uses low reasoning effort with the same caps.
+  The round-2 held-out run used these bounds on the current corpus and vector store.
+- Output cut-off: with low reasoning effort, no round-2 held-out output was cut off (0 of
+  211 generations), where 2 of 75 round-1 discovery outputs had been.
+- Round-2 gate decisions: neither gate passed. Planner/discovery passed 60 of 70 with 3
+  critical fabricated citations, and RAG passed 65 of 77 combined. `DISCOVERY_EVALUATED`
+  and `RAG_EVALUATED` are `false`. The workflow's lead agent made these decisions under a
+  delegation from the owner that it reported.
 
-Still open: content retention/redistribution; precipitation product/aggregation;
-practical latency/cost limits beyond the 30-second deadline and the USD 5 evaluation
-cap; whether to lower the model's reasoning effort or raise the output caps, since
-hidden reasoning tokens cut off 2 of 75 held-out discovery outputs; how to bring the
-discovery path (citation support) and the RAG path to their gates; and deployment resources. Resolve these using recorded checks
-before enabling the affected path.
+Still open:
+
+- content retention and redistribution;
+- the precipitation product and its aggregation;
+- practical latency and cost limits beyond the 30-second deadline and the USD 5 evaluation
+  cap;
+- deployment resources;
+- how to bring discovery and RAG to their gates.
+
+Round 2 left these failure causes:
+
+- Discovery: air temperature suggestions citing degree-day or parameter-table sections
+  that name temperature, which the server's citation filter keeps.
+- Discovery: refusals of answerable questions (4 cases).
+- Discovery: a wrong DJF start year and an ignored JJA season.
+- RAG: guard rules (`contradicts_verdict`, `forecast_claim`, `causal_claim`,
+  `number_in_text`) that withheld answers an AI reading judged supported.
+- RAG: abstentions where the corpus answers, including one with the answering section
+  retrieved.
+- RAG: answers that point at no result field.
+
+Any fix needs a new held-out run on new suites before a gate can be claimed. Resolve these
+using recorded checks before enabling the affected path.
 
 Main risks are invalid inference sounding authoritative, mismatched quantities,
 data revisions, unsupported local hosting, overstated comparison, weak user
@@ -1439,18 +1573,25 @@ These boxes remain unchecked until implementation and observed evidence exist.
 Specification approval alone does not activate AI or complete a release gate.
 
 - [x] Implement guided clarification/discovery and source-backed variable suggestions.
-- [ ] Select and evaluate an exact OpenAI model; retain manual confirmation/fallback.
-  (`gpt-6-luna` selected and evaluated by name; the served model version was not recorded,
-  so the exact version is not identified. Results in [evaluation results](evaluation-results.md).)
+- [x] Select and evaluate an exact OpenAI model; retain manual confirmation/fallback.
+  (`gpt-6-luna` selected and evaluated in two held-out rounds. In round 2 the provider
+  reported `gpt-6-luna` as the served model in every call, with no dated snapshot name, so
+  the model is identified by that name only. Unit tests check that every proposal still
+  waits for confirmation and that the manual controls work with AI off. Results in
+  [evaluation results](evaluation-results.md). Evaluated does not mean passed: neither
+  gate is met.)
 - [ ] Review/version the corpus, ingest/index it and verify retrieval/source mapping.
+  (Round 2 measured retrieval relevance at 46 of 55 scored cases, below full relevance.
+  It is left unticked.)
 - [ ] Implement cited qualitative explanations bound to server-loaded investigations.
 - [ ] Render numerical references from Python fields; reject invalid citations/claims.
 - [ ] Verify ingestion/retrieval/storage accounting and independent capability flags.
 - [ ] Prepare two walkthroughs and a truthful water-related demonstration.
 - [ ] Record a decision for every consideration and listed resource.
 - [x] Run >=50 planner/discovery and >=40 RAG held-out cases plus matched no-RAG cases.
-  (75 and 65 cases run; neither gate is met: planner/discovery has three critical
-  citation errors, and the RAG gate failed.)
+  (Round 1: 75 and 65 cases. Round 2, on new suites: 70 and 77 cases, with 77 matched
+  no-RAG cases. Neither gate is met in either round. In round 2, planner/discovery passed
+  60 of 70 with three critical citation errors, and RAG passed 65 of 77.)
 - [ ] Observe >=5 target users and report completion, assistance and interpretation errors.
 - [ ] Verify public HTTPS, browser/mobile/keyboard, outages and persistent redeploy.
 - [ ] Publish accurate NASA/AI credits and complete the demo/submission requirements.

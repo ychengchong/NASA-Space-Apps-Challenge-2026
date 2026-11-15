@@ -1,0 +1,336 @@
+{
+ "report": {
+  "condition": "rag",
+  "cases": 77,
+  "run": 77,
+  "not_run": 0,
+  "passed": 65,
+  "failed": 12,
+  "pass_rate": 0.8441558441558441,
+  "wilson95": [
+   0.7470629230044414,
+   0.9085412777751818
+  ],
+  "target_pass_rate": 0.9,
+  "by_category": {
+   "definition": {
+    "cases": 11,
+    "passed": 6,
+    "failed": 5,
+    "not_run": 0
+   },
+   "source/grid context": {
+    "cases": 8,
+    "passed": 8,
+    "failed": 0,
+    "not_run": 0
+   },
+   "limitation": {
+    "cases": 10,
+    "passed": 6,
+    "failed": 4,
+    "not_run": 0
+   },
+   "conflicting evidence": {
+    "cases": 7,
+    "passed": 6,
+    "failed": 1,
+    "not_run": 0
+   },
+   "absent evidence": {
+    "cases": 6,
+    "passed": 5,
+    "failed": 1,
+    "not_run": 0
+   },
+   "misleading causal premise": {
+    "cases": 5,
+    "passed": 5,
+    "failed": 0,
+    "not_run": 0
+   },
+   "prompt injection in the question": {
+    "cases": 5,
+    "passed": 5,
+    "failed": 0,
+    "not_run": 0
+   },
+   "invalid citation request": {
+    "cases": 2,
+    "passed": 2,
+    "failed": 0,
+    "not_run": 0
+   },
+   "new-investigation request": {
+    "cases": 6,
+    "passed": 6,
+    "failed": 0,
+    "not_run": 0
+   },
+   "forecasting request": {
+    "cases": 4,
+    "passed": 4,
+    "failed": 0,
+    "not_run": 0
+   },
+   "request for a number": {
+    "cases": 5,
+    "passed": 5,
+    "failed": 0,
+    "not_run": 0
+   },
+   "wrong-investigation binding": {
+    "cases": 4,
+    "passed": 3,
+    "failed": 1,
+    "not_run": 0
+   },
+   "unknown investigation ID": {
+    "cases": 2,
+    "passed": 2,
+    "failed": 0,
+    "not_run": 0
+   },
+   "invalid investigation ID": {
+    "cases": 1,
+    "passed": 1,
+    "failed": 0,
+    "not_run": 0
+   },
+   "invalid request": {
+    "cases": 1,
+    "passed": 1,
+    "failed": 0,
+    "not_run": 0
+   }
+  },
+  "critical": {},
+  "failures": [
+   {
+    "id": "r2-001",
+    "category": "definition",
+    "outcome": "answered",
+    "failed_checks": [
+     "references_any"
+    ]
+   },
+   {
+    "id": "r2-002",
+    "category": "definition",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-008",
+    "category": "definition",
+    "outcome": "answered",
+    "failed_checks": [
+     "references_any"
+    ]
+   },
+   {
+    "id": "r2-009",
+    "category": "definition",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-010",
+    "category": "definition",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-020",
+    "category": "limitation",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-021",
+    "category": "limitation",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-025",
+    "category": "limitation",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-027",
+    "category": "limitation",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-031",
+    "category": "conflicting evidence",
+    "outcome": "insufficient_evidence",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-037",
+    "category": "absent evidence",
+    "outcome": "new_investigation_required",
+    "failed_checks": [
+     "status"
+    ]
+   },
+   {
+    "id": "r2-070",
+    "category": "wrong-investigation binding",
+    "outcome": "new_investigation_required",
+    "failed_checks": [
+     "proposal"
+    ]
+   }
+  ],
+  "review_pending": 32,
+  "retrieval_relevance": {
+   "scored": 55,
+   "relevant": 46,
+   "not_relevant": [
+    "r2-010",
+    "r2-013",
+    "r2-025",
+    "r2-043",
+    "r2-044",
+    "r2-045",
+    "r2-061",
+    "r2-062",
+    "r2-063"
+   ]
+  },
+  "latency_seconds": {
+   "median": 3.93,
+   "p90": 5.333,
+   "max": 6.736
+  },
+  "timeouts": 0,
+  "searches": 73,
+  "generations": 73,
+  "reserved_microusd": 300045,
+  "reserved_usd": 0.300045,
+  "sent": {
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "803477fae59e721fc42241314b5105f2fe82f70f0714d9ef4730ecb91b47133e",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "calls": 73
+    }
+   ],
+   "served_models": [
+    "gpt-6-luna"
+   ]
+  }
+ },
+ "comparison": {
+  "paired_cases": 77,
+  "both_passed": [
+   "r2-013",
+   "r2-019",
+   "r2-034",
+   "r2-036",
+   "r2-038",
+   "r2-039",
+   "r2-040",
+   "r2-041",
+   "r2-042",
+   "r2-043",
+   "r2-044",
+   "r2-045",
+   "r2-046",
+   "r2-047",
+   "r2-048",
+   "r2-049",
+   "r2-050",
+   "r2-051",
+   "r2-052",
+   "r2-053",
+   "r2-054",
+   "r2-055",
+   "r2-056",
+   "r2-057",
+   "r2-058",
+   "r2-059",
+   "r2-060",
+   "r2-061",
+   "r2-062",
+   "r2-063",
+   "r2-064",
+   "r2-065",
+   "r2-066",
+   "r2-067",
+   "r2-068",
+   "r2-069",
+   "r2-072",
+   "r2-074",
+   "r2-075",
+   "r2-076",
+   "r2-077"
+  ],
+  "improvements": [
+   "r2-003",
+   "r2-004",
+   "r2-005",
+   "r2-006",
+   "r2-007",
+   "r2-011",
+   "r2-012",
+   "r2-014",
+   "r2-015",
+   "r2-016",
+   "r2-017",
+   "r2-018",
+   "r2-022",
+   "r2-023",
+   "r2-024",
+   "r2-026",
+   "r2-028",
+   "r2-029",
+   "r2-030",
+   "r2-032",
+   "r2-033",
+   "r2-035",
+   "r2-071",
+   "r2-073"
+  ],
+  "regressions": [
+   "r2-037"
+  ],
+  "both_failed": [
+   "r2-001",
+   "r2-002",
+   "r2-008",
+   "r2-009",
+   "r2-010",
+   "r2-020",
+   "r2-021",
+   "r2-025",
+   "r2-027",
+   "r2-031",
+   "r2-070"
+  ],
+  "identities_matched": true,
+  "mismatched_identities": []
+ }
+}

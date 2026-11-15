@@ -24,11 +24,12 @@ ACCESSED = date(2026, 11, 15)
 METHODOLOGY_ID = "power-methodology"
 METHODOLOGY_SECTION = "power-methodology-01"
 METHODOLOGY_TEXT = (
-    "POWER provides meteorology from the MERRA-2 reanalysis. MERRA-2 starts in 1980 and "
-    "combines observations with a weather model on a regular grid."
+    "POWER provides meteorology such as air temperature and WS10M wind from the MERRA-2 "
+    "reanalysis. MERRA-2 starts in 1980 and combines observations with a weather model on a "
+    "regular grid."
 )
 PROCESSING_SECTION = "power-methodology-02"
-PROCESSING_TEXT = "Monthly values are averages of daily values over each month."
+PROCESSING_TEXT = "Monthly air temperature values are averages of daily values over each month."
 VERDICTS_ID = "project-verdicts"
 VERDICTS_SECTION = "project-verdicts-01"
 VERDICTS_TEXT = (

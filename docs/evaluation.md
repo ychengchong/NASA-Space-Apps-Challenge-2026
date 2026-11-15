@@ -1,11 +1,16 @@
 # Evaluation and submission evidence
 
-Status: the planner/discovery and RAG held-out suites were run once with `gpt-6-luna` on
-15 November 2026 and graded by automated checks and AI agents, not by people. Neither gate
-is met. The planner/discovery run passed 70 of 75, but three discovery cases cite a section
-that does not support the suggestion, a critical error; the RAG gate did not pass (39 of 65
-under both AI graders, and 3 critical errors under the suite's definitions). See the
-[evaluation results](evaluation-results.md). No student study has been run.
+Status: two held-out rounds were run with `gpt-6-luna` on 15 November 2026, each graded by
+automated checks and two AI graders, not by people. Neither gate is met in either round.
+Round 2, on new suites, is the current evidence:
+
+- Planner/discovery passed 60 of 70 cases (85.7%, below the 90% target), with 3 critical
+  fabricated citations in discovery.
+- RAG passed 65 of 77 cases (84.4%, below 90%) under the automated checks and both graders
+  combined, with no critical error.
+
+See the [evaluation results](evaluation-results.md), which keep round 1 as history. No
+student study has been run.
 This protocol implements the planned [Draft 5 release gates](technical-spec.md#12-build-plan-and-submission).
 Existing software checks are recorded separately in [verification](verification.md).
 
@@ -51,8 +56,20 @@ OpenAI is the selected path for new discovery/RAG work. The evaluated model is
 `gpt-6-luna`; its identities and results are in the [evaluation results](evaluation-results.md).
 AI_EVALUATED, DISCOVERY_EVALUATED and RAG_EVALUATED are owner activation
 attestations after recording evidence, not automatically measured success claims. Only
-the owner sets them to true; an AI agent may report that a gate's evidence is met, but
-does not set the flag.
+the owner sets them to true, or someone the owner has delegated the decision to. An AI
+agent may otherwise report that a gate's evidence is met, but does not set the flag.
+
+For round 2 the lead agent of the evaluation workflow reports that the owner delegated the
+gate decisions to it on 15 November 2026. Under the rules below, it set
+`DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false`, because neither gate passed. The
+rules it applied:
+
+- The planner/discovery gate passes only if at least 90% of the held-out planner cases pass
+  and there are zero critical errors. Citation support counts if either grader judges it
+  unsupported.
+- The RAG gate passes only if the combined pass rate is at least 90% and there are zero
+  critical errors. A case passes the combined verdict only when the automated checks and
+  both graders all pass it.
 
 ## Planned RAG confirmation suite
 

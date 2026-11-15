@@ -172,6 +172,42 @@ def test_retrieval_searches_with_the_question_as_asked(
     assert search["max_num_results"] == 4
 
 
+def test_a_question_asking_for_a_value_is_searched_with_its_fields_name(
+    services: Services, investigation: Investigation, fake: FakeOpenAI
+) -> None:
+    question = "What is the p-value here?"
+
+    ask(services, investigation, question)
+
+    (search,) = fake.searches
+    assert search["query"] == explain.retrieval_query(question)
+    assert search["query"].startswith(question)
+    assert "Mann-Kendall p-value (mk_p)" in search["query"]
+
+
+@pytest.mark.parametrize(
+    ("question", "names"),
+    [
+        pytest.param("How fast is it rising per decade?", ["sen_slope"], id="rate"),
+        pytest.param("How much did it change in total?", ["total_change"], id="total"),
+        pytest.param("How many years were used?", ["(n)"], id="years-used"),
+        pytest.param("What does the confidence interval say?", ["sen_ci95"], id="interval"),
+        pytest.param("What is the p-value and the rate?", ["mk_p", "sen_slope"], id="two"),
+        pytest.param("Did melting ice cause this?", ["significance is not cause"], id="cause"),
+    ],
+)
+def test_the_search_names_every_field_a_question_asks_about(
+    question: str, names: list[str]
+) -> None:
+    query = explain.retrieval_query(question)
+
+    assert all(name in query for name in names)
+
+
+def test_a_question_naming_no_field_is_searched_as_asked() -> None:
+    assert explain.retrieval_query("What is MERRA-2?") == "What is MERRA-2?"
+
+
 def test_the_model_sees_verdict_kinds_and_field_names_but_no_value_of_the_result(
     services: Services, investigation: Investigation, fake: FakeOpenAI
 ) -> None:
@@ -682,3 +718,17 @@ def test_a_budget_that_cannot_fund_retrieval_is_rate_limited(
 def test_instructions_point_a_request_for_a_value_at_a_referable_field(field: str) -> None:
     assert field in explain.RESULT_FIELDS
     assert field in explain.INSTRUCTIONS
+
+
+@pytest.mark.parametrize(
+    "rule",
+    [
+        "one or two short plain-English sentences",
+        "Prefer it to stretching a passage",
+        "only when the question asks for a different variable, place, period or season",
+        "a forecast, a record value",
+        "Use it too when the question asks nothing about this investigation",
+    ],
+)
+def test_instructions_keep_blocks_to_what_their_passages_state(rule: str) -> None:
+    assert rule in " ".join(explain.INSTRUCTIONS.split())

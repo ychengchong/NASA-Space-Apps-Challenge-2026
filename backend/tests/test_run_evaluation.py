@@ -13,7 +13,7 @@ import httpx
 import pytest
 from fastapi import FastAPI
 
-from app import ai
+from app import ai, ai_guard
 from app.adapters import discover, explain
 from app.cache import Cache
 from app.config import load_settings
@@ -108,10 +108,14 @@ def planner_expected(**changes: Any) -> dict[str, Any]:
 MUST_ASK = {"check": True, "accept": [], "ask_ok": True, "subset_of": []}
 
 
+# A suite's citation_sections_by_variable (round 2): which sections are about which variable.
+CITATION_SECTIONS = {"air_temp": [METHODOLOGY_SECTION], "precipitation": ["project-verdicts-01"]}
+
+
 def planner(
     expected: dict[str, Any], body: object, endpoint: str = "discover", http: int = 200
 ) -> dict[str, Any]:
-    return runner.check_planner_case(expected, endpoint, http, body, CUTOFF)
+    return runner.check_planner_case(expected, endpoint, http, body, CUTOFF, CITATION_SECTIONS)
 
 
 def failed(result: dict[str, Any]) -> set[str]:
@@ -269,6 +273,42 @@ def test_generated_text_is_left_for_the_reviewer() -> None:
     result = planner(planner_expected(premise_must_not_be_endorsed=True), discovery())
 
     assert result["review_pending"] == ["generated_text_claims", "premise_must_not_be_endorsed"]
+
+
+def test_every_suggestion_citing_a_section_about_its_variable_passes_citation_support() -> None:
+    result = planner(planner_expected(citation_support="every_suggestion"), discovery())
+
+    assert failed(result) == set()
+    assert result["critical"] == []
+
+
+def test_a_suggestion_citing_no_section_about_its_variable_is_a_fabricated_citation() -> None:
+    off_topic = {
+        "variable": variable("precipitation"),
+        "reason": "Rain.",
+        "citations": [citation()],
+    }
+    body = discovery(suggestions=[*discovery()["suggestions"], off_topic])
+
+    result = planner(planner_expected(citation_support="every_suggestion"), body)
+
+    assert failed(result) == {"citation_support"}
+    assert next(c for c in result["checks"] if c["check"] == "citation_support")["detail"] == [
+        "precipitation"
+    ]
+    assert result["critical"] == ["fabricated_citation"]
+
+
+def test_citation_support_is_not_checked_where_the_case_does_not_ask_for_it() -> None:
+    off_topic = {
+        "variable": variable("precipitation"),
+        "reason": "Rain.",
+        "citations": [citation()],
+    }
+
+    for expected in (planner_expected(), planner_expected(citation_support="not_applicable")):
+        result = planner(expected, discovery(suggestions=[off_topic]))
+        assert "citation_support" not in {check["check"] for check in result["checks"]}
 
 
 # RAG checks
@@ -506,6 +546,9 @@ def test_the_no_rag_condition_turns_retrieval_off_only_inside_the_run(tmp_path: 
 
     assert explain.explain is original
     assert ai.reserve_budget.__name__ == "reserve_budget"
+    assert ai_guard.check_discovery.__name__ == "check_discovery"
+    assert ai_guard.check_explanation.__name__ == "check_explanation"
+    assert ai_guard.supported_suggestions.__name__ == "supported_suggestions"
 
 
 # One case through the real endpoint code, against a fake OpenAI
@@ -616,6 +659,91 @@ def test_a_case_records_the_model_the_provider_served(
     assert [item["schema_name"] for item in sent["prompts"]] == [discover.SCHEMA_NAME]
 
 
+def test_a_case_records_each_retrieved_passage_with_its_score(
+    services: Services, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    recorder = runner.CallRecorder(runner.SpendLedger.load(tmp_path / "spend.json"))
+    fake = FakeOpenAI(hits=[search_hit(METHODOLOGY_SECTION)], output=DISCOVERY_OUTPUT)
+
+    outcome = run_discovery_case(create_app(services), fake, recorder, monkeypatch)
+
+    (retrieval,) = outcome["retrievals"]
+    assert retrieval["query"] == DISCOVERY_CASE["question"]
+    assert retrieval["passages"] == [
+        {
+            "source_id": METHODOLOGY_ID,
+            "section_id": METHODOLOGY_SECTION,
+            "file_id": f"file-{METHODOLOGY_SECTION}",
+            "score": 0.8,
+        }
+    ]
+
+
+def test_a_case_keeps_the_providers_raw_output_without_the_echoed_instructions(
+    services: Services, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    recorder = runner.CallRecorder(runner.SpendLedger.load(tmp_path / "spend.json"))
+    output_item = {
+        "type": "message",
+        "content": [{"type": "output_text", "text": json.dumps(DISCOVERY_OUTPUT)}],
+    }
+    served_body = {
+        "model": "test-model",
+        "status": "completed",
+        "instructions": "the whole prompt",
+        "usage": {"output_tokens": 40, "output_tokens_details": {"reasoning_tokens": 12}},
+        "output": [output_item],
+    }
+    fake = FakeOpenAI(hits=[search_hit(METHODOLOGY_SECTION)], raw_body=served_body)
+
+    outcome = run_discovery_case(create_app(services), fake, recorder, monkeypatch)
+
+    kept = outcome["prompts"][0]["provider_response"]
+    assert kept["output"] == [output_item]
+    assert kept["usage"]["output_tokens_details"]["reasoning_tokens"] == 12
+    assert "instructions" not in kept
+
+
+def test_a_reasoning_item_is_kept_without_its_encrypted_content() -> None:
+    reasoning = {"type": "reasoning", "id": "rs_1", "summary": [], "encrypted_content": "gAAA"}
+    message = {"type": "message", "content": []}
+
+    kept = runner.provider_response_record({"model": "m", "output": [reasoning, message]})
+
+    assert kept["output"] == [{"type": "reasoning", "id": "rs_1", "summary": []}, message]
+
+
+def test_a_withheld_output_records_the_guard_problems_that_withheld_it(
+    services: Services, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    recorder = runner.CallRecorder(runner.SpendLedger.load(tmp_path / "spend.json"))
+    numbered = {"variable_id": "air_temp", "reason": "It warmed 3 degrees.", "source_ids": []}
+    output = {**DISCOVERY_OUTPUT, "suggestions": [numbered]}
+    fake = FakeOpenAI(hits=[search_hit(METHODOLOGY_SECTION)], output=output)
+
+    outcome = run_discovery_case(create_app(services), fake, recorder, monkeypatch)
+
+    assert outcome["reason"] == "validation_failed"
+    (check,) = outcome["guard_checks"]
+    assert check["check"] == "discovery"
+    assert {"reason": "number_in_text", "where": "suggestions[0].reason"} in check["problems"]
+    assert {"reason": "missing_citation", "where": "suggestions[0].source_ids"} in check["problems"]
+    assert outcome["citation_support"] == []
+
+
+def test_a_case_records_the_citations_the_support_check_kept(
+    services: Services, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    recorder = runner.CallRecorder(runner.SpendLedger.load(tmp_path / "spend.json"))
+    fake = FakeOpenAI(hits=[search_hit(METHODOLOGY_SECTION)], output=DISCOVERY_OUTPUT)
+
+    outcome = run_discovery_case(create_app(services), fake, recorder, monkeypatch)
+
+    assert outcome["guard_checks"] == [{"check": "discovery", "problems": []}]
+    cited = [{"variable_id": "air_temp", "source_ids": [METHODOLOGY_SECTION]}]
+    assert outcome["citation_support"] == [{"cited": cited, "kept": cited}]
+
+
 def test_a_fault_inside_the_app_is_recorded_as_that_cases_500(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -652,6 +780,26 @@ def test_the_case_the_spend_cap_interrupts_is_not_run(
     summary = runner.report({"cases": [outcome]})
     assert (summary["run"], summary["not_run"]) == (0, 1)
     assert summary["reserved_microusd"] == SEARCH_PRICE
+
+
+def test_retrieval_is_relevant_when_any_search_returned_an_expected_section() -> None:
+    retrievals = [
+        {"query": "q", "passages": [{"section_id": "a"}, {"section_id": "b"}]},
+        {"query": "q2", "passages": [{"section_id": "c"}]},
+    ]
+
+    relevant = runner.retrieval_relevance({"expected_retrieval_any": ["c", "z"]}, retrievals)
+    missed = runner.retrieval_relevance({"expected_retrieval_any": ["z"]}, retrievals)
+
+    assert relevant == {"relevant": True, "hits": ["c"], "returned": ["a", "b", "c"]}
+    assert missed is not None and not missed["relevant"]
+
+
+def test_retrieval_relevance_is_not_scored_where_no_section_is_on_topic() -> None:
+    retrievals = [{"query": "q", "passages": [{"section_id": "a"}]}]
+
+    assert runner.retrieval_relevance({"expected_retrieval_any": []}, retrievals) is None
+    assert runner.retrieval_relevance({}, retrievals) is None
 
 
 # The report
@@ -721,6 +869,23 @@ def test_the_report_counts_categories_failures_latency_and_cost() -> None:
     assert summary["reserved_microusd"] == 3 * 2500 + 700
 
 
+def test_the_report_counts_retrieval_relevance_apart_from_the_pass_rate() -> None:
+    relevant = {"relevant": True, "hits": ["a"], "returned": ["a"]}
+    missed = {"relevant": False, "hits": [], "returned": ["b"]}
+    results = {
+        "cases": [
+            case_result("a", "x", False, retrieval_relevance=relevant),
+            case_result("b", "x", True, retrieval_relevance=missed),
+            case_result("c", "x", True, retrieval_relevance=None),
+        ]
+    }
+
+    summary = runner.report(results)
+
+    assert summary["retrieval_relevance"] == {"scored": 2, "relevant": 1, "not_relevant": ["b"]}
+    assert summary["passed"] == 2
+
+
 def test_the_paired_comparison_reports_regressions_as_well_as_improvements() -> None:
     identities = {"model": "m", "prompt_sha256": {}, "corpus_version": "v"}
     rag_results = {
@@ -764,7 +929,15 @@ SUITES = Path(runner.BACKEND_DIR) / "evaluation"
 
 
 @pytest.mark.parametrize(
-    "name", ["planner_dev.json", "planner_suite.json", "rag_dev.json", "rag_suite.json"]
+    "name",
+    [
+        "planner_dev.json",
+        "planner_suite.json",
+        "rag_dev.json",
+        "rag_suite.json",
+        "round2/planner_dev.json",
+        "round2/rag_dev.json",
+    ],
 )
 def test_every_frozen_suite_loads(name: str) -> None:
     assert runner.load_suite(SUITES / name)["cases"]
@@ -798,6 +971,10 @@ def write_rag_suite(tmp_path: Path, **case_changes: Any) -> Path:
         pytest.param({"investigation": None}, id="no-investigation-id"),
         pytest.param({"question": None}, id="no-question"),
         pytest.param({"expected": rag_expected(must_not=["sound_wrong"])}, id="unknown-must-not"),
+        pytest.param(
+            {"expected": rag_expected(must_not=[], expected_retrieval_any="project-verdicts-01")},
+            id="retrieval-not-a-list",
+        ),
     ],
 )
 def test_a_malformed_suite_is_refused_before_any_call(
@@ -805,6 +982,38 @@ def test_a_malformed_suite_is_refused_before_any_call(
 ) -> None:
     with pytest.raises(runner.SuiteError):
         runner.load_suite(write_rag_suite(tmp_path, **changes))
+
+
+def write_planner_suite(tmp_path: Path, citation_support: str, **suite: Any) -> Path:
+    case = {
+        "id": "one",
+        "endpoint": "discover",
+        "category": "exact request",
+        "question": "Berlin air temperature 1991 to 2020.",
+        "expected": planner_expected(citation_support=citation_support),
+    }
+    path = tmp_path / "planner.json"
+    path.write_text(json.dumps({"suite": "planner", "cases": [case], **suite}))
+    return path
+
+
+def test_a_planner_suite_with_citation_support_needs_its_section_map(tmp_path: Path) -> None:
+    mapped = write_planner_suite(
+        tmp_path, "every_suggestion", citation_sections_by_variable=CITATION_SECTIONS
+    )
+
+    assert runner.load_suite(mapped)["cases"]
+    with pytest.raises(runner.SuiteError):
+        runner.load_suite(write_planner_suite(tmp_path, "every_suggestion"))
+
+
+def test_a_planner_suite_with_an_unknown_citation_support_is_rejected(tmp_path: Path) -> None:
+    unknown = write_planner_suite(
+        tmp_path, "some_value", citation_sections_by_variable=CITATION_SECTIONS
+    )
+
+    with pytest.raises(runner.SuiteError, match="unknown citation_support"):
+        runner.load_suite(unknown)
 
 
 def test_a_rag_case_sends_its_examples_recorded_id() -> None:

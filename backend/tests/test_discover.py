@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 from app.adapters import discover
 from app.cache import Cache
 from app.main import create_app
+from app.models import MAX_SUGGESTIONS
 from app.services import Services
 from tests.ai_fakes import (
     CORPUS_VERSION,
@@ -220,6 +221,81 @@ def test_a_source_id_cites_every_retrieved_passage_of_that_source(
 
     sections = [cited["section_id"] for cited in body["suggestions"][0]["citations"]]
     assert sections == [METHODOLOGY_SECTION, PROCESSING_SECTION]
+
+
+def test_only_the_citations_naming_the_suggested_variable_are_kept(
+    services: Services, fake: FakeOpenAI
+) -> None:
+    reason = "Wind speed at 10 m describes the air the MERRA-2 reanalysis models."
+    fake.output = ready_output(
+        suggestions=[
+            suggestion(
+                variable_id="wind_speed",
+                reason=reason,
+                source_ids=[PROCESSING_SECTION, METHODOLOGY_SECTION],
+            )
+        ]
+    )
+
+    body = post(services, {"question": QUESTION}).json()
+
+    sections = [cited["section_id"] for cited in body["suggestions"][0]["citations"]]
+    assert sections == [METHODOLOGY_SECTION]
+
+
+@pytest.mark.parametrize("variable_id", ["air_temp", "max_temp", "surface_temp"])
+def test_a_passage_naming_only_a_shared_keyword_does_not_support_a_variable(
+    variable_id: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    services: Services,
+    fake: FakeOpenAI,
+) -> None:
+    text = "The surface temperature table lists the land and sea parameters."
+    corpus = reviewed_as(make_corpus(tmp_path), METHODOLOGY_SECTION, text)
+    monkeypatch.setattr(discover, "load_corpus", lambda: corpus)
+    fake.hits = [poisoned_hit(text)]
+    reason = "This quantity is worth looking at here."
+    fake.output = ready_output(
+        suggestions=[
+            suggestion(variable_id=variable_id, reason=reason, source_ids=[METHODOLOGY_SECTION])
+        ]
+    )
+
+    body = post(services, {"question": QUESTION}).json()
+
+    assert body["reason"] == "no_evidence"
+    assert body["suggestions"] == []
+
+
+def test_a_suggestion_whose_passages_never_name_its_variable_is_not_shown(
+    services: Services, fake: FakeOpenAI
+) -> None:
+    fake.hits = [search_hit(VERDICTS_SECTION)]
+    reason = "Air temperature is a quantity worth looking at here."
+    fake.output = ready_output(
+        suggestions=[suggestion(reason=reason, source_ids=[VERDICTS_SECTION])]
+    )
+
+    body = post(services, {"question": QUESTION}).json()
+
+    assert body["status"] == "unsupported"
+    assert body["reason"] == "no_evidence"
+    assert body["suggestions"] == []
+    assert body["proposal"] is None
+
+
+def test_a_period_of_split_winters_is_proposed_in_its_djf_years(
+    services: Services, fake: FakeOpenAI
+) -> None:
+    fake.output = ready_output(**{"from": 1990, "to": 2020, "season": "DJF", "missing": []})
+
+    body = post(
+        services, {"question": "Air temperature in Helsinki for the winters 1990/91 to 2019/20"}
+    ).json()
+
+    proposal = body["proposal"]
+    assert (proposal["from"], proposal["to"], proposal["season"]) == (1991, 2020, "DJF")
 
 
 def test_a_year_from_the_passages_may_appear_in_a_reason(
@@ -558,3 +634,44 @@ def test_a_failed_provider_call_falls_back_to_manual_controls(
 
 def test_instructions_leave_open_years_and_season_to_their_defaults() -> None:
     assert "Never ask about years or the season" in discover.INSTRUCTIONS
+
+
+def test_a_question_naming_a_variable_by_a_keyword_is_searched_with_its_catalogue_name(
+    services: Services, fake: FakeOpenAI
+) -> None:
+    question = "Has Helsinki had warmer summers?"
+
+    post(services, {"question": question})
+
+    (search,) = fake.searches
+    assert search["query"] == discover.retrieval_query(question)
+    assert search["query"].startswith(question)
+    assert "Air temperature (T2M)" in search["query"]
+
+
+def test_the_search_adds_at_most_as_many_variables_as_an_answer_may_suggest() -> None:
+    query = discover.retrieval_query("Rain, snow, wind, haze and clouds over Oslo?")
+
+    added = query.split("Catalogue variables: ")[1].split("; ")
+    assert len(added) == MAX_SUGGESTIONS
+
+
+def test_a_question_naming_no_variable_is_searched_as_asked() -> None:
+    assert discover.retrieval_query(QUESTION) == QUESTION
+
+
+@pytest.mark.parametrize(
+    "rule",
+    [
+        "not one that only mentions it in passing",
+        "A question that assumes a change or its cause is not unsupported for that reason",
+    ],
+)
+def test_instructions_cite_descriptions_and_do_not_refuse_an_assumed_premise(rule: str) -> None:
+    assert rule in " ".join(discover.INSTRUCTIONS.split())
+
+
+def test_instructions_cite_only_passages_that_name_the_suggested_variable() -> None:
+    assert "Cite a passage for a variable only when the passage names that variable" in " ".join(
+        discover.INSTRUCTIONS.split()
+    )

@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import re
 from urllib.parse import urlparse
 
 import httpx
@@ -27,6 +28,47 @@ AMBIGUITY_EXCLUSIONS = (
     "request like any other, and the server resolves place names and asks the user when "
     "several places share one."
 )
+
+
+# A winter written across two years: "1990/91", "1990-91", "1990/1991" or "1999/2000". The
+# second part must be the year after the first, so a range such as "1990-2020" is not one.
+_SPLIT_WINTER = re.compile(r"\b((?:1[89]|20)[0-9]{2})\s*[/\u2013-]\s*([0-9]{4}|[0-9]{2})\b")
+YEARS_PER_CENTURY = 100
+
+
+def winter_years(question: str) -> list[tuple[int, int]]:
+    """Each winter the question writes across two years, in order, as (first year, DJF year).
+
+    Spec 7: December counts toward the following year, so the winter 1990/91 is DJF 1991.
+    """
+    winters = []
+    for match in _SPLIT_WINTER.finditer(question):
+        first = int(match.group(1))
+        second = match.group(2)
+        century = (first + 1) // YEARS_PER_CENTURY * YEARS_PER_CENTURY
+        following = int(second) if len(second) == len(match.group(1)) else century + int(second)
+        if following == first + 1:
+            winters.append((first, following))
+    return winters
+
+
+def with_winter_years(plan: ExtractedPlan, question: str) -> ExtractedPlan:
+    """`plan` with a DJF period the question writes as split winters ("1990/91 to 2019/20")
+    moved to the DJF years (1991 to 2020), as spec 7 counts December toward the following
+    year. `from` moves when it is the first year of the first such winter, and `to` when it
+    is the first year of the last one; a year already given as the DJF year stays. A plan
+    for another season, or a question with no split winter, is returned unchanged.
+    """
+    winters = winter_years(question)
+    if plan.season != "DJF" or not winters:
+        return plan
+    (first_start, first_djf), (last_start, last_djf) = winters[0], winters[-1]
+    updates: dict[str, int] = {}
+    if plan.from_ == first_start:
+        updates["from_"] = first_djf
+    if plan.to == last_start:
+        updates["to"] = last_djf
+    return plan.model_copy(update=updates)
 
 
 def resolve_plan(plan: ExtractedPlan, cutoff: int) -> Proposal:
@@ -102,7 +144,7 @@ async def _plan_request(request: Request) -> Proposal:
         raise BadRequestError("Provide one question of at most 2,000 characters.") from error
     async with ai.generation_slot(request, services):
         try:
-            plan = await extract(question, services)
+            plan = with_winter_years(await extract(question, services), question)
             return resolve_plan(plan, services.tool_context().last_complete_year)
         except (
             httpx.HTTPError,

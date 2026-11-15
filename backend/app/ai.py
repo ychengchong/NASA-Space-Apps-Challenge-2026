@@ -46,6 +46,10 @@ AI_TURNS_COUNTER = "planner_turns"
 MESSAGE_FRAMING_TOKENS = 1024
 MICROUSD_PER_MILLION = 1_000_000
 
+# Spec 8: hidden reasoning tokens count against the output cap, and at the model's default
+# effort they cut off held-out discovery outputs. A lower effort leaves room for the answer.
+REASONING_EFFORT = "low"
+
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 OPENAI_VECTOR_STORES_URL = "https://api.openai.com/v1/vector_stores"
 # A sentence end in the last half of a capped passage is a good place to cut it.
@@ -190,10 +194,11 @@ async def openai_json(
 ) -> str:
     """The JSON text of one OpenAI Responses generation constrained to `schema`.
 
-    The budget is reserved first; the call uses store=false, strict json_schema output and no
-    retry. Raises `httpx.HTTPError` for transport and HTTP failures, `ProviderOutputError` for
-    a refusal, an incomplete output or no text, and `KeyError`/`TypeError` for a malformed
-    response body. The caller validates the returned text against its own model.
+    The budget is reserved first; the call uses store=false, strict json_schema output, the
+    reasoning effort `REASONING_EFFORT` and no retry. Raises `httpx.HTTPError` for transport
+    and HTTP failures, `ProviderOutputError` for a refusal, an incomplete output or no text,
+    and `KeyError`/`TypeError` for a malformed response body. The caller validates the
+    returned text against its own model.
     """
     reserve_generation_budget(instructions, user_input, schema, max_output_tokens, services)
     async with _client() as client:
@@ -204,6 +209,7 @@ async def openai_json(
                 "model": services.settings.ai_model,
                 "store": False,
                 "max_output_tokens": max_output_tokens,
+                "reasoning": {"effort": REASONING_EFFORT},
                 "instructions": instructions,
                 "input": user_input,
                 "text": {

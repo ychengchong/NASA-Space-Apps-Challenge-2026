@@ -196,6 +196,15 @@
       "notes": "Written by the project from technical-spec.md section 7 and the README's method text; not a NASA source."
     },
     {
+      "source_id": "project-result-fields",
+      "kind": "project",
+      "publisher": "Trend Detective project",
+      "title": "What the result fields mean",
+      "url": "https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/main/backend/data/corpus/project/result-fields.md",
+      "path": "project/result-fields.md",
+      "notes": "Written by the project from technical-spec.md sections 5 and 7 and the field labels of the 'Ask about this investigation' panel (frontend/src/explanation.ts); not a NASA source."
+    },
+    {
       "source_id": "project-variables",
       "kind": "project",
       "publisher": "Trend Detective project",
