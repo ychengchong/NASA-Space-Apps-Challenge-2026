@@ -21,8 +21,14 @@ compare places, inspect sources, try the interpretation lesson and download evid
 | [AI disclosure](docs/ai-disclosure.md) | Team decisions, development assistance, runtime AI and contributor history |
 | [Deployment](docs/deployment.md) | Public hosting, persistent state and operational checks |
 
-The source is public. No public hosted app or final demo/presentation URL has been
-provided in this repository. A local demo is not a public deployment.
+**Demo:** [Watch or download the 29-second video](demo-video/trend-detective-demo.mp4)
+([subtitles and playback notes](demo-video/README.md)). It demonstrates an actual
+local investigation and AI interaction; response waits are cut. The animation and
+voice-over are AI-generated and disclosed in the video and metadata.
+
+The source and demo are public supporting materials. No public interactive app
+has been deployed; a local demo is not a public deployment. The assistant remains
+experimental, as described in [AI evaluation](docs/evaluation-results.md).
 
 ## Run locally
 

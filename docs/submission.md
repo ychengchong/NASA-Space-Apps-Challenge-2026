@@ -126,6 +126,21 @@ Do not use NASA logos, flags or mission identifiers in generated content.
 The supplied organizer message permits either format. A public hosted API or
 downloaded local model is not required for the recorded prototype demonstration.
 
+The finished demo is [available in the repository](../demo-video/README.md), with
+[seven subtitle cues](../demo-video/trend-detective-demo.srt). Its movie/video
+duration is 29 seconds and audio track approximately 29.02 seconds. Its metadata
+discloses AI video and voice-over generation; representative frames were checked
+for the visible watermark, and the full video/audio decoded without errors.
+The recording cuts provider waits and does not establish response latency
+or general assistant accuracy. A final listen/watch by a teammate remains required.
+
+**Public demo URL to paste into the form:**
+
+https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026/blob/df756f87e7a495295b5cc49867e5b4f11f02378a/demo-video/trend-detective-demo.mp4
+
+If an inline player is unavailable, use View raw / Download raw file, or the
+[direct MP4](https://raw.githubusercontent.com/ychengchong/NASA-Space-Apps-Challenge-2026/df756f87e7a495295b5cc49867e5b4f11f02378a/demo-video/trend-detective-demo.mp4).
+
 | Time | Suggested video sequence |
 | --- | --- |
 | 0–5 seconds | Name the problem and open a saved investigation |
@@ -156,8 +171,8 @@ during this cleanup, so its current contents were not independently reverified.
 | Visualise a time series and estimate change | Interactive chart and Sen's slope | Keep variable, units and period visible |
 | Assess significance | Scoped annual-temperature inference and retained simulation evidence | Explain assumptions; other analyses stay descriptive |
 | Project name, summary and details | Copy-ready fields above | Save and review the official form |
-| Demo video or seven slides | Outline and watermarked diagrams prepared | Final media URL not provided or verified |
-| Public final-project/supporting-material link | https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026 | Commit/push this cleanup and check anonymous access |
+| Demo video or seven slides | 29-second MP4, subtitles and public links above | Teammate's final watch/listen and official form entry |
+| Public final-project/supporting-material link | https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026 | Merge the demo PR and check anonymous access |
 | AI/resource attribution | AI-use statement, visible diagram watermarks and README credits | Retain disclosures in the final uploaded materials |
 | Submission before organizer deadline | Supplied deadline: 15 November 2026, 11:59 PM SGT | Submit and observe the site's confirmation |
 
@@ -167,7 +182,7 @@ during this cleanup, so its current contents were not independently reverified.
 | Creativity | Detective case files connect exploration, evidence, interpretation and sharing | Show that connected journey, rather than only a chart or chatbot |
 | Validity | NASA provenance, deterministic analysis, scoped inference, tests and retained AI evaluations | Disclose experimental AI and the unmet explanation target; avoid causal/forecast claims |
 | Relevance | Variable selection, regional data, time series, rates and significance in the supported scope | Demonstrate one complete eligible temperature investigation |
-| Presentation | Prepared text, workflow, technology graphic and demonstration outline | Finish the media, keep it within the stated format and test all public links |
+| Presentation | Prepared text, diagrams and a 29-second demonstration | Final watch/listen and public-link checks; submit the demo URL |
 
 The challenge's audience guidance, variable definitions, short questions,
 demonstration examples, monthly inputs, interpretation of non-significance,
@@ -183,9 +198,11 @@ No score, nomination, ranking or award outcome can be guaranteed.
 - [x] Prepare summary, project details, resource entries and watermarked diagrams.
 - [x] Record development/runtime AI use and preserve scientific/evaluation evidence.
 - [x] Choose the experimental AI-enabled local demo configuration.
-- [ ] Review and publish the final cleanup revision; record its commit hash.
-- [ ] Upload the 30-second video or seven-slide presentation and add its public URL.
-- [ ] Open the project and media links without login or special permissions.
+- [x] Publish the repository cleanup at `d9b54fb`.
+- [x] Commit the 29-second demo and subtitles; provide a stable public video URL above.
+- [ ] Merge the demo PR and enter its URL in the official form.
+- [x] Check repository/video URLs through unauthenticated HTTP requests.
+- [ ] Watch and listen to the public video in a browser without signing in.
 - [ ] Complete all required official form fields, resource links and SI categories.
 - [ ] Verify the final recording matches the app and retains required disclosures.
 - [ ] Submit before 15 November 2026, 11:59 PM SGT, and observe confirmation.

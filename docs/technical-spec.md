@@ -14,7 +14,8 @@ source-checked RAG sample passed 31/40 combined checks, below the 36/40 target.
 Suites and grades were AI-authored, not independent human validation. These samples
 predate later fixes and are not a claim of final-code accuracy. Earlier rounds remain
 in the [evaluation report](evaluation-results.md). User testing was deferred and
-not conducted; a public deployment and final media link are not verified.
+not conducted; a public deployment is not verified. The demo PR now supplies a
+29-second recording and subtitles, linked in the [submission guide](submission.md).
 The delivery checklist records implementation and evidence separately; unchecked
 future goals are not additional organizer submission requirements. Final actions
 and the supplied-requirements audit are consolidated in the
