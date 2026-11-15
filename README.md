@@ -1,49 +1,44 @@
 # Trend Detective
 
-Investigate a regional Earth-system claim with NASA POWER data: choose a quantity,
-location and dates, inspect its time series and estimated rate, and see whether a
-justified statistical test is available. Built for [Be an Earth System Trend
-Detective!](https://www.spaceappschallenge.org/2026/challenges/earth-system-trend-detective/).
+An educational Earth-science investigation app by **Half-Stack Developers** for
+[Be an Earth System Trend Detective!](https://www.spaceappschallenge.org/2026/challenges/earth-system-trend-detective/).
 
-The app is a prototype, not a forecasting service or a causal attribution tool.
-One meaningfully used NASA dataset meets the organizer requirement supplied to
-the team. More datasets, AI and MCP are not prerequisites for the challenge.
+Choose a location, variable and period; inspect NASA POWER time series, estimate
+change and examine statistical evidence where supported. Explore a case file,
+compare places, inspect sources, try the interpretation lesson and download evidence.
 
-## Submission and documentation
+![Investigation workflow](docs/images/trend-detective-workflow.png)
 
-| Document | Purpose |
+## Start here
+
+| Resource | What it contains |
 | --- | --- |
-| [Submission text](docs/submission.md) | Project summary, details, demo script and remaining submission steps |
-| [Verification](docs/verification.md) | Observed checks and explicit verification limits |
-| [Technical spec](docs/technical-spec.md) | Existing behaviour and the planned LLM/RAG release |
-| [Evaluation protocol](docs/evaluation.md) | Held-out AI tests and intended-user study |
-| [Resource assessment](docs/resource-assessment.md) | Why resources are used or deferred |
-| [AI disclosure](docs/ai-disclosure.md) | Development assistance and runtime AI status |
+| [Submission guide](docs/submission.md) | Copy-ready fields, demo outline, requirement/judging audit and final checklist |
+| [Walkthroughs](docs/walkthroughs.md) | Saved investigations and interpretation prompts |
+| [Technical specification](docs/technical-spec.md) | Architecture, data contracts, methods and inference scope |
+| [Verification](docs/verification.md) | Observed software checks and their limits |
+| [AI evaluation](docs/evaluation-results.md) | Actual model results, failed gates and retained evidence |
+| [AI disclosure](docs/ai-disclosure.md) | Team decisions, development assistance, runtime AI and contributor history |
+| [Deployment](docs/deployment.md) | Public hosting, persistent state and operational checks |
 
-The current prototype is available as source; a public demo link has not been
-provided. OpenAI planning, discovery and RAG are implemented and have been live-tested;
-discovery and explanations are on by default by the owner's decision of 15 November 2026,
-although explanations have not met their quality gate.
-Final recording, public-link checks and submission
-through the official team page remain team actions.
+The source is public. No public hosted app or final demo/presentation URL has been
+provided in this repository. A local demo is not a public deployment.
 
 ## Run locally
 
-Use 64-bit CPython **3.14.5**, uv and Node **22.23.5**. Backend package metadata
-allows Python >=3.12, but this change is tested on Windows 3.14.5. Docker uses the
-same Python version; a successful Windows test is not a verified Linux image.
+Tested on Windows with **Python 3.14.5** and **Node 22.23.5**. The backend package
+allows Python >=3.12; the lockfile pins dependencies. Install uv and Node first.
+
+From the repository root, create a local environment file only if one does not exist:
 
 ```powershell
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 cd backend
 uv sync --locked
-uv run uvicorn app.main:app --reload
+uv run --env-file ../.env uvicorn app.main:app --reload
 ```
 
-To load your repository-root `.env` after configuring it, run the backend with
-`uv run --env-file ../.env uvicorn app.main:app --reload` instead. The default flags
-keep AI off even when a key is present. Never put the server key in frontend settings.
-
-In another terminal:
+In a second terminal, from the repository root:
 
 ```powershell
 cd frontend
@@ -51,203 +46,83 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:5173. The manual settings and cached examples work without
-an AI key or a live NASA connection. Uncached locations/quantities need NASA POWER.
-After `npm run build`, the backend serves the built UI at http://localhost:8000.
+Open **http://localhost:5173**. Manual controls and the four cached examples work
+without an AI key or a live NASA connection. New locations/quantities require NASA
+POWER. After `npm run build` in `frontend/`, the backend also serves the built app
+at http://localhost:8000.
 
-Copy `.env.example` to `.env` if needed and export its variables before starting
-the backend; the app does not load `.env` automatically. Never commit credentials.
+### Configure the AI assistant
 
-## What is implemented
+The team selected an AI-enabled demo template. `.env.example` selects OpenAI and
+sets the planner, discovery and explanation switches to `true`. These are activation
+settings, not a claim that an evaluation target was passed. Without loaded
+environment settings, the main AI switch defaults off. Existing `.env` files are
+not overwritten by Git or by the command above.
 
-- Manual settings and visible confirmation before running edited or AI-proposed cases.
-- Original coordinate precision, actual grid-cell context and explicit supported dates.
-  Unsupported dates are rejected with available ranges; they are not silently clamped.
-- Calendar-day-weighted annual/seasonal means, leap years, missing data and real-year slopes.
-- Sen's slope per decade, canonical verdicts, chart/map context and inspectable evidence.
-- Two-place comparisons fitted on identical complete years, with the actual year list.
-  This comparison is descriptive, not a test that the trends differ.
-- Content-addressed evidence, versioned result IDs, pinned links, monthly/yearly CSVs
-  from the viewed snapshot and downloadable checksum-verified evidence JSON.
-- An interpretation question that gives guidance after a learner chooses an answer.
-- Optional confirmed AI planning, CLI, REST and MCP tools using the same analysis layer.
-- Twenty catalogue variables, including snow depth, snowfall, snow cover, sea ice, surface
-  pressure, water vapour, the strongest wind and haze, and two sea places for the
-  sea-surface temperature. All but annual air temperature are descriptive.
-- A fourth example, "Are Wisconsin summers getting hazier?": the challenge video's question
-  as a descriptive one-place haze case at Madison, frozen in the shipped cache.
-- The whole world: a variable's trend in a frozen world-mean sample of 162 grid points (every
-  20°), built once by `scripts/build_world_mean.py` and read without calling NASA. It is an
-  estimate from a sample, describes temperature far better than rainfall or wind, and leaves
-  out land-only and sea-only variables.
-- The gap between two compared places: the first place's yearly value minus the second's,
-  with its own descriptive rate and a sentence saying the difference was not tested.
-- "What is changing here?": every variable's descriptive rate, total change, years and
-  record years at one place, grouped by theme and never ranked, from the globe's picked point
-  or an open case.
-- A "Compare the seasons" panel: the rate for all months and for each season side by side,
-  from the case's own evidence, with only the annual air-temperature row ever assessed.
-- Record years for each place: the three highest and three lowest yearly values, and the mean
-  of the last ten years used against the first ten, as plain descriptions, not tests.
-- Period explorer and regional maps as descriptive views; neither reports significance.
-  Regional area means keep a fixed footprint rather than averaging a changing set of cells.
-- One globe behind every screen (MapLibre GL JS on OpenFreeMap tiles): it turns to the places
-  of a case, pins the example cases and paints a region map's grid cells. The globe needs
-  WebGL; without it the rest of the app still works.
+To use AI, set your own `OPENAI_API_KEY`, retain the configured model/pricing and
+upload the reviewed corpus to a vector store accessible to that key. Set the
+resulting `RAG_VECTOR_STORE_ID` and `RAG_CORPUS_VERSION`; the version must match
+`backend/data/corpus/manifest.json`. No local model download is required. A teammate
+cannot assume that their key can access another person's store.
 
-## What significance means here
-
-Formal inference is enabled only for individual **annual T2M** records with **20-45
-contiguous complete years**, a homogeneous source period and the approved frozen
-calibration table. Ten to nineteen values yield a descriptive rate; fewer than ten
-produce a too-few-years result. Gaps, source transitions, unvalidated quantities or
-seasons, unsupported lengths and unavailable calibration produce explicit
-`inference_unavailable` results with null p-values. Unsupported confidence intervals
-and OLS p-values are null. OLS slope remains descriptive.
-
-The selected procedure is `mk_mc_envelope_v1`: ordinary MK scores evaluated against
-a conservative Monte Carlo null envelope. Its declared simulation family is stationary
-AR(1) with correlations 0, 0.2 or 0.5 and Gaussian or centered exponential innovations.
-It is not Hamed-Rao, a distribution-free climate guarantee or proof of causation.
-The [study plan](research/inference-plan.md), [all confirmation settings](research/inference-results.json)
-and table checksum are retained. All 18 original confirmation settings and a separately predeclared
-[156-setting full-length panel](research/inference-confirmation-all-lengths.json)
-passed the proposed per-setting upper-bound <=7% guardrail at a nominal 5% threshold.
-All 18 additional tied-value stress settings passed too. These are per-setting
-Monte Carlo checks, not a simultaneous or universal climate guarantee. Conservatism reduces power.
-Real series can violate these assumptions; a significant result does not certify them.
-
-Solar/cloud records crossing the 2001 source transition remain descriptive. NASA
-[warns about source changes in radiation trend analysis](https://power.larc.nasa.gov/docs/methodology/data/sources_fluxes/).
-The app's day-weighted mean is an explicitly named statistic; POWER's own annual
-processing uses means of months, so those values need not be identical.
-
-## Evidence and persistence
-
-The committed `backend/data/cache.sqlite` is an immutable seed. On first startup,
-it is copied to `state/power.sqlite`; operational counters, budget reservations and
-generation leases use `state/operations.sqlite`. Immutable content-addressed evidence
-lives in `state/snapshots`. Configure `CACHE_PATH`, `OPERATIONAL_DB_PATH` and
-`SNAPSHOT_PATH` to override these locations. Do not put private data there.
-
-New NASA fetches retain the exact response bytes and safe query URL. Legacy seed
-rows were supplied without their original response bytes: their normalized series
-is frozen and that provenance limitation is visible. API version and scientific
-product release are distinct; unknown product releases are reported as unknown.
-A missing snapshot or unsupported analysis version returns an explicit error and
-never substitutes live data. Preserve the snapshot directory when sharing links.
-
-For a local container with persistent evidence/counters:
+From `backend/`, an owner can upload the existing corpus after reviewing the
+payload and provider storage implications:
 
 ```powershell
-Copy-Item .env.example .env
-# Set PUBLIC_BASE_URL and trusted proxy addresses for your deployment.
-docker compose up --build
-```
-
-Compose mounts the named `trend-state` volume at `/app/state`. Keep that volume on
-redeploy and include it in backups. Use an HTTPS proxy for public deployment, set
-`PUBLIC_BASE_URL`, and configure `FORWARDED_ALLOW_IPS` to trust only that proxy.
-Liveness: `/healthz`; local data/calibration readiness: `/readyz`. Neither spends AI
-credits or calls NASA. Docker and a public HTTPS deployment require separate verification.
-
-## Optional AI planner
-
-The [Draft 5 technical spec](docs/technical-spec.md) plans OpenAI-assisted variable
-discovery and RAG explanations using a reviewed documentation corpus. The corpus,
-its upload, the retrieval settings, the response contracts, the /api/discover and
-/api/explain endpoints and their interface (guided discovery in the question bar and the
-"Ask about this investigation" panel) exist and are unit-tested with fake providers.
-Two held-out evaluation rounds with OpenAI `gpt-6-luna`, graded by automated checks and AI
-agents (no person), met neither gate. In round 2, the current evidence, discovery and planning
-passed 60 of 70 cases with three critical citation errors, and explanations (RAG) passed 65
-of 77, both below the 90% target; see the [evaluation results](docs/evaluation-results.md).
-A user study and a deployment are not yet done. No local model is required for that plan. The retrieval settings are described under
-"Retrieval settings" below; the rest of this section describes the planner.
-Without an enabled provider, the question box matches keywords and fills settings;
-it does not generate conversational explanations.
-
-AI is **off by default**. `/api/plan` accepts one question and returns catalogue
-settings for the user to review, edit and confirm. It cannot run an investigation,
-return invented coordinates or display a free-form numerical explanation. All result
-numbers and verdicts come from Python. The former `/api/chat` endpoint refuses requests.
-
-For local Ollama, install a model appropriate to your own hardware and licence,
-then set `AI_PROVIDER=ollama`, an exact `AI_MODEL` tag, `OLLAMA_MODEL_DIGEST` and a
-loopback `OLLAMA_URL`. The server verifies the installed name/digest before generating.
-No model was downloaded, selected or benchmarked by this implementation. A hosted
-backend cannot use a laptop's localhost; co-locate inference or keep AI local.
-
-Only enable `AI_ENABLED=true` and `AI_EVALUATED=true` after recording a real semantic
-and latency evaluation for the exact model. Use the [evaluation protocol](docs/evaluation.md).
-Fake-provider tests establish integration behavior, not model accuracy.
-
-Optional Anthropic/OpenAI modes require an explicit model/key, owner-supplied daily
-microdollar budget and input/output prices per million tokens, plus
-`AI_BUDGET_DURABLE=true` with persistent operational storage. There are no guessed
-model defaults or automatic paid fallbacks. Conservative atomic reservations happen
-before provider calls; failures/cancellation retain reservations. Maintain rates for
-the selected model. OpenAI uses structured output and `store=false`.
-
-Bounds: 8 KiB body, one question <=2,000 characters, one generation at a time across
-workers sharing operational state, 512 output tokens and a 30-second operation
-deadline. Local context is capped at 8,192 tokens, with a conservative input bound.
-Daily request and per-address limits apply. Chat text is not stored server-side.
-
-### Retrieval settings
-
-Discovery and explanation need hosted OpenAI planning (above) plus these settings (see
-`.env.example`). By the owner's decision of 15 November 2026, `RAG_ENABLED`, `RAG_EVALUATED` and
-`DISCOVERY_EVALUATED` default to `true`, although neither evaluation gate was met; the store
-settings stay empty until the corpus is uploaded:
-
-| Setting | Meaning |
-| --- | --- |
-| `RAG_ENABLED` | Turns retrieval on |
-| `RAG_VECTOR_STORE_ID` | The `vs_...` store the upload script printed; any other shape keeps retrieval off |
-| `RAG_CORPUS_VERSION` | The uploaded corpus version; must equal `corpus_version` in `backend/data/corpus/manifest.json` |
-| `RAG_SEARCH_MICROUSD_PER_CALL` | Owner-supplied integer microdollar price of one vector-store search |
-| `RAG_EVALUATED` | Enables explanations; `true` by default (set `false` to turn them off). Their gate was not met: round 2 passed 65 of 77, below the 90% target ([evaluation results](docs/evaluation-results.md)) |
-| `DISCOVERY_EVALUATED` | Enables discovery; `true` by default (set `false` to turn it off). Its gate was not met: round 2 passed 60 of 70 with three critical citation errors ([evaluation results](docs/evaluation-results.md)) |
-
-`/api/capabilities` reports `ai_planner_available`, `ai_discovery_available` and
-`ai_explanation_available` separately; a missing or mismatched retrieval setting turns
-off only discovery and explanation. While explanations are available, each pinned case
-is recorded in the operations database (investigation ID, case query including place
-labels, analysis version) so an explanation can rebuild it from retained snapshots; a
-record is kept 24 hours and at most 10,000 are kept.
-
-### Discovery and explanation endpoints
-
-Both answer 503 `ai_unavailable` until their flags above are set, accept a body of at most
-8 KiB with one question of at most 2,000 characters, share the planner's single generation
-slot, daily turn limit and budget (429 `rate_limited` when any is exhausted), make one
-vector-store search (at most four passages) and at most one generation of at most 1,024
-output tokens, and finish within 30 seconds. Citations are built on the server from the
-manifest and the retrieved passages; provider text that fails the checks in
-`backend/app/ai_guard.py` (unknown or unretrieved sources, numbers, URLs, markup, verdict
-contradictions, causes, forecasts and more) is never returned.
-
-| Endpoint | Request | Response |
-| --- | --- | --- |
-| `POST /api/discover` | `{"question": ..., "draft": {...}?}` | `DiscoveryResponse`: status `ready`/`clarify`/`unsupported` (with a `reason`), up to three cited variable suggestions, a proposal to confirm, missing fields and a clarification with typed choices. Nothing runs. |
-| `POST /api/explain` | `{"question": ..., "investigation_id": "<64 hex>"}` | `ExplanationResponse`: status `answered`/`insufficient_evidence` (with a `reason`)/`new_investigation_required`, cited blocks with result-field references, and an optional proposal. 409 `investigation_unavailable` when the ID is not on record, its retained evidence is missing or it rebuilds to another ID; NASA is never called. |
-
-The corpus is built and uploaded by the owner, from `backend/`:
-
-```sh
-uv run python -I scripts/build_corpus.py --accessed YYYY-MM-DD --raw-dir EMPTY_DIR
 uv run --env-file ../.env python -m scripts.upload_corpus --max-bytes 1000000
 ```
 
-The upload refuses a corpus over the `--max-bytes` cap before any call, records file
-IDs, uploaded bytes, the store's usage bytes and earlier attempts in
-`state/corpus-files.json`, and creates a store that expires 30 days after last use.
-Uploaded files do not expire: delete them by the IDs in that state file.
+This sends the corpus to OpenAI and can incur usage/storage charges. It is not
+part of normal app startup. See [deployment and retrieval setup](docs/deployment.md).
+
+Keep the root `state/` directory across restarts. The sample declares durable
+budget storage and uses a **USD 1 daily reservation limit**; a hosted deployment
+must mount persistent state. Credentials belong only in the backend environment,
+never Git or frontend variables. Restart the backend after editing `.env`.
+
+Check http://localhost:8000/api/capabilities. AI planning, discovery and explanations
+are available only when their configuration conditions are met. Checking readiness
+does not call a model or verify answer quality. Manual controls remain available.
+
+### AI scope and limitations
+
+Natural-language planning proposes settings for user confirmation. RAG retrieves
+reviewed NASA documentation and project method notes for qualitative explanations.
+All numerical analysis and verdicts remain in deterministic Python code.
+
+The assistant is **experimental**. A planner/discovery follow-up passed 50/50
+automated cases; the later source-checked RAG sample passed 31/40 combined checks,
+below its 36/40 target. The paired no-retrieval condition passed 10/40 under the same
+citation requirements. These are separate, agent-authored samples, not independent
+human validation or a general accuracy guarantee. The team chose activation despite
+the unmet target. See the [full evidence](docs/evaluation-results.md).
+
+## Scientific scope and reproducibility
+
+- NASA POWER monthly records drive charts and rate estimates. Gridded estimates
+  represent an area, not an exact observation at a street address.
+- Python preserves missing values and computes calendar-day-weighted summaries.
+  Missing observations are not replaced by zero.
+- Sen's slope estimates change per decade. Formal significance is limited to
+  eligible annual two-metre air-temperature records with 20–45 contiguous complete
+  years, under the documented Monte Carlo Mann–Kendall inference policy.
+- Other variables, seasonal analyses, maps and place comparisons are descriptive.
+  Comparisons use common complete years. Unsupported p-values/intervals are withheld.
+- The [simulation study](research/inference-plan.md) and its confirmation results
+  check stated assumptions; they do not establish universal climate calibration.
+- A trend alone does not establish causation or predict the future. Non-significance
+  does not prove no change. Educational impact has not been measured in a user study.
+
+The committed `backend/data/cache.sqlite` is a read-only seed copied into local
+state on first startup. New downloads retain exact response bytes; legacy seed
+records lacking original response bytes are labelled as normalized evidence.
+Retain `state/snapshots` and operational storage for pinned investigation replay.
+Exact investigation hashes have not been demonstrated identical across platforms;
+local pinned replay was verified. See [verification](docs/verification.md).
 
 ## Development checks
 
-From `backend/`:
+Run in `backend/`:
 
 ```powershell
 uv run pytest
@@ -256,7 +131,7 @@ uv run ruff format --check .
 uv run python -m scripts.generate_types --check
 ```
 
-From `frontend/`:
+Run in `frontend/`:
 
 ```powershell
 npm run test
@@ -265,16 +140,23 @@ npm run format:check
 npm run build
 ```
 
-Shared frontend result types are generated from Pydantic; run
-`uv run python -m scripts.generate_types` after a contract change. Tests use fake
-providers and saved NASA responses and do not require network or paid API calls.
-To reproduce the full inference study, run `uv run python -m scripts.calibrate_inference`
-from `backend/`; verify that its table/report checksums remain identical. Run
-`uv run python -m scripts.confirm_lengths` to reproduce the additional full-length panel.
+Tests use saved data and fake providers; they require no API credits. Scientific
+study scripts, corpus rebuilds and real-provider evaluations are separate owner-run
+operations, not startup requirements. Retained study and evaluation artifacts must
+not be treated as measured student impact or a successful public deployment.
 
-The [technical specification](docs/technical-spec.md) records implemented behavior
-and remaining evidence gates. [Test migration](research/test-migration.md) explains
-intentional changes from the older specification; no failures are hidden with skips.
+## Deployment
+
+The backend can serve the API and built frontend in one container:
+
+```powershell
+docker compose up --build
+```
+
+Compose loads the root `.env` and mounts persistent state. Public hosting needs a
+public HTTPS address, server-side secrets and deployment checks. A local demo or
+recording does not expose your computer to judges. Follow the
+[deployment guide](docs/deployment.md); do not upload `.env` to share AI access.
 
 ## NASA data and credits
 
@@ -312,155 +194,16 @@ The page's three typefaces are in `frontend/src/fonts/`, as WOFF2 files of their
 - [Libre Baskerville](https://github.com/impallari/Libre-Baskerville), © 2012 The Libre Baskerville Project Authors: all running text.
 - [Courier Prime](https://github.com/quoteunquoteapps/CourierPrime), © 2015 The Courier Prime Project Authors: typed labels, such as case numbers, stamps and the tags on the globe.
 
-## AI assistance and submission evidence
+## AI assistance
 
-MarshyKid's initial implementation was reviewed and revised with Codex assistance,
-including source code, tests, documentation and the inference experiment. Optional
-runtime planning uses the configured local or hosted model and is labelled as AI.
-No AI-generated images/video are used. No commit or push is performed automatically.
+OpenAI Codex and Claude Code assisted with substantial code, research, tests,
+documentation and interface work. Codex also prepared the submission diagrams,
+which carry visible AI-generation watermarks. Development assistance is separate
+from the optional OpenAI-powered in-app assistant. The
+[AI disclosure](docs/ai-disclosure.md) identifies team decisions, actual checks,
+limitations and historical contributor reports. AI-assisted commits retain
+co-author metadata. The team remains responsible for the final submission.
 
-Codex also added regression tests and fixes for answer actions during loading: sharing and
-region actions wait for the new result, and the region action describes rates of change
-without promising significance testing.
-
-Codex updated the Draft 5 technical specification with the team's approved LLM/RAG
-plan, consideration/resource mapping, evaluation gates and delivery checklist. This
-documentation update does not implement or enable the planned AI features.
-Codex also prepared submission text, refreshed verification/evaluation records and
-organized the contribution history during repository cleanup.
-Codex fixed the new-stats review findings with regression tests: proposals from the
-new pages open visible settings, overview rows retain their source/variable cautions,
-and inconsistent same-cell snapshots are rejected instead of described as a zero gap.
-
-Claude Code (model Claude Opus 5.5) built the descriptive additions of a team brief on 14 and
-15 November 2026: record years, eight catalogue variables and two sea places, the seasons
-panel, a fourth example, the place overview, the gap between two places and the whole-world
-sample. The detailed [AI contribution record](docs/ai-disclosure.md) preserves contributor-reported development history separately from current runtime behaviour.
-
-Claude Code (model Claude Opus 5.5) wrote the Draft 5 retrieval groundwork on 15 November
-2026: the shared AI module, the discovery and explanation contracts, the retrieval settings
-and capability flags, the investigation lookup, the corpus build and upload scripts, the
-project method notes in the corpus, and their tests. It also fixed the review findings on
-that work (typed failure reasons, cited passages and sections, the upload byte cap and
-attempt history, robots.txt errors and the bounded investigation lookup).
-
-Claude Code (model Claude Opus 5.5) also wrote the /api/discover and /api/explain endpoints
-on 15 November 2026: the corpus manifest reader, the provider-output checks in
-`backend/app/ai_guard.py`, the offline rebuild of a recorded investigation, the
-`investigation_unavailable` error and their fake-provider tests.
-
-Claude Code (model Claude Opus 5.5) also wrote the Draft 5 interface on 15 November 2026:
-guided discovery in the question bar, the suggestion cards, the "Ask about this
-investigation" panel, citation rendering (`DiscoveryResult`, `AskPanel`, `CitationList`,
-`discovery.ts`, `explanation.ts`, `citations.ts`) and their tests. It then applied a review
-of that stage: the explanation proposal keeps the investigation's own settings, the
-provider no longer sees the verdict sentence, retrieval uses the bare question, retrieved
-text must match the reviewed section files, the text checks gained direction, significance,
-cause, forecast, number and URL rules and checks of model-written place queries, and the
-interface shows proposal notices and catalogue facts, announces finished answers, keeps
-focus after a choice and cancels a discovery question when the page changes.
-
-On 15 November 2026 Claude Code (model Claude Opus 5.5) ran the Draft 5 round-1 held-out
-evaluation with OpenAI `gpt-6-luna` and wrote the [evaluation results](docs/evaluation-results.md).
-Before the frozen run it tuned, with model calls on development questions only, the
-instructions of /api/plan (when a question may be marked ambiguous), /api/discover and
-/api/explain and one guard rule in `backend/app/ai_guard.py`, with tests. Before that tuning
-it had also rehearsed the runner offline, with a fake provider and no model call, on the
-first six cases of each held-out suite. The suites and their expectations were written by
-AI. Two AI grader agents judged RAG answer support, and an AI review agent graded the
-citation support of the discovery suggestions; no person reviewed any case or grade. The
-planner/discovery run passed 70 of 75 but has three critical citation errors, and the RAG
-gate did not pass (39 of 65 under both graders). The agent that wrote the results first set
-`DISCOVERY_EVALUATED=true` in the local `.env` itself; a review step set it back to `false`,
-because that flag is the owner's attestation. Both discovery and explanations are off.
-
-After that run Claude Code (model Claude Opus 5.5) addressed the round-1 failure causes on
-15 November 2026, as general behaviour and without opening the new suites: a deterministic
-check that keeps only discovery citations whose passage names the suggested variable, tighter
-explanation instructions, field names added to the explanation search, low reasoning effort
-for every OpenAI generation, the split-winter year rule for December-February periods, more
-per-case records in the evaluation runner (all retrieved passages and scores, which guard
-check withheld an output, the served model and the raw provider output), and their tests. It
-wrote the project note "What the result fields mean" (`backend/data/corpus/project/result-fields.md`)
-from the spec and the interface labels, rebuilt the corpus and uploaded it to a new vector
-store, and deleted the previous store and its files. These changes have been checked by unit
-tests and development questions first, then measured by the round-2 held-out run on new
-suites (see the [evaluation results](docs/evaluation-results.md)); no person has reviewed them.
-
-Claude Code (model Claude Opus 5.5) also fixed the phone-width globe on 15 November 2026 (the
-globe now sits inside its frame below 640px, so it is drawn there and "Zoom in to the grid
-cell" works), wrote the [deployment guide](docs/deployment.md) and the container and browser
-checks in [verification](docs/verification.md), and listed what is left of Draft 5 in
-[Draft 5: what is done and what remains](docs/draft5-remaining.md).
-
-Claude Code (model Claude Opus 5.5) then tuned the AI paths on the round-2 development
-suites only (`backend/evaluation/round2/planner_dev.json` and `rag_dev.json`, both AI-written),
-on 15 November 2026, with two runs each through the evaluation runner and OpenAI
-`gpt-6-luna`; the round-2 held-out suites were not opened. It made the runner score the
-round-2 additions (citation support of every discovery suggestion against the suite's
-section map, and retrieval relevance of explanations), and made general fixes with tests:
-discovery searches with the catalogue names of the variables its question names, its
-instructions ask for a describing passage and forbid refusing a question for its assumed
-premise, the explanation search adds a cue for questions about causes, the explanation
-instructions abstain on a message that asks nothing, and the "no change" guard no longer
-flags a verb with an object. The development results were graded by the runner's automated
-checks only, not by a person or an AI grader, and are not held-out evidence.
-
-On 15 November 2026 Claude Code (model Claude Opus 5.5) then ran the round-2 held-out
-evaluation with OpenAI `gpt-6-luna`. The run used the suites in `backend/evaluation/round2/`,
-which an AI wrote blind, and their hashes were checked before and after the run. Each suite
-ran once, and no code, prompt, schema, guard, corpus or suite was changed during or after
-the run.
-
-Two AI grader agents (Claude Opus 5.5), working apart, graded every RAG answer in both
-conditions, every discovery suggestion's citation support and every planner text, with a
-reason for each item (`backend/evaluation/round2/results/grader-1.json` and `grader-2.json`).
-They agreed on every item.
-
-- Planner/discovery passed 60 of 70 cases, with three critical fabricated citations.
-- RAG passed 65 of 77 combined, with no critical error.
-- Both are below the 90% target.
-
-The workflow's lead agent wrote the round-2 [evaluation results](docs/evaluation-results.md)
-and made the gate decisions under a delegation from the owner that it reported. It set
-`DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false` in the local `.env`. No person reviewed
-any case or grade. Later that day the owner turned both features on by default for the
-submission, knowing the gates were not met.
-
-Educational impact is not established: no user observations have been made. Neither AI
-gate has been met. Round 2's AI-graded pass rates (60 of 70 for planner/discovery, 65 of 77
-for RAG) are sample results below the 90% target, and discovery also has critical citation
-errors. Run the user study, verify the public deployment and finish the required
-demonstration before claiming those criteria. A prototype cannot guarantee an award or global ranking.
-
-On 15 November 2026, OpenAI Codex prepared `fix-draft5-release`: deterministic corpus
-bytes on Windows, per-place explanation checks, product/topic-aware retrieval, guard
-fixes, budget protection and regression tests. It indexed the 173 existing NASA/project
-sections in the owner's OpenAI project after explicit approval. All **1,600 backend**
-and **758 frontend** tests passed, with lint, formatting, generated types and build checks.
-The four saved NASA cases passed offline API/export checks. The latest complete
-agent-authored sample scored **50/50 planner/discovery** and **33/40 explanations** on
-automated checks; it has not received human source-support review. Later targeted
-development checks are reported separately, not counted as a release-gate pass.
-The cumulative evaluation reservation is **USD 0.975993 of USD 1**, including the
-runner's USD 0.15 historical allowance; this is not a provider invoice. See
-[evaluation results](docs/evaluation-results.md#submission-day-follow-up).
-AI stays gated off, and user testing was deferred, so educational impact is unmeasured.
-
-Claude Code (model Claude Opus 5.5) restyled the interface in a poster look on 15 November
-2026, from a poster the user supplied and two page mock-ups the assistant drew from it (the
-mock-ups are not in this repository): cream paper, rounded sheets, deep-teal ink, pill tabs and
-buttons, a coral case file and a teal globe. It laid the
-app out as those two pages. The first screen has the question on a coral card, the settings
-open beside the globe and the example cases as a row of coloured cards. A results page has the
-case file on the left, with "Copy link" and "Change this case" in it, and "Ask about this
-investigation" above a smaller globe on the right (`CaseRail`, `caseRailContext.ts`). It wrote
-the tests and the specification text. It checked the pages in Chrome at 1440, 800 and 375
-pixels wide, not on a real phone and not with a screen reader. At the user's request it then
-made the case file coral for every verdict, removed the red string from an example to its
-pins, and stopped guided discovery from asking a clarification again once the settings hold
-the answer the learner picked (`backend/app/adapters/discover.py`); that fix was tested with a
-fake provider, not against the live model.
-
-The team has not selected a project licence. NASA/GeoNames/OpenStreetMap/OpenFreeMap,
-the typefaces and software dependencies retain their own applicable terms.
+The team has not selected a project licence. Third-party data, fonts, map assets
+and dependencies retain their own terms; public source access does not itself
+grant a new licence.

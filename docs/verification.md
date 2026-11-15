@@ -1,15 +1,37 @@
 # Verification record
 
-Audit date: 14 November 2026 (SGT). Working branch: `new-plan`.
-Implementation baseline: `1fa0cf1`, the merged UI and review fixes on main.
-This audit includes the uncommitted Draft 5/documentation cleanup. It is not proof
-of a public deployment, live-model accuracy, user impact or completed submission.
+Latest audit: 15 November 2026 (SGT), `main` at `c85adb6` plus the local submission
+documentation/environment-template cleanup. No analysis, verdict or UI code was
+changed by this cleanup.
 
-This document records observed checks. The [evaluation protocol](evaluation.md)
-defines future experiments; the [technical spec](technical-spec.md) defines the
-target; [submission materials](submission.md) provide copy and final actions.
-The dated Draft 5 section below adds the container and browser checks of 15 November
-2026. The 14 November audit after it is kept as it was recorded.
+## Submission cleanup checks
+
+- Full backend suite: **1,621 passed** with `python -m pytest -q -p no:cacheprovider`.
+- Ruff lint/format and `python -m scripts.generate_types --check` passed.
+- Full frontend suite: **767 passed**; ESLint, Prettier and TypeScript/Vite build passed.
+- The build retains its large-chunk warning. This is not a failed build.
+- The locally configured backend and frontend responded successfully; direct and
+  frontend-proxied `/api/capabilities` reported all three AI paths available.
+  This readiness check made no paid model call and did not test generated answers.
+- All three merged PRs (#7, #8, #10) were confirmed merged on GitHub before this cleanup.
+  The cleanup itself remains uncommitted until the team publishes it.
+- All repository Markdown file/image links resolve locally after removing the
+  obsolete planning checklist. Three watermarked submission PNGs are in `docs/images/`.
+- The actual configured OpenAI key was absent from the tracked/submittable files
+  checked; `.env` remains ignored. No credentials were printed or copied into images.
+- The committed NASA seed matches its Git bytes, and all 173 corpus sections match
+  their manifest hashes. Saved scientific and evaluation results were not rewritten.
+
+The [AI evaluation report](evaluation-results.md) records the unmet quality target
+and the team's activation decision. No student study or public deployment is
+verified, and no final demo/presentation URL has been provided. The
+[submission guide](submission.md) contains the requirements audit and final actions.
+
+## Historical verification checkpoints
+
+The dated records below are preserved as originally observed. Their branch names,
+test totals, "current" scores, budgets and disabled-feature statements refer to
+those earlier checkpoints. They do not override the latest status above.
 
 ## Latest Draft 5 integration check
 
@@ -83,7 +105,7 @@ authorized live-model runs above. No paid API calls were made during this checkp
 The historical live-model scores below and in `evaluation-results.md` do not validate
 these changes. Discovery and explanation remain gated off until a fresh evaluation
 passes and a teammate reviews source support. See the review checklist in
-[Draft 5 remaining work](draft5-remaining.md#submission-day-review).
+[submission guide](submission.md#final-checklist).
 
 ## Draft 5 stage 7: container and browser checks
 

@@ -1,6 +1,8 @@
 # User study kit
 
-Status: ready to use. **No observations have been made.** No participant has been
+Status: **deferred by the team for this submission; no observations have been made.**
+This retained kit supports future validation, not an additional organizer requirement.
+No participant has been
 recruited or observed, and no result of this study exists yet. Any count, rate or quote
 reported from it must come from sheets filled in during real sessions.
 
