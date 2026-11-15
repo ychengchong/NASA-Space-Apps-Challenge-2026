@@ -3,7 +3,7 @@
 #
 # From the repository root:
 #   docker build -t trend-detective .
-#   docker run --rm -p 8000:8000 --env-file .env trend-detective
+#   docker run --rm -p 8000:8000 --env-file .env -v trend-state:/app/state trend-detective
 
 # Stage 1: build the web app.
 FROM node:22.23.5-trixie-slim AS frontend

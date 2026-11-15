@@ -1,140 +1,196 @@
-# Trend Detective: submission materials
+# Submission guide
 
-Status: prepared text for the current prototype, updated 15 November 2026. No public
-demo or hosted app URL exists yet. The Draft 5 AI paths are built; their evaluation
-status is in the [evaluation results](evaluation-results.md). Complete the final
-actions below before describing the submission as finished.
+Prepared for **Half-Stack Developers**, 15 November 2026 (SGT).
+This file consolidates copy-ready text and remaining submission actions. It is
+not confirmation that the official form has been submitted.
+
+## Project name
+
+Half-Stack Developers — Trend Detective
 
 ## Project summary
 
-Trend Detective helps students investigate environmental claims using NASA Earth
-science data. Users choose a variable, location and period, inspect a time-series
-chart, and see an estimated rate of change with statistical evidence where the
-method has been validated. The tool distinguishes a detectable trend from
-insufficient evidence and explains why neither establishes a cause.
+Half-Stack Developers presents Trend Detective, an educational application that helps students and the public investigate environmental change using NASA Earth science data. Users select a location, variable and time period to explore interactive charts, compare places and estimate rates of change.
 
-NASA POWER monthly measurements drive the analysis. Evidence panels identify the
-source and geographic grid cell, while downloadable values, retained snapshots
-and pinned case links make investigations inspectable and reproducible. Worked
-examples, place comparisons and an interpretation question help users reason
-about the evidence rather than merely read a chart. Manual settings and keyword
-questions work without an AI key. Optional AI planning, guided discovery and cited
-explanations are built and on by default (the owner's choice, although their evaluation gates
-were not met); see the
-[evaluation results](evaluation-results.md) for their status.
+Powered by NASA POWER data, each investigation becomes an inspectable case file containing visualisations, source information, limitations and downloadable evidence. For eligible annual temperature records, the app evaluates statistical significance under documented assumptions. Other variables, seasonal analyses and comparisons remain descriptive.
+
+Our detective-inspired interface and interpretation lesson help users distinguish a trend's size from the strength of its evidence and recognise that historical trends alone cannot establish causation or predict the future.
+
+An experimental OpenAI-powered RAG assistant supports natural-language investigation planning and explanations grounded in NASA documentation and reviewed project methodology. Users confirm proposed settings, and numerical results remain in Python.
+
+Our goal is to make environmental evidence accessible, transparent and reproducible, helping people investigate our changing planet.
 
 ## Project details
 
-The prototype combines a React/TypeScript interface, Plotly charts and a MapLibre
-globe with a Python/FastAPI backend. Monthly NASA POWER data is cached and retained
-as versioned evidence. Python computes calendar-day-weighted annual or seasonal
-means, preserves missing values, estimates Sen's rate per decade, and produces
-fixed verdict text. Comparisons use common complete years and are descriptive.
+The following five sections are the project-details field. NASA source links and
+development-AI disclosure have dedicated form fields below. The diagrams are
+watermarked generated graphics, not application screenshots.
 
-Formal significance is restricted to eligible annual two-metre air-temperature
-records of 20-45 contiguous complete years under the documented inference policy.
-Other quantities, seasonal results and maps remain descriptive. Unvalidated
-intervals and p-values are unavailable rather than guessed. The method's simulation
-assumptions and limits are in the [technical spec](technical-spec.md#7-statistics)
-and [verification record](verification.md).
+## 1. What Trend Detective does
 
-The intended benefit is accessible, traceable environmental investigation for
-students and interested members of the public. Educational impact has not yet
-been established by an observed user study.
+Is a change in the environment a lasting trend, or could it reflect ordinary variability? Half-Stack Developers built Trend Detective to help students and the public investigate this question using NASA Earth science data.
 
-## NASA data and contribution
+The application connects variable selection, regional data access, time-series visualisation and statistical interpretation in one detective-inspired experience. Each investigation becomes a case file containing a chart, estimated rate of change, applicable statistical evidence, source information and downloadable values. Users can explore temperature, precipitation, humidity, wind and soil wetness, compare places and inspect the evidence behind the result.
 
-- [NASA POWER monthly API](https://power.larc.nasa.gov/docs/services/api/temporal/monthly/): numerical monthly time series behind the plots and estimated changes.
-- [POWER meteorological sources](https://power.larc.nasa.gov/docs/methodology/data/sources_meteorology/): product context for supported meteorological quantities.
-- [NASA MERRA-2](https://gmao.gsfc.nasa.gov/gmao-products/merra-2/): underlying reanalysis for the primary T2M investigation; a grid-cell estimate, not an exact local weather-station measurement.
-- [POWER processing](https://power.larc.nasa.gov/docs/methodology/data/processing/): source-processing context; our named day-weighted statistic need not equal POWER's supplied annual value.
+Our primary audience is high-school and college students and interested members of the public. The intended benefit is a more accessible way to investigate environmental claims while learning what data can—and cannot—support.
 
-These data were obtained from the NASA Langley Research Center (LaRC) POWER Project
-funded through the NASA Earth Science/Applied Science Program. The app is an
-independent prototype and does not imply NASA endorsement. Sources, available
-versions, access dates and provenance limits are exposed with the evidence.
+## 2. How it works
 
-## What works and what is planned
+![Trend Detective investigation workflow](images/trend-detective-workflow.png)
 
-Status on 15 November 2026:
+1. **Ask and confirm.** In the intended AI-enabled demo, ask the assistant to propose a location, supported variable, period and annual or seasonal view, then review and confirm the settings. Manual settings and saved examples remain available.
+2. **Obtain NASA data.** The backend obtains monthly NASA POWER records through a dedicated source adapter and cache. Evidence identifies the requested location and the actual geographic grid cell.
+3. **Analyse consistently.** Python preserves missing data, creates calendar-day-weighted summaries and estimates Sen's rate of change. Missing months are not replaced by zero; incomplete years remain explicit gaps.
+4. **Inspect the conclusion.** Interactive charts show historical values and a fitted trend. Formal significance is reported only within the supported annual temperature scope; other analyses remain descriptive.
+5. **Ask and learn.** In the intended AI-enabled demo, ask the assistant about the dataset, methods and limitations, then inspect its cited passages. Compare places over common complete years and complete the interpretation lesson.
+6. **Reproduce and share.** Download CSV values and PNG charts, inspect retained evidence and share a pinned investigation link. Replaying a pinned case depends on the same application retaining its required snapshots.
 
-| Area | Status |
+## 3. Key technical and creative contributions
+
+### An evidence-centred detective experience
+
+Trend Detective brings analysis, explanation and verification into one case file. A result is accompanied by its variable definition, units, spatial context, method and limitations. Users can follow the evidence rather than rely on an unexplained headline.
+
+The interpretation lesson reinforces three distinctions: the size of a trend is different from statistical significance; non-significance does not prove no change; and a trend alone cannot establish its cause or predict the future.
+
+### Statistical inference with an explicit scope
+
+Sen's slope provides a rate estimate, expressed in the variable's units per decade. Formal inference is restricted to eligible annual two-metre air-temperature records with 20–45 contiguous complete years under our documented Mann–Kendall-based, Monte Carlo inference policy. Simulation checks examine behaviour within specified serial-dependence assumptions; they do not establish universal climate calibration.
+
+Other variables, seasonal analyses, maps and place comparisons remain descriptive. Unsupported p-values and confidence intervals are withheld. All quantitative results and verdicts come from deterministic Python code.
+
+### Optional documentation-grounded AI
+
+We implemented and evaluated an OpenAI-powered retrieval-augmented generation pipeline with two roles: translating questions into proposed investigation settings for user confirmation, and producing qualitative explanations supported by retrieved documentation.
+
+The reviewed corpus contains 173 text sections from 13 NASA sources and 10 project method/variable notes. Retrieved passages supply context about datasets, methods and limitations. Responses are checked for allowed result references, citations and consistency with the investigation. The LLM does not calculate statistics or replace canonical verdicts.
+
+The team enabled the assistant in its local demo and selected an AI-enabled environment template. It remains experimental: explanation quality has not met the documented release target. The diagram describes the intended interaction, while the manual investigation remains available independently.
+
+## 4. Tools and technologies
+
+![Tools and technologies](images/trend-detective-tools-tech.png)
+
+| Component | Technology | Purpose |
+| --- | --- | --- |
+| Analysis and backend | Python, FastAPI, NumPy, SciPy | Validated inputs, data processing and deterministic analysis |
+| Interface | React, TypeScript | Investigation settings, evidence panels and learning interactions |
+| Visualisation | Plotly, MapLibre | Interactive time-series charts and geographic exploration |
+| Evidence persistence | SQLite and retained snapshots | Cached data, provenance and investigation replay |
+| Optional AI | OpenAI Responses and hosted vector-store retrieval | Natural-language planning and documentation-grounded explanations |
+
+## 5. Intended impact and future development
+
+Trend Detective aims to help learners move from seeing a graph to asking better questions: What is changing? Over which years? What does this variable represent? How strong is the evidence? What remains unknown?
+
+Next steps are improving source-grounded explanations, completing teammate review, observing intended users and verifying a public deployment. User testing has not been conducted, so educational gains remain an intended outcome rather than a measured result. The core prototype can run locally without a downloaded language model; the optional AI uses OpenAI-hosted services.
+
+## NASA Data field
+
+| Link text | Full URL | Contribution |
+| --- | --- | --- |
+| NASA POWER — Monthly Environmental Data | https://power.larc.nasa.gov/docs/services/api/temporal/monthly/ | Numerical records behind charts, rates and eligible significance results |
+| NASA POWER — Methodology and Source Documentation | https://power.larc.nasa.gov/docs/methodology/ | Dataset definitions, processing context and reviewed RAG references |
+| NASA MERRA-2 — Underlying Temperature Reanalysis | https://gmao.gsfc.nasa.gov/gmao-products/merra-2/ | Context for the reanalysis underlying the primary temperature variable; accessed through POWER |
+
+The corpus's complete NASA document list is in
+[its manifest](../backend/data/corpus/manifest.json). Those additional documentation
+pages are reference resources, not separate numerical datasets downloaded by the app.
+Data attribution: these data were obtained from the NASA Langley Research Center
+POWER Project. This independent prototype does not imply NASA endorsement.
+
+## Space Agency Partner & Other Data field
+
+| Link text | Full URL | Actual use |
+| --- | --- | --- |
+| GeoNames — City and Country Data | https://download.geonames.org/export/dump/ | Place lookup and country-capital matching |
+| OpenFreeMap — Basemap Tiles | https://openfreemap.org/ | Globe basemap tile service |
+| OpenStreetMap — Underlying Map Data | https://www.openstreetmap.org/copyright | Map data served through the basemap |
+| Natural Earth — Globe Relief Imagery | https://www.naturalearthdata.com/ | Relief background served through OpenFreeMap |
+
+Software, font and map-schema credits remain in the [README](../README.md#nasa-data-and-credits).
+Do not list researched but unused datasets as integrated data sources.
+
+## Super Intelligence / AI use field
+
+Select applicable categories for research/information gathering, coding/debugging,
+building AI/ML into the project, text assistance and generated diagrams according
+to the options actually displayed. The detailed
+[AI-use statement](ai-disclosure.md) follows the team's decisions / tool use /
+verification structure. Keep the visible AI watermarks on uploaded graphics and
+AI disclosure in the repository; the form says its SI-use response is not shown to judges.
+Do not use NASA logos, flags or mission identifiers in generated content.
+
+## Demo: 30-second video or 7-slide presentation
+
+The supplied organizer message permits either format. A public hosted API or
+downloaded local model is not required for the recorded prototype demonstration.
+
+| Time | Suggested video sequence |
 | --- | --- |
-| Manual settings, keyword question matching, NASA data, charts, rates and scoped significance | Works, with AI off |
-| Examples, descriptive comparisons and the learning question | Works |
-| Evidence, CSV and PNG downloads and pinned case links | Works |
-| Draft 5 AI paths: planner, guided discovery with cited suggestions, cited explanations over the reviewed document corpus | Built; discovery and explanations on by default by the owner's decision, although neither evaluation gate was met (see [evaluation results](evaluation-results.md)) |
-| Observations of intended users | None yet. The [user study kit](user-study-kit.md) is prepared. |
-| Container image | Builds for linux/arm64 and linux/amd64; runtime checked on arm64 only ([verification](verification.md#draft-5-stage-7-container-and-browser-checks)) |
-| Public deployment | None yet. The [deployment guide](deployment.md) exists. |
-| Demo video or slides | Not made |
+| 0–5 seconds | Name the problem and open a saved investigation |
+| 5–12 seconds | Show the location, variable, dates and historical chart |
+| 12–20 seconds | Show the actual rate, applicable statistical evidence and source/grid context |
+| 20–27 seconds | Show a download or interpretation lesson; include one real AI interaction only if rehearsed and within the time limit |
+| 27–30 seconds | Finish on the project name and accessible project link |
 
-If an AI path is turned on for the submission, update this table and the
-[AI disclosure](ai-disclosure.md) with the provider, the exact model and the evaluation
-evidence. Screenshots of templated verdicts are not evidence of LLM or RAG usage.
+Use the application's actual result; never insert a desired rate or verdict.
+If showing AI, record its real behaviour and label it experimental. Do not count
+a capabilities check or a templated verdict as a demonstrated generated answer.
 
-## Demonstration script
+Alternative seven-slide outline: problem/audience; question-to-evidence workflow;
+actual NASA investigation; methods/limits; assistant/RAG architecture; intended
+impact and prototype limits; project link, credits and next steps.
 
-Aim for approximately 27 seconds and verify the final recording stays below
-30 seconds. Record the working prototype with AI off. Do not show discovery or
-explanations unless an AI path is turned on for the submission.
+## Requirements and judging audit
 
-| Time | Screen action |
-| --- | --- |
-| 0-5 seconds | Show the title and open the Svalbard example |
-| 5-12 seconds | Show its actual location, dates and chart |
-| 12-20 seconds | Show rate, conditional significance explanation and source/grid context |
-| 20-27 seconds | Show a download and the interpretation question; finish on the project name |
+This audit uses [event information](event-information.md), the
+[saved challenge description](challenge-description.md), the supplied organizer
+message and submission-form screenshots. The live challenge URL returned 502
+during this cleanup, so its current contents were not independently reverified.
 
-Suggested narration:
+| Requirement | Repository evidence | What remains |
+| --- | --- | --- |
+| Meaningful use of at least one NASA dataset | POWER adapter, saved examples, charts, rates and source evidence | Enter NASA source links in the official form |
+| Identify a variable and obtain regional data | Catalogue, settings, place lookup and grid context | Show one actual investigation in the demo |
+| Visualise a time series and estimate change | Interactive chart and Sen's slope | Keep variable, units and period visible |
+| Assess significance | Scoped annual-temperature inference and retained simulation evidence | Explain assumptions; other analyses stay descriptive |
+| Project name, summary and details | Copy-ready fields above | Save and review the official form |
+| Demo video or seven slides | Outline and watermarked diagrams prepared | Final media URL not provided or verified |
+| Public final-project/supporting-material link | https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026 | Commit/push this cleanup and check anonymous access |
+| AI/resource attribution | AI-use statement, visible diagram watermarks and README credits | Retain disclosures in the final uploaded materials |
+| Submission before organizer deadline | Supplied deadline: 15 November 2026, 11:59 PM SGT | Submit and observe the site's confirmation |
 
-> Is the Arctic warming? Trend Detective lets students investigate environmental
-> questions using NASA POWER data. Choose a place and period, inspect the time
-> series, and see the estimated change and conditional statistical evidence.
-> Open the sources, download the values, and test your interpretation.
+| Criterion (1–5) | What this prototype offers | Evidence boundary / final presentation action |
+| --- | --- | --- |
+| Impact | Students and the public can investigate environmental claims | Explain the audience and intended benefit; no measured learning gains are claimed |
+| Creativity | Detective case files connect exploration, evidence, interpretation and sharing | Show that connected journey, rather than only a chart or chatbot |
+| Validity | NASA provenance, deterministic analysis, scoped inference, tests and retained AI evaluations | Disclose experimental AI and the unmet explanation target; avoid causal/forecast claims |
+| Relevance | Variable selection, regional data, time series, rates and significance in the supported scope | Demonstrate one complete eligible temperature investigation |
+| Presentation | Prepared text, workflow, technology graphic and demonstration outline | Finish the media, keep it within the stated format and test all public links |
 
-Rehearse against the recording. Use the actual displayed results if adding numbers;
-never insert a desired rate or verdict. A presentation of up to seven slides is
-the alternative format; no finished recording or presentation exists in this repo.
+The challenge's audience guidance, variable definitions, short questions,
+demonstration examples, monthly inputs, interpretation of non-significance,
+hydrology-tool review and seasonality considerations are mapped in
+[spec section 2](technical-spec.md#2-challenge-requirements-and-judging-evidence)
+and the [resource assessment](resource-assessment.md). These considerations do not
+require integrating every suggested dataset. The team deferred user testing for
+this submission; it is not an organizer requirement in the supplied information.
+No score, nomination, ranking or award outcome can be guaranteed.
 
-## Links and final actions
+## Final checklist
 
-| Submission field | Current value/status |
-| --- | --- |
-| Challenge | [Be an Earth System Trend Detective!](https://www.spaceappschallenge.org/2026/challenges/earth-system-trend-detective/) |
-| Source repository | [NASA-Space-Apps-Challenge-2026](https://github.com/ychengchong/NASA-Space-Apps-Challenge-2026) |
-| Public demo video/presentation | Pending: record and upload, then supply a public link |
-| Hosted app | Not deployed; optional if accessible source/supporting materials are provided. Steps are in the [deployment guide](deployment.md). |
-| Final reviewed source revision | Pending: commit/publish the selected submission changes |
-| Team page and contributor details | Team must complete in the official submission form |
+- [x] Prepare summary, project details, resource entries and watermarked diagrams.
+- [x] Record development/runtime AI use and preserve scientific/evaluation evidence.
+- [x] Choose the experimental AI-enabled local demo configuration.
+- [ ] Review and publish the final cleanup revision; record its commit hash.
+- [ ] Upload the 30-second video or seven-slide presentation and add its public URL.
+- [ ] Open the project and media links without login or special permissions.
+- [ ] Complete all required official form fields, resource links and SI categories.
+- [ ] Verify the final recording matches the app and retains required disclosures.
+- [ ] Submit before 15 November 2026, 11:59 PM SGT, and observe confirmation.
 
-- [ ] Review and finalize this text against what is actually demonstrated.
-- [ ] Commit/publish the intended changes so judges can access the matching source.
-- [ ] Observe at least five intended users with the [user study kit](user-study-kit.md), with their agreement, and record the results; or disclose that no study was run.
-- [x] Decide whether any AI path is turned on: the owner turned discovery and explanations on by default on 15 November 2026, with the [evaluation results](evaluation-results.md) showing their gates were not met. Say so in the submission.
-- [ ] Deploy the image from the submitted commit with a persistent `/app/state` volume, following the [deployment guide](deployment.md), or decide not to host the app.
-- [ ] Run the deployment checks of the guide on the public HTTPS address and record them in [verification](verification.md).
-- [ ] Record and upload the video, or prepare and publish up to seven slides.
-- [ ] Open final project and demo links in a private browser without special access.
-- [ ] Complete project details, NASA attribution and [AI disclosure](ai-disclosure.md).
-- [ ] Recheck the official rules and submit through the team page before the supplied Singapore deadline: 15 November 2026, 11:59 PM SGT.
-- [ ] Observe the successful submission confirmation; do not rely on saved drafts.
-
-The organizer's supplied requirements are in [event information](event-information.md).
-Official-repository clarifications cover [submission](https://github.com/nasa/spaceapps/discussions/1973)
-and [hosting/demo links](https://github.com/nasa/spaceapps/discussions/1991).
-The complete official submission-guide page could not be fetched in this audit;
-the team should check the final form and current guide before submitting.
-
-## Limitations and disclosure
-
-No live-model accuracy, RAG capability, educational impact, browser/device testing,
-public deployment or award outcome is established by automated unit tests. Legacy
-seed records lack original response bytes and exact upstream release metadata;
-their retained normalized evidence is labelled accordingly. Numerical claims remain
-conditional on the documented method assumptions. See [verification](verification.md)
-for the actual checks and [AI disclosure](ai-disclosure.md) for development assistance.
-
-The team has not selected a project licence; no new licence is implied by this
-submission text. Third-party data, fonts, map assets and dependencies retain their
-own terms, with credits in the [README](../README.md#nasa-data-and-credits).
+Public interactive hosting remains optional for this source/recorded-demo
+submission path and is not verified. If choosing hosting, follow the
+[deployment guide](deployment.md), configure server-side secrets and persistent
+state, and check the public instance. Do not expose or upload the local `.env`.

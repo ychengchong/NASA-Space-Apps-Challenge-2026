@@ -22,11 +22,11 @@ its answers are written by AI and change from question to question.
 - The rate, the evidence for a trend and the cause are three different questions. The app
   answers the first, answers the second only where its test is validated, and never answers
   the third.
-- The "Ask about this investigation" panel appears only when the server has its AI
-  explanations switched on. They are off: the explanations did not pass their held-out
-  evaluation gate (see [evaluation results](evaluation-results.md)), so the panel is not
-  shown. Skip that step and use the "Evidence" and "Learn" tabs, which explain the method
-  and its limits without AI. The panel steps below apply only once that gate has passed.
+- The "Ask about this investigation" panel appears only when the server reports
+  explanations available. The team enabled experimental AI for its local demo despite
+  the unmet evaluation target (see [evaluation results](evaluation-results.md)).
+  Inspect its citations and do not present the explanation as a verified scientific
+  conclusion. If unavailable, use the "Evidence" and "Learn" tabs instead.
 
 ## Walkthrough A: Is Svalbard getting warmer?
 
@@ -147,8 +147,9 @@ Ask the students:
 
 ### Step 7. The "Ask about this investigation" panel
 
-This step applies only once explanations have passed their evaluation gate; today the
-panel is disabled because they did not (see [evaluation results](evaluation-results.md)).
+This step applies when the configured server reports explanations available. The
+team's local demo enables them experimentally despite the unmet evaluation target
+(see [evaluation results](evaluation-results.md)).
 When it is shown, this panel follows the case file; on a wide screen it heads the
 right-hand column, above the globe. Its line says
 "Questions are sent to OpenAI. Answers are written by AI and checked against this result."

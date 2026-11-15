@@ -1,4 +1,35 @@
-# Evaluation results: Draft 5 AI release gates
+# AI evaluation results
+
+## Latest submission status — 15 November 2026
+
+The planner/discovery follow-up passed **50/50 automated cases**. The subsequent
+source-checked RAG run passed **31/40 combined checks** (34/40 automatic), below the
+36/40 target; its matched no-retrieval condition passed 10/40. Three case IDs received
+critical flags from AI graders. Those flags have not been independently adjudicated;
+no claim of zero factual errors is made. The implementing agent authored the suites,
+and generation/grading used the same model family, so this is not independent human
+validation. The samples predate subsequent fixes and do not establish final-code accuracy.
+
+- [Frozen suite and protocol](../backend/evaluation/submission-day/release-confirmation/README.md)
+- [Combined source-checked results](../backend/evaluation/submission-day/release-confirmation/results/combined-summary.json)
+- [Raw RAG responses](../backend/evaluation/submission-day/release-confirmation/results/rag.json)
+- [First source-support grader](../backend/evaluation/submission-day/release-confirmation/results/rag-grader-1.json)
+- [Second source-support grader](../backend/evaluation/submission-day/release-confirmation/results/rag-grader-2.json)
+
+The owner-authorized submission-day ledger reserved **USD 1.236826 of USD 2**,
+including a USD 0.15 allowance for earlier smoke tests. This is conservative local
+accounting, not an OpenAI invoice or a total for other contributors' ledgers. The
+app's configured daily reservation limit remains USD 1.
+
+The team explicitly chose to activate experimental AI for its local demo despite
+the unmet target. Its capabilities endpoint reports all three paths available;
+this readiness check does not call a model or demonstrate answer quality.
+The environment template enables switches but leaves key/store configuration blank.
+The historical results and decisions below are retained as recorded, not presented
+as current activation instructions. Outstanding submission actions are in the
+[submission guide](submission.md#final-checklist).
+
+## Historical follow-up report
 
 The latest complete follow-up scored **50/50 planner/discovery** and **33/40 explanations**
 on automated checks. Human source-support review is pending. Final topic/guard fixes have

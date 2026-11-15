@@ -1,4 +1,113 @@
-# AI contribution record
+# AI use — Trend Detective
+
+Half-Stack Developers used OpenAI Codex and Claude Code as coding, research and
+documentation assistants for Trend Detective. Development assistance is separate
+from the OpenAI model used by the application's optional AI assistant.
+
+## Development and integration
+
+**Our design and decisions:** We chose to build an educational Earth-system trend
+investigation application using NASA data, with charts, evidence panels, place
+comparisons and an interpretation lesson. We requested a Python/FastAPI and
+React application, documentation-grounded AI, explicit user confirmation of
+proposed investigations, and submission materials. AI assistants also proposed
+technical methods, implementation details, interface designs and wording; we do
+not claim that every design decision originated with the team. These contributions
+and their provenance are recorded in the historical notes below.
+
+**How we used the tools:** Codex assisted with challenge and resource research,
+technical-specification revisions, code and PR reviews, backend fixes, regression
+tests, corpus ingestion, retrieval filters, explanation safeguards, evaluation
+scripts, configuration, documentation and branch integration. Contributor records
+describe Claude Code's assistance with the initial application, scientific-method
+implementation, frontend, poster-style redesign and earlier evaluation rounds.
+The assistants generated substantial code and text, rather than providing advice
+alone. Reported historical model identities and browser checks remain attributed
+to their contributors.
+
+**Our verification:** The combined revision merged into `main` at `c85adb6`
+passed 1,621 backend tests and 767 frontend tests, alongside Ruff, ESLint,
+formatting checks and the TypeScript/Vite production build. Earlier offline checks
+exercised the four saved NASA investigations, pinned replay and exports without
+outbound access. The subsequent environment-template update passed 43 existing
+configuration tests. These are recorded automated checks performed with AI
+assistance, not evidence of independent human review, educational impact or a
+public deployment. The team remains responsible for reviewing the implementation,
+its scientific assumptions and the claims made in the submission.
+[Verification record](verification.md), [technical specification](technical-spec.md).
+
+## In-app AI assistant and RAG
+
+**Our design and decisions:** We selected OpenAI-hosted inference and document
+retrieval rather than requiring a downloaded local language model. The assistant
+proposes investigation settings for confirmation and explains datasets, methods
+and limitations using retrieved documentation. Numerical analysis and canonical
+verdicts remain in deterministic Python code. We approved uploading the existing
+reviewed corpus and later chose to enable the experimental assistant for the
+hackathon demo despite the unmet explanation-quality target.
+
+**How we used the tools:** The evaluated runtime model was `gpt-6-luna`. Codex
+helped index 173 sections from 13 NASA sources and 10 project method/variable notes,
+implement citation and result-consistency checks, and build paired retrieval and
+no-retrieval evaluation runs. AI tools authored evaluation questions, expected
+outcomes and source-support grades. These evaluations are not independently
+human-authored or human-reviewed; the latest generation and grading calls used
+the same model family.
+
+**Our verification:** A planner/discovery follow-up passed 50/50 automated cases.
+The subsequent source-checked RAG sample passed 31/40 combined checks, below the
+36/40 target; its matched no-retrieval condition passed 10/40 under the same
+citation requirements. These separate samples are not pooled or presented as a
+general accuracy guarantee. Earlier failures and grading records are retained.
+The local demo's capabilities endpoint reported planning, discovery and
+explanations available after activation; that readiness check made no paid model
+call and does not establish answer quality. The team remains responsible for the
+activation decision, reviewing generated explanations and explaining the limits
+of this experimental feature.
+[Evaluation report](evaluation-results.md),
+[latest source-checked results](../backend/evaluation/submission-day/release-confirmation/results/combined-summary.json).
+
+## Submission text and diagrams
+
+**Our design and decisions:** We supplied the team name, project context,
+submission requirements and reference examples, then requested revisions to the
+summary, project details and diagrams. We decided to describe an intended
+AI-enabled demo and to keep NASA resource entries and AI-use disclosures in their
+dedicated submission fields.
+
+**How we used the tool:** Codex drafted and revised submission and team text and
+created workflow, capabilities and tools/technologies diagrams using Python and
+Matplotlib. These are AI-assisted generated graphics, not application screenshots
+or additional scientific evidence. Local exports are in the ignored
+`artifacts/submission/` directory; final PNG copies are published under
+`docs/images/`. They carry visible OpenAI Codex watermarks.
+
+**Our verification:** Codex rendered and visually inspected the exported diagrams.
+The team remains responsible for checking the final uploaded versions, retaining
+their watermarks and ensuring that the text matches what the demo actually shows.
+No observed user study, successful public deployment or completed official
+submission is established by these materials.
+
+Codex subsequently shortened the README, consolidated submission fields and the
+supplied-requirements/judging audit in `submission.md`, removed the obsolete
+`draft5-remaining.md` checklist, corrected current-status summaries and published
+the watermarked diagrams in `docs/images/`. Full software checks were rerun with
+the same 1,621 backend and 767 frontend passes. Local Markdown links, corpus hashes,
+seed integrity and absence of the configured API key from submittable files were
+also checked. The live challenge page returned 502 during this audit, so the
+saved challenge description and organizer information supplied by the team were used.
+
+## Historical contribution records
+
+The records below are retained as recorded. References to features being off,
+earlier test counts, budgets or "current" results describe their original stages,
+not the latest status above. They distinguish contributor-reported observations
+from checks performed in this session.
+
+<details>
+<summary>Earlier development, evaluation and contributor records</summary>
+
+# AI contribution record (historical)
 
 This record distinguishes development assistance from runtime AI.
 
@@ -248,4 +357,6 @@ here were later retired on `main`, as described above):
   OpenAI's speech model `gpt-4o-mini-tts` (voice "coral") read the seven caption lines, and
   the assistant shortened the pauses, played the lines 1.15 times faster to fit, and mixed
   them. It checked the words and their timing with OpenAI's transcription model, and could
-  not listen to the result. The video file is not part of this repository.
+  not listen to the result. The video and its subtitle file are in `demo-video/`.
+
+</details>

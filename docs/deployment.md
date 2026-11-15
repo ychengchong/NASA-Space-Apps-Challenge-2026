@@ -159,6 +159,12 @@ string or client address. Check it for `Traceback` or `ERROR` lines after the ch
 
 ## 6. Turning the AI on or off
 
+The supplied `.env.example` is now an AI-enabled local-demo template: it selects
+OpenAI and enables AI/evaluation/durable-budget switches, with the USD 1 daily
+reservation limit. It still needs your key and corpus/store settings. For hosted
+use, configure server-side secrets and the persistent volume before declaring
+durable storage. Existing `.env` files are not changed automatically.
+
 Discovery and explanations are on by default (`RAG_ENABLED`, `DISCOVERY_EVALUATED` and
 `RAG_EVALUATED` default to `true`, the owner's decision of 15 November 2026), but nothing
 AI runs until the planner, the key and the corpus below are configured. To run with no AI at

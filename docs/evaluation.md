@@ -1,8 +1,17 @@
-# Evaluation and submission evidence
+# Evaluation protocol
+
+Current status: the latest complete source-checked RAG sample passed 31/40, below
+its 36/40 target; a separate planner/discovery follow-up passed 50/50 automated cases.
+The team chose experimental AI activation for its demo despite the unmet target.
+See [evaluation results](evaluation-results.md) for actual scores and provenance.
+The intended-user study is deferred, not conducted and not a supplied organizer
+requirement. This protocol retains future study plans separately from evidence.
+
+## Earlier evaluation checkpoints
 
 Status: two held-out rounds were run with `gpt-6-luna` on 15 November 2026, each graded by
 automated checks and two AI graders, not by people. Neither gate is met in either round.
-Round 2, on new suites, is the current evidence:
+Round 2, on new suites, was the evidence at that checkpoint:
 
 - Planner/discovery passed 60 of 70 cases (85.7%, below the 90% target), with 3 critical
   fabricated citations in discovery.
@@ -29,7 +38,7 @@ and pending source-support review must be distinguished; no new activation attes
 is implied. The older round-2 scores above remain historical evidence for the prior code.
 User testing was deferred by the team for the submission deadline and was not conducted.
 
-## Student interpretation study
+## Deferred student interpretation study (future work)
 
 Use the same tasks with at least five target students. Record assistance and errors,
 not names or private chat. Obtain participants' agreement before observing them.

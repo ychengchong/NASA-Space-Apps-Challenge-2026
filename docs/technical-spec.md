@@ -1,19 +1,24 @@
 # Trend Detective: Technical Specification
 
-Draft 5 - 14 November 2026 - Working title - Prepared with AI assistance.
+Submission specification - 15 November 2026 - Prepared with AI assistance.
 
-Status: the implementation baseline on `main` at 1fa0cf1 includes core manual workflows, immutable evidence,
-bounded confirmed AI planner integration and globe interface. Draft 5 defines the
-approved next plan on `new-plan`: OpenAI-assisted discovery, documentation retrieval/RAG and
-cited qualitative explanations. Their endpoints and interface are implemented and unit-tested
-with fake providers. Two held-out evaluation rounds with `gpt-6-luna` were run on
-15 November 2026 and graded by automated checks and AI agents, not by people
-([results](evaluation-results.md)). Neither gate is met in round 2, the current evidence:
-planner/discovery passed 60 of 70 cases with three critical citation errors, and RAG passed
-65 of 77, both below the 90% target. Discovery and explanations stay disabled. A user study
-and a deployment are still planned.
-Unit tests use fake providers; the suite results are sample results, not a general accuracy
-guarantee.
+Current implementation: `main` at `c85adb6` includes the merged manual workflows,
+retained evidence, planner, documentation-grounded discovery/explanations and poster
+interface. The local demo has all three AI capabilities configured on. The public
+environment template selects the AI-enabled demo, but credentials and corpus settings
+must be supplied; without environment configuration the main AI switch defaults off.
+Activation is the team's decision despite the unmet explanation-quality target.
+
+The latest planner/discovery follow-up passed 50/50 automated cases. A subsequent
+source-checked RAG sample passed 31/40 combined checks, below the 36/40 target.
+Suites and grades were AI-authored, not independent human validation. These samples
+predate later fixes and are not a claim of final-code accuracy. Earlier rounds remain
+in the [evaluation report](evaluation-results.md). User testing was deferred and
+not conducted; a public deployment and final media link are not verified.
+The delivery checklist records implementation and evidence separately; unchecked
+future goals are not additional organizer submission requirements. Final actions
+and the supplied-requirements audit are consolidated in the
+[submission guide](submission.md#final-checklist).
 The statistical study is retained in
 [the preregistered plan](../research/inference-plan.md) and
 [all confirmation results](../research/inference-results.json). Automated checks
@@ -1180,7 +1185,12 @@ microdollar cap, owner-supplied input/output microdollar prices per million toke
 and AI_BUDGET_DURABLE=true. SQLite atomically reserves conservative input-byte/token
 and output-token upper bounds before each call. Failed/cancelled/uncertain calls
 retain the reservation. No retries or paid fallback are performed. Owners must
-keep model identity and accounting rates current; activation is off by default. Turns are not spend caps.
+keep model identity and accounting rates current; activation is off by default without
+environment configuration. The team's 15 November 2026 demo template in `.env.example`
+selects OpenAI and enables AI/evaluation/durable-budget switches, retaining the USD 1
+daily reservation limit. Credentials and corpus settings remain blank. Preserve local
+state or mount persistent hosted storage; existing `.env` files are not overwritten.
+This template choice does not establish a passed AI quality gate. Turns are not spend caps.
 Keep hosted mode off if accounting is unavailable. Counters need durable storage
 and concurrency/restart/redeployment checks. Local mode also needs compute bounds.
 No chat text is stored server-side.
@@ -1621,7 +1631,7 @@ and simulation claims lacking artifacts are leads to verify, not validation.
 
 These boxes remain unchecked until implementation and observed evidence exist.
 Specification approval alone does not activate AI or complete a release gate.
-What remains is listed in [Draft 5: what is done and what remains](draft5-remaining.md).
+Remaining submission actions are consolidated in the [submission guide](submission.md#final-checklist).
 
 - [x] Implement guided clarification/discovery and source-backed variable suggestions.
 - [x] Select and evaluate an exact OpenAI model; retain manual confirmation/fallback.
