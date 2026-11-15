@@ -5,8 +5,8 @@ Status: two rounds have been run, both on 15 November 2026 with OpenAI `gpt-6-lu
 round 2.** The planner and discovery run passed 60 of 70 cases (85.7%), below the 90%
 target, and it has 3 critical fabricated-citation errors. The RAG (explanation) run passed
 65 of 77 cases (84.4%) under the automated checks and both AI graders together. That is
-below the 90% target, although it had no critical error. `DISCOVERY_EVALUATED` and
-`RAG_EVALUATED` are both `false`, so discovery and explanations stay off. All grading was
+below the 90% target, although it had no critical error. On 15 November 2026 the owner decided to turn guided discovery and cited explanations on by default for the submission, although neither evaluation gate was met: `DISCOVERY_EVALUATED` and `RAG_EVALUATED` now default to `true`, so both
+run wherever the AI and the corpus are configured. All grading was
 done by automated checks and by AI agents. No person has reviewed the cases, the answers or
 the grades, and no user observations have been made.
 
@@ -44,10 +44,11 @@ results and grades are in `backend/evaluation/round2/results/`:
   judgment. That delegation is recorded here as the lead reported it. No written
   attestation by the owner is in the repository. Both decisions keep the features off, so
   no feature was turned on under that delegation.
-- **The flags.** `DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false` in the
-  repository-root `.env`, which is not committed. `/api/discover` and `/api/explain` answer
-  503 `ai_unavailable`. The question bar uses `/api/plan` and the "Ask" panel is not shown.
-  Nothing is deployed.
+- **The flags.** After the run above the gates stayed unmet and the flags were `false`. Later
+  on 15 November 2026 the owner decided to turn both features on by default for the
+  submission, knowing the gates were not met: the code now defaults `DISCOVERY_EVALUATED`
+  and `RAG_EVALUATED` to `true` (`backend/app/config.py`), and either can be set `false`.
+  The pass rates above are the evidence for that decision, not a claim that it passed.
 - **The planner pass rate** is below target on the point estimate. The upper end of its
   interval (92.1%) does not rule out a true rate of 90%, but the gate is decided on the
   predeclared point target and on the critical errors, and it fails both. On `/api/discover`

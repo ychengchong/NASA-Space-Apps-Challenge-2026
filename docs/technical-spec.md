@@ -877,8 +877,7 @@ planner/discovery passed 60 of 70 (85.7%, Wilson 95% 75.7-92.1%), with 3 critica
 fabricated citations (air temperature suggestions citing degree-day or parameter-table
 sections); RAG passed 65 of 77 under the automated checks and both graders combined (84.4%,
 Wilson 95% 74.7-90.9%), with no critical error, against 42 of 77 without retrieval.
-DISCOVERY_EVALUATED and RAG_EVALUATED stay false, so discovery and explanations remain
-disabled. The round-2 decisions were made by the workflow's lead agent under a delegation
+The gates were not met. On 15 November 2026 the owner decided to turn guided discovery and cited explanations on by default for the submission, although neither evaluation gate was met; DISCOVERY_EVALUATED and RAG_EVALUATED now default to true. The round-2 decisions were made by the workflow's lead agent under a delegation
 from the owner that it reported (see [evaluation](evaluation.md)).
 After round 1, the round-1 failure causes were addressed as general behaviour, not per
 question (the round-1 results were read for their causes; the new suites were not opened): the discovery citation-support check, tighter explanation instructions, field
@@ -1166,7 +1165,8 @@ reasoning used 0 to 254 tokens. In the round-2 held-out runs, all 211 generation
 `effort: "low"` and completed, with none cut off, and hidden reasoning used at most 321
 tokens.
 
-Configuration (all off by default): RAG_ENABLED, RAG_VECTOR_STORE_ID (must have
+Configuration (RAG_ENABLED, RAG_EVALUATED and DISCOVERY_EVALUATED default to true by the
+owner's decision of 15 November 2026; the rest are empty or zero until set): RAG_ENABLED, RAG_VECTOR_STORE_ID (must have
 the shape of an OpenAI vector store ID, `vs_` and up to 128 letters, digits, `_`
 or `-`), RAG_CORPUS_VERSION (must equal the manifest's corpus_version),
 RAG_SEARCH_MICROUSD_PER_CALL (owner-supplied integer price per search call),
@@ -1467,8 +1467,8 @@ accounting. Resolved by the recorded held-out runs of 15 November 2026
 - Output cut-off: with low reasoning effort, no round-2 held-out output was cut off (0 of
   211 generations), where 2 of 75 round-1 discovery outputs had been.
 - Round-2 gate decisions: neither gate passed. Planner/discovery passed 60 of 70 with 3
-  critical fabricated citations, and RAG passed 65 of 77 combined. `DISCOVERY_EVALUATED`
-  and `RAG_EVALUATED` are `false`. The workflow's lead agent made these decisions under a
+  critical fabricated citations, and RAG passed 65 of 77 combined. The owner later turned both
+  features on by default anyway; `DISCOVERY_EVALUATED` and `RAG_EVALUATED` default to `true`. The workflow's lead agent made these decisions under a
   delegation from the owner that it reported.
 
 Still open:

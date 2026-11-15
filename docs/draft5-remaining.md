@@ -26,7 +26,8 @@ it yet.
 
 ### 1. The AI release gates are not met
 
-Discovery and explanations stay off (`DISCOVERY_EVALUATED=false`, `RAG_EVALUATED=false`).
+The owner turned discovery and explanations on by default on 15 November 2026 for the
+submission, although these gates were not met; the submission should say so.
 
 - Round 2 planner and discovery: 60 of 70 (85.7%), target 90%, and three critical
   fabricated-citation errors (target zero).

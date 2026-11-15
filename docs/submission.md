@@ -19,7 +19,8 @@ and pinned case links make investigations inspectable and reproducible. Worked
 examples, place comparisons and an interpretation question help users reason
 about the evidence rather than merely read a chart. Manual settings and keyword
 questions work without an AI key. Optional AI planning, guided discovery and cited
-explanations are built and off by default; see the
+explanations are built and on by default (the owner's choice, although their evaluation gates
+were not met); see the
 [evaluation results](evaluation-results.md) for their status.
 
 ## Project details
@@ -62,7 +63,7 @@ Status on 15 November 2026:
 | Manual settings, keyword question matching, NASA data, charts, rates and scoped significance | Works, with AI off |
 | Examples, descriptive comparisons and the learning question | Works |
 | Evidence, CSV and PNG downloads and pinned case links | Works |
-| Draft 5 AI paths: planner, guided discovery with cited suggestions, cited explanations over the reviewed document corpus | Built and off by default. Evaluation status: see the [evaluation results](evaluation-results.md). |
+| Draft 5 AI paths: planner, guided discovery with cited suggestions, cited explanations over the reviewed document corpus | Built; discovery and explanations on by default by the owner's decision, although neither evaluation gate was met (see [evaluation results](evaluation-results.md)) |
 | Observations of intended users | None yet. The [user study kit](user-study-kit.md) is prepared. |
 | Container image | Builds for linux/arm64 and linux/amd64; runtime checked on arm64 only ([verification](verification.md#draft-5-stage-7-container-and-browser-checks)) |
 | Public deployment | None yet. The [deployment guide](deployment.md) exists. |
@@ -110,7 +111,7 @@ the alternative format; no finished recording or presentation exists in this rep
 - [ ] Review and finalize this text against what is actually demonstrated.
 - [ ] Commit/publish the intended changes so judges can access the matching source.
 - [ ] Observe at least five intended users with the [user study kit](user-study-kit.md), with their agreement, and record the results; or disclose that no study was run.
-- [ ] Decide whether any AI path is turned on, based on the [evaluation results](evaluation-results.md); keep AI off otherwise.
+- [x] Decide whether any AI path is turned on: the owner turned discovery and explanations on by default on 15 November 2026, with the [evaluation results](evaluation-results.md) showing their gates were not met. Say so in the submission.
 - [ ] Deploy the image from the submitted commit with a persistent `/app/state` volume, following the [deployment guide](deployment.md), or decide not to host the app.
 - [ ] Run the deployment checks of the guide on the public HTTPS address and record them in [verification](verification.md).
 - [ ] Record and upload the video, or prepare and publish up to seven slides.
