@@ -1,0 +1,4 @@
+What the result fields mean: The period and the months asked for (requested.from, requested.to, requested.season)
+Publisher: Trend Detective project
+
+The fields requested.from and requested.to, labelled "First year asked for" and "Last year asked for", are the period the investigation asked for, before incomplete years were left out. The field requested.season, labelled "Months", says which months each yearly value averages: all months, or one season named by its months, December to February, March to May, June to August or September to November. For December to February, December counts toward the following year, so the winter that starts in one December belongs to the next year.

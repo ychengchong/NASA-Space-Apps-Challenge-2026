@@ -1,0 +1,4 @@
+Grid cells, reanalysis and data sources: Yearly values
+Publisher: Trend Detective project
+
+The app makes each yearly value from the twelve monthly values, weighting each month by its number of days and respecting leap years. A year with a missing month has no yearly value; a missing value is never replaced by zero. This day-weighted mean is the app's own named statistic. POWER describes its own annual values as a mean of the months, so the two need not be identical.

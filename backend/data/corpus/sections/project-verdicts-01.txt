@@ -1,0 +1,12 @@
+What each verdict means
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project. It explains the verdicts the app gives. The verdicts and their wording are the project's own, not NASA's.
+
+The five verdict kinds
+
+- no_data: there are no usable complete annual values for this place and period.
+- too_few_years: fewer than ten complete annual values, so the app gives no rate. The verdict states the count and the policy threshold.
+- inference_unavailable: a significance test is not justified or not available for this case. The app gives a descriptive rate where it can, and the reason the test was not run. Significance has not been assessed.
+- significant: the validated test gives a p-value below 0.05. The evidence for a monotonic trend meets the stated 5% threshold.
+- not_significant: the validated test gives a p-value of 0.05 or more. These data do not provide sufficient evidence for a monotonic trend under the method.

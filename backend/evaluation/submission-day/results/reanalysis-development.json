@@ -1,0 +1,327 @@
+{
+ "suite": "evaluation\\submission-day\\reanalysis-development.json",
+ "suite_kind": "rag",
+ "condition": "rag",
+ "target_pass_rate": 0.9,
+ "assumed_cutoff": null,
+ "identities": {
+  "model": "gpt-6-luna",
+  "provider": "openai",
+  "schema_sha256": {
+   "discover": "4c097cbbb79b1d753b9239bfd1c5192f629d9febf70ca02fa456b1d27d3bfd28",
+   "explain": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+   "plan": "c04eb7d6cfb10e278c12c5e22929b403df5c8aff74ccf7fbb85e817b3dbc2a5c"
+  },
+  "corpus_version": "1592032ec6d77064140a4ad4c1e2666c81c885f1bb78721d3ce10570edf4037c",
+  "vector_store_id": "vs_6af95eb121c481919656f62f0948fafa",
+  "git_head": "3ea4d5015889ae420fdca6f9cccc48f39cdf54ec",
+  "tracked_diff_sha256": "f85862d0623f60da629acd917a883b7275207183bac3ae34696d140e63aa65ca",
+  "tracked_diff_empty": false,
+  "suite_sha256": "73b461bb93871015d82f5e493baf4ef7fcee6e88d47c799a377acf728705586c",
+  "last_complete_year": 2025,
+  "started_utc": "2026-11-15T08:30:44+00:00",
+  "bounds": {
+   "max_passages": 4,
+   "discover_max_output_tokens": 1024,
+   "explain_max_output_tokens": 1024,
+   "deadline_seconds": 30,
+   "reasoning_effort": "low"
+  },
+  "prices_microusd": {
+   "input_per_million_tokens": 100000,
+   "output_per_million_tokens": 500000,
+   "search_per_call": 2500
+  }
+ },
+ "reviewer": null,
+ "recorded_cases": {
+  "v=air_temp&p=78.22,15.65&label=Longyearbyen&from=1981&to=2025&s=annual": {
+   "http": 200,
+   "investigation_id": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf",
+   "pinned": true,
+   "verdict_kinds": [
+    "significant"
+   ]
+  },
+  "v=air_temp&p=55.02,82.93&label=Novosibirsk&from=1981&to=2025&s=DJF": {
+   "http": 200,
+   "investigation_id": "30c960651241dd26db9abc271b8548c3757efa5f572c4c0e897ff90340317fb1",
+   "pinned": true,
+   "verdict_kinds": [
+    "inference_unavailable"
+   ]
+  },
+  "v=precipitation&p=37.98,23.73&p=60.17,24.94&label=Athens&label=Helsinki&from=1981&to=2025&s=annual": {
+   "http": 200,
+   "investigation_id": "de88d1deddfb527b9ba0529d7c5d2b6c14acf5b86f09843df11256442155a15a",
+   "pinned": true,
+   "verdict_kinds": [
+    "inference_unavailable",
+    "inference_unavailable"
+   ]
+  },
+  "v=haze&p=43.07,-89.4&label=Madison&from=2001&to=2025&s=JJA": {
+   "http": 200,
+   "investigation_id": "2960e4f4f2ed0837ac964c4cb75dcc68478ec5537ea14665781a736dce5c03b4",
+   "pinned": true,
+   "verdict_kinds": [
+    "inference_unavailable"
+   ]
+  }
+ },
+ "cases": [
+  {
+   "id": "FU-R08",
+   "category": "method and limitations",
+   "endpoint": "explain",
+   "request": {
+    "question": "What does reanalysis combine to produce its environmental estimates?",
+    "investigation_id": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf"
+   },
+   "http": 200,
+   "outcome": "answered",
+   "reason": null,
+   "response": {
+    "status": "answered",
+    "reason": null,
+    "missing": null,
+    "notices": null,
+    "proposal": null,
+    "investigation_id": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf",
+    "blocks": [
+     {
+      "text": "MERRA-2 seeks to combine observational data with model estimates of atmospheric variables to produce its estimates.",
+      "citations": [
+       {
+        "source_id": "power-sources-meteorology",
+        "section_id": "power-sources-meteorology-02",
+        "kind": "agency"
+       }
+      ],
+      "references": []
+     }
+    ]
+   },
+   "latency_seconds": 4.291,
+   "timed_out": false,
+   "reservations": [
+    {
+     "kind": "search",
+     "microusd": 2500
+    },
+    {
+     "kind": "generation",
+     "microusd": 1729
+    }
+   ],
+   "reserved_microusd": 4229,
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "a1c39d6030cbcf4a85945d4e2aeb96ac29128fc469d12a67fc9d62ac27622ad2",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "served_model": "gpt-6-luna",
+     "provider_response": {
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "incomplete_details": null,
+      "error": null,
+      "reasoning": {
+       "context": "all_turns",
+       "effort": "low",
+       "mode": "standard",
+       "summary": null
+      },
+      "max_output_tokens": 1024,
+      "usage": {
+       "input_tokens": 2455,
+       "input_tokens_details": {
+        "cache_write_tokens": 1410,
+        "cache_write_tokens_details": {
+         "ttl_12h_tokens": 0,
+         "ttl_30m_tokens": 1410
+        },
+        "cached_tokens": 1042
+       },
+       "output_tokens": 101,
+       "output_tokens_details": {
+        "reasoning_tokens": 0
+       },
+       "total_tokens": 2556
+      },
+      "output": [
+       {
+        "id": "msg_0aa07ac0c4d6dd75016af96db7399c87d2ad037b337a8c3c0d",
+        "type": "message",
+        "status": "completed",
+        "content": [
+         {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"status\":\"answered\",\"investigation_id\":\"4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf\",\"blocks\":[{\"text\":\"MERRA-2 seeks to combine observational data with model estimates of atmospheric variables to produce its estimates.\",\"source_ids\":[\"power-sources-meteorology-02\"],\"references\":[]}],\"plan\":null}"
+         }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+       }
+      ]
+     }
+    }
+   ],
+   "retrievals": [
+    {
+     "query": "What does reanalysis combine to produce its environmental estimates?\nResult fields: MERRA-2 reanalysis: GEOS model, observations and data assimilation",
+     "passages": [
+      {
+       "source_id": "power-sources-meteorology",
+       "section_id": "power-sources-meteorology-02",
+       "file_id": "file-76Ng7s7HAsFkVMwhvTQPgm",
+       "score": 0.9228159976422238
+      },
+      {
+       "source_id": "power-sources-meteorology",
+       "section_id": "power-sources-meteorology-01",
+       "file_id": "file-4rxt6HScmLKXJwd2yYjGBh",
+       "score": 0.9058140598945896
+      },
+      {
+       "source_id": "merra2-overview",
+       "section_id": "merra2-overview-01",
+       "file_id": "file-Gp6W1bQYD7HBGfyCbsTPQV",
+       "score": 0.9025343132382214
+      },
+      {
+       "source_id": "merra2-system-characteristics",
+       "section_id": "merra2-system-characteristics-01",
+       "file_id": "file-9VUaEpHQyeuH5ACwvpY4Gm",
+       "score": 0.8920507937680221
+      }
+     ]
+    }
+   ],
+   "guard_checks": [
+    {
+     "check": "explanation",
+     "problems": []
+    }
+   ],
+   "citation_support": [],
+   "retrieval_relevance": {
+    "relevant": true,
+    "hits": [
+     "power-sources-meteorology-01"
+    ],
+    "returned": [
+     "power-sources-meteorology-02",
+     "power-sources-meteorology-01",
+     "merra2-overview-01",
+     "merra2-system-characteristics-01"
+    ]
+   },
+   "checks": [
+    {
+     "check": "status",
+     "passed": true,
+     "detail": "answered"
+    },
+    {
+     "check": "sections_any",
+     "passed": false,
+     "detail": [
+      "power-sources-meteorology-02"
+     ]
+    },
+    {
+     "check": "bound_to_investigation",
+     "passed": true,
+     "detail": "4692d380992ac316c3dda6c9cd74451affaeca437f89b4236edb1fd5a67d1cbf"
+    },
+    {
+     "check": "fabricated_citation",
+     "passed": true,
+     "detail": []
+    },
+    {
+     "check": "write_number",
+     "passed": true,
+     "detail": []
+    }
+   ],
+   "passed": false,
+   "critical": [],
+   "review_pending": [
+    "invent_number",
+    "change_verdict",
+    "give_cause",
+    "give_forecast",
+    "fabricated_citation",
+    "unsupported_claim"
+   ],
+   "number_flags": []
+  }
+ ],
+ "ledger_total_microusd": 975993,
+ "report": {
+  "condition": "rag",
+  "cases": 1,
+  "run": 1,
+  "not_run": 0,
+  "passed": 0,
+  "failed": 1,
+  "pass_rate": 0.0,
+  "wilson95": [
+   0.0,
+   0.7934506856227626
+  ],
+  "target_pass_rate": 0.9,
+  "by_category": {
+   "method and limitations": {
+    "cases": 1,
+    "passed": 0,
+    "failed": 1,
+    "not_run": 0
+   }
+  },
+  "critical": {},
+  "failures": [
+   {
+    "id": "FU-R08",
+    "category": "method and limitations",
+    "outcome": "answered",
+    "failed_checks": [
+     "sections_any"
+    ]
+   }
+  ],
+  "review_pending": 1,
+  "retrieval_relevance": {
+   "scored": 1,
+   "relevant": 1,
+   "not_relevant": []
+  },
+  "latency_seconds": {
+   "median": 4.291,
+   "p90": 4.291,
+   "max": 4.291
+  },
+  "timeouts": 0,
+  "searches": 1,
+  "generations": 1,
+  "reserved_microusd": 4229,
+  "reserved_usd": 0.004229,
+  "sent": {
+   "prompts": [
+    {
+     "schema_name": "investigation_explanation",
+     "instructions_sha256": "a1c39d6030cbcf4a85945d4e2aeb96ac29128fc469d12a67fc9d62ac27622ad2",
+     "schema_sha256": "b0e542d5d87b07ee01b270deb194ff0ba377699ca4fcabc4ea524b8e5672cefe",
+     "calls": 1
+    }
+   ],
+   "served_models": [
+    "gpt-6-luna"
+   ]
+  }
+ }
+}

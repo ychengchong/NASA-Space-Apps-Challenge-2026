@@ -1,0 +1,4 @@
+POWER Meteorological Derived Parameters: Meteorological Derived Parameters
+Publisher: NASA Langley Research Center, POWER Project
+
+POWER provides value-added products from core meteorological parameters for POWER community use. Equations/methods for producing these parameters are presented below, along with validation of these parameters as possible.

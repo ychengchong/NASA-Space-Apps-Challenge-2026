@@ -1,0 +1,8 @@
+Grid cells, reanalysis and data sources
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project. It explains what the app's numbers describe. It is the project's own summary; for the data themselves, see the NASA POWER and GMAO documentation.
+
+A grid cell, not a point
+
+The app reads NASA POWER monthly values for the grid cell that contains the chosen place. A result describes that grid cell, not the exact point or a city weather station. Two places in the same grid cell get the same values, so the difference between them is zero in every year. The place's name is only a label; it does not change the data.

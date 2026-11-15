@@ -10,6 +10,7 @@ import {
   placeActions,
   readySummary,
   placeFromCandidate,
+  missingSetting,
   questionIsReady,
   removePlace,
   samePoint,
@@ -147,6 +148,20 @@ describe("draftFromProposal", () => {
   test("keeps the open case's variable when the question names none", () => {
     const base = draftFromCase(HELSINKI_CASE);
     expect(draftFromProposal(base, { variables: [], places: [nairobi] }).variable).toBe("air_temp");
+  });
+});
+
+describe("missingSetting", () => {
+  test("names the variable first when neither variable nor place is chosen", () => {
+    expect(missingSetting(EMPTY_DRAFT)).toBe("variable");
+  });
+
+  test("names the place when only the place is missing", () => {
+    expect(missingSetting({ ...EMPTY_DRAFT, variable: "air_temp" })).toBe("place");
+  });
+
+  test("names nothing for a whole case", () => {
+    expect(missingSetting(draftFromCase(HELSINKI_CASE))).toBeNull();
   });
 });
 

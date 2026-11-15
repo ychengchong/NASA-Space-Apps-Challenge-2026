@@ -1,0 +1,18 @@
+POWER Solar Flux Data Sources: FLASHFlux (part 2)
+Publisher: NASA Langley Research Center, POWER Project
+
+For speedy retrieval of surface solar insolation, FLASHFlux uses the SW Model B that is also used in CERES processing (Kratz et al., 2010, 2014). This model is named the Langley Parameterized SW Algorithm (LPSA) and described in detail in Gupta et al., (2001). It consists of physical parameterizations which account for the attenuation of solar radiation in simple terms separately for clear atmosphere and clouds. Surface insolation, F_{sd}, is computed as:
+
+\begin{align} F_{sd} = F_{toa} T_a T_c, \end{align}
+
+\begin{align} Where: \\ F_{toa}: & \text{ The corresponding TOA insolation. }\\ T_a: & \text{ The transmittance of the clear atmosphere. }\\ T_c: & \text{ The transmittance of the clouds. }\\ \end{align}
+
+The LW radiative fluxes are produced via the Langley Parameterized Longwave Algorithm (LPLA). Detailed descriptions of this algorithm can be found in Gupta et al., (1992); Gupta, (1989); and Wilber et al., (1999). The LPSA and LPLA parameterizations are the operational fast-flux algorithms underlying CERES FLASHFlux near-real-time surface fluxes (Kratz et al., 2014)
+
+The BSRN network provides the surface reference used in these FLASHFlux comparisons.
+
+Comparison Plots: NASA’s FLASHFlux 4A to BSRN Data
+
+Daily covers January through December 2025
+
+Daily: Scatter Density Plot (top), Histogram (bottom)

@@ -15,16 +15,17 @@ interface EvidencePanelProps {
   investigation: Investigation;
 }
 
-/** Every number behind the verdict, the cautions, the data source and the method (spec 3). */
+/**
+ * Every number behind the verdict, the cautions, the data source and the method (spec 3). It is
+ * open in the "Evidence" tab: the tab is its fold, so the evidence is one click from the answer.
+ */
 export function EvidencePanel({ investigation }: EvidencePanelProps): JSX.Element {
   const { variable, results } = investigation;
   return (
     <section className="panel" aria-labelledby="evidence-heading">
-      <details className="evidence">
-        <summary>
-          <h2 id="evidence-heading">Evidence</h2>
-          <span className="summary-hint">The numbers, the method and the data behind the verdict</span>
-        </summary>
+      <div className="evidence">
+        <h2 id="evidence-heading">Evidence</h2>
+        <p className="panel-note">The numbers, the method and the data behind the verdict</p>
 
         <h3>Numbers</h3>
         <NumbersTable results={results} variable={variable} />
@@ -124,7 +125,7 @@ export function EvidencePanel({ investigation }: EvidencePanelProps): JSX.Elemen
             <li key={text}>{text}</li>
           ))}
         </ul>
-      </details>
+      </div>
     </section>
   );
 }

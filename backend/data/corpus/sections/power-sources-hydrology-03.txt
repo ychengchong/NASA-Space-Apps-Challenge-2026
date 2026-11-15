@@ -1,0 +1,4 @@
+POWER Hydrology Data Sources: GWM
+Publisher: NASA Langley Research Center, POWER Project
+
+The NASA Global Water Measurements (GWM) portal at NASA Goddard Space Flight Center is an online source for satellite-derived water products covering inland water bodies and global mean sea level. The GWM portal distributes operational radar-altimetry time series for inland water bodies and is maintained at NASA GSFC. GWM products integrate observations from a heritage of radar and laser altimetry missions (TOPEX/Poseidon, Jason series, OSTM, Envisat, SARAL/AltiKa, Sentinel-3, Sentinel-6, ICESat-2, SWOT) into operational time series of water surface heights and related variables for individual lakes, reservoirs, river reaches, and wetlands. Multi-mission satellite altimetry has been demonstrated to retrieve lake and reservoir surface heights to decimeter- level accuracy over large water bodies, and SWOT extends these capabilities with wide-swath interferometry.

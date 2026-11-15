@@ -1,0 +1,36 @@
+POWER Hydrology Data Sources: Comparison to MERRA-2
+Publisher: NASA Langley Research Center, POWER Project
+
+Both products use the NASA Catchment land-surface model at their core. This table highlights the difference in the two products:
+
+Aspect | MERRA-2 | SMAP L4
+
+Land-surface model | Catchment (in GEOS DAS) | Catchment (standalone)
+
+Grid | ½° × ⅝° | ~9 km EASE → 0.09° lat–lon
+
+Satellite constraint | None (atmospheric only) | SMAP L-band brightness temps
+
+Record start | 1981 | 2015
+
+Temporal levels | Hourly–climatology | Daily–climatology
+
+SMAP set a target unbiased RMSE of 0.04 m³/m³ for surface soil moisture, and L4_SM validation has reported skill near this requirement against in-situ core validation sites (Entekhabi et al., 2010).
+
+- Strengths:
+
+- ~6× finer spatial resolution than MERRA-2
+
+- Extensive product assessments completed by SMAP team
+
+- Percentile products can be used for drought classification.
+
+- Limitations:
+
+- Record begins in 2015 (MERRA-2 present for full POWER availability)
+
+- Not quite global coverage: ~85°N/S latitude coverage
+
+- Active radar lost July 2015
+
+Because both products share the same underlying model physics, transitions between MERRA-2 and SMAP in a time series are physically consistent in character, though absolute magnitudes may differ due to the satellite constraint and grid resolution.

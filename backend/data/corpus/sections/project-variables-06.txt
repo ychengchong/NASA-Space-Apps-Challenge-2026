@@ -1,0 +1,14 @@
+Variables in Trend Detective: Precipitation (PRECTOTCORR)
+Publisher: Trend Detective project
+
+Precipitation (PRECTOTCORR): How much rain and snow falls, given as the average amount per day over the month.
+
+- Catalogue ID: precipitation
+- NASA POWER parameter code: PRECTOTCORR
+- Units: mm/day
+- Rate of change shown in: mm/day per decade
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.
+
+Caution: Rainfall trends from this model are less reliable than temperature trends.

@@ -1,0 +1,12 @@
+POWER Meteorological Data Sources: Validation IMERG vs. MERRA-2
+Publisher: NASA Langley Research Center, POWER Project
+
+The POWER project compared accumulated precipitation from the NCEI GSOD observations to two precipitation sources: the Integrated Multi-satellitE Retrievals for GPM (IMERG) and MERRA-2. This comparison was done to evaluate the performance between the higher resolution IMERG against the MERRA-2 data product. Independent evaluations have found that satellite-gauge products such as IMERG can better capture spatial precipitation structure than coarser reanalyses, though relative skill varies by region, season, and accumulation period.
+
+Two test cases were completed to conduct this comparison:
+
+- All Events: pairs compared at the weekly and monthly level.
+
+- Precipitation Only: pairs compared at the weekly and monthly level where precipitation was greater than zero.
+
+The IMERG data is only available at the daily temporal in UTC time for POWER's services.

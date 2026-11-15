@@ -1,0 +1,12 @@
+POWER Meteorological Data Sources: Data Integration
+Publisher: NASA Langley Research Center, POWER Project
+
+GSOD, IMERG, and MERRA-2 data were integrated into weekly and monthly accumulations based on the following steps and criteria:
+
+- Cleaned the year-based GSOD site files by checking the quality codes, removing fill values, and aggregating the data into one site-based file.
+
+- Joined the IMERG and MERRA-2 based data to each GSOD site-based file.
+
+- Integrated site-based files by first requiring five days of data, across all three sources, before summing into a weekly accumulated value.
+
+- From the weekly integrated site-based files by first requiring three weeks of data, across all three sources, before summing into a monthly accumulated value.

@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { Capabilities, ExampleCase, Investigation } from "./api";
 import App from "./App";
-import { investigation, SIGNIFICANT_RISE } from "./components/testData";
+import { investigation, placeResult, RECORDS, SIGNIFICANT_RISE } from "./components/testData";
 
 // Every request stays idle, so nothing touches the network. A test may give the server's
 // capabilities, the list of example cases, and the answer of a case.
@@ -208,11 +208,23 @@ describe("App", () => {
     expect(live).toContain("</section></div></div>");
   });
 
-  test("offers on the first screen a way to set up a case by hand, down to the settings", () => {
-    const html = renderAt("/", "");
-    expect(html).toContain('<a href="#settings-heading">set up a case by hand</a>');
+  test("shows the settings unfolded under a link that does not open a case", () => {
+    const html = renderAt("/case", "?v=air_temp");
+    expect(html).toContain("This link does not open a case");
+    expect(html).not.toContain('<span class="fold-label">Set up a case by hand</span>');
     expect(html).toContain('id="settings-heading"');
-    expect(renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki")).not.toContain("by hand");
+  });
+
+  test("offers on the first screen the settings folded under the question, before the examples", () => {
+    const html = renderAt("/", "");
+    const fold = html.indexOf('<span class="fold-label">Set up a case by hand</span>');
+    expect(fold).toBeGreaterThan(-1);
+    expect(html.slice(html.lastIndexOf("<button", fold), fold)).toContain('aria-expanded="false"');
+    expect(html.indexOf('id="settings-heading"')).toBeGreaterThan(fold);
+    expect(html.indexOf('id="examples-heading"')).toBeGreaterThan(html.indexOf('id="settings-heading"'));
+    expect(renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki")).not.toContain(
+      "Set up a case by hand",
+    );
   });
 
   test("shows no placeholder on a page that is not loading", () => {
@@ -233,5 +245,63 @@ describe("App on a phone", () => {
   test("marks every page with an answer, so a phone shows the answer before the globe", () => {
     expect(renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki")).toContain('class="app has-answer"');
     expect(renderAt("/", "")).toContain('class="app"');
+  });
+});
+
+describe("App's panel for questions about the investigation", () => {
+  const HELSINKI_CASE = "?v=air_temp&p=60.17,24.94&label=Helsinki";
+  const ASK_HEADING = "Ask about this investigation";
+
+  function withRecords(): Investigation {
+    return {
+      ...investigation(SIGNIFICANT_RISE),
+      results: [{ ...placeResult(SIGNIFICANT_RISE), records: RECORDS }],
+    };
+  }
+
+  test("is absent while the server offers no explanations", () => {
+    server.capabilities = { ai_planner_available: true, ai_explanation_available: false };
+    server.investigation = withRecords();
+    expect(renderAt("/case", HELSINKI_CASE)).not.toContain(ASK_HEADING);
+  });
+
+  test("is absent before the server has said what it offers", () => {
+    server.investigation = withRecords();
+    expect(renderAt("/case", HELSINKI_CASE)).not.toContain(ASK_HEADING);
+  });
+
+  test("is absent while a case loads, even with the previous case on screen", () => {
+    server.capabilities = { ai_planner_available: false, ai_explanation_available: true };
+    server.caseLoading = true;
+    server.investigation = withRecords();
+    const html = renderAt("/case", HELSINKI_CASE);
+    expect(html).toContain('id="verdict-heading"');
+    expect(html).not.toContain(ASK_HEADING);
+  });
+
+  test("sits in the Answer tab after the record years and before Copy link", () => {
+    server.capabilities = { ai_planner_available: false, ai_explanation_available: true };
+    server.investigation = withRecords();
+    const html = renderAt("/case", HELSINKI_CASE);
+    const answer = html.indexOf('id="case-panel-answer"');
+    const records = html.indexOf('id="records-heading"');
+    const ask = html.indexOf(ASK_HEADING);
+    const copy = html.indexOf(">Copy link</button>");
+    expect(records).toBeGreaterThan(answer);
+    expect(ask).toBeGreaterThan(records);
+    expect(copy).toBeGreaterThan(ask);
+    expect(html.indexOf('id="case-panel-explore"')).toBeGreaterThan(copy);
+  });
+
+  test("offers guided discovery in the question bar when the server says it is available", () => {
+    server.capabilities = { ai_planner_available: true, ai_discovery_available: true };
+    expect(renderAt("/", "")).toContain("An AI suggests variables from reviewed documentation");
+  });
+
+  test("keeps the planner's question bar when discovery is unavailable", () => {
+    server.capabilities = { ai_planner_available: true, ai_discovery_available: false };
+    const html = renderAt("/", "");
+    expect(html).toContain("An AI reads your question");
+    expect(html).not.toContain("An AI suggests variables");
   });
 });

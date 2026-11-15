@@ -1,0 +1,4 @@
+POWER Validation Data Sources: AERONET: Data Sourcing
+Publisher: NASA Langley Research Center, POWER Project
+
+Aerosol validation data for POWER comes from the Aerosol Robotic Network from NASA's Goddard Space Flight Center. As with BSRN, the AERONET data is pulled and curated significanly before it is made available for user validation due to also being minute-based. POWER uses Level 2.0 AERONET data.

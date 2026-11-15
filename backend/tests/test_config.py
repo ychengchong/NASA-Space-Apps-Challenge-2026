@@ -1,8 +1,12 @@
 """Settings and the container's configuration (spec 11, "Configuration" and "Deployment")."""
 
+import json
+from dataclasses import replace
+from pathlib import Path
+
 import pytest
 
-from app.config import BACKEND_DIR, load_settings
+from app.config import BACKEND_DIR, Settings, load_settings, read_corpus_version
 
 API_KEY = "sk-ant-test-0123456789"
 OPENAI_API_KEY = "sk-openai-test-0123456789"
@@ -122,3 +126,140 @@ def test_image_trusts_forwarded_addresses_from_loopback_alone_by_default() -> No
 def test_start_command_leaves_the_trusted_proxy_addresses_to_the_environment() -> None:
     # A flag on the command line would override FORWARDED_ALLOW_IPS.
     assert "--forwarded-allow-ips" not in DOCKERFILE.read_text(encoding="utf-8")
+
+
+# Retrieval readiness for discovery and explanation (spec 8, "Bounds and evaluation")
+
+CORPUS_VERSION = "c" * 64
+RAG_ENV = ("RAG_ENABLED", "RAG_EVALUATED", "RAG_VECTOR_STORE_ID", "RAG_CORPUS_VERSION")
+
+
+def hosted_settings(**changes: object) -> Settings:
+    """Settings with the hosted OpenAI planner and retrieval fully configured, then `changes`."""
+    ready = replace(
+        load_settings(),
+        ai_enabled=True,
+        ai_evaluated=True,
+        ai_provider="openai",
+        ai_model="test-model",
+        openai_api_key=OPENAI_API_KEY,
+        ai_budget_durable=True,
+        ai_daily_budget_microusd=1_000_000,
+        ai_input_microusd_per_million=100_000,
+        ai_output_microusd_per_million=500_000,
+        rag_enabled=True,
+        rag_evaluated=True,
+        rag_vector_store_id="vs_test",
+        rag_corpus_version=CORPUS_VERSION,
+        rag_search_microusd_per_call=2500,
+        rag_manifest_version=CORPUS_VERSION,
+        discovery_evaluated=True,
+    )
+    return replace(ready, **changes)
+
+
+def test_fully_configured_hosted_openai_offers_every_ai_path() -> None:
+    settings = hosted_settings()
+
+    assert settings.planner_available
+    assert settings.discovery_available
+    assert settings.explanation_available
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        pytest.param({"rag_enabled": False}, id="rag-off"),
+        pytest.param({"rag_vector_store_id": ""}, id="no-store"),
+        pytest.param({"rag_vector_store_id": "vs-test"}, id="malformed-store-id"),
+        pytest.param({"rag_vector_store_id": "vs_test/../files"}, id="store-id-with-path"),
+        pytest.param({"rag_corpus_version": ""}, id="no-corpus-version"),
+        pytest.param({"rag_search_microusd_per_call": 0}, id="no-search-price"),
+        pytest.param({"rag_manifest_version": None}, id="no-manifest"),
+        pytest.param({"rag_manifest_version": "d" * 64}, id="manifest-mismatch"),
+    ],
+)
+def test_unready_retrieval_turns_off_only_discovery_and_explanation(
+    changes: dict[str, object],
+) -> None:
+    settings = hosted_settings(**changes)
+
+    assert settings.planner_available
+    assert not settings.discovery_available
+    assert not settings.explanation_available
+
+
+def test_each_retrieval_path_has_its_own_evaluation_flag() -> None:
+    assert not hosted_settings(discovery_evaluated=False).discovery_available
+    assert hosted_settings(discovery_evaluated=False).explanation_available
+    assert not hosted_settings(rag_evaluated=False).explanation_available
+    assert hosted_settings(rag_evaluated=False).discovery_available
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        pytest.param({"ai_provider": "anthropic", "anthropic_api_key": API_KEY}, id="anthropic"),
+        pytest.param({"ai_provider": "ollama", "ollama_digest": "a" * 64}, id="ollama"),
+        pytest.param({"ai_budget_durable": False}, id="no-durable-budget"),
+        pytest.param({"ai_evaluated": False}, id="planner-not-evaluated"),
+    ],
+)
+def test_discovery_and_explanation_need_the_hosted_openai_planner(
+    changes: dict[str, object],
+) -> None:
+    settings = hosted_settings(**changes)
+
+    assert not settings.discovery_available
+    assert not settings.explanation_available
+
+
+def test_retrieval_settings_are_read_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("RAG_ENABLED", "true")
+    monkeypatch.setenv("RAG_EVALUATED", "true")
+    monkeypatch.setenv("RAG_VECTOR_STORE_ID", "vs_abc")
+    monkeypatch.setenv("RAG_CORPUS_VERSION", CORPUS_VERSION)
+    monkeypatch.setenv("RAG_SEARCH_MICROUSD_PER_CALL", "2500")
+    monkeypatch.setenv("DISCOVERY_EVALUATED", "true")
+
+    settings = load_settings()
+
+    assert settings.rag_enabled and settings.rag_evaluated and settings.discovery_evaluated
+    assert settings.rag_vector_store_id == "vs_abc"
+    assert settings.rag_corpus_version == CORPUS_VERSION
+    assert settings.rag_search_microusd_per_call == 2500
+
+
+def test_retrieval_is_off_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
+    for name in (*RAG_ENV, "RAG_SEARCH_MICROUSD_PER_CALL", "DISCOVERY_EVALUATED"):
+        monkeypatch.delenv(name, raising=False)
+
+    settings = load_settings()
+
+    assert not settings.rag_enabled
+    assert not settings.rag_configured
+
+
+def test_corpus_version_is_read_from_the_manifest(tmp_path: Path) -> None:
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({"sources": [], "corpus_version": CORPUS_VERSION}))
+
+    assert read_corpus_version(manifest) == CORPUS_VERSION
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        pytest.param(None, id="missing"),
+        pytest.param("{not json", id="invalid-json"),
+        pytest.param("[]", id="not-an-object"),
+        pytest.param('{"corpus_version": ""}', id="empty-version"),
+        pytest.param('{"corpus_version": 7}', id="number-version"),
+    ],
+)
+def test_unusable_manifest_has_no_corpus_version(tmp_path: Path, content: str | None) -> None:
+    manifest = tmp_path / "manifest.json"
+    if content is not None:
+        manifest.write_text(content)
+
+    assert read_corpus_version(manifest) is None

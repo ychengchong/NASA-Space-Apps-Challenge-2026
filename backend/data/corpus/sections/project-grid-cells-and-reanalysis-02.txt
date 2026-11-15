@@ -1,0 +1,4 @@
+Grid cells, reanalysis and data sources: Reanalysis and model output
+Publisher: Trend Detective project
+
+Two-metre air temperature (T2M) in POWER comes from MERRA-2 reanalysis. POWER supplies reanalysis values, which describe a grid cell; they are not exact local station measurements. Snow, sea ice, surface pressure, water vapour and the strongest wind in the app also come from MERRA-2. Haze is aerosol optical depth from CERES SYN1deg, available from 2001.

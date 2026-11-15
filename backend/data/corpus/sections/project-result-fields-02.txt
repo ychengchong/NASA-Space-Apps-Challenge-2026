@@ -1,0 +1,6 @@
+What the result fields mean: The rate of change (sen_slope)
+Publisher: Trend Detective project
+
+The rate of change, labelled "Rate of change (Sen's slope)", is the field sen_slope. It says how fast the yearly values changed over the years used. For every pair of years the app takes the difference between the two yearly values divided by the difference between the two years, and the rate is the median of these pairwise rates. The app uses the real calendar years, so a missing year is not squeezed out. The rate is shown per decade, in the units of the rate: the slope per year multiplied by ten.
+
+The rate is a description of the record, not by itself evidence of a trend. A rate of zero does not prove that nothing changed. A place has a rate only when it has at least ten complete yearly values.

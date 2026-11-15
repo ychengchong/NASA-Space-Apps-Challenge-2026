@@ -1,8 +1,33 @@
 # Evaluation and submission evidence
 
-Status: protocol prepared; no student study or real-model accuracy result is claimed.
+Status: two held-out rounds were run with `gpt-6-luna` on 15 November 2026, each graded by
+automated checks and two AI graders, not by people. Neither gate is met in either round.
+Round 2, on new suites, is the current evidence:
+
+- Planner/discovery passed 60 of 70 cases (85.7%, below the 90% target), with 3 critical
+  fabricated citations in discovery.
+- RAG passed 65 of 77 cases (84.4%, below 90%) under the automated checks and both graders
+  combined, with no critical error.
+
+See the [evaluation results](evaluation-results.md), which keep round 1 as history. No
+student study has been run.
 This protocol implements the planned [Draft 5 release gates](technical-spec.md#12-build-plan-and-submission).
 Existing software checks are recorded separately in [verification](verification.md).
+
+## Submission-day follow-up
+
+The follow-up uses `gpt-6-luna` with a USD 1 cumulative evaluation ledger, preserving
+the configured daily request allowance rather than overriding it with USD 5. Existing
+development cases were used to diagnose product-mismatched discovery citations and
+over-specific selection for broad goals. They remain development evidence.
+
+[Prospective confirmation suites](../backend/evaluation/submission-day/README.md) contain
+50 planner/discovery and 40 explanation questions, plus a matched no-retrieval run.
+Their questions/expectations are fixed before their first prospective calls. They were
+written by the implementing agent, not independently or by a person. Automated scores
+and pending source-support review must be distinguished; no new activation attestation
+is implied. The older round-2 scores above remain historical evidence for the prior code.
+User testing was deferred by the team for the submission deadline and was not conducted.
 
 ## Student interpretation study
 
@@ -20,6 +45,12 @@ Predefine success before running the study and report every attempt.
 Record completion, assistance, time and interpretation errors by task. Report the
 sample size, all failures and changes made. Do not invent outcome percentages.
 
+The ready kit for these tasks, with a consent script, predefined success criteria, an
+observation sheet, assistance and error codes and reporting rules, is the
+[user study kit](user-study-kit.md). No observations have been made with it yet. The two
+guided teacher walkthroughs built on the same frozen examples are in
+[walkthroughs](walkthroughs.md).
+
 ## Planner semantic confirmation suite
 
 Record exact provider/model/digest/quantization, licence, hardware, application
@@ -36,9 +67,24 @@ forecasting, misleading premises, invalid JSON/types, prompt injection and long 
 Expected behavior must be written before querying the model. A valid JSON object
 alone does not count as semantic success. Include cancellation/provider failure.
 
-OpenAI is the selected path for new discovery/RAG work; no exact model is selected
-or approved by this document. AI_EVALUATED is an owner activation
-attestation after recording evidence, not an automatically measured success claim.
+OpenAI is the selected path for new discovery/RAG work. The evaluated model is
+`gpt-6-luna`; its identities and results are in the [evaluation results](evaluation-results.md).
+AI_EVALUATED, DISCOVERY_EVALUATED and RAG_EVALUATED are owner activation
+attestations after recording evidence, not automatically measured success claims. Only
+the owner sets them to true, or someone the owner has delegated the decision to. An AI
+agent may otherwise report that a gate's evidence is met, but does not set the flag.
+
+For round 2 the lead agent of the evaluation workflow reports that the owner delegated the
+gate decisions to it on 15 November 2026. Under the rules below, it set
+`DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false`, because neither gate passed. The
+rules it applied:
+
+- The planner/discovery gate passes only if at least 90% of the held-out planner cases pass
+  and there are zero critical errors. Citation support counts if either grader judges it
+  unsupported.
+- The RAG gate passes only if the combined pass rate is at least 90% and there are zero
+  critical errors. A case passes the combined verdict only when the automated checks and
+  both graders all pass it.
 
 ## Planned RAG confirmation suite
 
@@ -58,7 +104,9 @@ Run matched RAG/no-RAG conditions on the same questions and record regressions a
 well as improvements. Freeze corpus/model/prompt/schema identities and report all
 counts, uncertainty, latency, timeouts and generation/retrieval costs. Set practical
 latency/cost limits before running the suite; measure ingestion/storage separately.
-User-study and AI targets are release requirements, not achieved outcomes.
+AI targets remain release requirements, not achieved outcomes. The team deferred the
+user study for this submission; it remains a future validation target, and no measured
+usability or educational impact is claimed.
 
 ## Final public demonstration
 

@@ -1,0 +1,32 @@
+POWER User Communities: User Communities (part 2)
+Publisher: NASA Langley Research Center, POWER Project
+
+HY | Hydrology | Hydrologic parameters include precipitation, soil moisture, evaporation, radiation, and inland-water height. Availability varies by parameter and temporal level; see HY parameter groups.
+
+Finding Parameters
+
+- Full list of parameters is available through the Parameter Dictionary located on the POWER Homepage under the Resources Section.
+
+- Tailored list of parameters is available by community and temporal level through the Data Access Viewer (DAV) widget's Parameters Section.
+
+For more information on how to find the available POWER parameters please see the POWER Parameters Tutorial.
+
+POWER now has enhanced tools to provide full parameter information. These include an enhanced Application Programming Interface (API) supporting a queryable parameter dictionary and allowing for direct URLs to list community and temporal level parameter availability.
+
+General Data Set Information
+
+- All parameters are available on original resolution latitude and longitude global grid.
+
+- Solar parameters are derived from NASA's SRB Release 4-Integrated Product (4.0-IP) archive (Jan. 1, 1984 – Dec. 31, 2000) and NASA’s CERES SYN1deg and FLASHFlux projects (Jan. 1, 2001– to the previous year).
+
+- Meteorological parameters are derived from NASA's GMAO MERRA-2 assimilation model (Jan. 1, 1981 to the previous year).
+
+Temporal Availability
+
+- Hourly Parameters: Provides parameters by hour with average values.
+
+- Daily Parameters: Provides parameters by day with average, maximum, and/or minimum values.
+
+- Monthly and Annual Parameters: Provides parameters by year; the annual and each month's average, maximum, and/or minimum values.
+
+- Climatology Parameters: Provides parameters as climatologies for a pre-defined period with monthly average, maximum, and/or minimum values available.

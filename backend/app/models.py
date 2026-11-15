@@ -4,9 +4,10 @@ Each type is defined once here and reused by the REST, chat and MCP adapters.
 Missing data is `None` in Python and `null` in JSON.
 """
 
-from typing import Literal
+from datetime import date
+from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 Season = Literal["annual", "DJF", "MAM", "JJA", "SON"]
 Resolution = Literal["monthly", "yearly"]
@@ -394,12 +395,22 @@ class TrendMap(Model):
     app_url: str
 
 
+# Spec 5 and 8: one question of at most 2,000 characters, for every AI path.
+QUESTION_MAX_LENGTH = 2000
+
+
 class PlannerRequest(Model):
-    question: str = Field(min_length=1, max_length=2000)
+    question: str = Field(min_length=1, max_length=QUESTION_MAX_LENGTH)
 
 
 class Capabilities(Model):
+    """Spec 8: each AI path reports its availability separately; a working planner does not
+    imply working retrieval. The newer flags default to False so older clients still parse.
+    """
+
     ai_planner_available: bool
+    ai_discovery_available: bool = False
+    ai_explanation_available: bool = False
 
 
 class ExtractedPlan(Model):
@@ -420,3 +431,226 @@ class Proposal(Model):
     season: Season
     notices: list[str]
     written_by_ai: bool = True
+
+
+# Discovery and explanation (spec 5, "Planned discovery and explanation contracts")
+
+# Spec 5: an investigation ID is the SHA-256 of its evidence, written as 64 lowercase hex.
+SHA256_PATTERN = r"^[0-9a-f]{64}$"
+# A manifest source ID: a short slug that can never hold spaces, quotes or a URL scheme.
+SOURCE_ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9_.#/-]{0,119}$"
+SOURCE_ID_MAX_LENGTH = 120
+# A manifest section ID: its source ID and a section number, as the corpus build writes it.
+SECTION_ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9_.#/-]{0,127}$"
+SECTION_ID_MAX_LENGTH = 128
+# An OpenAI file ID; the bound only keeps a malformed provider value from growing a response.
+FILE_ID_MAX_LENGTH = 200
+# Citation links come from the reviewed manifest and are always HTTPS (spec 5).
+HTTPS_URL_PATTERN = r"^https://[^\s]+$"
+URL_MAX_LENGTH = 500
+TITLE_MAX_LENGTH = 300
+SECTION_MAX_LENGTH = 300
+CORPUS_VERSION_MAX_LENGTH = 128
+VARIABLE_ID_MAX_LENGTH = 64
+# Spec 8, "Planned corpus and retrieval": at most four passages of at most 1,200 characters.
+# A citation names one retrieved passage, so a list of citations is bounded by MAX_PASSAGES too.
+PASSAGE_MAX_LENGTH = 1200
+MAX_PASSAGES = 4
+# Spec 8, "Planned guided discovery": up to three suggestions and four clarification choices.
+MAX_SUGGESTIONS = 3
+MAX_CLARIFICATION_CHOICES = 4
+REASON_MAX_LENGTH = 600
+CLARIFICATION_MAX_LENGTH = 300
+CHOICE_LABEL_MAX_LENGTH = 80
+MAX_NOTICES = 8
+BLOCK_TEXT_MAX_LENGTH = 1200
+MAX_BLOCKS = 6
+MAX_REFERENCES = 8
+
+SourceKind = Literal["agency", "project"]
+# Spec 8: the draft fields a discovery answer can report as still missing.
+DraftField = Literal["variable", "place", "from", "to", "season"]
+# Spec 5: why a discovery or explanation gave no finding, so retrieval absence, a provider
+# refusal or incomplete output, output that failed validation and an unsupported question are
+# never confused with one another or with a valid finding.
+UnansweredReason = Literal[
+    "no_evidence",
+    "provider_refused",
+    "provider_incomplete",
+    "validation_failed",
+    "unsupported_question",
+]
+# Spec 8, "Planned explanations": the Investigation fields an answer may point at. The frontend
+# renders each one from the trusted Investigation; the model never writes the value itself.
+ResultField = Literal[
+    "sen_slope",
+    "sen_ci95",
+    "mk_p",
+    "total_change",
+    "n",
+    "first_year",
+    "last_year",
+    "verdict.kind",
+    "verdict.sentence",
+    "place.name",
+    "variable.name",
+    "variable.units",
+    "variable.rate_units",
+    "requested.from",
+    "requested.to",
+    "requested.season",
+]
+
+
+class DocumentSource(Model):
+    """One reviewed corpus section with its original metadata (spec 5, spec 8 "Corpus")."""
+
+    source_id: str = Field(pattern=SOURCE_ID_PATTERN, max_length=SOURCE_ID_MAX_LENGTH)
+    section_id: str = Field(pattern=SECTION_ID_PATTERN, max_length=SECTION_ID_MAX_LENGTH)
+    publisher: str = Field(min_length=1, max_length=TITLE_MAX_LENGTH)
+    title: str = Field(min_length=1, max_length=TITLE_MAX_LENGTH)
+    url: str = Field(pattern=HTTPS_URL_PATTERN, max_length=URL_MAX_LENGTH)
+    section: str = Field(max_length=SECTION_MAX_LENGTH)
+    accessed: date
+    version: str | None = None
+    sha256: str = Field(pattern=SHA256_PATTERN)
+    # "project" marks the project's own method notes, never attributed to NASA.
+    kind: SourceKind
+
+
+class RetrievedPassage(Model):
+    """One vector-store hit. A ranking signal and evidence to check, not proof of support."""
+
+    source_id: str = Field(pattern=SOURCE_ID_PATTERN, max_length=SOURCE_ID_MAX_LENGTH)
+    section_id: str = Field(pattern=SECTION_ID_PATTERN, max_length=SECTION_ID_MAX_LENGTH)
+    text: str = Field(min_length=1, max_length=PASSAGE_MAX_LENGTH)
+    file_id: str = Field(min_length=1, max_length=FILE_ID_MAX_LENGTH)
+    content_sha256: str = Field(pattern=SHA256_PATTERN)
+    score: float = Field(allow_inf_nan=False)
+
+
+class Citation(Model):
+    """A cited passage as the server builds it, never from model text (spec 5, spec 8).
+
+    The source fields and `section` (the section title) come from the manifest; `passage` is
+    the retrieved text itself, so the interface can show the cited passage in its context.
+    """
+
+    source_id: str = Field(pattern=SOURCE_ID_PATTERN, max_length=SOURCE_ID_MAX_LENGTH)
+    section_id: str = Field(pattern=SECTION_ID_PATTERN, max_length=SECTION_ID_MAX_LENGTH)
+    title: str = Field(min_length=1, max_length=TITLE_MAX_LENGTH)
+    publisher: str = Field(min_length=1, max_length=TITLE_MAX_LENGTH)
+    url: str = Field(pattern=HTTPS_URL_PATTERN, max_length=URL_MAX_LENGTH)
+    section: str = Field(max_length=SECTION_MAX_LENGTH)
+    kind: SourceKind
+    passage: str = Field(min_length=1, max_length=PASSAGE_MAX_LENGTH)
+
+
+class DiscoveryDraft(Model):
+    """The browser's typed, unconfirmed settings, resubmitted instead of chat history."""
+
+    variable: str | None = Field(default=None, max_length=VARIABLE_ID_MAX_LENGTH)
+    places: list[PlaceInput] = Field(default_factory=list, max_length=MAX_COMPARE_PLACES)
+    from_: int | None = Field(default=None, alias="from")
+    to: int | None = None
+    season: Season | None = None
+
+
+class DiscoveryRequest(Model):
+    question: str = Field(min_length=1, max_length=QUESTION_MAX_LENGTH)
+    draft: DiscoveryDraft | None = None
+
+
+class VariableSuggestion(Model):
+    """A supported variable worth investigating, with a cited qualitative reason (spec 8)."""
+
+    variable: VariableSummary
+    reason: str = Field(min_length=1, max_length=REASON_MAX_LENGTH)
+    citations: list[Citation] = Field(min_length=1, max_length=MAX_PASSAGES)
+
+
+class ClarificationChoice(Model):
+    """One answer to a clarification: the draft fields it would set, resolved by the server.
+
+    The place is a reviewed `find_place` match, never model-written coordinates.
+    """
+
+    label: str = Field(min_length=1, max_length=CHOICE_LABEL_MAX_LENGTH)
+    variable: str | None = Field(default=None, max_length=VARIABLE_ID_MAX_LENGTH)
+    place: PlaceCandidate | None = None
+    from_: int | None = Field(default=None, alias="from")
+    to: int | None = None
+    season: Season | None = None
+
+
+class Clarification(Model):
+    question: str = Field(min_length=1, max_length=CLARIFICATION_MAX_LENGTH)
+    choices: list[ClarificationChoice] = Field(max_length=MAX_CLARIFICATION_CHOICES)
+
+
+class DiscoveryResponse(Model):
+    """Spec 5: suggestions and a proposal awaiting confirmation; nothing has been run.
+
+    `reason` says why a discovery is "unsupported" and is null for "ready" and "clarify".
+    """
+
+    status: Literal["ready", "clarify", "unsupported"]
+    reason: UnansweredReason | None = None
+    suggestions: list[VariableSuggestion] = Field(max_length=MAX_SUGGESTIONS)
+    proposal: Proposal | None = None
+    missing: list[DraftField]
+    clarification: Clarification | None = None
+    notices: list[str] = Field(max_length=MAX_NOTICES)
+    written_by_ai: bool = True
+    corpus_version: str = Field(min_length=1, max_length=CORPUS_VERSION_MAX_LENGTH)
+
+    @model_validator(mode="after")
+    def _reason_matches_status(self) -> Self:
+        _check_reason(self.status == "unsupported", self.reason)
+        return self
+
+
+class ExplanationRequest(Model):
+    question: str = Field(min_length=1, max_length=QUESTION_MAX_LENGTH)
+    investigation_id: str = Field(pattern=SHA256_PATTERN)
+
+
+class ResultReference(Model):
+    """An allowlisted Investigation field; `place` indexes `results` for per-place fields."""
+
+    field: ResultField
+    place: int = Field(default=0, ge=0, lt=MAX_COMPARE_PLACES)
+
+
+class ExplanationBlock(Model):
+    text: str = Field(min_length=1, max_length=BLOCK_TEXT_MAX_LENGTH)
+    citations: list[Citation] = Field(max_length=MAX_PASSAGES)
+    references: list[ResultReference] = Field(max_length=MAX_REFERENCES)
+
+
+class ExplanationResponse(Model):
+    """Spec 5: qualitative blocks bound to one server-loaded investigation.
+
+    `reason` says why an answer is "insufficient_evidence" and is null for the other statuses.
+    """
+
+    status: Literal["answered", "insufficient_evidence", "new_investigation_required"]
+    reason: UnansweredReason | None = None
+    investigation_id: str = Field(pattern=SHA256_PATTERN)
+    corpus_version: str = Field(min_length=1, max_length=CORPUS_VERSION_MAX_LENGTH)
+    blocks: list[ExplanationBlock] = Field(max_length=MAX_BLOCKS)
+    proposal: Proposal | None = None
+    written_by_ai: bool = True
+
+    @model_validator(mode="after")
+    def _reason_matches_status(self) -> Self:
+        _check_reason(self.status == "insufficient_evidence", self.reason)
+        return self
+
+
+def _check_reason(unanswered: bool, reason: UnansweredReason | None) -> None:
+    """Spec 5: an unanswered status names its reason, and a finding never carries one."""
+    if unanswered and reason is None:
+        raise ValueError("An unanswered status needs a reason.")
+    if not unanswered and reason is not None:
+        raise ValueError("Only an unanswered status has a reason.")

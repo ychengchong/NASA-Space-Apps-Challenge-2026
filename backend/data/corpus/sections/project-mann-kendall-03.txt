@@ -1,0 +1,4 @@
+The Mann-Kendall trend test in Trend Detective: The procedure the app uses
+Publisher: Trend Detective project
+
+The selected procedure is called mk_mc_envelope_v1. It evaluates the ordinary two-sided MK score against frozen Monte Carlo null distributions instead of a formula. For each record length from 20 to 45 years, simulated series without a trend were generated under six declared scenarios: a lag-one autoregressive process with correlation 0, 0.2 or 0.5, each with Gaussian or with skewed (centred, standardised exponential) random shocks. The p-value is the largest tail probability across the six scenarios, so it is conservative for these declared generators. This procedure is not the Hamed-Rao method and must not be described as that published method.

@@ -1,0 +1,130 @@
+{
+ "rag": {
+  "total": 40,
+  "automatic_pass": 34,
+  "combined_pass": 31,
+  "combined_pass_ids": [
+   "RC-01",
+   "RC-02",
+   "RC-03",
+   "RC-05",
+   "RC-08",
+   "RC-09",
+   "RC-10",
+   "RC-11",
+   "RC-13",
+   "RC-15",
+   "RC-16",
+   "RC-17",
+   "RC-19",
+   "RC-20",
+   "RC-21",
+   "RC-22",
+   "RC-24",
+   "RC-25",
+   "RC-26",
+   "RC-27",
+   "RC-28",
+   "RC-29",
+   "RC-31",
+   "RC-32",
+   "RC-33",
+   "RC-34",
+   "RC-35",
+   "RC-36",
+   "RC-38",
+   "RC-39",
+   "RC-40"
+  ],
+  "critical": {
+   "RC-14": [
+    "Block 1 makes factual claims without citing any passage; the supplied passage supports them, but it is not listed as a reference."
+   ],
+   "RC-18": [
+    "The answer says the comparison is not a test and its significance is not assessed, but the investigation identifies the result as significant. This contradicts the authoritative investigation context."
+   ],
+   "RC-12": [
+    "The claim that the rate describes the direction and amount of change per unit of time is not supported by the cited passages."
+   ]
+  },
+  "gate_evidence_met": false,
+  "human_review": "pending",
+  "independence": "Same generation/grading model family; implementing agent authored suite."
+ },
+ "rag-no-retrieval": {
+  "total": 40,
+  "automatic_pass": 10,
+  "combined_pass": 10,
+  "combined_pass_ids": [
+   "RC-31",
+   "RC-32",
+   "RC-33",
+   "RC-34",
+   "RC-35",
+   "RC-36",
+   "RC-37",
+   "RC-38",
+   "RC-39",
+   "RC-40"
+  ],
+  "critical": {},
+  "gate_evidence_met": false,
+  "human_review": "pending",
+  "independence": "Same generation/grading model family; implementing agent authored suite."
+ },
+ "reserved_microusd": 1236826,
+ "cap_microusd": 2000000,
+ "paired": {
+  "paired_cases": 40,
+  "both_passed": [
+   "RC-31",
+   "RC-32",
+   "RC-33",
+   "RC-34",
+   "RC-35",
+   "RC-36",
+   "RC-38",
+   "RC-39",
+   "RC-40"
+  ],
+  "improvements": [
+   "RC-01",
+   "RC-02",
+   "RC-03",
+   "RC-05",
+   "RC-08",
+   "RC-09",
+   "RC-10",
+   "RC-11",
+   "RC-12",
+   "RC-13",
+   "RC-14",
+   "RC-15",
+   "RC-16",
+   "RC-17",
+   "RC-18",
+   "RC-19",
+   "RC-20",
+   "RC-21",
+   "RC-22",
+   "RC-24",
+   "RC-25",
+   "RC-26",
+   "RC-27",
+   "RC-28",
+   "RC-29"
+  ],
+  "regressions": [
+   "RC-37"
+  ],
+  "both_failed": [
+   "RC-04",
+   "RC-06",
+   "RC-07",
+   "RC-23",
+   "RC-30"
+  ],
+  "identities_matched": true,
+  "mismatched_identities": []
+ }
+}

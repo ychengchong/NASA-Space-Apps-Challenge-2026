@@ -1,0 +1,18 @@
+MERRA-2 System Characteristics: System Characteristics (part 3)
+Publisher: NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)
+
+- Coddington O., J. L. Lean, D. Lindholm, P. Pilewskie, M. Snow, and NOAA CDR Program (2017): NOAA Climate Data Record (CDR) of Solar Spectral Irradiance (SSI), NRLSSI Version 2.1. NOAA National Centers for Environmental Information. https://doi.org/10.7289/V53776SWCullather, R.I., S.M.J. Nowicki, B. Zhao, and M. J. Suárez, 2014: Evaluation of the surface representation of the Greenland Ice Sheet in a general circulation model. J. Climate, 27, 4835–4856, doi: 10.1175/JCLI-D-13-00635.1.
+
+- Gelaro, R., and Coauthors, 2017: The Modern-Era Retrospective Analysis for Research and Applications, Version 2 (MERRA-2). J. Climate, 30, 5419–5454, https://doi.org/10.1175/JCLI-D-16-0758.1
+
+- McCarty, Will, Lawrence Coy, Ronald Gelaro, Albert Huang, Dagmar Merkova, Edmond B. Smith, Meta Seinkiewicz, and Krzysztof Wargan, 2016. MERRA-2 Input Observations: Summary and Assessment. NASA Technical Report Series on Global Modeling and Data Assimilation, NASA/TM-2016-104606, Vol. 46, 61 pp Document link
+
+- Molod, A., Takacs, L., Suárez, M., and Bacmeister, J.: Development of the GEOS-5 atmospheric general circulation model: evolution from MERRA to MERRA2, Geosci. Model Dev., 8, 1339–1356, https://doi.org/10.5194/gmd-8-1339-2015, 2015.
+
+- Putman, W.M. and Lin, S.J., 2007. Finite-volume transport on various cubed-sphere grids. Journal of Computational Physics, 227(1), pp.55-78. 10.1016/j.jcp.2007.07.022
+
+- Randles, C. A., A. M. da Silva, V. Buchard, A. Darmenov, P. R. Colarco, V. Aquila, H. Bian, E. P. Nowottnick, X. Pan, A. Smirnov, H. Yu, and R. Govindaraju, 2016. The MERRA-2 Aerosol Assimilation. NASA Technical Report Series on Global Modeling and Data Assimilation, NASA/TM-2016-104606, Vol. 45, 143 pp. Document link
+
+- Reichle, R. H., C. S. Draper, Q. Liu, M. Girotto, S. P. P. Mahanama, R. D. Koster, and G. J. M. De Lannoy (2017), Assessment of MERRA-2 land surface hydrology estimates, Journal of Climate, 30, 2937-2960, doi:10.1175/JCLI-D-16-0720.1.
+
+- Takacs, L.L., Suárez, M.J. and Todling, R. (2016), Maintaining atmospheric mass and waterbalance in reanalyses. Q.J.R. Meteorol. Soc., 142: 1565- 1573.https://doi.org/10.1002/qj.2763

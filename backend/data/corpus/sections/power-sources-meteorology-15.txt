@@ -1,0 +1,12 @@
+POWER Meteorological Data Sources: Wind Speed Validation
+Publisher: NASA Langley Research Center, POWER Project
+
+This section compares MERRA-2 10 m wind speed to observations reported to the NCEI.
+
+Hourly Wind Speed
+
+Density plot of the 2-D histograms comparing MERRA-2 hourly 10 m wind speed with station observations from the selected NCEI ISD files for the years 2001–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.
+
+Daily Average 10 m Wind Speed
+
+Density plot of the 2-D histograms comparing MERRA-2 daily wind speed with station observations from the NCEI GSOD files for 1981–2020. Darker reds indicate a higher number of matched pairs within the 2-D histogram.

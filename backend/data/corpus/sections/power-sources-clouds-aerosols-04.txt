@@ -1,0 +1,12 @@
+POWER Cloud and Aerosol Data Sources: Validation
+Publisher: NASA Langley Research Center, POWER Project
+
+The POWER science team validated the AOD parameters against ground-based observations from the AErosol RObotic NETwork (AERONET), a globally distributed network of sun photometers providing cloud-screened, quality assured spectral AOD. AERONET Level 2.0 direct-sun AOD carries an absolute uncertainty of roughly 0.01 at visible wavelengths, which is why it serves as the reference standard for satellite and reanalysis AOD Holben et al., 1998; Giles et al., 2019. AERONET sun photometers do not observe at 550 nm. Reference values are computed from the measured AOD at a neighboring channel using the Ångström power law Ångström, 1929:
+
+\tau_{550} = \tau_{\lambda_1}\left(\frac{550}{\lambda_1}\right)^{-\alpha}
+
+where τ is aerosol optical depth, λ₁ is the wavelength of the measured AOD (870 nm), and α is the Ångström exponent derived over the 500–870 nm range.
+
+Validation was performed at AERONET sites spanning a range of aerosol regimes. The comparison at Boulder, Colorado is shown below as a representative example; results for the full station set are consistent in character.
+
+Users should note that SYN1deg AOD served through POWER is the aerosol field underlying POWER's CERES radiative flux parameters, ensuring internal consistency between the aerosol and flux products.

@@ -1,0 +1,4 @@
+POWER Validation Data Sources: Aerosol Optical Depth
+Publisher: NASA Langley Research Center, POWER Project
+
+POWER AOD parameters are for 550 and 840 nanometers, but AERONET does not track those exact values. Instead, POWER interpolates the 550 and 840 amounts from at least two of AERONET's valid readings. Typically the 500 or 870 values are reliable to inpterpolate from, but in their absense the 550 and 870 values are interpolated from other AERONET values. If the data for a particular reading cannot be interpolated, POWER recognizes no valid data.

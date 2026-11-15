@@ -1,0 +1,12 @@
+POWER Meteorological Data Sources: Wind Direction
+Publisher: NASA Langley Research Center, POWER Project
+
+Wind Direction at a given height in degrees is the meteorological convention. The meteorological convention gives the direction from which the wind originates, and wind direction is measured in degrees clockwise from due north. This convention (0°/360° = north, 90° = east) is the standard adopted by the WMO and NWS for reporting surface and upper-air winds.
+
+Hourly 10 m Wind Direction Contingency Chart
+
+Diagram of the hourly wind direction contingency comparison (shown as percentage) between MERRA-2 10 m wind direction and the selected NCEI ISD files for the years 2001–2019. Hourly wind directions for both are categorized into octads, then 2-D histograms relate the directions to each other.
+
+Click to Expand: Python Code
+
+def WD(data, Level): ''' Wind Direction - data: Xarray Dataset with the variables units defined (required) - Level: the elevation to compute the wind direction (required) ''' U_Values = Convert(data["U{}M".format(Level)]).To("m/s") V_Values = Convert(data["V{}M".format(Level)]).To("m/s") WD_Values = np.arctan2(-U_Values, -V_Values) * (180 / np.pi) WD_Values = np.where(WD_Values >= 0, WD_Values, WD_Values + 360) WD_Values = xr.DataArray(WD_Values, dims=('time', 'latitude', 'longitude',)) WD_Values.name = "WD{}M".format(Level) WD_Values.attrs['units'] = "Degrees" return WD_Values

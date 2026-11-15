@@ -1,0 +1,4 @@
+What the result fields mean
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project. It explains, in plain words, each field of a result that an answer can point at, such as the rate of change (sen_slope), the Mann-Kendall p-value (mk_p) or the total change (total_change). The app shows every value itself, from the analysed record; an answer only names the field. It is the project's own description, not a NASA method or a NASA statement.

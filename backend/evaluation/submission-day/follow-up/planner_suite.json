@@ -1,0 +1,2048 @@
+{
+  "suite": "planner",
+  "split": "prospective_confirmation",
+  "target_pass_rate": 0.9,
+  "critical_error_target": 0,
+  "fixed_before_model_runs": true,
+  "assumed_cutoff": 2025,
+  "written_by": "OpenAI Codex, the same agent implementing the fixes. Not independent or human-reviewed.",
+  "purpose": "Follow-up fresh wording on the same supported-selection and safety topics after submission-day fixes. Same implementing author, not an independent blind evaluation.",
+  "citation_sections_by_variable": {
+    "air_temp": [
+      "project-variables-02",
+      "power-sources-meteorology-06"
+    ],
+    "max_temp": [
+      "project-variables-03",
+      "power-sources-meteorology-06"
+    ],
+    "min_temp": [
+      "project-variables-04",
+      "power-sources-meteorology-06"
+    ],
+    "surface_temp": [
+      "project-variables-05"
+    ],
+    "precipitation": [
+      "project-variables-06",
+      "power-sources-meteorology-08",
+      "power-sources-meteorology-09",
+      "power-sources-meteorology-10",
+      "power-sources-meteorology-11",
+      "power-sources-meteorology-12",
+      "power-sources-meteorology-23",
+      "power-sources-meteorology-24",
+      "power-sources-meteorology-25",
+      "power-sources-meteorology-26"
+    ],
+    "relative_humidity": [
+      "project-variables-07",
+      "power-met-derived-parameters-02",
+      "power-met-derived-parameters-03",
+      "power-met-derived-parameters-04",
+      "power-met-derived-parameters-05"
+    ],
+    "specific_humidity": [
+      "project-variables-08"
+    ],
+    "wind_speed": [
+      "project-variables-09",
+      "power-sources-meteorology-13",
+      "power-sources-meteorology-15"
+    ],
+    "surface_soil_wetness": [
+      "project-variables-10",
+      "merra2-faq-01"
+    ],
+    "root_zone_soil_wetness": [
+      "project-variables-11",
+      "merra2-faq-01"
+    ],
+    "sunlight": [
+      "project-variables-12",
+      "power-sources-fluxes-01",
+      "power-sources-fluxes-02",
+      "power-sources-fluxes-03",
+      "power-sources-fluxes-04",
+      "power-sources-fluxes-05",
+      "power-sources-fluxes-06",
+      "power-sources-fluxes-07",
+      "power-sources-fluxes-08",
+      "project-grid-cells-and-reanalysis-03"
+    ],
+    "cloud_cover": [
+      "project-variables-13",
+      "power-sources-clouds-aerosols-01",
+      "power-sources-clouds-aerosols-02",
+      "project-grid-cells-and-reanalysis-03"
+    ],
+    "snow_depth": [
+      "project-variables-14",
+      "merra2-faq-01",
+      "merra2-faq-02"
+    ],
+    "snowfall": [
+      "project-variables-15"
+    ],
+    "snow_cover": [
+      "project-variables-16",
+      "merra2-faq-01",
+      "merra2-faq-02"
+    ],
+    "sea_ice": [
+      "project-variables-17"
+    ],
+    "surface_pressure": [
+      "project-variables-18",
+      "power-sources-meteorology-17",
+      "power-sources-meteorology-18"
+    ],
+    "water_vapour": [
+      "project-variables-19"
+    ],
+    "max_wind_speed": [
+      "project-variables-20"
+    ],
+    "haze": [
+      "project-variables-21",
+      "power-sources-clouds-aerosols-03",
+      "power-sources-clouds-aerosols-04",
+      "power-sources-clouds-aerosols-05",
+      "power-sources-validation-13"
+    ]
+  },
+  "cases": [
+    {
+      "id": "FU-P01",
+      "endpoint": "plan",
+      "question": "Set the quantity to air temperature for Cairo; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "air_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Cairo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P02",
+      "endpoint": "plan",
+      "question": "Set the quantity to maximum temperature for Singapore; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "max_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Singapore"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P03",
+      "endpoint": "plan",
+      "question": "Set the quantity to minimum temperature for Athens; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "min_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": true,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P04",
+      "endpoint": "plan",
+      "question": "Set the quantity to surface (skin) temperature for Madison; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "surface_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Madison"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P05",
+      "endpoint": "plan",
+      "question": "Set the quantity to precipitation for Oslo; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "precipitation"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Oslo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P06",
+      "endpoint": "plan",
+      "question": "Set the quantity to relative humidity for Nairobi; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "relative_humidity"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Nairobi"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P07",
+      "endpoint": "plan",
+      "question": "Set the quantity to specific humidity for Helsinki; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "specific_humidity"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Helsinki"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P08",
+      "endpoint": "plan",
+      "question": "Set the quantity to wind speed at 10 m for Tokyo; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "wind_speed"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Tokyo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P09",
+      "endpoint": "plan",
+      "question": "Set the quantity to surface soil wetness for Cairo; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "surface_soil_wetness"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Cairo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P10",
+      "endpoint": "plan",
+      "question": "Set the quantity to root-zone soil wetness for Singapore; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "root_zone_soil_wetness"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Singapore"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P11",
+      "endpoint": "plan",
+      "question": "Set the quantity to sunlight reaching the surface for Athens; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "sunlight"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": true,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P12",
+      "endpoint": "plan",
+      "question": "Set the quantity to cloud cover for Madison; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "cloud_cover"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Madison"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P13",
+      "endpoint": "plan",
+      "question": "Set the quantity to snow depth for Oslo; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "snow_depth"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Oslo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P14",
+      "endpoint": "plan",
+      "question": "Set the quantity to snowfall for Nairobi; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "snowfall"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Nairobi"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P15",
+      "endpoint": "plan",
+      "question": "Set the quantity to snow cover for Helsinki; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "snow_cover"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Helsinki"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P16",
+      "endpoint": "plan",
+      "question": "Set the quantity to sea ice for Tokyo; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "sea_ice"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Tokyo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P17",
+      "endpoint": "plan",
+      "question": "Set the quantity to surface air pressure for Cairo; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "surface_pressure"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Cairo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P18",
+      "endpoint": "plan",
+      "question": "Set the quantity to water vapour in the air column for Singapore; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "water_vapour"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Singapore"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P19",
+      "endpoint": "plan",
+      "question": "Set the quantity to strongest wind for Athens; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "max_wind_speed"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": true,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P20",
+      "endpoint": "plan",
+      "question": "Set the quantity to haze for Madison; use every month in 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "haze"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Madison"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P21",
+      "endpoint": "discover",
+      "question": "Our class in Singapore has not chosen an environmental topic yet. What should we decide before choosing a record?",
+      "category": "broad goal",
+      "expected": {
+        "statuses": [
+          "clarify"
+        ],
+        "reasons": [
+          "unsupported_question",
+          "no_evidence",
+          "provider_refused"
+        ],
+        "variables": {
+          "mode": "any",
+          "ids": []
+        },
+        "places": {
+          "check": false,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": "any",
+        "to": "any",
+        "season": "any",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": true,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Ask or abstain rather than guess an unsupported quantity, future finding or location."
+      }
+    },
+    {
+      "id": "FU-P22",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches maximum temperature for Nairobi? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "max_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Nairobi"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P23",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches minimum temperature for Helsinki? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "min_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Helsinki"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P24",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches surface (skin) temperature for Tokyo? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "surface_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Tokyo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P25",
+      "endpoint": "discover",
+      "question": "Tell us how much rain Helsinki will get in the year 2035.",
+      "category": "forecast",
+      "expected": {
+        "statuses": [
+          "unsupported"
+        ],
+        "reasons": [
+          "unsupported_question",
+          "no_evidence",
+          "provider_refused"
+        ],
+        "variables": {
+          "mode": "any",
+          "ids": []
+        },
+        "places": {
+          "check": false,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": "any",
+        "to": "any",
+        "season": "any",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Ask or abstain rather than guess an unsupported quantity, future finding or location."
+      }
+    },
+    {
+      "id": "FU-P26",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches relative humidity for Singapore? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "relative_humidity"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Singapore"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P27",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches specific humidity for Athens? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready",
+          "clarify"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "specific_humidity"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": true,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P28",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches wind speed at 10 m for Madison? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "wind_speed"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Madison"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P29",
+      "endpoint": "discover",
+      "question": "I want to study river discharge at Nairobi. Which supported quantity is that?",
+      "category": "unsupported quantity",
+      "expected": {
+        "statuses": [
+          "unsupported",
+          "clarify"
+        ],
+        "reasons": [
+          "unsupported_question",
+          "no_evidence",
+          "provider_refused"
+        ],
+        "variables": {
+          "mode": "any",
+          "ids": []
+        },
+        "places": {
+          "check": false,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": "any",
+        "to": "any",
+        "season": "any",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Ask or abstain rather than guess an unsupported quantity, future finding or location."
+      }
+    },
+    {
+      "id": "FU-P30",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches root-zone soil wetness for Nairobi? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "root_zone_soil_wetness"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Nairobi"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P31",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches sunlight reaching the surface for Helsinki? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "sunlight"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Helsinki"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P32",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches cloud cover for Tokyo? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "cloud_cover"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Tokyo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P33",
+      "endpoint": "discover",
+      "question": "Air temperature for Springfield, annual data for 1995-2020: help me select the location.",
+      "category": "ambiguous place",
+      "expected": {
+        "statuses": [
+          "ready",
+          "clarify"
+        ],
+        "reasons": [
+          "unsupported_question",
+          "no_evidence",
+          "provider_refused"
+        ],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "air_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": 1995,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": true,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Ask or abstain rather than guess an unsupported quantity, future finding or location."
+      }
+    },
+    {
+      "id": "FU-P34",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches snowfall for Singapore? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "snowfall"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Singapore"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P35",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches snow cover for Athens? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready",
+          "clarify"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "snow_cover"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": true,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P36",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches sea ice for Madison? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "sea_ice"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Madison"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P37",
+      "endpoint": "discover",
+      "question": "Please choose air temperature for Xzzqvillage using annual values from 2005 to 2024.",
+      "category": "unknown place",
+      "expected": {
+        "statuses": [
+          "ready",
+          "clarify",
+          "unsupported"
+        ],
+        "reasons": [
+          "unsupported_question",
+          "no_evidence",
+          "provider_refused"
+        ],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "air_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [],
+          "ask_ok": true,
+          "subset_of": []
+        },
+        "from": 2005,
+        "to": 2024,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Ask or abstain rather than guess an unsupported quantity, future finding or location."
+      }
+    },
+    {
+      "id": "FU-P38",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches water vapour in the air column for Nairobi? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "water_vapour"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Nairobi"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P39",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches strongest wind for Helsinki? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "max_wind_speed"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Helsinki"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P40",
+      "endpoint": "discover",
+      "question": "Which catalogue choice matches haze for Tokyo? I want yearly values spanning 2010-2020.",
+      "category": "named variable",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "haze"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Tokyo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2010,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Preserve supported quantity and period. An ambiguous reviewed name must ask for a location rather than choose arbitrarily."
+      }
+    },
+    {
+      "id": "FU-P41",
+      "endpoint": "plan",
+      "question": "Compare precipitation between Tokyo and Helsinki using all months from 1990 to 2020.",
+      "category": "comparison",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "precipitation"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Tokyo",
+              "Helsinki"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 1990,
+        "to": 2020,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P42",
+      "endpoint": "plan",
+      "question": "For Cairo, choose air temperature averaged from June through August in 1998-2019.",
+      "category": "seasonal",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "air_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Cairo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 1998,
+        "to": 2019,
+        "season": "JJA",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P43",
+      "endpoint": "plan",
+      "question": "Cloud cover in Tokyo, March through May of 2007-2021: prepare the settings.",
+      "category": "seasonal",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "cloud_cover"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Tokyo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2007,
+        "to": 2021,
+        "season": "MAM",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P44",
+      "endpoint": "plan",
+      "question": "Use relative humidity for Nairobi, the whole year, 2000-2025.",
+      "category": "everyday phrasing",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "relative_humidity"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Nairobi"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2000,
+        "to": 2025,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P45",
+      "endpoint": "plan",
+      "question": "For Oslo I want snowfall in September through November, covering 2011-2022.",
+      "category": "seasonal",
+      "expected": {
+        "statuses": [
+          "proposal"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "snowfall"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Oslo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2011,
+        "to": 2022,
+        "season": "SON",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "not_applicable",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P46",
+      "endpoint": "discover",
+      "question": "Help select precipitation for a Helsinki versus Tokyo annual comparison over 1992-2018.",
+      "category": "comparison",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "precipitation"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Helsinki",
+              "Tokyo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 1992,
+        "to": 2018,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P47",
+      "endpoint": "discover",
+      "question": "Recommend the air-temperature record for June-August in Cairo over 2003-2020.",
+      "category": "seasonal",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "air_temp"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Cairo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2003,
+        "to": 2020,
+        "season": "JJA",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P48",
+      "endpoint": "discover",
+      "question": "Choose cloud cover for the March-May season in Tokyo for 2008-2023.",
+      "category": "seasonal",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "cloud_cover"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Tokyo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2008,
+        "to": 2023,
+        "season": "MAM",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P49",
+      "endpoint": "discover",
+      "question": "Suggest relative humidity for Nairobi over 1997-2022 with all twelve months included.",
+      "category": "everyday phrasing",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "relative_humidity"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Nairobi"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 1997,
+        "to": 2022,
+        "season": "annual",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    },
+    {
+      "id": "FU-P50",
+      "endpoint": "discover",
+      "question": "Suggest snowfall in Oslo for September-November in each year from 2012 to 2024.",
+      "category": "seasonal",
+      "expected": {
+        "statuses": [
+          "ready"
+        ],
+        "reasons": [],
+        "variables": {
+          "mode": "in",
+          "ids": [
+            "snowfall"
+          ]
+        },
+        "places": {
+          "check": true,
+          "accept": [
+            [
+              "Oslo"
+            ]
+          ],
+          "ask_ok": false,
+          "subset_of": []
+        },
+        "from": 2012,
+        "to": 2024,
+        "season": "SON",
+        "notices": [],
+        "missing_includes": [],
+        "must_clarify": false,
+        "must_refuse": false,
+        "must_not_contain": [],
+        "premise_must_not_be_endorsed": false,
+        "citation_support": "every_suggestion",
+        "rationale": "Explicit supported quantity, reviewed location and period; no analysis runs before confirmation."
+      }
+    }
+  ]
+}

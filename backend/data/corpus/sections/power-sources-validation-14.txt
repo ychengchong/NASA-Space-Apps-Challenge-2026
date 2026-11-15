@@ -1,0 +1,12 @@
+POWER Validation Data Sources: Temporal Aggregation
+Publisher: NASA Langley Research Center, POWER Project
+
+Hourly and daily AERONET in POWER are sourced differently, where daily averages are already available from the AERONET project, hourly must be aggregated from raw minute-based data. Daily AOD 550 and 840 are interpolated as described above and do not need temporal aggregation.
+
+Raw AERONET data is aggregated to hourly values for POWER users in a similar method as how BSRN is handled. The minute-based data is averaged to 15-minute and require at least 1 valid value. The hourly values are averaged from 4 valid 15-minute values or else no value can be assigned. Daily values are a result of the average of at least 5 hourly values. Since POWER does not have sub-hourly core data, the minute-based and 15-minute averages are discarded and only the hourly values are kept.
+
+Once it is curated and saved in POWER's storage solution, the data is ready for users to validate with it in the DAV or API.
+
+Data Latency
+
+While AERONET updates their data sets daily, POWER accesses and processes the complete data set on a monthly basis.

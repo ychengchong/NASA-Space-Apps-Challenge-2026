@@ -1,0 +1,14 @@
+POWER Meteorological Data Sources: Contingency Table (part 3)
+Publisher: NASA Langley Research Center, POWER Project
+
+Misses Contingency Table
+
+Contingency table with focus on the "Misses" category between MERRA-2 precipitation and NCEI GSOD data for 2001–2020.
+
+False Alarms: Row 2 and Column 1 depict the "Precipitation" and "No Precipitation" categories for the MERRA-2 and NCEI ground site data, respectively. Their intersection shows the total number of data days (2,712,882) where the MERRA-2 precipitation data measured precipitation while the NCEI ground site precipitation data measured no precipitation on the same days ("false alarms"). This represented 20% of the total data days counted. The "false alarm" category is depicted in the lower table in the False Alarms Contingency Table, along with statistics. The table shows the data days when the MERRA-2 precipitation measured precipitation and the NCEI ground site measured a precipitation amount less than and equal to the measurement accuracy of the NCEI ground site instruments. In these cases, the MERRA-2 precipitation has an average of 3.52 mm, a standard deviation of 6.32 mm, a maximum value of 702.75 mm.
+
+False Alarms Contingency Table
+
+Contingency table with focus on the "False Alarms" category between MERRA-2 precipitation and NCEI GSOD data for 2001–2020.
+
+The findings from the contingency tables show additional information not easily seen in the density scatter plots in the Precipitation Overview. On data days when the MERRA-2 precipitation measured no precipitation, it agreed with the NCEI ground site precipitation 55% of the time ("correct negatives") and only disagreed 4% of the time ("misses"). The percentage of "misses" is low compared to the other three categories in the table, with the NCEI ground site precipitation measurement average only being 4 mm. On data days when the MERRA-2 precipitation measured precipitation, the NCEI ground site also measured precipitation 20% of the time ("hits") but disagreed about the same percentage of the time ("false alarms"). On data days when the NCEI ground site measures precipitation, it is encouraging to note MERRA-2 predicts precipitation on the same data days more often than it does not.

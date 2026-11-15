@@ -1,0 +1,14 @@
+POWER Meteorological Data Sources: Meteorological
+Publisher: NASA Langley Research Center, POWER Project
+
+Meteorological parameters are derived from NASA's GMAO MERRA-2 assimilation model and GEOS-IT. MERRA-2 is a version of NASA's Goddard Earth Observing System (GEOS) Data Assimilation System (Gelaro, 2017) MERRA-2 is the first long-term global reanalysis to assimilate space-based aerosol observations and uses the GEOS-5 atmospheric model and Gridpoint Statistical Interpolation analysis. Molod, 2015. GMAO GEOS-IT has the same grid resolution as MERRA-2 (and the same model physics less selected observations and surface rain gauge normalized precipitation). GEOS-IT is GMAO's near-real-time instrument-team product that shares the GEOS modeling and assimilation framework, enabling low-latency continuation of the MERRA-2 record. The POWER team processes GEOS-IT data on a daily basis, and it is appended to the end of the MERRA-2 daily time series to provide low latency products, which are generally ready within about two days of real-time. The MERRA-2 values in the resulting daily time series are typically updated every several months. The POWER project provides data at the native source resolutions from the data providers. The primary meteorological data source is ½° latitude by ⅝° longitude grid from GMAO MERRA-2. As data becomes available from providers, it is processed and made available through POWER's services suite.
+
+Source | Temporal Start | Temporal End | Latency
+
+GMAO MERRA-2 | January 1, 1981 | Month Behind Near Real Time |
+
+GEOS-IT | End of MERRA-2 | Near Real Time | 2 Days
+
+Warning
+
+The time series of daily meteorological data will include MERRA-2 or GEOS-IT data within a few months of Near Real Time; accordingly, it is recommended to end the analysis 2 months behind NRT when assessing climate trends.

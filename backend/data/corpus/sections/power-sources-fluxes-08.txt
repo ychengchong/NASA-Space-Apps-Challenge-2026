@@ -1,0 +1,160 @@
+POWER Solar Flux Data Sources: SYN1deg (part 2)
+Publisher: NASA Langley Research Center, POWER Project
+
+Parameter | Region | Bias (%) | RMSE (%)
+
+Hourly SW All-Sky Insolation
+
+Mid-seasonal months 2019 | All Sites
+
+60° Poleward
+
+60° Equatorward | -0.1
+
+-1.9
+
+0.9 | 12.6
+
+19.4
+
+13.1
+
+Daily SW All-Sky Insolation
+
+2000–2020 | All Sites
+
+60° Poleward
+
+60° Equatorward | 0.3
+
+2.1
+
+0.2 | 13.5
+
+36.5
+
+12.1
+
+Monthly SW All-Sky Insolation
+
+2000–2020 | All Sites
+
+60° Poleward
+
+60° Equatorward | 0.03
+
+1.2
+
+-0.03 | 5.7
+
+20.2
+
+4.7
+
+Daily SW DHI
+
+2000–2020 | All Sites
+
+60° Poleward
+
+60° Equatorward | -0.6
+
+-7.1
+
+0.5 | 28.8
+
+46.0
+
+25.3
+
+Monthly SW DHI
+
+2000–2020 | All Sites
+
+60° Poleward
+
+60° Equatorward | -0.1
+
+-5.4
+
+-0.03 | 15.0
+
+30.5
+
+12.0
+
+Daily SW DNI
+
+2000–2020 | All Sites
+
+60° Poleward
+
+60° Equatorward | 3.5
+
+16.6
+
+2.4 | 36.3
+
+99.4
+
+30.1
+
+Monthly SW DNI
+
+2000–2020 | All Sites
+
+60° Poleward
+
+60° Equatorward | 2.0
+
+13.0
+
+1.3 | 13.7
+
+38.3
+
+12.1
+
+Comparison Plots: NASA’s CERES SYN1deg (Ed4.1) to BSRN Data: Global Horizontal Irradiance (GHI)
+
+- Left — Scatter Plot:
+
+- Right — Histogram of Differences:
+
+Comparison Plots: NASA’s CERES SYN1deg (Ed4.1) to BSRN Data: Direct Horizontal Irradiance (DHI)
+
+- Left — Scatter Plot:
+
+- Right — Histogram of Differences:
+
+Comparison Plots: NASA’s CERES SYN1deg (Ed4.1) to BSRN Data: Direct Normal Irradiance (DNI)
+
+- Left — Scatter Plot:
+
+- Right — Histogram of Differences:
+
+A summary of hourly all-sky longwave (LW) radiative fluxes on a horizontal surface from NASA’s CERES SYN1deg (Ed4.1) validated against values from BSRN sites for Jan., Apr., Jul., and Oct. 2019.
+
+Parameter | Region | Bias (%) | RMSE (%)
+
+Hourly LW All-Sky Radiative Flux
+
+Mid-seasonal months 2019
+
+NASA’s CERES SYN1deg (Ed4.1) | All Sites
+
+60° Poleward
+
+60° Equatorward | -0.6
+
+2.0
+
+-1.3 | 4.8
+
+8.7
+
+5.0
+
+Comparison Plot: NASA’s CERES SYN1deg (Ed4.1) to BSRN Data: Longwave
+
+Hourly validation covers Jan., Apr., Jul., and Oct. 2019.

@@ -1,0 +1,8 @@
+POWER Data Methodology: POWER Release 10
+Publisher: NASA Langley Research Center, POWER Project
+
+POWER Release 10 enhances the data pipeline by fully migrating to a cloud-based data processing pipeline. Each source has an independent data processing pipeline implementing improvements, decreasing processing latencies, improving temporal coverage, and much more.
+
+Meteorological parameters continue to be based upon MERRA-2 and GEOS FP-IT assimilation models.
+
+Sections under "Data Sources and Validation", listed in the left menu in this methodology, provide summaries of the sources and estimated uncertainty associated with the data underlying the solar and meteorological parameters available through POWER. The uncertainty estimates are based upon comparisons with surface measurements. Additionally, procedures for computing value-added parameters are detailed under the "Derived and Adjusted Data" heading in the left menu.

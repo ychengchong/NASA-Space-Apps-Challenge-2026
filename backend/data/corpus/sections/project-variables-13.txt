@@ -1,0 +1,14 @@
+Variables in Trend Detective: Cloud cover (CLOUD_AMT)
+Publisher: Trend Detective project
+
+Cloud cover (CLOUD_AMT): How much of the sky is covered by cloud, as a percentage, averaged over the month.
+
+- Catalogue ID: cloud_cover
+- NASA POWER parameter code: CLOUD_AMT
+- Units: %
+- Rate of change shown in: percentage points per decade
+- Data source: NASA POWER (GEWEX SRB to 2000, CERES from 2001)
+- Record starts in: 1984
+- Grid: cells of 1° latitude by 1° longitude; each cell's edges are multiples of the cell size, such as whole degrees, so its centre lies halfway between them. A place takes the cell that holds it, and a place on an edge the cell north or east of it.
+
+Caution: The data source for this variable changes in 2001, which can create an artificial step.

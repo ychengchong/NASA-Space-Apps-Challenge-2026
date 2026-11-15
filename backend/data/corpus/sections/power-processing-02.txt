@@ -1,0 +1,10 @@
+POWER Data Processing: Processing Hierarchy
+Publisher: NASA Langley Research Center, POWER Project
+
+POWER uses a set Processing Hierarchy for stored data values. The arrow going left to right shows the higher level of aggregation and how the data is computed. Each step in the hierarchy applies a single, well-defined operation (mean, maximum, or minimum) to the level immediately below it, so the stored values at every temporal resolution remain traceable back to the original hourly fields; the daily aggregation is performed in local solar time so that the 24-hour window aligns with the solar day rather than UTC, a convention rooted in standard timekeeping and climatological reporting practice
+
+Hourly | Daily | Monthly | Annual | Climatology
+
+Type | Value | Extreme and Average | Average | Average | Average
+
+Operation | 24 Hours | Mean, Max, or Min of 24 Hours | Mean of the Days | Mean of the Months | Mean of the Annual

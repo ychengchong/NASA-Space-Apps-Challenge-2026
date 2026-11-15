@@ -1,0 +1,12 @@
+POWER Meteorological Data Sources: Surface Pressure
+Publisher: NASA Langley Research Center, POWER Project
+
+This section compares MERRA-2 surface pressure to observations reported to the NCEI with an adjustment made to the difference in elevation between MERRA-2 and the site elevation. Because the MERRA-2 grid-box elevation generally differs from a station's true elevation, a hypsometric (barometric) reduction is required for a like-for-like comparison; this relation follows directly from hydrostatic balance and the ideal gas law.
+
+Hypsometric Equation for Adjustment of Surface Pressure
+
+The elevation of the MERRA-2 grid box is the mean elevation of the earth’s surface under the grid. In complex terrain one might expect to see a difference between the MERRA-2 elevation and that of the surface site resulting in a difference between the MERRA-2 pressure and that reported by the surface site. The Surface Pressure (Hypsometric Equation) scatter plot illustrates the improvements in the agreement between the MERRA-2 estimates of pressure and observational data by adjusting the MERRA-2 pressure using the hypsometric equation. The hypsometric equation, relates the thickness (h) between two isobaric surfaces to the mean temperature (T) of the layer as:
+
+\begin{align} h = z_2 – z_1 = (RT/g) \times \ln(p_1/p_2) \end{align}
+
+\begin{align} Where: \\ z_1: & \text{ elevation of the MERRA-2 grid. } \\ z_2: & \text{ elevation of the reporting surface site. } \\ p_1: & \text{ MERRA-2 surface pressure. } \\ p_2: & \text{ Surface site pressure. } \\ R: & \text{ Gas constant for dry air. } \\ g: & \text{ Gravitational constant. } \\ T: & \text{ Temperature at mid-point between $z_1$ and $z_2$. } \\ \end{align}

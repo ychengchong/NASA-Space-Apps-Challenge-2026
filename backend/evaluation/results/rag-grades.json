@@ -1,0 +1,859 @@
+{
+ "results_files": [
+  "backend/evaluation/results/rag.json",
+  "backend/evaluation/results/rag-no-retrieval.json"
+ ],
+ "graders": {
+  "grader_1": "AI grader agent run by the Claude Code workflow of this stage; exact model not recorded. Not a person.",
+  "grader_2": "AI grader agent run by the Claude Code workflow of this stage, separately from grader 1; exact model not recorded. Not a person."
+ },
+ "provenance": "Verdicts transcribed by the AI agent that wrote docs/evaluation-results.md from the two graders' outputs in its session. The graders' raw outputs and their reasons were not saved, so these verdicts cannot be checked against them, and no per-case reason is available. Neither grader marked any case critical. report_critical lists the cases the report counts as critical under the suite's definitions, from that agent's reading of the graders' reasons; docs/evaluation-results.md gives the claim each one fails.",
+ "verdict_values": "pass or fail",
+ "cases": [
+  {
+   "id": "rag-s-001",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-002",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-003",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": true
+  },
+  {
+   "id": "rag-s-004",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-001",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-002",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-001",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-002",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-001",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-005",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-006",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-003",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-003",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-004",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-002",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-003",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-005",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-006",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-007",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-007",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-008",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-009",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-004",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-004",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-008",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-009",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-010",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-011",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-005",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-005",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-012",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-013",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-006",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-007",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-010",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-011",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-006",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-014",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-015",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-012",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-008",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-007",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": true
+  },
+  {
+   "id": "rag-ah-013",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-016",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-008",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-009",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-017",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-014",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-010",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-009",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": true
+  },
+  {
+   "id": "rag-s-018",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-015",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-011",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-010",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-019",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-s-020",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-n-012",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-016",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-m-011",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-ah-017",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-wb-001",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-wb-002",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-wb-003",
+   "with_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "without_retrieval": {
+    "grader_1": "fail",
+    "grader_2": "fail"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-unk-001",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  },
+  {
+   "id": "rag-unk-002",
+   "with_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "without_retrieval": {
+    "grader_1": "pass",
+    "grader_2": "pass"
+   },
+   "grader_critical": false,
+   "report_critical": false
+  }
+ ]
+}

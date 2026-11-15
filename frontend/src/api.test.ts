@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { Mock } from "vitest";
-import { ApiError, getCase, getVariables, streamChat } from "./api";
+import { ApiError, discover, explain, getCase, getVariables, streamChat } from "./api";
 import type { ChatEvent, ChatRequest } from "./api";
 
 const REQUEST: ChatRequest = { messages: [{ role: "user", text: "Is Nairobi getting warmer?" }] };
@@ -174,5 +174,51 @@ describe("JSON endpoints", () => {
   test("an unreachable server becomes a network_error", async () => {
     fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
     await expect(getVariables()).rejects.toMatchObject({ code: "network_error", status: null });
+  });
+});
+
+describe("discovery and explanations", () => {
+  const ID = "a".repeat(64);
+
+  test("discover posts the question and the unconfirmed draft to /api/discover", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ status: "clarify" }));
+    const draft = { variable: null, places: [], from: null, to: null, season: "annual" as const };
+    await discover("What should I study in Singapore?", draft);
+    const [path, init] = fetchMock.mock.calls[0] ?? [];
+    expect(path).toBe("/api/discover");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe(JSON.stringify({ question: "What should I study in Singapore?", draft }));
+  });
+
+  test("explain posts the question and the investigation's ID to /api/explain", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ status: "answered", investigation_id: ID }));
+    const answer = await explain("Explain this simply", ID);
+    const [path, init] = fetchMock.mock.calls[0] ?? [];
+    expect(path).toBe("/api/explain");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe(JSON.stringify({ question: "Explain this simply", investigation_id: ID }));
+    expect(answer).toMatchObject({ investigation_id: ID });
+  });
+
+  test("passes the caller's signal, so a question can be cancelled", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}));
+    const controller = new AbortController();
+    await explain("Why?", ID, controller.signal);
+    expect(fetchMock.mock.calls[0]?.[1]?.signal).toBe(controller.signal);
+  });
+
+  test("reads investigation_unavailable, the error of an investigation no longer on record", async () => {
+    const message = "This investigation is not on record. Open the case again.";
+    fetchMock.mockResolvedValue(jsonResponse({ error: { code: "investigation_unavailable", message } }, 409));
+    await expect(explain("Why?", ID)).rejects.toMatchObject({
+      code: "investigation_unavailable",
+      message,
+      status: 409,
+    });
+  });
+
+  test("an answer that is not JSON becomes a bad_response error", async () => {
+    fetchMock.mockResolvedValue(new Response("not json", { status: 200 }));
+    await expect(discover("Why?", null)).rejects.toMatchObject({ code: "bad_response", status: 200 });
   });
 });

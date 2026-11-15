@@ -1,0 +1,11 @@
+{
+  "checked_utc": "2026-11-15T02:34:39+00:00",
+  "suite_sha256_after_runs": {
+    "planner_dev.json": "f2b896643e580bc16d4a2cae7e1daba3813f8ce85d602824caa8021105eff623",
+    "planner_suite.json": "187efe655cfb23989a90f8a1433a24af83b835a2af1f4e84d3cfa49cedd7852f",
+    "rag_dev.json": "5992a11bc2f5f97eff0d302754f93f1a1ddd3e1cebfd450ed0e12647623a433c",
+    "rag_suite.json": "e3b763b97cc2b57a61a737eb97e82dfee520139c2db4eca4fc216297049e3d78"
+  },
+  "tracked_diff_sha256_backend_docs_readme": "18053e01670078a15ca123bade6b63d34af8ef41f2bd2be53065569c4ef03a8a",
+  "note": "All four suite hashes still match round2/README.md. The three results files record different tracked_diff_sha256 values (planner 18053e01..., rag 39cbf717..., no-rag ee63145e...) because frontend files (GlobeCanvas.tsx, globeGeometry.ts, globeGeometry.test.ts, styles.css) were edited in the working tree during the runs, not by this run. The diff of backend/, docs/ and README.md alone still hashes to 18053e01..., the full-tree value before the first run, and no backend or corpus file is newer than suite-hash-check.json except these results, so all three runs used the same backend code, prompts, schemas, guard and corpus."
+}

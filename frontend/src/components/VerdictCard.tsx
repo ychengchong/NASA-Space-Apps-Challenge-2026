@@ -3,7 +3,7 @@ import type { Investigation, PlaceResult, Verdict, VariableSummary } from "../ap
 import { cautionText } from "../cautions";
 import { MORE_YEARS_NOTE, SIGNIFICANCE_DEFINITION } from "../definitions";
 import { formatSignedRate, splitSign } from "../format";
-import { KIND_LABELS, stampDirection, stampInk } from "../verdictStamp";
+import { KIND_LABELS, stampDirection, stampInk, verdictLine } from "../verdictStamp";
 import { FileTab } from "./FileTab";
 import { ShapeSwatch } from "./ShapeSwatch";
 
@@ -12,27 +12,70 @@ interface VerdictCardProps {
 }
 
 /**
- * The answer in words, as the first sheet of the case file, under its tab: for a comparison the
- * summary sentence first, then each place's verdict sentence with its stamp and its most
- * important caution (spec 3). Sentences come from the API as they are. The caller places it in a
- * live region that is in the page before it.
+ * The answer in words, as the first sheet of the case file, under its tab (spec 3). One place
+ * gets its verdict in full: the stamp, the sentence and the most important caution. A comparison
+ * gets the summary sentence, then each place at a glance, and the full verdicts behind one fold,
+ * so the card stays short enough for the chart to follow it closely. Sentences come from the API
+ * as they are. The caller places it in a live region that is in the page before it.
  */
 export function VerdictCard({ investigation }: VerdictCardProps): JSX.Element {
   const { results, summary, variable } = investigation;
+  const comparison = results.length > 1;
+  const full = (
+    <>
+      {investigation.gap ? <p className="verdict-note">{investigation.gap.sentence}</p> : null}
+      <ul className="verdict-list">
+        {results.map((result, index) => (
+          <li key={index} className="verdict-place">
+            <PlaceVerdict result={result} index={index} variable={variable} showName={comparison} />
+          </li>
+        ))}
+      </ul>
+    </>
+  );
   return (
     <section className="panel verdict-card" aria-labelledby="verdict-heading">
       <FileTab label="Case file" />
       <h2 id="verdict-heading">Verdict</h2>
       {summary ? <p className="verdict-summary">{summary}</p> : null}
-      {investigation.gap ? <p className="verdict-note">{investigation.gap.sentence}</p> : null}
-      <ul className="verdict-list">
-        {results.map((result, index) => (
-          <li key={index} className="verdict-place">
-            <PlaceVerdict result={result} index={index} variable={variable} showName={results.length > 1} />
-          </li>
-        ))}
-      </ul>
+      {comparison ? (
+        <>
+          <VerdictGlance investigation={investigation} />
+          <details className="disclosure verdict-full">
+            <summary>Read each place’s full verdict and cautions</summary>
+            {full}
+          </details>
+        </>
+      ) : (
+        full
+      )}
     </section>
+  );
+}
+
+/**
+ * Each place of a comparison in one row: its marker, its name, the card's figure if it has one,
+ * and the words of its stamp. It repeats nothing but what the full verdicts hold.
+ */
+function VerdictGlance({ investigation }: VerdictCardProps): JSX.Element {
+  return (
+    <ul className="verdict-glance">
+      {verdictLine(investigation).map((entry) => (
+        <li key={entry.index}>
+          <ShapeSwatch index={entry.index} />
+          <span className="verdict-glance-name">{entry.name}</span>
+          {entry.figure !== null ? <span className="verdict-glance-figure">{entry.figure}</span> : null}
+          <span className={`verdict-line-stamp stamp-${entry.ink}`}>
+            {entry.direction !== null ? (
+              <>
+                <span aria-hidden="true">{entry.direction.arrow}</span> {entry.direction.word} ·{" "}
+              </>
+            ) : null}
+            {entry.kind}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

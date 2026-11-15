@@ -1,0 +1,30 @@
+POWER Meteorological Data Sources: Daily Accumulations
+Publisher: NASA Langley Research Center, POWER Project
+
+The statistics and density plots below are calculated only when the NCEI observation reports positive precipitation. The density plots are shown with a logarithmic color bar scale to show histogram bins away from the origin.
+
+Accumulated Days | Site Mean | Slope | Intercept | Rsqrd | Bias | RMSE
+
+1 | 7.38 | 0.27 | 3.59 | 0.20 | -1.78 | 13.70
+
+5 | 18.75 | 0.56 | 7.77 | 0.50 | -0.48 | 20.68
+
+15 | 44.71 | 0.64 | 16.65 | 0.59 | 0.68 | 37.55
+
+Month | 84.31 | 0.67 | 30.08 | 0.61 | 2.45 | 61.51
+
+One-Day Accumulated Precipitation
+
+Density histogram plot of MERRA-2 one-day accumulated precipitation vs. the daily station observation values from the NCEI GSOD files for 1981–2023.
+
+Five-Day Accumulated Precipitation
+
+Density histogram plot of the re-gridded MERRA-2 five-day accumulated precipitation vs. the daily station observation values from the NCEI GSOD files for 1981–2023.
+
+15-Day Accumulated Precipitation
+
+Density histogram plot of the re-gridded MERRA-2 15-day accumulated precipitation vs. the daily station observation values from the NCEI GSOD files for 1981–2023.
+
+Monthly Accumulated Precipitation
+
+Density histogram plot of the re-gridded MERRA-2 monthly accumulated precipitation vs. the daily station observation values from the NCEI GSOD files for 1981–2023.

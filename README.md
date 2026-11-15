@@ -21,8 +21,9 @@ the team. More datasets, AI and MCP are not prerequisites for the challenge.
 | [AI disclosure](docs/ai-disclosure.md) | Development assistance and runtime AI status |
 
 The current prototype is available as source; a public demo link has not been
-provided. OpenAI discovery/RAG remains planned and must not be described as
-working in the submission. Final recording, public-link checks and submission
+provided. OpenAI planning, discovery and RAG are implemented and have been live-tested;
+release flags remain off pending review, and explanations have not met their quality gate.
+Final recording, public-link checks and submission
 through the official team page remain team actions.
 
 ## Run locally
@@ -36,6 +37,10 @@ cd backend
 uv sync --locked
 uv run uvicorn app.main:app --reload
 ```
+
+To load your repository-root `.env` after configuring it, run the backend with
+`uv run --env-file ../.env uvicorn app.main:app --reload` instead. The default flags
+keep AI off even when a key is present. Never put the server key in frontend settings.
 
 In another terminal:
 
@@ -148,9 +153,16 @@ credits or calls NASA. Docker and a public HTTPS deployment require separate ver
 ## Optional AI planner
 
 The [Draft 5 technical spec](docs/technical-spec.md) plans OpenAI-assisted variable
-discovery and RAG explanations using a reviewed documentation corpus. These are
-planned additions, not current features; no local model is required for that plan.
-The configuration and limits below describe the existing planner only.
+discovery and RAG explanations using a reviewed documentation corpus. The corpus,
+its upload, the retrieval settings, the response contracts, the /api/discover and
+/api/explain endpoints and their interface (guided discovery in the question bar and the
+"Ask about this investigation" panel) exist and are unit-tested with fake providers.
+Two held-out evaluation rounds with OpenAI `gpt-6-luna`, graded by automated checks and AI
+agents (no person), met neither gate. In round 2, the current evidence, discovery and planning
+passed 60 of 70 cases with three critical citation errors, and explanations (RAG) passed 65
+of 77, both below the 90% target; see the [evaluation results](docs/evaluation-results.md).
+A user study and a deployment are not yet done. No local model is required for that plan. The retrieval settings are described under
+"Retrieval settings" below; the rest of this section describes the planner.
 Without an enabled provider, the question box matches keywords and fills settings;
 it does not generate conversational explanations.
 
@@ -180,6 +192,55 @@ Bounds: 8 KiB body, one question <=2,000 characters, one generation at a time ac
 workers sharing operational state, 512 output tokens and a 30-second operation
 deadline. Local context is capped at 8,192 tokens, with a conservative input bound.
 Daily request and per-address limits apply. Chat text is not stored server-side.
+
+### Retrieval settings
+
+Discovery and explanation need hosted OpenAI planning (above) plus these settings,
+all off by default (see `.env.example`):
+
+| Setting | Meaning |
+| --- | --- |
+| `RAG_ENABLED` | Turns retrieval on |
+| `RAG_VECTOR_STORE_ID` | The `vs_...` store the upload script printed; any other shape keeps retrieval off |
+| `RAG_CORPUS_VERSION` | The uploaded corpus version; must equal `corpus_version` in `backend/data/corpus/manifest.json` |
+| `RAG_SEARCH_MICROUSD_PER_CALL` | Owner-supplied integer microdollar price of one vector-store search |
+| `RAG_EVALUATED` | Enables explanations. Only the owner, or someone the owner delegates to, sets it, as an attestation after the explanation suite has passed its gate. Keep it `false`: neither held-out round of 15 November 2026 passed (round 2: 65 of 77, below 90%) |
+| `DISCOVERY_EVALUATED` | Enables discovery. Only the owner, or someone the owner delegates to, sets it, as an attestation after the discovery suite has passed its gate. Keep it `false`: neither held-out round of 15 November 2026 passed (round 2: 60 of 70, below 90%, with three critical citation errors) |
+
+`/api/capabilities` reports `ai_planner_available`, `ai_discovery_available` and
+`ai_explanation_available` separately; a missing or mismatched retrieval setting turns
+off only discovery and explanation. While explanations are available, each pinned case
+is recorded in the operations database (investigation ID, case query including place
+labels, analysis version) so an explanation can rebuild it from retained snapshots; a
+record is kept 24 hours and at most 10,000 are kept.
+
+### Discovery and explanation endpoints
+
+Both answer 503 `ai_unavailable` until their flags above are set, accept a body of at most
+8 KiB with one question of at most 2,000 characters, share the planner's single generation
+slot, daily turn limit and budget (429 `rate_limited` when any is exhausted), make one
+vector-store search (at most four passages) and at most one generation of at most 1,024
+output tokens, and finish within 30 seconds. Citations are built on the server from the
+manifest and the retrieved passages; provider text that fails the checks in
+`backend/app/ai_guard.py` (unknown or unretrieved sources, numbers, URLs, markup, verdict
+contradictions, causes, forecasts and more) is never returned.
+
+| Endpoint | Request | Response |
+| --- | --- | --- |
+| `POST /api/discover` | `{"question": ..., "draft": {...}?}` | `DiscoveryResponse`: status `ready`/`clarify`/`unsupported` (with a `reason`), up to three cited variable suggestions, a proposal to confirm, missing fields and a clarification with typed choices. Nothing runs. |
+| `POST /api/explain` | `{"question": ..., "investigation_id": "<64 hex>"}` | `ExplanationResponse`: status `answered`/`insufficient_evidence` (with a `reason`)/`new_investigation_required`, cited blocks with result-field references, and an optional proposal. 409 `investigation_unavailable` when the ID is not on record, its retained evidence is missing or it rebuilds to another ID; NASA is never called. |
+
+The corpus is built and uploaded by the owner, from `backend/`:
+
+```sh
+uv run python -I scripts/build_corpus.py --accessed YYYY-MM-DD --raw-dir EMPTY_DIR
+uv run --env-file ../.env python -m scripts.upload_corpus --max-bytes 1000000
+```
+
+The upload refuses a corpus over the `--max-bytes` cap before any call, records file
+IDs, uploaded bytes, the store's usage bytes and earlier attempts in
+`state/corpus-files.json`, and creates a store that expires 30 days after last use.
+Uploaded files do not expire: delete them by the IDs in that state file.
 
 ## Development checks
 
@@ -273,10 +334,114 @@ Claude Code (model Claude Opus 5.5) built the descriptive additions of a team br
 panel, a fourth example, the place overview, the gap between two places and the whole-world
 sample. The detailed [AI contribution record](docs/ai-disclosure.md) preserves contributor-reported development history separately from current runtime behaviour.
 
-Educational impact and the >=90% semantic planner target are not established by
-unit tests. Run the recorded evaluation protocol with target users and the selected
-model, verify the public deployment and finish the required demonstration before
-claiming those criteria. A prototype cannot guarantee an award or global ranking.
+Claude Code (model Claude Opus 5.5) wrote the Draft 5 retrieval groundwork on 15 November
+2026: the shared AI module, the discovery and explanation contracts, the retrieval settings
+and capability flags, the investigation lookup, the corpus build and upload scripts, the
+project method notes in the corpus, and their tests. It also fixed the review findings on
+that work (typed failure reasons, cited passages and sections, the upload byte cap and
+attempt history, robots.txt errors and the bounded investigation lookup).
+
+Claude Code (model Claude Opus 5.5) also wrote the /api/discover and /api/explain endpoints
+on 15 November 2026: the corpus manifest reader, the provider-output checks in
+`backend/app/ai_guard.py`, the offline rebuild of a recorded investigation, the
+`investigation_unavailable` error and their fake-provider tests.
+
+Claude Code (model Claude Opus 5.5) also wrote the Draft 5 interface on 15 November 2026:
+guided discovery in the question bar, the suggestion cards, the "Ask about this
+investigation" panel, citation rendering (`DiscoveryResult`, `AskPanel`, `CitationList`,
+`discovery.ts`, `explanation.ts`, `citations.ts`) and their tests. It then applied a review
+of that stage: the explanation proposal keeps the investigation's own settings, the
+provider no longer sees the verdict sentence, retrieval uses the bare question, retrieved
+text must match the reviewed section files, the text checks gained direction, significance,
+cause, forecast, number and URL rules and checks of model-written place queries, and the
+interface shows proposal notices and catalogue facts, announces finished answers, keeps
+focus after a choice and cancels a discovery question when the page changes.
+
+On 15 November 2026 Claude Code (model Claude Opus 5.5) ran the Draft 5 round-1 held-out
+evaluation with OpenAI `gpt-6-luna` and wrote the [evaluation results](docs/evaluation-results.md).
+Before the frozen run it tuned, with model calls on development questions only, the
+instructions of /api/plan (when a question may be marked ambiguous), /api/discover and
+/api/explain and one guard rule in `backend/app/ai_guard.py`, with tests. Before that tuning
+it had also rehearsed the runner offline, with a fake provider and no model call, on the
+first six cases of each held-out suite. The suites and their expectations were written by
+AI. Two AI grader agents judged RAG answer support, and an AI review agent graded the
+citation support of the discovery suggestions; no person reviewed any case or grade. The
+planner/discovery run passed 70 of 75 but has three critical citation errors, and the RAG
+gate did not pass (39 of 65 under both graders). The agent that wrote the results first set
+`DISCOVERY_EVALUATED=true` in the local `.env` itself; a review step set it back to `false`,
+because that flag is the owner's attestation. Both discovery and explanations are off.
+
+After that run Claude Code (model Claude Opus 5.5) addressed the round-1 failure causes on
+15 November 2026, as general behaviour and without opening the new suites: a deterministic
+check that keeps only discovery citations whose passage names the suggested variable, tighter
+explanation instructions, field names added to the explanation search, low reasoning effort
+for every OpenAI generation, the split-winter year rule for December-February periods, more
+per-case records in the evaluation runner (all retrieved passages and scores, which guard
+check withheld an output, the served model and the raw provider output), and their tests. It
+wrote the project note "What the result fields mean" (`backend/data/corpus/project/result-fields.md`)
+from the spec and the interface labels, rebuilt the corpus and uploaded it to a new vector
+store, and deleted the previous store and its files. These changes have been checked by unit
+tests and development questions first, then measured by the round-2 held-out run on new
+suites (see the [evaluation results](docs/evaluation-results.md)); no person has reviewed them.
+
+Claude Code (model Claude Opus 5.5) also fixed the phone-width globe on 15 November 2026 (the
+globe now sits inside its frame below 640px, so it is drawn there and "Zoom in to the grid
+cell" works), wrote the [deployment guide](docs/deployment.md) and the container and browser
+checks in [verification](docs/verification.md), and listed what is left of Draft 5 in
+[Draft 5: what is done and what remains](docs/draft5-remaining.md).
+
+Claude Code (model Claude Opus 5.5) then tuned the AI paths on the round-2 development
+suites only (`backend/evaluation/round2/planner_dev.json` and `rag_dev.json`, both AI-written),
+on 15 November 2026, with two runs each through the evaluation runner and OpenAI
+`gpt-6-luna`; the round-2 held-out suites were not opened. It made the runner score the
+round-2 additions (citation support of every discovery suggestion against the suite's
+section map, and retrieval relevance of explanations), and made general fixes with tests:
+discovery searches with the catalogue names of the variables its question names, its
+instructions ask for a describing passage and forbid refusing a question for its assumed
+premise, the explanation search adds a cue for questions about causes, the explanation
+instructions abstain on a message that asks nothing, and the "no change" guard no longer
+flags a verb with an object. The development results were graded by the runner's automated
+checks only, not by a person or an AI grader, and are not held-out evidence.
+
+On 15 November 2026 Claude Code (model Claude Opus 5.5) then ran the round-2 held-out
+evaluation with OpenAI `gpt-6-luna`. The run used the suites in `backend/evaluation/round2/`,
+which an AI wrote blind, and their hashes were checked before and after the run. Each suite
+ran once, and no code, prompt, schema, guard, corpus or suite was changed during or after
+the run.
+
+Two AI grader agents (Claude Opus 5.5), working apart, graded every RAG answer in both
+conditions, every discovery suggestion's citation support and every planner text, with a
+reason for each item (`backend/evaluation/round2/results/grader-1.json` and `grader-2.json`).
+They agreed on every item.
+
+- Planner/discovery passed 60 of 70 cases, with three critical fabricated citations.
+- RAG passed 65 of 77 combined, with no critical error.
+- Both are below the 90% target.
+
+The workflow's lead agent wrote the round-2 [evaluation results](docs/evaluation-results.md)
+and made the gate decisions under a delegation from the owner that it reported. It set
+`DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false` in the local `.env`. No person reviewed
+any case or grade.
+
+Educational impact is not established: no user observations have been made. Neither AI
+gate has been met. Round 2's AI-graded pass rates (60 of 70 for planner/discovery, 65 of 77
+for RAG) are sample results below the 90% target, and discovery also has critical citation
+errors. Run the user study, verify the public deployment and finish the required
+demonstration before claiming those criteria. A prototype cannot guarantee an award or global ranking.
+
+On 15 November 2026, OpenAI Codex prepared `fix-draft5-release`: deterministic corpus
+bytes on Windows, per-place explanation checks, product/topic-aware retrieval, guard
+fixes, budget protection and regression tests. It indexed the 173 existing NASA/project
+sections in the owner's OpenAI project after explicit approval. All **1,600 backend**
+and **758 frontend** tests passed, with lint, formatting, generated types and build checks.
+The four saved NASA cases passed offline API/export checks. The latest complete
+agent-authored sample scored **50/50 planner/discovery** and **33/40 explanations** on
+automated checks; it has not received human source-support review. Later targeted
+development checks are reported separately, not counted as a release-gate pass.
+The cumulative evaluation reservation is **USD 0.975993 of USD 1**, including the
+runner's USD 0.15 historical allowance; this is not a provider invoice. See
+[evaluation results](docs/evaluation-results.md#submission-day-follow-up).
+AI stays gated off, and user testing was deferred, so educational impact is unmeasured.
 
 The team has not selected a project licence. NASA/GeoNames/OpenStreetMap/OpenFreeMap,
 the typefaces and software dependencies retain their own applicable terms.

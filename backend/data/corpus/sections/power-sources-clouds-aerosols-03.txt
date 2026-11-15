@@ -1,0 +1,18 @@
+POWER Cloud and Aerosol Data Sources: Parameters
+Publisher: NASA Langley Research Center, POWER Project
+
+The POWER project provides three AOD parameters:
+
+Parameter | Definition | Units
+
+AOD_55 | The optical thickness at 0.55 µm measured vertically; the component of the atmosphere to quantify the removal of radiant energy from an incident beam. | dimensionless
+
+AOD_84 | The optical thickness at 0.84 µm measured vertically; the component of the atmosphere to quantify the removal of radiant energy from an incident beam. | dimensionless
+
+AOD_55_ADJ | The adjusted optical thickness at 0.55 µm measured vertically; the component of the atmosphere to quantify the removal of radiant energy from an incident beam. | dimensionless
+
+These parameters are available at the following temporal levels: Hourly, Daily, Monthly, Annual, and Climatology.
+
+Adjusted AOD at 0.55 µm
+
+The AOD_55_ADJ parameter represents an adjusted version of the 0.55 µm aerosol optical depth. This adjustment accounts for known biases in the satellite-derived AOD retrievals to provide improved agreement with ground-based observations. Satellite AOD retrievals are commonly bias-corrected against AERONET, the network that anchors the AOD reference scale used for such adjustments Holben et al., 1998; Levy et al., 2013.

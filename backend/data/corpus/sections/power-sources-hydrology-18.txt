@@ -1,0 +1,4 @@
+POWER Hydrology Data Sources: IMERG
+Publisher: NASA Langley Research Center, POWER Project
+
+IMERG merges precipitation estimates from the GPM constellation of passive-microwave and infrared sensors into a 0.1° × 0.1° (~10 km) half-hourly gridded product, providing the high-resolution precipitation that forces hydrologic models. More information on IMERG is available on the Meteorological page.

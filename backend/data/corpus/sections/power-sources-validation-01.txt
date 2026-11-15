@@ -1,0 +1,18 @@
+POWER Validation Data Sources: Validation Sources
+Publisher: NASA Langley Research Center, POWER Project
+
+In addition to the core data products, POWER curates and provides several point-based in-situ validation data sets for the express purpose of validating POWER data. These are the same data sets that the POWER team use to validate a subset of the core data sets that are detailed within the methodology pages. They are not made available to validate derived parameters.
+
+They are available for the public in the Data Access Viewer and through an API endpoint for specific parameters.
+
+The sources below have been vetted for quality of the data and availability for global and temporal coverage.
+
+Source | Abbreviation | Temporal | Number of Locations | Start Year | POWER Parameters
+
+NOAA NCEI Global Summary of the Day | NOAA NCEI GSOD | Daily | 2599 | 1981 | T2M, T2MDEW, WS10M_MAX
+
+NOAA NCEI Integrated Surface Database (Lite) | NOAA NCEI ISD Lite | Hourly | 2599 | 1981 | T2M, T2MDEW, PS, PRECTOTCORR, WS10M, WD10M
+
+Baseline Solar Radiation Network | BSRN | Hourly, Daily | 78 | 1992 | ALLSKY_SFC_LW_DWN, ALLSKY_SFC_SW_DWN, ALLSKY_SFC_SW_DNI, ALLSKY_SFC_SW_DIFF
+
+Aerosol Robotic Network | AERONET | Hourly, Daily | 1825 | 1993 | AOD_84, AOD_55, PW

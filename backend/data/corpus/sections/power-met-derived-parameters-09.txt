@@ -1,0 +1,4 @@
+POWER Meteorological Derived Parameters: Heating/Cooling Degree Days
+Publisher: NASA Langley Research Center, POWER Project
+
+An important application of historical temperature data is in the calculation of Heating Degree Days (HDD) and Cooling Degree Days (CDD). Degree-day indices are the integrated departure of daily mean temperature from a base temperature and are widely used to estimate building heating and cooling energy demand. The following expressions are used herein for calculating HDD and CDD (Chapter 14 of ASHRAE, 2013):

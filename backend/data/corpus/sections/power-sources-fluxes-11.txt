@@ -1,0 +1,4 @@
+POWER Solar Flux Data Sources: References
+Publisher: NASA Langley Research Center, POWER Project
+
+SRB Release 4-Integrated Product (R4-IP) CERES SYN1deg and FLASHFlux Kratz et al., 2014 FLASHFlux CERES SYN1deg Edition 4.2 Doelling et al., 2013 Baseline Surface Radiation Network (BSRN) Rutan et al., 2015 Michalsky et al., 1999 Wild et al., 2013 Wild et al 2017 Franssen et al., 2010 Pinker and Laszlo (1992) ISCCP Cloud Properties Young et al., 2018 Modern Era Retrospective-Analysis for Research and Applications (MERRA-2) Smith et al., 1986 Stackhouse et al., 2021 Rose et al., 2013 GEWEX SRB Validation. Clouds and the Earth's Radiant Energy System (CERES) Su et al., (2005)

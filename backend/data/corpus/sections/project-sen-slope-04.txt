@@ -1,0 +1,8 @@
+Sen's slope and the total change: A zero rate
+Publisher: Trend Detective project
+
+A Sen's slope of zero does not prove that nothing changed. A zero rate also does not override a valid trend test: when the median rate is zero but the trend test finds evidence below its threshold, the verdict stays significant without a rate direction, and the two quantities are explained separately. A rate that is very small but not zero is shown with more digits rather than rounded to zero.
+
+Intervals
+
+The app does not report a confidence interval for the slope. Slope intervals stay empty until a procedure that allows for serial dependence is specified and its coverage is tested.

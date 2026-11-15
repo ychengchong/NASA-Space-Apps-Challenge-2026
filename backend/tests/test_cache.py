@@ -157,3 +157,91 @@ def test_rows_of_a_newer_seed_are_added_and_existing_rows_kept(tmp_path: Path) -
     assert again == 0
     assert rows["T2M"].version == "v-state"
     assert rows["SNODP"].monthly == {(2000, 1): 5.0}
+
+
+# The investigation lookup for explanations (spec 8, "Planned explanations")
+
+INVESTIGATION_ID = "e" * 64
+PINNED_QUERY = "v=air_temp&p=60.17,24.94&from=1981&to=2025&s=annual&snap=abc&av=td-2026-11-v1"
+
+
+def test_recorded_investigation_is_found_by_its_id(cache: Cache) -> None:
+    cache.record_investigation(INVESTIGATION_ID, PINNED_QUERY, "td-2026-11-v1", 1000.0)
+
+    record = cache.find_investigation(INVESTIGATION_ID)
+
+    assert record is not None
+    assert record.case_query == PINNED_QUERY
+    assert record.analysis_version == "td-2026-11-v1"
+    assert record.created == 1000.0
+
+
+def test_unrecorded_investigation_is_not_found(cache: Cache) -> None:
+    assert cache.find_investigation(INVESTIGATION_ID) is None
+
+
+def test_recording_an_id_again_keeps_the_first_record(cache: Cache) -> None:
+    cache.record_investigation(INVESTIGATION_ID, PINNED_QUERY, "td-2026-11-v1", 1000.0)
+    cache.record_investigation(INVESTIGATION_ID, "v=other", "td-2026-11-v1", 2000.0)
+
+    record = cache.find_investigation(INVESTIGATION_ID)
+
+    assert record is not None
+    assert (record.case_query, record.created) == (PINNED_QUERY, 1000.0)
+
+
+def test_investigation_records_older_than_the_retention_are_pruned(cache: Cache) -> None:
+    other_id = "f" * 64
+    cache.record_investigation(INVESTIGATION_ID, PINNED_QUERY, "td-2026-11-v1", 1000.0)
+
+    cache.record_investigation(
+        other_id, "v=rain", "td-2026-11-v1", 1000.0 + 86_401.0, retention_seconds=86_400.0
+    )
+
+    assert cache.find_investigation(INVESTIGATION_ID) is None
+    assert cache.find_investigation(other_id) is not None
+
+
+def test_investigation_record_within_the_retention_is_kept(cache: Cache) -> None:
+    cache.record_investigation(INVESTIGATION_ID, PINNED_QUERY, "td-2026-11-v1", 1000.0)
+
+    cache.record_investigation(
+        "f" * 64, "v=rain", "td-2026-11-v1", 1000.0 + 86_399.0, retention_seconds=86_400.0
+    )
+
+    assert cache.find_investigation(INVESTIGATION_ID) is not None
+
+
+def test_expired_investigation_is_recorded_afresh(cache: Cache) -> None:
+    cache.record_investigation(INVESTIGATION_ID, PINNED_QUERY, "td-2026-11-v1", 1000.0)
+
+    cache.record_investigation(
+        INVESTIGATION_ID, PINNED_QUERY, "td-2026-11-v1", 100_000.0, retention_seconds=86_400.0
+    )
+
+    record = cache.find_investigation(INVESTIGATION_ID)
+    assert record is not None and record.created == 100_000.0
+
+
+def test_only_the_newest_investigation_records_are_kept(cache: Cache) -> None:
+    ids = [character * 64 for character in "abc"]
+    for created, investigation_id in enumerate(ids):
+        cache.record_investigation(
+            investigation_id, PINNED_QUERY, "td-2026-11-v1", float(created), max_rows=2
+        )
+
+    assert cache.find_investigation(ids[0]) is None
+    assert cache.find_investigation(ids[1]) is not None
+    assert cache.find_investigation(ids[2]) is not None
+
+
+def test_investigation_record_survives_reopening_the_file(cache_path: Path) -> None:
+    first = Cache(cache_path)
+    first.record_investigation(INVESTIGATION_ID, PINNED_QUERY, "td-2026-11-v1", 1000.0)
+    first.close()
+
+    reopened = Cache(cache_path)
+    record = reopened.find_investigation(INVESTIGATION_ID)
+    reopened.close()
+
+    assert record is not None and record.case_query == PINNED_QUERY

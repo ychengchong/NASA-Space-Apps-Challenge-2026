@@ -1,0 +1,8 @@
+Reading a result: what significance does and does not say
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project. It explains how to read the app's results. It is the project's own guidance, not a NASA statement.
+
+Not significant is not proof of no change
+
+A not significant verdict means the data do not provide sufficient evidence for a monotonic trend under the method. It does not establish that no change occurred. The test asks only about a monotonic trend, and its conservative design reduces its power, particularly for short records, so a real change can go undetected. A zero estimated rate does not prove no change either.

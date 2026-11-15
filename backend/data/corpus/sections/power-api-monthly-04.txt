@@ -1,0 +1,6 @@
+POWER Monthly and Annual API: Regional
+Publisher: NASA Langley Research Center, POWER Project
+
+Below are examples to return monthly data for a region on a 0.5 x 0.5 degree grid.
+
+``` bash /api/temporal/monthly/regional?latitude-min=50&latitude-max=55&longitude-min=50&longitude-max=55&parameters=T2M&community=SB&start=2016&end=2017&format=CSV ```

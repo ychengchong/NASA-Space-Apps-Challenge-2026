@@ -1,0 +1,14 @@
+POWER Meteorological Data Sources: Contingency Table
+Publisher: NASA Langley Research Center, POWER Project
+
+Many methods exist when it comes to the validation of precipitation (Yates, et al. 2006 Ebert, et al., 2007). Density scatter plots are a useful way to describe and display the validation statistics. Categorical (contingency-table) verification is a standard complement to continuous error metrics for precipitation, because it separates detection skill from amount error. However, days with little or no precipitation dominate the density scatter plots of the precipitation validation due to the random nature of the daily precipitation. Meanwhile, days with heavy precipitation are less frequent. Categorical verification, in this case contingency tables, offer another way to examine the daily precipitation data. The contingency tables below show the cases when the MERRA-2 daily precipitation and ground site daily precipitation:
+
+- Measured no precipitation on the same days ("correct negative").
+
+- Measured precipitation on the same days ("hits"; regardless of amount).
+
+- MERRA-2 measured precipitation while ground site does not ("false alarms").
+
+- MERRA-2 measured no precipitation while ground site did ("misses").
+
+For this contingency table analysis of the MERRA-2 daily precipitation, all the days when the ground site/MERRA-2 data pairs measured a valid precipitation amount above the measurement accuracy of the NCEI ground site instruments (0.508 mm), including days with no precipitation, were counted for the 2001–2020 period. These "data days" total greater than 13.7 million days. The 0.508 mm (0.02 in) threshold reflects the reporting resolution of standard NCEI gauge observations, and the large sample supports stable categorical frequency estimates. The top table in the Hits Contingency Table shows a breakdown of the four categories mentioned previously, with the MERRA-2 data presented by the "rows" on the left side of the table and the NCEI ground site data presented by the "columns" on the top side of the table. Row 1 and Column 1 depict the "No Precipitation" category for the MERRA-2 and NCEI ground site data, respectively. Where Row 1 and Column 1 intersect shows the total number of data days (7,587,345) where both data sets measured less than 0.508 mm on the same days ("correct negative"). This represented 55% of the total data days counted.

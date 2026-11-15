@@ -1,0 +1,4 @@
+POWER Meteorological Derived Parameters: Growing Degree Days
+Publisher: NASA Langley Research Center, POWER Project
+
+Another application of temperature data is in the usage of Growing Degree Days (GDD). GDD, like HDD and CDD, are based upon the deviation of the daily averaged temperature, typically evaluated as (T_{max} + T_{min})/2, relative to a reference temperature, T_{base}. GDD are measures of the heat accumulation of a location which allow prediction of different growth stages of crops and emergence of insects. The following equations are used by POWER to calculate the daily GDD:

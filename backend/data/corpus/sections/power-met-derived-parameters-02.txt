@@ -1,0 +1,4 @@
+POWER Meteorological Derived Parameters: Relative Humidity
+Publisher: NASA Langley Research Center, POWER Project
+
+The relative humidity (RH) values in the POWER Archive are calculated from pressure (Pa in kPa), dry-bulb temperature (Ta in °C), and specific humidity (q in kg/kg), parameters that are available from the re-gridded MERRA-2 and represents estimates at two meters above the local surface averaged over the original source spatial resolution. The following is a summary of the expressions used to calculate RH. The units are indicated in square brackets. MERRA-2 (see meteorological section in these documents for more information on MERRA-2) provides two-meter air temperature, specific humidity, and surface pressure needed to derive humidity quantities. Relative humidity is conventionally defined as the ratio of the actual to the saturation water vapor pressure at the ambient temperature.

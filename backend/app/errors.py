@@ -60,6 +60,15 @@ class AiUnavailableError(AppError):
     http_status = 503
 
 
+class InvestigationUnavailableError(AppError):
+    """Spec 8 and 10: an explanation's investigation is not on record, its retained evidence is
+    missing, or rebuilding it gave another ID. No live data is ever substituted.
+    """
+
+    code = "investigation_unavailable"
+    http_status = 409
+
+
 def first_problem(error: ValidationError) -> str:
     """The first problem's field path and rule, without the rejected value.
 

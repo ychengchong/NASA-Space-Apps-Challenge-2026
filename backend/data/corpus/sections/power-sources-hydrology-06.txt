@@ -1,0 +1,4 @@
+POWER Hydrology Data Sources: Water-Body Size Limitations
+Publisher: NASA Langley Research Center, POWER Project
+
+Due to the measurement geometry of nadir-pointing radar altimeters, only reservoirs with a surface area of approximately ≥10 km² are reliably acquired (Birkett, et al., 2022). The nadir radar altimeters sample along narrow ground tracks, so reliable retrievals are generally limited to larger open-water targets while wide-swath SWOT interferometry is designed to extend coverage to smaller water bodies. Ongoing instrument refinement and data exploration techniques continue to push through this size limit, but smaller water bodies may not appear in the catalog.

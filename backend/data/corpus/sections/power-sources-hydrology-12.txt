@@ -1,0 +1,6 @@
+POWER Hydrology Data Sources: SMAP
+Publisher: NASA Langley Research Center, POWER Project
+
+For a higher resolution soil moisture product, POWER provides SMAP Level-4 (L4_SM) data. The L4 product assimilates SMAP L-band brightness temperatures into the same NASA Catchment land-surface model used by MERRA-2, but running on a much finer grid (~9 km) and directly constrained by satellite observations. The L4_SM algorithm ingests SMAP L-band brightness temperatures into the Catchment model via an ensemble Kalman filter to produce ~9 km surface and root-zone soil moisture (Reichle et al., 2017).
+
+Users can obtain SMAP data by enabling the high-resolution toggle in the DAV or request SMAP-aliased parameters through the API, POWER substitutes the SMAP Level-4 (L4_SM) product for MERRA-2 soil moisture.

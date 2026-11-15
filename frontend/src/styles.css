@@ -277,9 +277,9 @@ a:hover {
   pointer-events: auto;
 }
 
-/* The plate's frame: a heavy line with a fine one inside it. The globe fills the whole screen
-   behind the page, so the frame also lays plain paper over everything outside itself: the map
-   is seen through the plate and nowhere else. */
+/* The plate's frame: a heavy line with a fine one inside it. The globe reaches past the frame,
+   over the whole screen from 640px, so the frame also lays plain paper over everything outside
+   itself: the map is seen through the plate and nowhere else. */
 .stage::before {
   content: "";
   position: absolute;
@@ -298,6 +298,16 @@ a:hover {
   background:
     var(--grain), radial-gradient(ellipse at 60% 50%, rgb(255 251 238 / 0.6) 0%, transparent 55%),
     radial-gradient(ellipse at 50% 50%, transparent 58%, rgb(120 88 45 / 0.24) 100%), var(--page);
+}
+
+/* A phone's stage scrolls with the page, and on a page with an answer it starts below the first
+   screen, so there the globe fills the stage itself and travels with it. The stacking context
+   keeps the globe's own layers, such as a singled-out pin, under the frame's paper. */
+@media (max-width: 639.98px) {
+  .stage-globe {
+    position: absolute;
+    z-index: 0;
+  }
 }
 
 /* MapLibre makes its container `position: relative`, so the canvas is sized, not pinned. The
@@ -901,13 +911,6 @@ a:hover {
   text-align: center;
 }
 
-/* The first screen's third way in, said in a line right under the question bar. */
-.home-manual {
-  margin: 0;
-  color: var(--ink-muted);
-  font-size: 0.92rem;
-}
-
 /* Controls */
 
 .button {
@@ -1161,16 +1164,12 @@ fieldset {
   padding-inline: 20px;
 }
 
-/* On a phone the prompts share one row that scrolls sideways, so the case file starts higher up
-   the screen. The padding is room for a prompt's focus ring, which a scrolling row would clip. */
+/* The prompts wrap onto more rows, so none is cut off at a phone's right edge. */
 .prompt-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px 14px;
-  margin: -5px;
-  padding: 5px;
-  overflow-x: auto;
-  scrollbar-width: thin;
 }
 
 .prompt-label {
@@ -1178,8 +1177,10 @@ fieldset {
 }
 
 /* A prompt is set as a link in the text, not as a button. */
+/* A prompt longer than the row wraps inside itself instead of running past the edge. */
 .prompt-chip {
-  flex: none;
+  flex: 0 1 auto;
+  max-width: 100%;
   min-height: 32px;
   padding: 0 2px;
   border: 0;
@@ -1189,6 +1190,7 @@ fieldset {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+  text-align: left;
   cursor: pointer;
 }
 
@@ -1210,13 +1212,6 @@ fieldset {
 /* The status line stays in the page while empty, for screen readers, but takes no row. */
 .question-bar > .status-text:empty {
   margin-top: calc(-1 * var(--bar-gap));
-}
-
-@media (min-width: 640px) {
-  .prompt-row {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
 }
 
 /* Case settings */
@@ -1861,6 +1856,33 @@ html:has(.verdict-line.is-shown) {
   line-height: 1.3;
 }
 
+/* A comparison's verdict at a glance (spec 3): one row per place with its figure, if it has one,
+   and its stamp's words. The full verdicts wait behind one fold under the rows. */
+.verdict-glance {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+}
+
+.verdict-glance li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+.verdict-glance-name,
+.verdict-glance-figure {
+  font-weight: 700;
+}
+
+.verdict-full > .verdict-note {
+  margin-top: 10px;
+}
+
 .verdict-list {
   list-style: none;
   margin: 0;
@@ -1948,7 +1970,6 @@ html:has(.verdict-line.is-shown) {
 }
 
 .disclosure,
-.evidence,
 .explorer {
   margin-top: 12px;
 }
@@ -1969,7 +1990,6 @@ details > summary::-webkit-details-marker {
 }
 
 .disclosure > summary::before,
-.evidence > summary::before,
 .explorer > summary::before {
   content: "▸";
   display: inline-block;
@@ -1979,17 +1999,14 @@ details > summary::-webkit-details-marker {
 }
 
 .disclosure[open] > summary::before,
-.evidence[open] > summary::before,
 .explorer[open] > summary::before {
   content: "▾";
 }
 
-.evidence,
 .explorer {
   margin-top: 0;
 }
 
-.evidence > summary,
 .explorer > summary {
   display: flex;
   flex-wrap: wrap;
@@ -1997,7 +2014,6 @@ details > summary::-webkit-details-marker {
   gap: 2px 12px;
 }
 
-.evidence > summary h2,
 .explorer > summary h2 {
   display: inline;
   margin: 0;
@@ -2540,6 +2556,157 @@ details > summary::-webkit-details-marker {
   overflow-wrap: anywhere;
 }
 
+/* Guided discovery under the question: a clarification, the suggested variables, and their
+   sources. Each suggestion is a card on the page's paper, like the "Ready to test" card. */
+.discovery {
+  display: grid;
+  gap: 10px;
+}
+
+.discovery > .ai-label {
+  justify-self: start;
+  margin: 0;
+}
+
+.discovery-clarify > .ai-body {
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestion-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.suggestion-card {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  padding: 10px 12px;
+  border: 1px solid var(--ink);
+  border-left: 3px solid var(--ink);
+  background: var(--grain), var(--sheet);
+}
+
+.suggestion-card > * {
+  margin: 0;
+}
+
+.suggestion-name {
+  font-size: 1.02rem;
+}
+
+/* What the catalogue says about the variable, set apart from the AI's reason. */
+.suggestion-catalogue {
+  display: grid;
+  gap: 2px;
+  font-size: 0.88rem;
+}
+
+.suggestion-catalogue > p {
+  margin: 0;
+}
+
+/* The sources of an AI text: a link to each reviewed document, and its passage on request. */
+.citation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.88rem;
+}
+
+.citation {
+  overflow-wrap: anywhere;
+}
+
+.citation-kind {
+  color: var(--ink-muted);
+}
+
+.citation-passage {
+  margin-top: 2px;
+}
+
+.citation-text {
+  margin: 6px 0 4px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--line-strong);
+  background: var(--field);
+  white-space: pre-line;
+}
+
+/* "Ask about this investigation", in the "Answer" tab after the record years. */
+.ask-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.ask-panel > h2,
+.ask-panel > .panel-note {
+  margin: 0;
+}
+
+.ask-form {
+  display: grid;
+  gap: 6px;
+}
+
+/* The status line stays in the page while empty, for screen readers, but takes no row. */
+.ask-panel > .status-text:empty {
+  margin-top: -10px;
+}
+
+.ask-block + .ask-block {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.ask-block > .ai-body {
+  margin-bottom: 6px;
+}
+
+.ask-references {
+  display: grid;
+  gap: 2px;
+  margin: 4px 0 8px;
+  font-size: 0.92rem;
+}
+
+.ask-reference {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+
+.ask-reference dt {
+  color: var(--ink-muted);
+}
+
+.ask-reference dt::after {
+  content: ":";
+}
+
+.ask-reference dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.ask-answer .ready-card {
+  margin-top: 12px;
+}
+
 .unverified-number {
   text-decoration: underline wavy var(--error-line);
   text-decoration-thickness: 1px;
@@ -2664,6 +2831,12 @@ details > summary::-webkit-details-marker {
   .stage-button {
     width: 44px;
     height: 44px;
+  }
+
+  .citation-source a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 }
 

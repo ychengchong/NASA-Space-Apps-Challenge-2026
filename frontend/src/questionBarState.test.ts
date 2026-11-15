@@ -35,4 +35,28 @@ describe("afterScreenChange", () => {
     const bar: QuestionBarState = { question: "And in July?", status: { kind: "ai_answered" } };
     expect(afterScreenChange(bar)).toBe(bar);
   });
+
+  test("drops discovery's suggestions and their question", () => {
+    const bar: QuestionBarState = {
+      question: QUESTION,
+      status: {
+        kind: "discovered",
+        question: QUESTION,
+        response: {
+          status: "unsupported",
+          reason: "no_evidence",
+          suggestions: [],
+          missing: [],
+          notices: [],
+          corpus_version: "v1",
+        },
+      },
+    };
+    expect(afterScreenChange(bar)).toEqual({ question: "", status: { kind: "idle" } });
+  });
+
+  test("cancels a question on its way to discovery and keeps its text to send again", () => {
+    const bar: QuestionBarState = { question: QUESTION, status: { kind: "discovering", question: QUESTION } };
+    expect(afterScreenChange(bar)).toEqual({ question: QUESTION, status: { kind: "idle" } });
+  });
 });

@@ -1,0 +1,6 @@
+What the result fields mean: The p-value of the trend test (mk_p)
+Publisher: Trend Detective project
+
+The field mk_p, labelled "Mann-Kendall p-value", is the p-value of the trend test. It is the probability of a test statistic at least as extreme as the one observed if the record had no monotonic trend, under the test's assumptions. It is not the probability that a trend is real, and it does not measure how large or important a change is, or what caused it.
+
+The app runs the test only for complete annual two-metre air temperature records of twenty to forty-five contiguous years with no change of source. For every other variable, season or record the p-value is empty and shown as "Not assessed"; it is never set to one. A p-value below the five percent threshold gives the verdict significant; a p-value at or above it gives not significant.

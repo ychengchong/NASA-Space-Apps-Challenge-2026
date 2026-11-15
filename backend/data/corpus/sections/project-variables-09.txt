@@ -1,0 +1,14 @@
+Variables in Trend Detective: Wind speed at 10 m (WS10M)
+Publisher: Trend Detective project
+
+Wind speed at 10 m (WS10M): How fast the wind blows ten metres above the ground, averaged over the month.
+
+- Catalogue ID: wind_speed
+- NASA POWER parameter code: WS10M
+- Units: m/s
+- Rate of change shown in: m/s per decade
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.
+
+Caution: Wind trends from this model are less reliable than temperature trends.

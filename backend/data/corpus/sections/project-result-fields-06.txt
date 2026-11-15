@@ -1,0 +1,4 @@
+What the result fields mean: The years used (n, first_year, last_year)
+Publisher: Trend Detective project
+
+The field n, labelled "Number of years used", counts the complete yearly values the analysis used. The fields first_year and last_year, labelled "First year used" and "Last year used", are the first and last of those years. They can differ from the period asked for: a year that is missing any of the months asked for is not complete and is left out, and a record can start later than the period. Missing years are never closed up. In a comparison of places, only the years every place has in common are used, and the excluded years are reported.

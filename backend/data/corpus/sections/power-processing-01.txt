@@ -1,0 +1,6 @@
+POWER Data Processing: Data Processing
+Publisher: NASA Langley Research Center, POWER Project
+
+The POWER Project uses a nested temporal processing hierarchy: each coarser temporal level is computed directly from the level below it. Hourly data are the foundation. Daily values are derived from the 24 hourly values (after any local-time conversion). Monthly values are derived from daily values, annual from monthly, and climatology from annual. No temporal level is produced from an independent model run.This cascading scheme ensures internal consistency, because each coarser product is a deterministic average of the immediately finer product rather than an independent re-computation from source reanalysis.
+
+The one exception is extreme-value parameters such as Maximum Temperature at Two Meters (T2M_MAX), which retain the instantaneous hourly extreme rather than averaging. Related parameters such as T2M_MAX_AVG are the average of the daily extreme values. Daily extremes preserve the highest (or lowest) hourly value within the local-time day instead of a mean, consistent with how reanalysis and observational records report daily maximum and minimum temperature; aggregating those daily extremes into longer-period means (for example T2M_MAX_AVG).

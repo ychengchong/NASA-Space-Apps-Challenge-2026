@@ -1,0 +1,28 @@
+MERRA-2 Frequently Asked Questions: FAQ (part 2)
+Publisher: NASA Goddard Space Flight Center, Global Modeling and Assimilation Office (GMAO)
+
+As fresh snow falls on a previously snow-free tile – a tile is the model's computational unit, several of which make up a grid cell – the snow is first accumulated within a small area of the tile such that the snow mass (or snow water equivalent) per unit area in the snow-covered portion of the tile is fixed at 26 kg/m2. This threshold is known in the model as WEMIN, or the minimum snow mass in the snow-covered area fraction. It is applied to safeguard against very thin layers of snow that would be numerically unstable.
+
+As additional snowfall occurs, the snow-covered area fraction (FRSNO) is expanded while the snow mass within the snow-covered fraction is kept constant at 26 kg/m2. That is, SNOMAS (which is the snow mass averaged across the entire tile) increases gradually from 0 to 26 kg/m2 as FRSNO increases from 0 to 1 such that SNOMAS/FRSNO is constant (and equal to WEMIN). Eventually, FRSNO reaches 1 and SNOMAS increases beyond WEMIN.
+
+The snow depth (SNODP), on the other hand, is given by SNOMAS/FRSNO/snow_density, where SNOMAS/FRSNO reflects the effect of piling the snow into the snow-covered fraction of the tile. If snowfall stops short of covering the entire tile with a SNOMAS of 26 kg/m2 or more, SNODP is therefore (nearly) constant regardless of how much snow fell. (SNODP is "nearly" constant because the modeled snow density varies with time due to snow aging and compaction, but these processes are very slow.)
+
+Note also that the value of WEMIN was changed between the original MERRA reanalysis and MERRA-2. Some discussion on this topic can be found in the following papers:
+
+Reichle, R. H., C. S. Draper, Q. Liu, M. Girotto, S. P. P. Mahanama, R. D. Koster, and G. J. M. De Lannoy (2017), Assessment of MERRA-2 land surface hydrology estimates, Journal of Climate, 30, 2937-2960, doi:10.1175/JCLI-D-16-0720.1.
+
+Toure, A. M., R. H. Reichle, B. A. Forman, A. Getirana, and G. J. M. De Lannoy (2018), Assimilation of MODIS Snow Cover Fraction Observations into the NASA Catchment Land Surface Model, Remote Sensing, 10, 316, doi: 10.3390/rs10020316.
+
+What are the radii of the MERRA-2 Aerosols in each of the bins?
+
+- Click on "Read more" to see the aerosol sizes used in MERRA2 (and in the current version of GEOS/GOCART).
+
+- - Document
+
+What are the wavelength-dependent aerosol optical properties for each aerosol species (dust, sea salt, etc.) across various wavelengths?
+
+- The document “Supplemental Documentation for GEOS Aerosol Products” discusses aerosol formulation from MERRA-2 through more recent systems. Section 4 discusses the optical properties, and a NetCDF File provides the values of the optical properties.
+
+How Do I Obtain Surface Pm2.5 Concentration In Merra-2?
+
+- Using fields from the 2D tavg1_2d_aer_Nx collection, the concentration of particulate matter can be computed using the following formula: PM2.5 = DUSMASS25 + OCSMASS+ BCSMASS + SSSMASS25 + SO4SMASS* (132.14/96.06)

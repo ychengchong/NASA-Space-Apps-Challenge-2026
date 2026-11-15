@@ -1,0 +1,8 @@
+Serial dependence and the retired lag-one correction
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project. It explains how the project's method treats year-to-year dependence. It is the project's own description, not a NASA method.
+
+Why dependence matters
+
+Neighbouring years of a record can be correlated with each other (lag-one autocorrelation). A trend test whose null distribution assumes independent years can then report evidence of a trend more often than its threshold suggests, which is why the project checked its procedure against correlated noise. Averaging months into years does not establish that the years are independent.

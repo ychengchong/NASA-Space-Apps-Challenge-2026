@@ -1,0 +1,13 @@
+Variables in Trend Detective: Surface soil wetness (GWETTOP)
+Publisher: Trend Detective project
+
+Surface soil wetness (GWETTOP): How wet the top 5 cm of soil is, from 0 for completely dry to 1 for completely soaked, averaged over the month.
+
+- Catalogue ID: surface_soil_wetness
+- NASA POWER parameter code: GWETTOP
+- Units: fraction, 0 to 1
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.
+
+Caution: Soil wetness is calculated by the model from its own rainfall, so its trends are less reliable than temperature trends.

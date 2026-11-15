@@ -1,0 +1,8 @@
+POWER Validation Data Sources: Migration to new surface site data
+Publisher: NASA Langley Research Center, POWER Project
+
+Like the Global Summary of the Day, the Integrated Surface Database with hourly averages has not been updated since 29 August 2025 and has been superseded by the Global Historical Climatology Network hourly (GHCNh). Like SSOD, POWER will migrate hourly surface observations to GHCNh.
+
+NOAA sites subset
+
+For both NOAA sources, the 2,599 surface sites were identified based on the overall long-term timeseries consistency. All sites have some data gaps but are generally good for POWER validation. This is only a small subset of all NOAA sites.

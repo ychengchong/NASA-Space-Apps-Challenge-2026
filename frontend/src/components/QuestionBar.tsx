@@ -1,12 +1,15 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent, JSX } from "react";
 import { getPlaces, getVariables } from "../api";
+import type { ClarificationChoice, DiscoveryResponse, VariableSummary } from "../api";
 import { joinWords } from "../cautions";
+import { discoveryStatusText } from "../discovery";
 import { matchQuestion } from "../keywordMatch";
 import type { KeywordLookups, KeywordProposal } from "../keywordMatch";
 import { afterScreenChange } from "../questionBarState";
 import type { QuestionStatus } from "../questionBarState";
 import { toApiError } from "../useRequest";
+import { DiscoveryResult } from "./DiscoveryResult";
 
 // Spec 3, "What each part of the screen is for": the question bar offers example prompts.
 const EXAMPLE_PROMPTS: readonly string[] = [
@@ -37,6 +40,25 @@ export interface AiHelper {
   followUp: boolean;
 }
 
+/** Guided discovery as the question bar uses it (spec 8, "Guided discovery"). */
+export interface DiscoveryHelper {
+  /**
+   * Sends the question with the settings as they stand, after `choice`'s patch when one was
+   * chosen. A "ready" answer's proposal fills the settings before this resolves.
+   */
+  discover: (
+    question: string,
+    choice: ClarificationChoice | null,
+    signal: AbortSignal,
+  ) => Promise<DiscoveryResponse>;
+  /** "Use this variable" on a suggestion of `response`. */
+  onUseVariable: (variable: VariableSummary, response: DiscoveryResponse) => void;
+  /** Opens the case settings to set up the case by hand. */
+  onManual: () => void;
+  /** The request failed; the bar then matches keywords and shows `message` with a way back. */
+  onFailure: (message: string) => void;
+}
+
 /** Why the bar fell back to keywords, in the server's words, and a way back to the AI. */
 export interface AiNotice {
   message: string;
@@ -49,6 +71,11 @@ export interface ReadyCase {
   summary: string;
   onRun: () => void;
   onEdit: () => void;
+  /**
+   * Counts requests to bring "Run this case" into view with focus, as after "Use this variable",
+   * whose button lies below the card.
+   */
+  focusRequest?: number;
 }
 
 interface QuestionBarProps {
@@ -59,6 +86,11 @@ interface QuestionBarProps {
    * Without it the bar matches keywords and says so (spec 8, "When the AI is off").
    */
   ai?: AiHelper;
+  /**
+   * Draft 5 (spec 8): when given, a question goes to guided discovery instead of the planner or
+   * the keyword matcher.
+   */
+  discovery?: DiscoveryHelper;
   /** Shown in keyword mode after the AI failed. */
   aiNotice?: AiNotice | null;
   /**
@@ -79,6 +111,7 @@ interface QuestionBarProps {
 export function QuestionBar({
   onProposal,
   ai,
+  discovery,
   aiNotice,
   firstScreen,
   screenChanges,
@@ -88,6 +121,21 @@ export function QuestionBar({
   const [status, setStatus] = useState<QuestionStatus>({ kind: "idle" });
   const [seenScreenChanges, setSeenScreenChanges] = useState(screenChanges);
   const controllerRef = useRef<AbortController | null>(null);
+  // The discovery request on its way, which a screen change cancels (afterScreenChange).
+  const discoveryRef = useRef<AbortController | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const runRef = useRef<HTMLButtonElement>(null);
+  const readyFocusRequest = ready?.focusRequest ?? 0;
+  useEffect(() => {
+    if (readyFocusRequest === 0) return;
+    runRef.current?.focus({ preventScroll: true });
+    runRef.current?.scrollIntoView({ block: "center" });
+  }, [readyFocusRequest]);
+
+  useEffect(() => {
+    discoveryRef.current?.abort();
+    discoveryRef.current = null;
+  }, [screenChanges]);
 
   // Spec 3: a keyword match is dropped once it no longer describes what is on screen.
   if (screenChanges !== seenScreenChanges) {
@@ -128,10 +176,37 @@ export function QuestionBar({
     });
   };
 
+  const askDiscovery = (helper: DiscoveryHelper, text: string, choice: ClarificationChoice | null): void => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    discoveryRef.current = controller;
+    setStatus({ kind: "discovering", question: text });
+    helper.discover(text, choice, controller.signal).then(
+      (response) => {
+        if (controller.signal.aborted) return;
+        setStatus({ kind: "discovered", question: text, response });
+      },
+      (error: unknown) => {
+        if (controller.signal.aborted) return;
+        // Spec 8, "When the AI is off": the question is matched by keywords instead.
+        helper.onFailure(toApiError(error).message);
+        setQuestion((current) => (current === "" ? text : current));
+        matchKeywords(text);
+      },
+    );
+  };
+
+  const stopDiscovery = (): void => {
+    controllerRef.current?.abort();
+    setStatus({ kind: "idle" });
+  };
+
   const ask = (text: string): void => {
     const trimmed = text.trim();
     if (trimmed === "") return;
-    if (ai === undefined) matchKeywords(trimmed);
+    if (discovery !== undefined) askDiscovery(discovery, trimmed, null);
+    else if (ai === undefined) matchKeywords(trimmed);
     else if (!ai.working) askAi(ai, trimmed);
   };
 
@@ -140,7 +215,8 @@ export function QuestionBar({
     ask(question);
   };
 
-  const working = ai?.working === true;
+  const discovering = status.kind === "discovering";
+  const working = ai?.working === true || discovering;
   return (
     <section
       className={firstScreen ? "question-bar" : "question-bar is-quiet"}
@@ -153,6 +229,7 @@ export function QuestionBar({
         <div className="question-row">
           <input
             id="question"
+            ref={inputRef}
             type="text"
             className="question-input"
             value={question}
@@ -164,7 +241,11 @@ export function QuestionBar({
             Ask
           </button>
           {working ? (
-            <button type="button" className="button button-secondary" onClick={ai?.onStop}>
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={discovering ? stopDiscovery : ai?.onStop}
+            >
               Stop
             </button>
           ) : null}
@@ -197,23 +278,21 @@ export function QuestionBar({
           </button>
         </div>
       ) : null}
-      <p className="mode-note">
-        {ai === undefined
-          ? "The AI helper is off. The app looks for a variable, a place and any years among your words, and you check what it found before the case runs."
-          : "An AI reads your question, runs the tests and writes notes. You can change everything it sets up."}
-      </p>
+      <p className="mode-note">{modeNote(ai, discovery)}</p>
       <p className="status-text" role="status">
-        {working
+        {ai?.working === true
           ? "The AI is proposing settings. It will not run an analysis until you confirm."
           : statusText(status)}
       </p>
+      {/* The case a question proposes comes first, where the user is looking, so the next step
+          is in view; discovery's suggestions and sources follow it. */}
       {ready ? (
         <div className="notice notice-compact ready-card" role="group" aria-labelledby="ready-label">
           <p>
             <strong id="ready-label">Ready to test:</strong> {ready.summary}
           </p>
           <span className="ready-card-actions">
-            <button type="button" className="button button-primary" onClick={ready.onRun}>
+            <button type="button" className="button button-primary" onClick={ready.onRun} ref={runRef}>
               Run this case
             </button>
             <button type="button" className="button button-secondary" onClick={ready.onEdit}>
@@ -222,8 +301,35 @@ export function QuestionBar({
           </span>
         </div>
       ) : null}
+      {discovery !== undefined && status.kind === "discovered" ? (
+        <DiscoveryResult
+          response={status.response}
+          disabled={working}
+          onChoose={(choice) => {
+            // The answer and the pressed button leave the page, so focus waits in the question box.
+            inputRef.current?.focus();
+            askDiscovery(discovery, status.question, choice);
+          }}
+          onUseVariable={(variable) => discovery.onUseVariable(variable, status.response)}
+          onManual={discovery.onManual}
+          onKeywords={() => {
+            inputRef.current?.focus();
+            matchKeywords(status.question);
+          }}
+        />
+      ) : null}
     </section>
   );
+}
+
+function modeNote(ai: AiHelper | undefined, discovery: DiscoveryHelper | undefined): string {
+  if (discovery !== undefined) {
+    return "An AI suggests variables from reviewed documentation, with its sources, and proposes settings. Nothing runs until you confirm.";
+  }
+  if (ai !== undefined) {
+    return "An AI reads your question, runs the tests and writes notes. You can change everything it sets up.";
+  }
+  return "The AI helper is off. The app looks for a variable, a place and any years among your words, and you check what it found before the case runs.";
 }
 
 function statusText(status: QuestionStatus): string {
@@ -238,6 +344,10 @@ function statusText(status: QuestionStatus): string {
       return foundText(status.proposal);
     case "ai_answered":
       return "Review the proposed settings and dates, then select Run this case to confirm.";
+    case "discovering":
+      return "The AI is reading reviewed documentation for your question. Nothing runs until you confirm.";
+    case "discovered":
+      return discoveryStatusText(status.response);
   }
 }
 

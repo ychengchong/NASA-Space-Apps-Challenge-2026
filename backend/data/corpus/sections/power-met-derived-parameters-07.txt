@@ -1,0 +1,4 @@
+POWER Meteorological Derived Parameters: Moist Air Enthalpy
+Publisher: NASA Langley Research Center, POWER Project
+
+Specific enthalpy (ENTHALPY) calculations determine the total heat content of a moist air parcel (expressed in kilojoules per kilogram of dry air, kJ/kg). The algorithm computes this by summing the sensible heat of the dry air and the total heat (sensible plus latent) of the water vapor contained within that air.

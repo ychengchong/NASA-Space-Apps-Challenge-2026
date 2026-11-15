@@ -1,0 +1,4 @@
+POWER Meteorological Data Sources: GEOS-IT
+Publisher: NASA Langley Research Center, POWER Project
+
+In order to provide near-real time meteorological parameters, POWER provides the GMAO's near-real time data set GEOS-IT. More information about GEOS-IT is available at GMAO Products. As MERRA-2 data become available, any GEOS-IT data are over-written within the POWER archive. GEOS-IT is GMAO's operational instrument-team analysis built on the same GEOS atmospheric data assimilation system as MERRA-2, providing a consistent low-latency extension of the record.

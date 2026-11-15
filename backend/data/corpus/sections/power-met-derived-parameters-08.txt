@@ -1,0 +1,6 @@
+POWER Meteorological Derived Parameters: Equation
+Publisher: NASA Langley Research Center, POWER Project
+
+\begin{align} W = 0.621945 \times \left( \frac{e}{P_{s} - e} \right)\\ h = (c_{pa} \times T) + W \times (c_{pw} \times T + L_{w}) \end{align}
+
+\begin{align} Where: \\ h: & \text{ enthalpy }\\ W: & \text{ mixing ratio }\\ e: & \text{ vapor pressure of air }\\ P_{s}: & \text{ Surface Pressure}\\ c_{pa}: & \text{ specific heat capacity of dry air = 1.006 kJ/(kg °C) }\\ c_{pw}: & \text{ specific heat capacity of water vapor at constant pressure = 1.86 kJ/(kg °C) }\\ L_{w}: & \text{ latent heat of vaporization at water at 0°C = 2501 kJ/(kg) }\\ T: & \text{ air temperature }\\ \end{align}

@@ -1,0 +1,12 @@
+POWER Meteorological Data Sources: Precipitation
+Publisher: NASA Langley Research Center, POWER Project
+
+This section compares MERRA-2 precipitation to observations reported to NCEI. MERRA-2 precipitation over land incorporates an observationally corrected precipitation forcing (PRECTOTCORR vs. PRECTOT in ordering data), which is known to improve agreement with gauge-based records relative to purely model-generated precipitation. (Reichle, et al., 2017)
+
+Hourly Precipitation
+
+Density histogram plot of the MERRA-2 hourly precipitation vs. the hourly station observation values from the selected NCEI ISD files for the years 2001–2023.
+
+Daily Precipitation
+
+Density histogram plot of MERRA-2 daily precipitation vs. the daily station observation values from the NCEI GSOD files for 1981–2023.

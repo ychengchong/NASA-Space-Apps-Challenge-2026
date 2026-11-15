@@ -1,0 +1,8 @@
+POWER Monthly and Annual API: Point
+Publisher: NASA Langley Research Center, POWER Project
+
+/api/temporal/monthly/point?parameters=T2M,T2M_MAX&community=SB&longitude=0&latitude=0&format=JSON&start=2016&end=2017
+
+/api/temporal/monthly/point?parameters=T2M,T2M_MAX&community=SB&longitude=0&latitude=0&format=ASCII&start=2016&end=2017
+
+/api/temporal/monthly/point?parameters=T2M,T2M_MAX&community=SB&longitude=0&latitude=0&format=CSV&start=2016&end=2017

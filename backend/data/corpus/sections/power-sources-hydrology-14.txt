@@ -1,0 +1,18 @@
+POWER Hydrology Data Sources: Parameters
+Publisher: NASA Langley Research Center, POWER Project
+
+Beyond the three wetness-fraction parameters shared with MERRA-2, the SMAP pathway adds volumetric moisture and climatological percentiles:
+
+Parameter | Long Name | Units | Notes
+
+SFMC | Surface Soil Moisture (0–5 cm) | m³/m³ | Volumetric water content
+
+RZMC | Root-Zone Soil Moisture | m³/m³ | 0–100 cm column
+
+PRMC | Profile Soil Moisture | m³/m³ | Full model column
+
+SFMC_PRCNTL | Surface Moisture Percentile | % | Relative to 2015–present
+
+RZMC_PRCNTL | Root-Zone Moisture Percentile | % | Relative to 2015–present
+
+Additionally, SMAP provides six soil-temperature layers, evaporation, and land-surface radiation fluxes.

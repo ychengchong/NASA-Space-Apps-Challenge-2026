@@ -1,0 +1,4 @@
+Reading a result: what significance does and does not say: Scans and maps
+Publisher: Trend Detective project
+
+When many periods are tried, selection and multiple testing affect what a result means, so a favourable period found by scanning is never confirmation. The app's period explorer is descriptive and does not report significance. Regional maps show descriptive rates for each grid cell and do not assess significance.

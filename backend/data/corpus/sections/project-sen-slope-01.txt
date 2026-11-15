@@ -1,0 +1,8 @@
+Sen's slope and the total change
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project. It describes how the app estimates a rate of change. It is the project's own description, not a NASA method or a NASA statement.
+
+What Sen's slope is
+
+Sen's slope is the app's estimate of how fast a yearly series changes. For every pair of years in the record, the app takes the difference between the two yearly values and divides it by the difference between the two years. Sen's slope is the median of all these pairwise rates. The app uses the real calendar years, so a missing year is not squeezed out and the remaining years are not treated as consecutive. The app reports the rate per decade: the slope per year multiplied by ten.

@@ -1,0 +1,22 @@
+POWER Meteorological Derived Parameters: Wet Bulb Temperature
+Publisher: NASA Langley Research Center, POWER Project
+
+The wet bulb temperature (T2MWET) calculations use a numerical root-finding approach to solve the standard psychrometric equation. Because the psychrometric equation cannot be solved algebraically for the wet bulb temperature, this method uses a Bisection Algorithm to iteratively find the exact thermodynamic wet bulb temperature that balances the vapor pressure equations (using Murphy and Koop, 2005, from above). Unlike empirical approximations (which are only accurate within limited temperature and humidity ranges), this iterative approach provides highly accurate results across a wide range of atmospheric conditions by relying on foundational thermodynamic principles.
+
+Wet Bulb Algorithm
+
+The methodology employs a bisection loop that continuously narrows down the possible range of the wet bulb temperature until it converges on the true value.
+
+Inputs: Dry Bulb Temperature (T2M) Dew Point Temperature (T2MDEW): Used to establish the lower bound and calculate actual vapor pressure Atmospheric Surface Pressure (PS)
+
+Step 1: Establish Physical Bounds By definition, the wet bulb temperature must be less than or equal to the dry bulb temperature, and greater than or equal to the dew point temperature. Maximum Bound (T_{max}): Set to the Dry Bulb Temperature. Minimum Bound (T_{min}): Set to the Dew Point Temperature.
+
+Step 2: Calculate Midpoint (The Guess) The algorithm guesses the wet bulb temperature (T_{guess}) by finding the exact midpoint between the current minimum and maximum bounds: T_{guess} = \frac{T_{max} + T_{min}}{2}
+
+Step 3: Evaluate the Psychrometric Equation Using the estimated wet bulb temperature (T_{guess}), the dry-bulb temperature (T_{dry}), the standard psychrometric constant [0.00066 K{-1}] and the atmospheric pressure (P), the algorithm calculates the expected psychrometric pressure difference (P_{eq}): P_{eq} = 0.00066 \times (1.0 + 0.00155 \times T_{guess}) \times P \times (T_{dry} - T_{guess}) It then compares the saturated vapor pressure at the estimated wet bulb temperature against the actual vapor pressure of the air.
+
+Step 4: Check for Convergence The algorithm calculates the difference (residual error) between the calculated pressures. If the absolute difference is less than the strict tolerance threshold (e.g., < 0.01), the model has successfully converged. The current guess (T_{guess}) is recorded as the final Wet Bulb Temperature, and the loop terminates.
+
+Step 5: Adjust Bounds (Bisection) If the model has not converged, it evaluates the sign of the difference: If the difference is less than zero, the guessed temperature was too high. The maximum bound (T_{max}) is updated to the current guess. If the difference is greater than zero, the guessed temperature was too low. The minimum bound (T_{min}) is updated to the current guess.
+
+The loop repeats from Step 2, halving the search space with every iteration, guaranteeing rapid and stable convergence.

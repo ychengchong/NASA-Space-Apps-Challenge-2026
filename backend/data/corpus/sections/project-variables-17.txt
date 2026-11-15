@@ -1,0 +1,13 @@
+Variables in Trend Detective: Sea ice (FRSEAICE)
+Publisher: Trend Detective project
+
+Sea ice (FRSEAICE): How much of the sea in the grid cell is covered by ice, from 0 for open water to 1 for full cover, averaged over the month. Inland places and seas that never freeze read zero.
+
+- Catalogue ID: sea_ice
+- NASA POWER parameter code: FRSEAICE
+- Units: fraction, 0 to 1
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.
+
+Caution: The model takes sea ice from satellite-based ocean analyses. Near Helsinki and Longyearbyen the record shows ice in months that should be ice-free until about 2005 and steps down in 2005 to 2007, so a trend or record year can be an artefact of the data, not a change in the ice.

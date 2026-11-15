@@ -12,6 +12,29 @@ recommendation, not a change to the approved technical spec or an implemented
 integration. Public documentation was inspected; no authenticated API requests,
 account creation, dataset downloads or end-to-end integrations were performed.
 
+## Submission-day scope decision
+
+NASA POWER remains the only numerical runtime adapter for this submission. The frozen
+Athens/Helsinki precipitation case demonstrates a water-related investigation without
+claiming a second product, runoff estimate or validated precipitation significance.
+The access tools and mission products below remain possible extensions, with the
+disposition in each row; none is claimed as integrated merely because it was researched.
+
+All challenge considerations have a recorded response:
+
+| Consideration | Submission scope and evidence |
+| --- | --- |
+| Audience | Students and interested public; plain-language interface. User testing deferred by the team, so usability/learning impact is unmeasured. |
+| Definitions | Catalogue definitions, units, sources and grid-cell caveats appear before/with an investigation. |
+| Data detectives | Interpretation lesson and evidence panels are implemented; learning outcomes are not measured. |
+| Short questions | Bounded planner/discovery proposals require confirmation; ambiguous places ask for a choice. Semantic evaluation and teammate review remain separate gates. |
+| Examples | Four cached cases passed offline API/export checks; two teacher walkthroughs are written. |
+| AI/literature or regional context | NASA/project documentation supports the explanation path. Named-variable discovery uses the actual variable guide; the app makes no verified regional-literature claims. |
+| Daily/monthly | Monthly NASA inputs and explicit annual/seasonal aggregation are supported. Daily ingestion is deferred rather than presented as implemented. |
+| Non-significant trends | Canonical wording distinguishes insufficient evidence from proof of no change. Descriptive rates remain inspectable. |
+| Hydrological plotting tools | NASA tool access was assessed; CUAHSI discovery, plotting and metadata/export documentation was reviewed below. Runtime integration is deferred; the precipitation walkthrough is the water demonstration. |
+| Seasonality/non-linearity | Exploratory seasonal rates and the limits of a monotonic-rate summary are explained. No nonlinear fit or seasonal significance is claimed. |
+
 ## Recommendation
 
 Keep NASA POWER as the first data adapter. Add one carefully chosen second
@@ -31,6 +54,7 @@ not by themselves establish better scientific validity or challenge relevance.
 | --- | --- | --- | --- |
 | Giovanni | Expand beyond POWER's catalogue; selected precipitation, atmospheric or hydrological time series and area averages | NASA publishes Python examples for cloud point and area-average services. Area-average tutorial includes quota checks; authenticated workflows must be verified for the exact service/product | First extension: ingest a prepared export for one documented product; automate after validation |
 | Hydrology Time Series | Hydrology-focused point extraction, useful for land-model water variables | Original GES DISC page is JavaScript-only in this inspection. NASA migration guidance refers to the Hydrology Time Series Viewer; NASA LDAS documents time-series access. Exact current viewer API, collections and restrictions were not established | Investigate only when a specific hydrological question needs it; avoid duplicating Giovanni access to the same product |
+| CUAHSI HydroClient | Reference for map-based hydrological discovery, preview/plotting and export | Its official HIS/about pages describe discovery by area, variable and publisher, with CSV exports. Export documentation preserves source, units, method, quality-control, temporal support and missing-value metadata | Review/learning reference only for this submission; no account, download, API adapter or integration was attempted |
 | AppEEARS | Extract point/area data for land-surface and vegetation investigations | Documented REST API, Earthdata authentication, task submission/status and downloads. QA layers, scale factors and product-specific compositing require handling; queued extraction does not guarantee an interactive response | High-value later adapter; prepare/cache extracts before demo |
 | NOAA Climate Data Online | Quality-controlled station weather and metadata can corroborate a selected gridded result | API token required; documented limits are 5 requests/second and 10,000/day. Check pagination, units, flags, station history and complete overlapping dates | Optional validation source; NOAA data alone does not meet the organizer's NASA dataset requirement |
 | SeaWiFS chlorophyll paper | Worked example of regional trend analysis, outlier sensitivity and limitations of interpreting coastal ocean colour | Research paper, not a live API. Coastal retrieved chlorophyll can be influenced by sediments and coloured dissolved matter | Use as scientific context; defer a chlorophyll capability until a suitable product and method are selected |
@@ -42,6 +66,20 @@ not by themselves establish better scientific validity or challenge relevance.
 | SWOT mission | Lake/river water elevation and surface-water variability | Launched December 2022; the mission record is under four years at research time. PO.DAAC lists hydrology products with different geometries/formats | Separate short-record exploration later; do not force it into the current minimum-ten-annual-values trend verdict |
 | CSA ecosystem-monitoring overview | Explain potential ecosystem use cases and identify relevant missions | Outreach/background page, not a numerical data feed. Its SWOT description still says in development, unlike CSA's current mission page | Background only; verify dated statements against current mission/product documentation |
 | CSA SAR Python/QGIS tutorial | Learning material for RADARSAT raster/vector access and plotting | Tutorial uses GDAL/cartopy/matplotlib and example wildfire imagery; it is not a validated long-term change-detection workflow | Reference for a future SAR feature; no need to add these dependencies to the current app |
+
+## CUAHSI workflow lessons
+
+Reviewed on 15 November 2026: CUAHSI's [HIS overview](https://www.cuahsi.org/data-services/hydrologic-information-system)
+and [HydroClient description](https://data.cuahsi.org/Home/About) show a workflow from
+location/quantity/publisher to preview and export. The useful lesson for the water case
+is to identify the measured quantity and its spatial support before comparing series.
+This is a documentation review, not a tested integration.
+
+The [official export guide](https://help.cuahsi.org/hc/en-us/articles/206078888-Understanding-Exported-File-formats-from-HydroClient)
+documents units, method/quality information, temporal support, timestamps, missing-value
+sentinels and publisher attribution. Any future adapter must retain those distinctions;
+a station discharge series cannot be substituted for a gridded precipitation series.
+The existing NASA example keeps its own metadata, missing months and descriptive limits.
 
 ## Important research details
 

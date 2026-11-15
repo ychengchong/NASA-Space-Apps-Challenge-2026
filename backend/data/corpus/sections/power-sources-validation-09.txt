@@ -1,0 +1,14 @@
+POWER Validation Data Sources: Processing
+Publisher: NASA Langley Research Center, POWER Project
+
+Raw BSRN data sets typically have readings at 1, 2, 3, or 5 minute intervals. Reading directly from the source DOIs to validate a timeseries of POWER data would be computationally intensive with a slow turnaround time for users. Instead the data is precomputed into hourly and daily averages.
+
+For hourly and daily POWER validation, the minute-based BSRN data must be aggregated appropriately. The following process accounts for missing data.
+
+15-minute averages require at least one valid minute value from the raw data. 1-hour averages require valid values for all 4 15-minute periods within that hour. Daily averages require 5 valid daytime hourly values per day, regardless of LST or UTC designation. Quality flags in the source data are accounted for. Additional there are other contitions that must be met related to which latitude region the site is located within and the length of the gap between valid hourly data values within a day.
+
+There are also scientific processes for aggregating the data into 3-hour and monthly averages, which are important for the development of the POWER team validations in the methodology docs, but are not made available to users for hourly and daily validation.
+
+You can read more about the process of aggregating solar data from minute to hourly and daily in this paper on validating GEWEX SRB with BSRN.
+
+BSRN irradiance data are in W/m^2. Users can validate POWER irradiance parameters in the same unit.

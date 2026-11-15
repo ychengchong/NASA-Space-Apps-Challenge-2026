@@ -1,0 +1,4 @@
+Reading a result: what significance does and does not say: Comparing places
+Publisher: Trend Detective project
+
+A comparison of places is descriptive. Each place is fitted on the same complete years, but no test of the difference between the places' rates was performed. One significant and one not significant result do not establish that the rates differ. For two places the app also describes the gap, the first place's yearly value minus the second's, with its own descriptive rate; that difference was not tested either.

@@ -1,0 +1,14 @@
+Variables in Trend Detective: Specific humidity (QV2M)
+Publisher: Trend Detective project
+
+Specific humidity (QV2M): How many grams of water vapour each kilogram of air two metres above the ground holds, averaged over the month.
+
+- Catalogue ID: specific_humidity
+- NASA POWER parameter code: QV2M
+- Units: g/kg
+- Rate of change shown in: g/kg per decade
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.
+
+Caution: Humidity trends from this model are less reliable than temperature trends.

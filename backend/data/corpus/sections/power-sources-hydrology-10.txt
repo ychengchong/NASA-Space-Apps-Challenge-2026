@@ -1,0 +1,14 @@
+POWER Hydrology Data Sources: Parameters
+Publisher: NASA Langley Research Center, POWER Project
+
+GWM provides (per feature) parameters such as:
+
+- Water surface height anomaly (relative to a feature-specific reference).
+
+- Absolute water surface elevation (where reference geoid is established).
+
+- Time stamp of each observation (irregular per orbital revisit).
+
+- Quality / validity flag.
+
+Derived products may include lake-area, reservoir-storage, and river-discharge proxies; those are mission- and feature-dependent and documented per product on the GWM portal.

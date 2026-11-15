@@ -1,0 +1,6 @@
+POWER Meteorological Data Sources: Validation Overview
+Publisher: NASA Langley Research Center, POWER Project
+
+The assessment of the accuracy of the MERRA-2 parameters is based upon comparisons with observations from the corresponding parameters reported to the National Center for Environmental Information (NCEI). Hourly assessments are compared against the Integrated Surface Database (ISD), while daily average assessments are compared against the Global Summary of the Day (GSOD). The ISD is NOAA/NCEI's quality-controlled archive of global hourly and synoptic surface observations, and GSOD is derived from ISD as daily summaries, making both authoritative ground-truth references for reanalysis evaluation.
+
+In the following sections, scatter plots associated with each meteorological parameter provide a visual indication of the agreement between the MERRA-2 values and surface observations. The statistical parameters enumerated on each scatter plot and summarized in tables gives a more quantitative assessment of this agreement. These statistics between the model estimates and surface observations include the slope, intercept, and Pearson correlation coefficient associated with a linear least squares regression fit, the Mean Bias Error (MBE), and Root Mean Square Error (RMSE).

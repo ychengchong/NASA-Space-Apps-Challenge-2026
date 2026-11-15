@@ -1,0 +1,4 @@
+POWER Validation Data Sources: BSRN: Data Sourcing
+Publisher: NASA Langley Research Center, POWER Project
+
+Shortwave irradiance validation data come from the Baseline Surface Radiation Budget. The POWER team manually pulls data from 78 independent BSRN sites, some of which have been tracking solar irradiance since 1992. Every site/month data set is regorously reviewed for quality before being published and assigned a DOI. Only data with published DOIs are compiled by the POWER team for POWER validation analysis.

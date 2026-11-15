@@ -1,0 +1,14 @@
+POWER Hydrology Data Sources: Source and Reference
+Publisher: NASA Langley Research Center, POWER Project
+
+Property | Value
+
+Provider | NASA Goddard Space Flight Center, GWM portal
+
+Principal contact | Charon M. Birkett, NASA GSFC
+
+AWS Open Data path | s3://nasa-power/gwm/
+
+Web Site | https://earth.gsfc.nasa.gov/gwm
+
+POWER does not ingest GWM data from the main GWM portal. The GWM team provides a curated package of multi-resolution radar altimetry products specifically for Hydroelectric Power (HEP) reservoirs, updated regularly at a dedicated distribution point. This curated data set is a subset of the broader GWM product suite, filtered to reservoirs with identified HEP dams.

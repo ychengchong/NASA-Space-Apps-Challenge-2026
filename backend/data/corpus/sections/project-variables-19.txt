@@ -1,0 +1,14 @@
+Variables in Trend Detective: Water vapour in the air column (TQV)
+Publisher: Trend Detective project
+
+Water vapour in the air column (TQV): How much water vapour the whole column of air above the ground holds, as kilograms over each square metre, averaged over the month.
+
+- Catalogue ID: water_vapour
+- NASA POWER parameter code: TQV
+- Units: kg/m²
+- Rate of change shown in: kg/m² per decade
+- Data source: NASA POWER (MERRA-2)
+- Record starts in: 1981
+- Grid: cells of 0.5° latitude by 0.625° longitude; each cell is centred on a grid point, a multiple of the cell size, with its edges halfway between grid points. A place takes the nearest grid point.
+
+Caution: Water vapour trends from this model are less reliable than temperature trends.

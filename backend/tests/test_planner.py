@@ -244,3 +244,100 @@ async def test_remote_ollama_endpoint_is_not_contacted(services):
     services.settings = replace(services.settings, ollama_url="https://unapproved.example")
     with pytest.raises(AiUnavailableError, match="loopback"):
         await planner.extract("test", services)
+
+
+def test_a_place_query_resolves_only_to_one_exact_reviewed_match():
+    helsinki = planner.resolve_place_query("helsinki")
+    assert helsinki is not None and helsinki.name == "Helsinki"
+    assert planner.resolve_place_query("Helsin") is None
+    assert planner.resolve_place_query("Qqqzzx") is None
+
+
+@pytest.mark.anyio
+async def test_instructions_say_open_dates_and_shared_place_names_are_not_ambiguous(
+    services, monkeypatch
+):
+    services.settings = replace(services.settings, ai_provider="openai", openai_api_key="test")
+    sent = []
+
+    async def capture(instructions, question, schema, schema_name, max_output_tokens, services):
+        sent.append(instructions)
+        return json.dumps(PLAN)
+
+    monkeypatch.setattr(planner.ai, "openai_json", capture)
+    await planner.extract("Is Mexico City getting cloudier?", services)
+
+    (instructions,) = sent
+    assert planner.AMBIGUITY_EXCLUSIONS in instructions
+    assert "missing dates have defaults" in instructions
+
+
+# Spec 7: December counts toward the following year, so a winter written 1990/91 is DJF 1991.
+
+
+def djf_plan(first: int | None, last: int | None, season: str = "DJF") -> planner.ExtractedPlan:
+    return planner.ExtractedPlan.model_validate(
+        {
+            "variable": "snow_depth",
+            "place_queries": ["Stockholm"],
+            "from": first,
+            "to": last,
+            "season": season,
+            "ambiguous": False,
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    ("question", "winters"),
+    [
+        pytest.param("the winters 1990/91 to 2019/20", [(1990, 1991), (2019, 2020)], id="short"),
+        pytest.param("winter 1999-2000", [(1999, 2000)], id="long-across-a-century"),
+        pytest.param("winter 1999/00", [(1999, 2000)], id="short-across-a-century"),
+        pytest.param("winters 1990\u201391 onwards", [(1990, 1991)], id="en-dash"),
+        pytest.param("from 1990-2020", [], id="a-range-is-not-a-winter"),
+        pytest.param("1990/93", [], id="not-consecutive"),
+    ],
+)
+def test_winter_years_reads_winters_written_across_two_years(question, winters):
+    assert planner.winter_years(question) == winters
+
+
+def test_split_winters_move_a_djf_period_to_its_djf_years():
+    plan = planner.with_winter_years(djf_plan(1990, 2019), "the winters 1990/91 to 2019/20")
+
+    assert (plan.from_, plan.to) == (1991, 2020)
+
+
+def test_years_already_given_as_djf_years_stay():
+    plan = planner.with_winter_years(djf_plan(1991, 2020), "the winters 1990/91 to 2019/20")
+
+    assert (plan.from_, plan.to) == (1991, 2020)
+
+
+def test_one_split_winter_is_one_djf_year():
+    plan = planner.with_winter_years(djf_plan(1990, 1990), "the winter 1990/91")
+
+    assert (plan.from_, plan.to) == (1991, 1991)
+
+
+def test_split_years_leave_another_season_unchanged():
+    plan = djf_plan(1990, 2019, season="annual")
+
+    assert planner.with_winter_years(plan, "the years 1990/91 to 2019/20") == plan
+
+
+def test_the_planner_proposes_split_winters_in_their_djf_years(services, monkeypatch):
+    extracted = djf_plan(1990, 2020)
+
+    async def extract(question, services):
+        return extracted
+
+    monkeypatch.setattr(planner, "extract", extract)
+    with TestClient(create_app(services)) as client:
+        response = client.post(
+            "/api/plan", json={"question": "Snow depth in Stockholm, winters 1990/91 to 2019/20"}
+        )
+
+    assert response.status_code == 200
+    assert (response.json()["from"], response.json()["to"]) == (1991, 2020)

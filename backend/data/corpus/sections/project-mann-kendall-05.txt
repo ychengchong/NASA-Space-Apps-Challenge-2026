@@ -1,0 +1,4 @@
+The Mann-Kendall trend test in Trend Detective: What the p-value means
+Publisher: Trend Detective project
+
+A p-value is the probability of a test statistic at least as extreme as the one observed, computed under the null model and its assumptions. It is not the probability that a trend is real or that a claim is true. The app uses a 5% threshold.

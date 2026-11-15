@@ -1,0 +1,74 @@
+POWER Solar Flux Data Sources: SRB 4-IP (part 4)
+Publisher: NASA Langley Research Center, POWER Project
+
+A summary of the daily mean all-sky shortwave (SW) radiative fluxes on a horizontal surface from NASA’s GEWEX SRB Release 4-IP validated against values from BSRN sites is presented below.
+
+Parameter | Region | Bias (%) | RMSE (%)
+
+Daily Mean SW All-Sky Insolation
+
+Jan. 1, 1992–Jun. 30, 2017 | All Sites
+
+60° Poleward
+
+60° Equatorward | 0.7
+
+-3.5
+
+1.0 | 16.6
+
+50.9
+
+14.4
+
+Monthly SW All-Sky Insolation
+
+Jan. 1992–Jun. 2017 | All Sites
+
+60° Poleward
+
+60° Equatorward | -5.8
+
+-6.6
+
+-0.2 | 8.6
+
+34.5
+
+6.7
+
+Comparison Plots: NASA’s GEWEX SRB Release 4.0 Shortwave Fluxes to BSRN Data
+
+- Left — Scatter Plot of BSRN daily SW insolation vs. GEWEX SRB
+
+- Right — Histogram of Differences:
+
+Validation of GEWEX SRB 4-IP LW surface downward parameters has been done by the GEWEX SRB team using land- and ocean-based observations. A summary of this validation at different time scales is presented at GEWEX SRB Validation. While the validation period is longer than the data available through POWER, the statistics obtained are applicable here.
+
+A summary of the daily mean all-sky longwave (LW) radiative fluxes on a horizontal surface from NASA’s GEWEX SRB Release 4-IP validated against values from BSRN sites is presented below.
+
+Parameter | Region | Bias (%) | RMSE (%)
+
+Daily Mean LW All-Sky Radiative Flux
+
+Jan. 1, 1992–Dec. 31, 2009
+
+NASA’s GEWEX SRB Release 4.0 | All Sites
+
+60° Poleward
+
+60° Equatorward | 0.46
+
+-3.2
+
+1.0 | 8.0
+
+13.0
+
+7.2
+
+Comparison Plots: NASA’s GEWEX SRB Release 4.0 Longwave Fluxes to BSRN Data
+
+- Left — Scatter Plot:
+
+- Right — Histogram of Differences:

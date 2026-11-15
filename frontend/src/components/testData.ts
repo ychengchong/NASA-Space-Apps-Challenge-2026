@@ -1,6 +1,14 @@
 /** Small answers in the shapes of spec 5, for rendering components in tests. */
 
-import type { Investigation, PlaceResult, Records, TrendMap, VariableSummary, Verdict } from "../api";
+import type {
+  Citation,
+  Investigation,
+  PlaceResult,
+  Records,
+  TrendMap,
+  VariableSummary,
+  Verdict,
+} from "../api";
 
 export const AIR_TEMP: VariableSummary = {
   id: "air_temp",
@@ -95,4 +103,28 @@ export const TREND_MAP: TrendMap = {
   steps: ["Fetched every grid cell."],
   sources: [{ name: "NASA POWER", version: "v2", accessed: "2026-11-01" }],
   app_url: "/map?v=air_temp&box=55,20,65,30",
+};
+
+/** A citation as the server builds it from the reviewed manifest (spec 5, "Citation"). */
+export const CITATION: Citation = {
+  source_id: "power-sources-meteorology",
+  section_id: "power-sources-meteorology-01",
+  title: "POWER Meteorological Data Sources",
+  publisher: "NASA Langley Research Center, POWER Project",
+  url: "https://power.larc.nasa.gov/docs/methodology/data/sources_meteorology/",
+  section: "POWER Meteorological Data Sources: MERRA-2",
+  kind: "agency",
+  passage: "Meteorological parameters come from the MERRA-2 reanalysis.",
+};
+
+/** One of the project's own notes, which the corpus marks apart from agency sources. */
+export const PROJECT_CITATION: Citation = {
+  source_id: "project-sen-slope",
+  section_id: "project-sen-slope-01",
+  title: "Sen's slope and the total change",
+  publisher: "Trend Detective project",
+  url: "https://github.com/example/trend-detective/blob/main/backend/data/corpus/project/sen-slope.md",
+  section: "Sen's slope and the total change",
+  kind: "project",
+  passage: "Sen's slope is the median of the slopes between every pair of years.",
 };

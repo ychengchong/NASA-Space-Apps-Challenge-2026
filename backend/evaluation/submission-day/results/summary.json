@@ -1,0 +1,168 @@
+{
+  "grading": "automated-only; human source-support review pending",
+  "runs": {
+    "first": {
+      "planner": {
+        "total": 50,
+        "automated_pass": 44,
+        "not_run": 0,
+        "automated_critical_flags": 0,
+        "failed_ids": [
+          "SD-P05",
+          "SD-P13",
+          "SD-P22",
+          "SD-P30",
+          "SD-P38",
+          "SD-P50"
+        ],
+        "review_pending": true
+      },
+      "rag": {
+        "total": 40,
+        "automated_pass": 29,
+        "not_run": 0,
+        "automated_critical_flags": 0,
+        "failed_ids": [
+          "SD-R04",
+          "SD-R05",
+          "SD-R06",
+          "SD-R07",
+          "SD-R11",
+          "SD-R12",
+          "SD-R15",
+          "SD-R25",
+          "SD-R26",
+          "SD-R28",
+          "SD-R29"
+        ],
+        "review_pending": true
+      },
+      "rag-no-retrieval": {
+        "total": 40,
+        "automated_pass": 10,
+        "not_run": 0,
+        "automated_critical_flags": 0,
+        "failed_ids": [
+          "SD-R01",
+          "SD-R02",
+          "SD-R03",
+          "SD-R04",
+          "SD-R05",
+          "SD-R06",
+          "SD-R07",
+          "SD-R08",
+          "SD-R09",
+          "SD-R10",
+          "SD-R11",
+          "SD-R12",
+          "SD-R13",
+          "SD-R14",
+          "SD-R15",
+          "SD-R16",
+          "SD-R17",
+          "SD-R18",
+          "SD-R19",
+          "SD-R20",
+          "SD-R21",
+          "SD-R22",
+          "SD-R23",
+          "SD-R24",
+          "SD-R25",
+          "SD-R26",
+          "SD-R27",
+          "SD-R28",
+          "SD-R29",
+          "SD-R30"
+        ],
+        "review_pending": true
+      },
+      "paired_identities_matched": true
+    },
+    "follow_up": {
+      "planner": {
+        "total": 50,
+        "automated_pass": 50,
+        "not_run": 0,
+        "automated_critical_flags": 0,
+        "failed_ids": [],
+        "review_pending": true
+      },
+      "rag": {
+        "total": 40,
+        "automated_pass": 33,
+        "not_run": 0,
+        "automated_critical_flags": 0,
+        "failed_ids": [
+          "FU-R08",
+          "FU-R13",
+          "FU-R14",
+          "FU-R15",
+          "FU-R17",
+          "FU-R27",
+          "FU-R32"
+        ],
+        "review_pending": true
+      },
+      "rag-no-retrieval": {
+        "total": 40,
+        "automated_pass": 10,
+        "not_run": 0,
+        "automated_critical_flags": 0,
+        "failed_ids": [
+          "FU-R01",
+          "FU-R02",
+          "FU-R03",
+          "FU-R04",
+          "FU-R05",
+          "FU-R06",
+          "FU-R07",
+          "FU-R08",
+          "FU-R09",
+          "FU-R10",
+          "FU-R11",
+          "FU-R12",
+          "FU-R13",
+          "FU-R14",
+          "FU-R15",
+          "FU-R16",
+          "FU-R17",
+          "FU-R18",
+          "FU-R19",
+          "FU-R20",
+          "FU-R21",
+          "FU-R22",
+          "FU-R23",
+          "FU-R24",
+          "FU-R25",
+          "FU-R26",
+          "FU-R27",
+          "FU-R28",
+          "FU-R29",
+          "FU-R30"
+        ],
+        "review_pending": true
+      },
+      "paired_identities_matched": true
+    },
+    "targeted-development": {
+      "role": "development, not prospective confirmation",
+      "cases": 5,
+      "automated_pass": 3,
+      "answered": 4
+    },
+    "reanalysis-development": {
+      "role": "development, not prospective confirmation",
+      "cases": 1,
+      "automated_pass": 0,
+      "answered": 1
+    }
+  },
+  "reserved_microusd": 975993,
+  "cap_microusd": 1000000,
+  "reservation_kinds": {
+    "prior": 1,
+    "generation": 296,
+    "search": 159
+  },
+  "prior_allowance_microusd": 150000
+}

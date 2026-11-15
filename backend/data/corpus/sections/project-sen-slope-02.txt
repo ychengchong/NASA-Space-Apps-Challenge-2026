@@ -1,0 +1,4 @@
+Sen's slope and the total change: The line on the chart and the total change
+Publisher: Trend Detective project
+
+The line drawn on the chart has Sen's slope and passes through the median year and the median value of the series. The total fitted change is the slope per year multiplied by the span of the period in years, from the first year used to the last.

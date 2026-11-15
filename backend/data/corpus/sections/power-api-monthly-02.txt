@@ -1,0 +1,18 @@
+POWER Monthly and Annual API: Limitations
+Publisher: NASA Langley Research Center, POWER Project
+
+Parameters
+
+- A maximum of 20 parameters can currently be requested in one submission for a single point. Regional requests are limited to one parameter.
+
+- These limits do not apply if more parameters are needed by the application to construct on the fly parameters.
+
+Request Structure
+
+- The request arguments can be in any order after the question mark.
+
+- A single parameter or a list of parameters can be selected with one of the following list separators: ',' or '%2C'.
+
+Examples
+
+To help construct and test your API requests, please use the API Pages for the POWER Monthly API and POWER Manager API.

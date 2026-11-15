@@ -1,0 +1,12 @@
+POWER Validation Data Sources: Migration to new surface site data
+Publisher: NASA Langley Research Center, POWER Project
+
+There is no plan to migrate to a new validation data set for aerosol data as updates to AERONET are ongoing.
+
+Significant AERONET data gaps
+
+Due to the nature of the data, AERONET has noticeably more gaps than other validation sources. One key reason for this is that particulate matter and other aerosols cannot be detected accurately except in clear sky conditions.
+
+Limited BSRN and AERONET temporal availability
+
+One caveat to consider is that not all sites have data for the complete expected timeseries between and the present time, so timeseries data availability is specific to each site. This is different from having data gaps. For example, a site may have consistent data from 2016–2018 and cannot help for analysis before or after that range.

@@ -1,0 +1,8 @@
+Seasons in Trend Detective
+Publisher: Trend Detective project
+
+This note was written by the Trend Detective project. It explains how the app treats seasons. It is the project's own description, not a NASA method.
+
+Which seasons
+
+Besides all months, the app analyses four seasons named by their months: December to February, March to May, June to August and September to November. Seasons are named by their months because "winter" means different months in each hemisphere.

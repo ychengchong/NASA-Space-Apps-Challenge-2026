@@ -1,0 +1,6 @@
+What the result fields mean: The verdict (verdict.kind and verdict.sentence)
+Publisher: Trend Detective project
+
+The field verdict.kind, labelled "Verdict", is one of five kinds. Significant: the evidence for a monotonic trend meets the test's threshold. Not significant: these data do not provide sufficient evidence for a monotonic trend, which does not establish that no change occurred. Too few years: fewer than ten complete yearly values. No data: no usable yearly values for this place and period. Inference unavailable: the trend test does not apply to this case, so significance has not been assessed, and the rate is descriptive where there is one.
+
+The field verdict.sentence, labelled "Verdict sentence", is the app's fixed sentence for that verdict, in words chosen by the app, not by an AI. For a verdict from the trend test it states the estimated change per decade over the years used and what the evidence does or does not show; for a verdict without the test it gives the reason and says that significance has not been assessed.

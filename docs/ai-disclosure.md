@@ -2,6 +2,32 @@
 
 This record distinguishes development assistance from runtime AI.
 
+## Submission-day follow-up
+
+OpenAI Codex implemented Windows corpus-byte preservation, per-place explanation
+checks, product/topic-aware retrieval, guard corrections and explicit season guidance.
+It corrected the evaluation runner's budget override, preserving the owner's USD 1
+allowance with a cumulative ledger that is never reset for another suite. After the
+owner explicitly approved the payload and destination, it indexed the existing
+173 NASA/project sections in the owner's OpenAI project. The key remains in local `.env`.
+
+Codex authored the new questions/expectations, fixed them before each prospective run,
+and used automated checks. It also implemented the code, so these are not independent
+blind or human-reviewed evaluations. The original failed scores were preserved.
+The latest complete sample scored 50/50 planner/discovery and 33/40 explanations;
+later targeted development checks are separate. No human source-support review or
+student study has occurred, and release flags stay off. See the
+[current report](evaluation-results.md#submission-day-follow-up).
+
+The final code passed 1,600 backend tests; the unchanged frontend passed 758 tests
+and its production build. Lint, formatting and generated-type checks passed. Four
+cached NASA examples passed replay/export/evidence checks with outbound requests
+blocked and the shipped seed unchanged. Public deployment and final submission were
+not performed. The evaluation ledger reserved USD 0.975993 within USD 1, including
+the runner's USD 0.15 prior allowance; invoiced usage was not retrieved.
+
+## Earlier contribution records
+
 On 15 November 2026, Codex fixed the new-stats review findings and added regression
 tests: visible settings for keyword/LLM proposals and picked-point choices from
 overview/world pages, Python-rendered overview cautions, rejection of differing
@@ -16,13 +42,80 @@ revalidated by the current verification run.
 
 The app defaults to keyword matching and manual settings. Its optional configured
 LLM planner proposes settings for confirmation. Statistics and verdicts come from
-Python/templates. RAG and generated qualitative explanations are planned in
-[Draft 5](technical-spec.md), not implemented. No local model was installed by
+Python/templates. Draft 5 guided discovery and RAG explanations are implemented
+([Draft 5](technical-spec.md)). After two held-out evaluation rounds on 15 November 2026,
+neither passed its gate, and both stay disabled
+([evaluation results](evaluation-results.md)). No local model was installed by
 this cleanup. No generated images/video are included in the repository.
 
 AI-assisted commits carry the disclosure trailer required by the repository.
 Use this record when completing the submission disclosure; identify any actual
 runtime provider/model separately if enabled and evaluated.
+
+## Draft 5 round-2 held-out evaluation (15 November 2026)
+
+- **Who did the work:** Claude Code (model Claude Opus 5.5), working as agents of one
+  workflow. No person reviewed any case, response or grade.
+- **The suites:** an AI wrote new planner/discovery and RAG suites for round 2, blind,
+  before any model call. They are in `backend/evaluation/round2/`, with their SHA-256
+  hashes in that directory's README. Round 2 added predeclared citation support for
+  discovery and retrieval relevance for RAG. The hashes were checked before and after the
+  run.
+- **Development before the run:** general fixes for the round-1 failure causes, and tuning
+  on the round-2 development files only. They are described in the README's AI-use section
+  and in spec 8.
+- **The frozen run:** each held-out suite ran once with OpenAI `gpt-6-luna` through
+  `backend/scripts/run_evaluation.py`. No case was re-run, and nothing was changed during
+  or after the run. That produced `backend/evaluation/round2/results/`.
+- **Grading:** the runner's automated checks graded every case. Two AI grader agents
+  (Claude Opus 5.5), each without seeing the other's output, graded every RAG case in both
+  conditions, the citation support of every discovery suggestion and every planner text,
+  with a reason for each item. Their grades are in `grader-1.json` and `grader-2.json`, and
+  they agreed on every item. They are the same model family that wrote the suites and the
+  code.
+- **The report and the decisions:** the workflow's lead agent wrote the round-2
+  [evaluation results](evaluation-results.md) and decided both gates. It reports that the
+  owner delegated those decisions to it on 15 November 2026. Planner/discovery passed 60 of
+  70 cases, with 3 critical fabricated citations. RAG passed 65 of 77 combined. Neither gate
+  passed, so it set `DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false` in the uncommitted
+  local `.env`.
+- **Spend:** the round-2 held-out runs reserved USD 0.595980. The evaluation ledger now
+  totals USD 1.761232 of the USD 5.00 cap, as reserved upper bounds.
+
+## Draft 5 round-1 held-out evaluation (15 November 2026)
+
+- **Who did the work:** Claude Code (model Claude Opus 5.5), working as agents of one
+  workflow, ran and reported this stage. No person reviewed any case, response or grade.
+- **The suites:** an AI wrote the planner/discovery and RAG suites and their expected
+  outcomes before any model call (`backend/evaluation/`).
+- **Offline rehearsal:** before tuning, the development agent ran the runner on the first
+  six cases of each held-out suite with a fake provider that returned fixed answers. No
+  model call was made, so no model saw a held-out case, but the held-out files were opened
+  and run during the development phase.
+- **Development tuning:** with model calls on the development suites only, the agents changed the
+  instructions of the existing /api/plan (when a question may be marked ambiguous), of
+  /api/discover (clarify only for an unclear variable or place) and of /api/explain (a
+  request for a value references the field that holds it). They also changed one rule in
+  `backend/app/ai_guard.py`, so that naming the significance test is not read as a claim
+  of significance. Each change came with network-free tests.
+- **The frozen run:** each held-out suite then ran once with OpenAI `gpt-6-luna` through
+  `backend/scripts/run_evaluation.py`, with the code, corpus and suites frozen. That
+  produced `backend/evaluation/results/`.
+- **Grading:** the runner's automated checks graded every case. Two AI grader agents judged
+  the support of every RAG answer in both conditions; their verdicts were transcribed,
+  without their reasons, into `backend/evaluation/results/rag-grades.json`. After the runs an
+  AI review agent (Claude Opus 5.5) graded the citation support of the 20 discovery
+  suggestions and read the 31 planner texts left for review, recorded in
+  `backend/evaluation/results/discover-review.json`.
+- **The report:** the agent writing the report wrote
+  [evaluation results](evaluation-results.md). It also set `DISCOVERY_EVALUATED=true` in the
+  uncommitted local `.env` itself, without an owner's attestation. A later review step set it
+  back to `false`: the flag is the owner's attestation, and the citation review found three
+  critical errors in discovery. `RAG_EVALUATED` stayed `false`, because the RAG gate failed.
+- **Runtime AI:** with the owner's AI settings, `gpt-6-luna` can write planner proposals for
+  the user to confirm. Its discovery and explanation paths are evaluated but not enabled.
+- **Spend:** the evaluation spend, as reserved upper bounds, was 0.916410 USD of a 5 USD cap
+  in total, including earlier smoke tests and development rounds.
 
 ## Contributor-reported historical notes
 
@@ -109,3 +202,8 @@ here were later retired on `main`, as described above):
   its size and mark it, rebuilt `places.json` (77 capitals added, no other place changed),
   ranked a country's capital first in `find_place`, and let the question bar's keyword matching
   accept it (`pickPlaces`). It wrote the tests and the specification and README text.
+- Later on 15 November 2026 the same assistant reviewed the interface on the `draft-5` branch
+  and, at the user's request, made two changes it had proposed: the evidence panel and the
+  evidence lesson are open in their tabs instead of folded (`EvidencePanel`, `EvidenceLesson`),
+  and the verdict card of a comparison shows each place in one row and keeps the full verdicts
+  and cautions behind one fold (`VerdictCard`). It wrote the tests and the specification text.

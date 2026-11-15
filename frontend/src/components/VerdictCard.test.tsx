@@ -1,8 +1,20 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import { SIGNIFICANCE_DEFINITION } from "../definitions";
-import { investigation, RECORDS, SIGNIFICANT_RISE } from "./testData";
+import type { Investigation } from "../api";
+import { investigation, placeResult, RECORDS, SIGNIFICANT_RISE } from "./testData";
 import { VerdictCard } from "./VerdictCard";
+
+/** Athens and Helsinki, each with a significant rise, under one summary sentence. */
+function comparison(): Investigation {
+  const athens = placeResult(SIGNIFICANT_RISE);
+  athens.place = { ...athens.place, name: "Athens", lat: 37.98, lon: 23.73 };
+  return {
+    ...investigation(SIGNIFICANT_RISE),
+    results: [athens, placeResult(SIGNIFICANT_RISE)],
+    summary: "Both places rose.",
+  };
+}
 
 describe("VerdictCard", () => {
   test("defines 'significant' next to a significant verdict", () => {
@@ -93,5 +105,30 @@ describe("VerdictCard", () => {
   test("shows no record facts for a result without records", () => {
     const html = renderToStaticMarkup(<VerdictCard investigation={investigation(SIGNIFICANT_RISE)} />);
     expect(html).not.toContain("record-facts");
+  });
+
+  test("shows each place of a comparison at a glance, under the summary and above the fold", () => {
+    const html = renderToStaticMarkup(<VerdictCard investigation={comparison()} />);
+    const glance = html.slice(html.indexOf('<ul class="verdict-glance">'), html.indexOf("<details"));
+    expect(html.indexOf("Both places rose.")).toBeLessThan(html.indexOf('<ul class="verdict-glance">'));
+    expect(glance).toContain("Athens");
+    expect(glance).toContain("Helsinki");
+    expect(glance.match(/shape-swatch/g)).toHaveLength(2);
+    expect(glance.match(/Rising · Significant/g)).toHaveLength(2);
+  });
+
+  test("keeps each place's full verdict and caution behind one closed fold in a comparison", () => {
+    const html = renderToStaticMarkup(<VerdictCard investigation={comparison()} />);
+    expect(html.match(/<details class="disclosure verdict-full">/g)).toHaveLength(1);
+    const fold = html.indexOf('<details class="disclosure verdict-full">');
+    expect(html.indexOf(SIGNIFICANT_RISE.sentence)).toBeGreaterThan(fold);
+    expect(html.indexOf('class="stamp ')).toBeGreaterThan(fold);
+  });
+
+  test("shows the verdict of a single place in full, with no fold around it", () => {
+    const html = renderToStaticMarkup(<VerdictCard investigation={investigation(SIGNIFICANT_RISE)} />);
+    expect(html).not.toContain("verdict-full");
+    expect(html).not.toContain("verdict-glance");
+    expect(html).toContain(SIGNIFICANT_RISE.sentence);
   });
 });

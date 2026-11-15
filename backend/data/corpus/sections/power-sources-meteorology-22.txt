@@ -1,0 +1,10 @@
+POWER Meteorological Data Sources: Parameters
+Publisher: NASA Langley Research Center, POWER Project
+
+Parameter | Long Name | Units | Notes
+
+IMERG_PRECTOT | Total Precipitation | mm | Daily sum from half-hourly
+
+IMERG_PRECLIQUID_PROB | Probability of Liquid Precipitation | — | Fraction (0–1)
+
+IMERG_PRECRETRIEVALS | Precipitation Retrievals | count | Number of valid obs/day
