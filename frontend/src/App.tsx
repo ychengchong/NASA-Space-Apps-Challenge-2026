@@ -23,6 +23,7 @@ import type { RegionLink } from "./components/CaseActions";
 import { CaseLayout } from "./components/CaseLayout";
 import { CaseProblem } from "./components/CaseProblem";
 import { CaseSettings } from "./components/CaseSettings";
+import { CaseRail } from "./components/CaseRail";
 import { CaseTabs } from "./components/CaseTabs";
 import { CrossChecks } from "./components/CrossChecks";
 import { EvidencePanel } from "./components/EvidencePanel";
@@ -83,6 +84,7 @@ import {
 } from "./route";
 import type { Route } from "./route";
 import { useRegionTypes } from "./useRegionTypes";
+import { CaseRailContext } from "./caseRailContext";
 import { useRequest } from "./useRequest";
 import { useScrolledPast } from "./useScrolledPast";
 import type { RequestState } from "./useRequest";
@@ -149,6 +151,7 @@ export default function App(): JSX.Element {
   const stageRef = useRef<HTMLElement>(null);
   // Where a view draws its caption or key on the stage; a state, so the view draws once it exists.
   const [stageNote, setStageNote] = useState<HTMLElement | null>(null);
+  const [caseRail, setCaseRail] = useState<HTMLElement | null>(null);
   const [globeHandle, setGlobeHandle] = useState<GlobeHandle | null>(null);
   const [globeUnavailable, setGlobeUnavailable] = useState(false);
   const globe = useMemo(() => {
@@ -374,6 +377,7 @@ export default function App(): JSX.Element {
       }}
       onCancel={openParams !== null && pendingDraft !== null ? cancelPending : undefined}
       headingRef={settingsHeadingRef}
+      heading={route.kind === "home" || route.kind === "bad_link" ? "Or set it up by hand" : undefined}
     />
   );
 
@@ -405,121 +409,136 @@ export default function App(): JSX.Element {
   return (
     <GlobeContext value={globe}>
       <StageNoteContext value={stageNote}>
-        <div className={route.kind === "home" || route.kind === "bad_link" ? "app" : "app has-answer"}>
-          <div className="site-top">
-            <header className="site-header">
-              <BrandMark />
-              <div className="site-name">
-                <h1 className="site-title">
-                  <a href={HOME_PATH} onClick={(event) => followInApp(event, HOME_PATH, openPage)}>
-                    {APP_NAME}
-                  </a>
-                </h1>
-                <p className="site-tagline">Test a claim about the Earth against NASA data.</p>
-              </div>
-            </header>
-            <QuestionBar
-              onProposal={handleProposal}
-              ai={ai}
-              discovery={discoveryHelper}
-              aiNotice={aiFailure === null ? null : { message: aiFailure, onRetry: () => setAiFailure(null) }}
-              firstScreen={route.kind === "home" || route.kind === "bad_link"}
-              ready={readyCase}
-              screenChanges={screenChanges}
-            />
-          </div>
-          <main id="main" className="site-main" ref={mainRef} tabIndex={-1}>
-            {route.kind === "case" ? (
-              <CaseView
-                params={route.params}
-                settings={settings}
-                settingsNeeded={pendingDraft !== null}
-                pickedPoint={pickedPoint}
-                examples={examples.state}
-                preloaded={preloadedCase(chatResult)}
-                notes={notes}
-                catalogue={catalogue}
-                regionTypes={regionTypes.known}
-                ask={explanationAvailable ? { explain, onProposal: loadExplanationProposal } : undefined}
-                onOpenCase={openCase}
-                onOpenPage={openPage}
-                onNormalised={showNormalisedCase}
-                onPick={setPickedPoint}
+        <CaseRailContext value={caseRail}>
+          <div className={route.kind === "home" || route.kind === "bad_link" ? "app" : "app has-answer"}>
+            <div className="site-top">
+              <header className="site-header">
+                <BrandMark />
+                <div className="site-name">
+                  <h1 className="site-title">
+                    <a href={HOME_PATH} onClick={(event) => followInApp(event, HOME_PATH, openPage)}>
+                      {APP_NAME}
+                    </a>
+                  </h1>
+                  <p className="site-tagline">Test a claim about the Earth against NASA data.</p>
+                </div>
+              </header>
+              <QuestionBar
+                onProposal={handleProposal}
+                ai={ai}
+                discovery={discoveryHelper}
+                aiNotice={
+                  aiFailure === null ? null : { message: aiFailure, onRetry: () => setAiFailure(null) }
+                }
+                firstScreen={route.kind === "home" || route.kind === "bad_link"}
+                ready={readyCase}
+                screenChanges={screenChanges}
               />
-            ) : null}
-            {route.kind === "map" ? (
-              <RegionView
-                query={route.query}
-                variables={variables.state}
-                examples={examples.state}
-                preloaded={preloadedMap(chatResult)}
-                notes={notes}
-                onOpenPage={openPage}
-                onShowMap={navigate}
-                onNormalised={showNormalisedPage}
-              />
-            ) : null}
-            {route.kind === "place" ? (
-              <PlaceOverviewView
-                params={route.params}
-                pickedPoint={pickedPoint}
-                onOpenPage={openPage}
-                onPick={setPickedPoint}
-              />
-            ) : null}
-            {route.kind === "world" ? (
-              <WorldView params={route.params} pickedPoint={pickedPoint} onPick={setPickedPoint} />
-            ) : null}
-            {route.kind === "home" || route.kind === "bad_link" ? (
-              <StartView
-                badLinkReason={route.kind === "bad_link" ? route.reason : null}
-                settings={settings}
-                settingsNeeded={pendingDraft !== null || route.kind === "bad_link"}
-                draftPlaces={draft.places}
-                pickedPoint={pickedPoint}
-                examples={examples.state}
-                notes={notes}
-                onOpenPage={openPage}
-                onPick={setPickedPoint}
-              />
-            ) : null}
-          </main>
-          <GlobeStage
-            stageRef={stageRef}
-            hint={stageHint(route, examples.state)}
-            pick={
-              pickedPoint === null ? null : (
-                <PickedPoint
-                  point={pickedPoint}
-                  places={draft.places}
-                  onChoose={choosePickedPoint}
-                  onDismiss={dismissPickedPoint}
-                  overviewUrl={placePageUrl({ place: pickedPoint, season: "annual" })}
+            </div>
+            <main id="main" className="site-main" ref={mainRef} tabIndex={-1}>
+              {route.kind === "case" ? (
+                <CaseView
+                  params={route.params}
+                  settings={settings}
+                  settingsNeeded={pendingDraft !== null}
+                  pickedPoint={pickedPoint}
+                  examples={examples.state}
+                  preloaded={preloadedCase(chatResult)}
+                  notes={notes}
+                  catalogue={catalogue}
+                  regionTypes={regionTypes.known}
+                  ask={explanationAvailable ? { explain, onProposal: loadExplanationProposal } : undefined}
+                  onOpenCase={openCase}
                   onOpenPage={openPage}
+                  onNormalised={showNormalisedCase}
+                  onPick={setPickedPoint}
                 />
-              )
-            }
-            noteRef={setStageNote}
-          >
-            <Suspense fallback={null}>
-              <GlobeCanvas
-                stageRef={stageRef}
-                onReady={setGlobeHandle}
-                onUnavailable={markGlobeUnavailable}
-              />
-            </Suspense>
-          </GlobeStage>
-          <footer className="site-footer">
-            <p>
-              Data: <a href="https://power.larc.nasa.gov/">NASA POWER</a> (MERRA-2 and other NASA sources).
-              Globe: <a href="https://openfreemap.org">OpenFreeMap</a> tiles, ©{" "}
-              <a href="https://www.openmaptiles.org/">OpenMapTiles</a>, with data from{" "}
-              <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors and relief from{" "}
-              <a href="https://www.naturalearthdata.com/">Natural Earth</a>. Place names:{" "}
-              <a href="https://www.geonames.org/">GeoNames</a> (CC BY 4.0).
-            </p>
-          </footer>
-        </div>
+              ) : null}
+              {route.kind === "map" ? (
+                <RegionView
+                  query={route.query}
+                  variables={variables.state}
+                  examples={examples.state}
+                  preloaded={preloadedMap(chatResult)}
+                  notes={notes}
+                  onOpenPage={openPage}
+                  onShowMap={navigate}
+                  onNormalised={showNormalisedPage}
+                />
+              ) : null}
+              {route.kind === "place" ? (
+                <PlaceOverviewView
+                  params={route.params}
+                  pickedPoint={pickedPoint}
+                  onOpenPage={openPage}
+                  onPick={setPickedPoint}
+                />
+              ) : null}
+              {route.kind === "world" ? (
+                <WorldView params={route.params} pickedPoint={pickedPoint} onPick={setPickedPoint} />
+              ) : null}
+              {route.kind === "home" || route.kind === "bad_link" ? (
+                <StartView
+                  badLinkReason={route.kind === "bad_link" ? route.reason : null}
+                  settings={settings}
+                  settingsNeeded={pendingDraft !== null || route.kind === "bad_link"}
+                  draftPlaces={draft.places}
+                  pickedPoint={pickedPoint}
+                  examples={examples.state}
+                  notes={notes}
+                  onOpenPage={openPage}
+                  onPick={setPickedPoint}
+                />
+              ) : null}
+            </main>
+            {/* The right-hand column of a results page, above the globe (spec 3): views draw into it. */}
+            <div className="case-rail" ref={setCaseRail} />
+            <GlobeStage
+              stageRef={stageRef}
+              hint={stageHint(route, examples.state)}
+              pick={
+                pickedPoint === null ? null : (
+                  <PickedPoint
+                    point={pickedPoint}
+                    places={draft.places}
+                    onChoose={choosePickedPoint}
+                    onDismiss={dismissPickedPoint}
+                    overviewUrl={placePageUrl({ place: pickedPoint, season: "annual" })}
+                    onOpenPage={openPage}
+                  />
+                )
+              }
+              noteRef={setStageNote}
+            >
+              <Suspense fallback={null}>
+                <GlobeCanvas
+                  stageRef={stageRef}
+                  onReady={setGlobeHandle}
+                  onUnavailable={markGlobeUnavailable}
+                />
+              </Suspense>
+            </GlobeStage>
+            {route.kind === "home" || route.kind === "bad_link" ? (
+              <section className="home-section home-examples" aria-labelledby="examples-heading">
+                <h2 id="examples-heading">Example cases</h2>
+                <p className="panel-intro">
+                  Each one tests a claim about the Earth. Open one to see how a case works.
+                </p>
+                <ExampleCases examples={examples.state} onOpen={openPage} onGlobe />
+              </section>
+            ) : null}
+            <footer className="site-footer">
+              <p>
+                Data: <a href="https://power.larc.nasa.gov/">NASA POWER</a> (MERRA-2 and other NASA sources).
+                Globe: <a href="https://openfreemap.org">OpenFreeMap</a> tiles, ©{" "}
+                <a href="https://www.openmaptiles.org/">OpenMapTiles</a>, with data from{" "}
+                <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors and relief
+                from <a href="https://www.naturalearthdata.com/">Natural Earth</a>. Place names:{" "}
+                <a href="https://www.geonames.org/">GeoNames</a> (CC BY 4.0).
+              </p>
+            </footer>
+          </div>
+        </CaseRailContext>
       </StageNoteContext>
     </GlobeContext>
   );
@@ -587,26 +606,11 @@ function StartView(props: StartViewProps): JSX.Element {
         </div>
       ) : null}
       {props.notes}
-      {/* The settings come right after the question and its answer, folded to one row, so a
-          question that leaves something to choose opens them in place, above the examples. */}
+      {/* The settings come right after the question and its answer, beside the globe, so a
+          question that leaves something to choose is finished where the user is looking. */}
       <div className="case-layout">
-        <div className="case-side">
-          <SettingsFold
-            label="Set up a case by hand"
-            hint="Choose the variable, the place and the period yourself"
-            needed={props.settingsNeeded}
-          >
-            {props.settings}
-          </SettingsFold>
-        </div>
+        <div className="case-side">{props.settings}</div>
       </div>
-      <section className="home-section" aria-labelledby="examples-heading">
-        <h2 id="examples-heading">Example cases</h2>
-        <p className="panel-intro">
-          Each one tests a claim about the Earth. Open one to see how a case works.
-        </p>
-        <ExampleCases examples={props.examples} onOpen={props.onOpenPage} onGlobe />
-      </section>
       <div className="case-layout">
         <div className="case-main">
           <PlaceLegend places={mapPlaces} pickedPoint={props.pickedPoint} />
@@ -680,18 +684,21 @@ function CaseView(props: CaseViewProps): JSX.Element {
     };
   }, [investigation]);
 
+  // "Change this case" stands beside the tabs once a case is on screen, and alone before that.
+  const settingsFold = (
+    <SettingsFold
+      label="Change this case"
+      hint="Variable, places, period and season"
+      needed={props.settingsNeeded || state.status === "failed"}
+    >
+      {props.settings}
+    </SettingsFold>
+  );
+
   return (
     <CaseLayout
       pinned={shown !== null ? <VerdictLine investigation={shown} shown={verdictScrolledPast} /> : null}
-      side={
-        <SettingsFold
-          label="Change this case"
-          hint="Variable, places, period and season"
-          needed={props.settingsNeeded || state.status === "failed"}
-        >
-          {props.settings}
-        </SettingsFold>
-      }
+      side={shown === null ? settingsFold : undefined}
       answer={
         <>
           <ProgressLine active={loading} label="Getting the data and testing the trend…" />
@@ -708,7 +715,10 @@ function CaseView(props: CaseViewProps): JSX.Element {
           <div className="live-region" aria-live="polite" ref={verdictRef}>
             {shown !== null ? (
               <div className={resultsClass} aria-busy={loading}>
-                <VerdictCard investigation={shown} />
+                <VerdictCard
+                  investigation={shown}
+                  actions={!loading ? <CopyLink key={key} subject="case" /> : undefined}
+                />
               </div>
             ) : null}
           </div>
@@ -717,6 +727,7 @@ function CaseView(props: CaseViewProps): JSX.Element {
           {shown !== null ? (
             <div className={resultsClass} aria-busy={loading}>
               <CaseTabs
+                beside={settingsFold}
                 panels={{
                   answer: (
                     <>
@@ -727,14 +738,15 @@ function CaseView(props: CaseViewProps): JSX.Element {
                         showNames={shown.results.length > 1}
                       />
                       {!loading && props.ask !== undefined ? (
-                        <AskPanel
-                          key={shown.id}
-                          investigation={shown}
-                          explain={props.ask.explain}
-                          onProposal={props.ask.onProposal}
-                        />
+                        <CaseRail>
+                          <AskPanel
+                            key={shown.id}
+                            investigation={shown}
+                            explain={props.ask.explain}
+                            onProposal={props.ask.onProposal}
+                          />
+                        </CaseRail>
                       ) : null}
-                      {!loading ? <CopyLink key={key} subject="case" /> : null}
                     </>
                   ),
                   explore: (

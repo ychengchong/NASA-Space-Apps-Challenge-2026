@@ -12,6 +12,8 @@ import { PlaceSearch } from "./PlaceSearch";
 import { ShapeSwatch } from "./ShapeSwatch";
 
 interface CaseSettingsProps {
+  /** The settings' heading: "Case settings" unless the page names them otherwise. */
+  heading?: string;
   draft: CaseDraft;
   variables: RequestState<VariableSummary[]>;
   /** True when edits wait for "Run this case"; false when each edit reloads the open case. */
@@ -27,6 +29,7 @@ interface CaseSettingsProps {
 
 /** Shows exactly what is tested, and lets the user change every part of it (spec 3). */
 export function CaseSettings({
+  heading = "Case settings",
   draft,
   variables,
   pending,
@@ -53,7 +56,7 @@ export function CaseSettings({
   return (
     <section className="panel case-settings" aria-labelledby="settings-heading">
       <h2 id="settings-heading" ref={headingRef} tabIndex={-1}>
-        Case settings
+        {heading}
       </h2>
       <p className="panel-note">
         {pending ? "Check these settings, then run the case." : "Each change reloads the case."}

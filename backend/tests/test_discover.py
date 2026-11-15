@@ -10,6 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.adapters import discover
+from app.adapters.planner import resolve_place_query
 from app.cache import Cache
 from app.main import create_app
 from app.models import MAX_SUGGESTIONS
@@ -384,6 +385,67 @@ def test_a_choice_whose_place_matches_no_reviewed_place_is_dropped(
     body = post(services, {"question": "Is it getting warmer there?"}).json()
 
     assert body["clarification"]["choices"] == []
+
+
+def variable_question(*choices: dict[str, Any]) -> dict[str, Any]:
+    """The model asks which variable, with the place it read from the question."""
+    output = clarify_output(*choices)
+    output["place_queries"] = ["Helsinki"]
+    output["missing"] = ["variable", "from", "to"]
+    output["clarification"]["question"] = "Which temperature do you mean?"
+    return output
+
+
+AIR_CHOICE = choice(label="Air temperature", variable_id="air_temp", place_query=None)
+SURFACE_CHOICE = choice(label="Surface temperature", variable_id="surface_temp", place_query=None)
+
+
+def test_a_clarification_the_settings_already_answer_is_not_asked_again(
+    services: Services, fake: FakeOpenAI, variable_guide: None
+) -> None:
+    fake.output = variable_question(AIR_CHOICE, SURFACE_CHOICE)
+
+    body = post(
+        services, {"question": "Is Helsinki getting warmer?", "draft": {"variable": "air_temp"}}
+    ).json()
+
+    assert body["status"] == "ready"
+    assert body["clarification"] is None
+    assert body["suggestions"] == []
+    assert body["notices"] == []
+    assert [variable["id"] for variable in body["proposal"]["variables"]] == ["air_temp"]
+    assert [place["name"] for place in body["proposal"]["places"]] == ["Helsinki"]
+    assert body["missing"] == ["from", "to"]
+
+
+def test_a_place_the_settings_already_hold_answers_a_question_about_the_place(
+    services: Services, fake: FakeOpenAI, variable_guide: None
+) -> None:
+    helsinki = resolve_place_query("Helsinki")
+    assert helsinki is not None
+    fake.output = clarify_output(choice(), choice(label="Athens", place_query="Athens"))
+    draft = {"variable": "air_temp", "places": [{"lat": helsinki.lat, "lon": helsinki.lon}]}
+
+    body = post(services, {"question": "Is it getting warmer there?", "draft": draft}).json()
+
+    assert body["status"] == "ready"
+    assert [place["name"] for place in body["proposal"]["places"]] == ["Helsinki"]
+    assert body["missing"] == []
+
+
+def test_a_clarification_is_asked_when_the_settings_hold_none_of_its_choices(
+    services: Services, fake: FakeOpenAI, variable_guide: None
+) -> None:
+    fake.output = variable_question(AIR_CHOICE, SURFACE_CHOICE)
+
+    body = post(
+        services,
+        {"question": "Is Helsinki getting warmer?", "draft": {"variable": "precipitation"}},
+    ).json()
+
+    assert body["status"] == "clarify"
+    assert body["proposal"] is None
+    assert len(body["clarification"]["choices"]) == 2
 
 
 # Honest unanswered states

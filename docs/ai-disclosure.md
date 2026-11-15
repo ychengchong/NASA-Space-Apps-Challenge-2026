@@ -16,7 +16,7 @@ and used automated checks. It also implemented the code, so these are not indepe
 blind or human-reviewed evaluations. The original failed scores were preserved.
 The latest complete sample scored 50/50 planner/discovery and 33/40 explanations;
 later targeted development checks are separate. No human source-support review or
-student study has occurred, and release flags stay off. See the
+student study has occurred. The owner later turned discovery and explanations on by default. See the
 [current report](evaluation-results.md#submission-day-follow-up).
 
 The final code passed 1,600 backend tests; the unchanged frontend passed 758 tests
@@ -207,3 +207,29 @@ here were later retired on `main`, as described above):
   evidence lesson are open in their tabs instead of folded (`EvidencePanel`, `EvidenceLesson`),
   and the verdict card of a comparison shows each place in one row and keeps the full verdicts
   and cautions behind one fold (`VerdictCard`). It wrote the tests and the specification text.
+- Later on 15 November 2026 the user supplied a poster as a model for the look, and the same
+  assistant drew mock-ups of the first screen and a results page in it, labelled as made with
+  AI; the mock-ups are not in this repository. At the user's request it then built them.
+  - The restyle: tokens and sheets in `styles.css`, the coral case file (`VerdictCard`) and the
+    globe's teal colours (`globeStyle.ts`, `GlobeCanvas`). The assistant first coloured the
+    case file by its verdict; after the user found that it then did not match the mock-up, the
+    case file became coral for every verdict, with the stamp in ink.
+  - The two-page layout: the right-hand column of a results page (`CaseRail`,
+    `caseRailContext.ts`), "Copy link" in the case file, "Change this case" beside the tabs
+    (`CaseTabs`, `CaseLayout`), the settings open on the first screen under the heading "Or set
+    it up by hand" (`CaseSettings`), and the example cases in a row after the globe (`App.tsx`).
+  - The assistant, not the team, decided what the mock-ups did not show: the record years as
+    coloured cards, the example teasers kept on the cards, and every width but 1440 pixels. It
+    did not build the mock-ups' "How it works" link or "Preview" label.
+  - The user found that the red string from an example to its pins ran off the page once the
+    examples sat under the globe, so the assistant removed it (`ExampleCases`,
+    `examplePins.ts`, `GlobeCanvas`); pointing at an example still turns the Earth to it.
+  - It wrote the tests and the specification text, and checked the pages in Chrome at 1440,
+    800 and 375 pixels wide, not on a real phone and not with a screen reader.
+- Later on 15 November 2026 the user reported that guided discovery asked the same
+  clarification again after they picked an answer. The same assistant found that the model is
+  sent the picked answer in the draft but is not told what it means. Rather than change the
+  evaluated instructions, it made the server treat a clarification whose choice the draft
+  already holds as answered, and return the case ready to confirm (`_answered` in
+  `backend/app/adapters/discover.py`), with tests through a fake provider. It was not checked
+  against the live model.

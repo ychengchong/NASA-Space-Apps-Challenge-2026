@@ -24,6 +24,9 @@ MAX_RECORDED_INVESTIGATIONS = 10_000
 
 AiProvider = Literal["disabled", "ollama", "anthropic", "openai"]
 AI_PROVIDERS: tuple[AiProvider, ...] = ("disabled", "ollama", "anthropic", "openai")
+# Owner decision, 15 November 2026: guided discovery and cited explanations are on by default
+# wherever the AI and the corpus are configured (spec 8, "Bounds and evaluation").
+AI_PATHS_ON_BY_DEFAULT = True
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -97,16 +100,19 @@ class Settings:
     ai_input_microusd_per_million: int = 0
     ai_output_microusd_per_million: int = 0
     ai_budget_durable: bool = False
-    # Spec 8, "Bounds and evaluation": retrieval has its own readiness and evaluation flags.
-    rag_enabled: bool = False
-    rag_evaluated: bool = False
+    # Spec 8, "Bounds and evaluation": retrieval has its own readiness and evaluation flags. The
+    # owner turned discovery and explanations on by default on 15 November 2026, although their
+    # evaluation gates were not met (docs/evaluation-results.md); each still needs the AI and the
+    # corpus configured, and each can be turned off.
+    rag_enabled: bool = AI_PATHS_ON_BY_DEFAULT
+    rag_evaluated: bool = AI_PATHS_ON_BY_DEFAULT
     rag_vector_store_id: str = ""
     rag_corpus_version: str = ""
     # Integer microdollars per vector-store search call, supplied by the owner.
     rag_search_microusd_per_call: int = 0
     # The version the corpus manifest on disk declares; None when there is no manifest.
     rag_manifest_version: str | None = None
-    discovery_evaluated: bool = False
+    discovery_evaluated: bool = AI_PATHS_ON_BY_DEFAULT
 
     @property
     def planner_available(self) -> bool:
@@ -196,13 +202,13 @@ def load_settings() -> Settings:
         ai_input_microusd_per_million=_env_int("AI_INPUT_MICROUSD_PER_MILLION", 0),
         ai_output_microusd_per_million=_env_int("AI_OUTPUT_MICROUSD_PER_MILLION", 0),
         ai_budget_durable=_env_bool("AI_BUDGET_DURABLE", False),
-        rag_enabled=_env_bool("RAG_ENABLED", False),
-        rag_evaluated=_env_bool("RAG_EVALUATED", False),
+        rag_enabled=_env_bool("RAG_ENABLED", AI_PATHS_ON_BY_DEFAULT),
+        rag_evaluated=_env_bool("RAG_EVALUATED", AI_PATHS_ON_BY_DEFAULT),
         rag_vector_store_id=_env_str("RAG_VECTOR_STORE_ID") or "",
         rag_corpus_version=_env_str("RAG_CORPUS_VERSION") or "",
         rag_search_microusd_per_call=_env_int("RAG_SEARCH_MICROUSD_PER_CALL", 0),
         rag_manifest_version=read_corpus_version(CORPUS_MANIFEST_PATH),
-        discovery_evaluated=_env_bool("DISCOVERY_EVALUATED", False),
+        discovery_evaluated=_env_bool("DISCOVERY_EVALUATED", AI_PATHS_ON_BY_DEFAULT),
     )
 
 

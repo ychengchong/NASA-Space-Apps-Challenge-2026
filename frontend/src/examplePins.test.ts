@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { cardPlaceIndex, examplePins, pointedExample, stringPath } from "./examplePins";
+import { cardPlaceIndex, examplePins, pointedExample } from "./examplePins";
 
 const SVALBARD = {
   title: "Is Svalbard getting warmer?",
@@ -77,17 +77,5 @@ describe("cardPlaceIndex", () => {
     const [svalbard] = examplePins([SVALBARD]);
     if (svalbard === undefined) throw new Error("The example has no pin.");
     expect(cardPlaceIndex(svalbard)).toBe(0);
-  });
-});
-
-describe("stringPath", () => {
-  test("runs from one end to the other through a point that hangs below the middle", () => {
-    // 300px long, so it hangs 30px below the middle of the straight line.
-    expect(stringPath({ x: 100, y: 200 }, { x: 400, y: 200 })).toBe("M100.0 200.0 Q250.0 230.0 400.0 200.0");
-  });
-
-  test("hangs by a tenth of its length whichever way it slopes", () => {
-    // From (0, 0) to (30, 40) is 50px, so the middle (15, 20) drops by 5px.
-    expect(stringPath({ x: 0, y: 0 }, { x: 30, y: 40 })).toBe("M0.0 0.0 Q15.0 25.0 30.0 40.0");
   });
 });

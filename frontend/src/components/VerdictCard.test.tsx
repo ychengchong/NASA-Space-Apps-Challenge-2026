@@ -17,6 +17,18 @@ function comparison(): Investigation {
 }
 
 describe("VerdictCard", () => {
+  test("files every verdict on the same case file, whatever its direction or kind", () => {
+    const verdicts = [
+      SIGNIFICANT_RISE,
+      { ...SIGNIFICANT_RISE, direction: "falling" as const },
+      { ...SIGNIFICANT_RISE, kind: "not_significant" as const },
+    ];
+    for (const verdict of verdicts) {
+      const html = renderToStaticMarkup(<VerdictCard investigation={investigation(verdict)} />);
+      expect(html).toContain('<section class="panel verdict-card" aria-labelledby="verdict-heading">');
+    }
+  });
+
   test("defines 'significant' next to a significant verdict", () => {
     const html = renderToStaticMarkup(<VerdictCard investigation={investigation(SIGNIFICANT_RISE)} />);
     expect(html).toContain(SIGNIFICANCE_DEFINITION.definition);

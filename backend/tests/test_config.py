@@ -230,14 +230,26 @@ def test_retrieval_settings_are_read_from_the_environment(monkeypatch: pytest.Mo
     assert settings.rag_search_microusd_per_call == 2500
 
 
-def test_retrieval_is_off_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_discovery_and_explanation_flags_are_on_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
     for name in (*RAG_ENV, "RAG_SEARCH_MICROUSD_PER_CALL", "DISCOVERY_EVALUATED"):
         monkeypatch.delenv(name, raising=False)
 
     settings = load_settings()
 
-    assert not settings.rag_enabled
+    assert settings.rag_enabled and settings.rag_evaluated and settings.discovery_evaluated
+
+
+def test_retrieval_stays_off_by_default_until_a_store_and_corpus_are_configured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for name in (*RAG_ENV, "RAG_SEARCH_MICROUSD_PER_CALL", "DISCOVERY_EVALUATED"):
+        monkeypatch.delenv(name, raising=False)
+
+    settings = load_settings()
+
     assert not settings.rag_configured
+    assert not settings.discovery_available
+    assert not settings.explanation_available
 
 
 def test_corpus_version_is_read_from_the_manifest(tmp_path: Path) -> None:

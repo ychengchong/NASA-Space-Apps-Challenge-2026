@@ -149,14 +149,15 @@ Ask the students:
 
 This step applies only once explanations have passed their evaluation gate; today the
 panel is disabled because they did not (see [evaluation results](evaluation-results.md)).
-When it is shown, this panel is in the "Answer" tab after the record years. Its line says
+When it is shown, this panel follows the case file; on a wide screen it heads the
+right-hand column, above the globe. Its line says
 "Questions are sent to OpenAI. Answers are written by AI and checked against this result."
 It offers five prompts as links: "Explain this simply", "What does this dataset actually
 measure?", "What are the limitations here?", "What can't we conclude?" and "What could I
 investigate next?".
 
-Have a student choose "What can't we conclude?". While the AI writes, the result above stays
-on screen; the panel says the result does not wait for it. The answer comes under the label
+Have a student choose "What can't we conclude?". While the AI writes, the result stays on
+screen; the panel says the result does not wait for it. The answer comes under the label
 "Written by AI". Any number in it is listed separately under "From this result, not written
 by AI:" and is read from the result on screen, not from the AI. Each source is a link with
 its publisher and title, and "Show the cited passage" opens the passage the AI was given.

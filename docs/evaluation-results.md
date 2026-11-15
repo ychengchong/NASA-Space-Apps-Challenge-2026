@@ -3,7 +3,9 @@
 The latest complete follow-up scored **50/50 planner/discovery** and **33/40 explanations**
 on automated checks. Human source-support review is pending. Final topic/guard fixes have
 known-case development evidence only, so the explanation release gate is **not met**.
-All activation flags remain off. The PR #8 round-1/round-2 records below are retained
+Later on 15 November 2026 the owner decided to turn guided discovery and cited explanations
+on by default for the submission, knowing this gate is not met: `DISCOVERY_EVALUATED` and
+`RAG_EVALUATED` now default to `true` (`backend/app/config.py`), and either can be set `false`. The PR #8 round-1/round-2 records below are retained
 as historical evidence; their scores do not describe the final candidate.
 
 ## Submission-day follow-up
@@ -110,10 +112,11 @@ results and grades are in `backend/evaluation/round2/results/`:
   judgment. That delegation is recorded here as the lead reported it. No written
   attestation by the owner is in the repository. Both decisions keep the features off, so
   no feature was turned on under that delegation.
-- **The flags.** `DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false` in the
-  repository-root `.env`, which is not committed. `/api/discover` and `/api/explain` answer
-  503 `ai_unavailable`. The question bar uses `/api/plan` and the "Ask" panel is not shown.
-  Nothing is deployed.
+- **The flags.** After the run above the gates stayed unmet and the flags were `false`. Later
+  on 15 November 2026 the owner decided to turn both features on by default for the
+  submission, knowing the gates were not met: the code now defaults `DISCOVERY_EVALUATED`
+  and `RAG_EVALUATED` to `true` (`backend/app/config.py`), and either can be set `false`.
+  The pass rates above are the evidence for that decision, not a claim that it passed.
 - **The planner pass rate** is below target on the point estimate. The upper end of its
   interval (92.1%) does not rule out a true rate of 90%, but the gate is decided on the
   predeclared point target and on the critical errors, and it fails both. On `/api/discover`

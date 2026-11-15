@@ -157,10 +157,12 @@ route calls NASA or spends AI credit. Use `/healthz` as the host's liveness chec
 The server log holds the method, path, status and duration of each request, with no query
 string or client address. Check it for `Traceback` or `ERROR` lines after the checks.
 
-## 6. Keep AI off until the owner turns it on
+## 6. Turning the AI on or off
 
-Deploy with `AI_ENABLED=false`, `AI_PROVIDER=disabled`, `RAG_ENABLED=false`, and
-`AI_EVALUATED`, `DISCOVERY_EVALUATED` and `RAG_EVALUATED` all `false`. Set no API key. The
+Discovery and explanations are on by default (`RAG_ENABLED`, `DISCOVERY_EVALUATED` and
+`RAG_EVALUATED` default to `true`, the owner's decision of 15 November 2026), but nothing
+AI runs until the planner, the key and the corpus below are configured. To run with no AI at
+all, deploy with `AI_ENABLED=false`, `AI_PROVIDER=disabled` and no API key. The
 manual settings, the keyword question bar, examples, comparisons and exports all work this
 way.
 
@@ -181,8 +183,9 @@ hold, so a key alone never turns AI on:
 - Explanation (`/api/explain`): the same as discovery, with `RAG_EVALUATED=true` in place of
   `DISCOVERY_EVALUATED`.
 
-Set an evaluated flag only after the owner has read the
-[evaluation results](evaluation-results.md) for that path and decided to turn it on. Set
+The owner has read the [evaluation results](evaluation-results.md) and chosen to keep
+discovery and explanations on although their gates were not met; set `DISCOVERY_EVALUATED` or
+`RAG_EVALUATED` to `false` to turn one off. Set
 `AI_BUDGET_DURABLE=true` only when `/app/state` is the persistent volume of section 4, because
 the budget reservations live in `operations.sqlite`.
 

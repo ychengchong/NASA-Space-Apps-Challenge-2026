@@ -60,7 +60,8 @@ retains PR #8 baseline claims; the remaining-work sections include the follow-up
 
 ### 1. The AI release gates still need review and validation
 
-Discovery and explanations stay off (`DISCOVERY_EVALUATED=false`, `RAG_EVALUATED=false`).
+The owner turned discovery and explanations on by default on 15 November 2026 for the
+submission, although these gates were not met; the submission should say so.
 
 - Latest complete follow-up: **50/50 planner/discovery** and **33/40 explanations** on
   automated checks, authored by the same agent implementing the fixes. Human support

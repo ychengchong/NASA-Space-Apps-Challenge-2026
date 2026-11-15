@@ -43,9 +43,8 @@ export interface GlobeHandle {
    */
   showExamples(pins: readonly ExamplePin[], listeners: ExampleListeners): void;
   /**
-   * Singles out one example: one of its pins shows the case's question, the Earth turns to face
-   * its places if the link asks for that, and the link hears where its pins are (see
-   * ExampleLink). The idle turn waits meanwhile. Null singles out none and leaves the view as it
+   * Singles out one example: one of its pins shows the case's question, and the Earth turns to
+   * face its places if the link asks for that. The idle turn waits meanwhile. Null singles out none and leaves the view as it
    * is; an idle turn that was held up goes on a few seconds later.
    */
   linkExample(link: ExampleLink | null): void;

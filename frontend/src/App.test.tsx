@@ -103,13 +103,6 @@ describe("App", () => {
     expect(html).not.toContain(PIN_HINT);
   });
 
-  test("gives each example on the first screen a pin for its string, and none elsewhere", () => {
-    server.examples = [SVALBARD];
-    expect(renderAt("/", "")).toContain('class="example-tack"');
-    // A link that opens nothing lists the examples in its notice, without the globe's pins.
-    expect(renderAt("/map", "?v=air_temp").match(/class="example-tack"/g)).toBeNull();
-  });
-
   test("does not offer the AI until the server has said the planner is available", () => {
     const html = renderAt("/", "");
     expect(html).toContain("The AI helper is off.");
@@ -166,16 +159,18 @@ describe("App", () => {
     expect(html.indexOf("skeleton-chart")).toBeLessThan(html.indexOf("Change this case"));
   });
 
-  test("shows the chart right after the verdict, before what to do with the answer", () => {
+  test("puts Copy link in the case file and the chart right after it", () => {
     server.investigation = investigation(SIGNIFICANT_RISE);
     const html = renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki");
-    const chart = html.indexOf('id="chart-heading"');
-    expect(chart).toBeGreaterThan(html.indexOf('id="verdict-heading"'));
-    expect(html.indexOf(">Copy link</button>")).toBeGreaterThan(chart);
-    expect(html.indexOf("Change this case")).toBeGreaterThan(chart);
+    const verdict = html.indexOf('id="verdict-heading"');
+    const copy = html.indexOf(">Copy link</button>");
+    const verdictEnd = html.indexOf("</section>", copy);
+    expect(copy).toBeGreaterThan(verdict);
+    expect(html.slice(copy, verdictEnd)).not.toContain("<section");
+    expect(html.indexOf('id="chart-heading"')).toBeGreaterThan(verdictEnd);
   });
 
-  test("files the rest of an open case in tabs under the verdict, with the settings after them", () => {
+  test("files the rest of an open case in tabs under the verdict, with the settings beside them", () => {
     server.investigation = investigation(SIGNIFICANT_RISE);
     const html = renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki");
     const tabs = html.indexOf('role="tablist"');
@@ -185,11 +180,12 @@ describe("App", () => {
     const evidence = html.indexOf('id="case-panel-evidence"');
     const learn = html.indexOf('id="case-panel-learn"');
     expect(html.indexOf('id="chart-heading"')).toBeGreaterThan(answer);
-    expect(html.indexOf(">Copy link</button>")).toBeLessThan(explore);
     expect(html.indexOf('id="explore-heading"')).toBeGreaterThan(explore);
     expect(html.indexOf('id="evidence-heading"')).toBeGreaterThan(evidence);
     expect(html.indexOf('id="lesson-heading"')).toBeGreaterThan(learn);
-    expect(html.indexOf("Change this case")).toBeGreaterThan(learn);
+    const change = html.indexOf("Change this case");
+    expect(change).toBeGreaterThan(tabs);
+    expect(change).toBeLessThan(answer);
   });
 
   test("withholds answer actions while the previous case is shown during loading", () => {
@@ -215,15 +211,15 @@ describe("App", () => {
     expect(html).toContain('id="settings-heading"');
   });
 
-  test("offers on the first screen the settings folded under the question, before the examples", () => {
+  test("offers on the first screen the settings as an open card under the question, before the examples", () => {
     const html = renderAt("/", "");
-    const fold = html.indexOf('<span class="fold-label">Set up a case by hand</span>');
-    expect(fold).toBeGreaterThan(-1);
-    expect(html.slice(html.lastIndexOf("<button", fold), fold)).toContain('aria-expanded="false"');
-    expect(html.indexOf('id="settings-heading"')).toBeGreaterThan(fold);
-    expect(html.indexOf('id="examples-heading"')).toBeGreaterThan(html.indexOf('id="settings-heading"'));
+    const settings = html.indexOf('id="settings-heading"');
+    expect(html.slice(settings, html.indexOf("</h2>", settings))).toContain("Or set it up by hand");
+    expect(html).not.toContain('<span class="fold-label">');
+    expect(settings).toBeGreaterThan(html.indexOf('id="question-label"'));
+    expect(html.indexOf('id="examples-heading"')).toBeGreaterThan(settings);
     expect(renderAt("/case", "?v=air_temp&p=60.17,24.94&label=Helsinki")).not.toContain(
-      "Set up a case by hand",
+      "Or set it up by hand",
     );
   });
 
@@ -279,18 +275,16 @@ describe("App's panel for questions about the investigation", () => {
     expect(html).not.toContain(ASK_HEADING);
   });
 
-  test("sits in the Answer tab after the record years and before Copy link", () => {
+  test("stays after the record years where the page has no right-hand column to draw it in", () => {
     server.capabilities = { ai_planner_available: false, ai_explanation_available: true };
     server.investigation = withRecords();
     const html = renderAt("/case", HELSINKI_CASE);
     const answer = html.indexOf('id="case-panel-answer"');
     const records = html.indexOf('id="records-heading"');
     const ask = html.indexOf(ASK_HEADING);
-    const copy = html.indexOf(">Copy link</button>");
     expect(records).toBeGreaterThan(answer);
     expect(ask).toBeGreaterThan(records);
-    expect(copy).toBeGreaterThan(ask);
-    expect(html.indexOf('id="case-panel-explore"')).toBeGreaterThan(copy);
+    expect(html.indexOf('id="case-panel-explore"')).toBeGreaterThan(ask);
   });
 
   test("offers guided discovery in the question bar when the server says it is available", () => {

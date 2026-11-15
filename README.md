@@ -22,7 +22,8 @@ the team. More datasets, AI and MCP are not prerequisites for the challenge.
 
 The current prototype is available as source; a public demo link has not been
 provided. OpenAI planning, discovery and RAG are implemented and have been live-tested;
-release flags remain off pending review, and explanations have not met their quality gate.
+discovery and explanations are on by default by the owner's decision of 15 November 2026,
+although explanations have not met their quality gate.
 Final recording, public-link checks and submission
 through the official team page remain team actions.
 
@@ -195,8 +196,10 @@ Daily request and per-address limits apply. Chat text is not stored server-side.
 
 ### Retrieval settings
 
-Discovery and explanation need hosted OpenAI planning (above) plus these settings,
-all off by default (see `.env.example`):
+Discovery and explanation need hosted OpenAI planning (above) plus these settings (see
+`.env.example`). By the owner's decision of 15 November 2026, `RAG_ENABLED`, `RAG_EVALUATED` and
+`DISCOVERY_EVALUATED` default to `true`, although neither evaluation gate was met; the store
+settings stay empty until the corpus is uploaded:
 
 | Setting | Meaning |
 | --- | --- |
@@ -204,8 +207,8 @@ all off by default (see `.env.example`):
 | `RAG_VECTOR_STORE_ID` | The `vs_...` store the upload script printed; any other shape keeps retrieval off |
 | `RAG_CORPUS_VERSION` | The uploaded corpus version; must equal `corpus_version` in `backend/data/corpus/manifest.json` |
 | `RAG_SEARCH_MICROUSD_PER_CALL` | Owner-supplied integer microdollar price of one vector-store search |
-| `RAG_EVALUATED` | Enables explanations. Only the owner, or someone the owner delegates to, sets it, as an attestation after the explanation suite has passed its gate. Keep it `false`: neither held-out round of 15 November 2026 passed (round 2: 65 of 77, below 90%) |
-| `DISCOVERY_EVALUATED` | Enables discovery. Only the owner, or someone the owner delegates to, sets it, as an attestation after the discovery suite has passed its gate. Keep it `false`: neither held-out round of 15 November 2026 passed (round 2: 60 of 70, below 90%, with three critical citation errors) |
+| `RAG_EVALUATED` | Enables explanations; `true` by default (set `false` to turn them off). Their gate was not met: round 2 passed 65 of 77, below the 90% target ([evaluation results](docs/evaluation-results.md)) |
+| `DISCOVERY_EVALUATED` | Enables discovery; `true` by default (set `false` to turn it off). Its gate was not met: round 2 passed 60 of 70 with three critical citation errors ([evaluation results](docs/evaluation-results.md)) |
 
 `/api/capabilities` reports `ai_planner_available`, `ai_discovery_available` and
 `ai_explanation_available` separately; a missing or mismatched retrieval setting turns
@@ -421,7 +424,8 @@ They agreed on every item.
 The workflow's lead agent wrote the round-2 [evaluation results](docs/evaluation-results.md)
 and made the gate decisions under a delegation from the owner that it reported. It set
 `DISCOVERY_EVALUATED=false` and `RAG_EVALUATED=false` in the local `.env`. No person reviewed
-any case or grade.
+any case or grade. Later that day the owner turned both features on by default for the
+submission, knowing the gates were not met.
 
 Educational impact is not established: no user observations have been made. Neither AI
 gate has been met. Round 2's AI-graded pass rates (60 of 70 for planner/discovery, 65 of 77
@@ -442,6 +446,21 @@ The cumulative evaluation reservation is **USD 0.975993 of USD 1**, including th
 runner's USD 0.15 historical allowance; this is not a provider invoice. See
 [evaluation results](docs/evaluation-results.md#submission-day-follow-up).
 AI stays gated off, and user testing was deferred, so educational impact is unmeasured.
+
+Claude Code (model Claude Opus 5.5) restyled the interface in a poster look on 15 November
+2026, from a poster the user supplied and two page mock-ups the assistant drew from it (the
+mock-ups are not in this repository): cream paper, rounded sheets, deep-teal ink, pill tabs and
+buttons, a coral case file and a teal globe. It laid the
+app out as those two pages. The first screen has the question on a coral card, the settings
+open beside the globe and the example cases as a row of coloured cards. A results page has the
+case file on the left, with "Copy link" and "Change this case" in it, and "Ask about this
+investigation" above a smaller globe on the right (`CaseRail`, `caseRailContext.ts`). It wrote
+the tests and the specification text. It checked the pages in Chrome at 1440, 800 and 375
+pixels wide, not on a real phone and not with a screen reader. At the user's request it then
+made the case file coral for every verdict, removed the red string from an example to its
+pins, and stopped guided discovery from asking a clarification again once the settings hold
+the answer the learner picked (`backend/app/adapters/discover.py`); that fix was tested with a
+fake provider, not against the live model.
 
 The team has not selected a project licence. NASA/GeoNames/OpenStreetMap/OpenFreeMap,
 the typefaces and software dependencies retain their own applicable terms.

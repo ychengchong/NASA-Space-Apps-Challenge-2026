@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import type { JSX, ReactNode } from "react";
 import type { Investigation, PlaceResult, Verdict, VariableSummary } from "../api";
 import { cautionText } from "../cautions";
 import { MORE_YEARS_NOTE, SIGNIFICANCE_DEFINITION } from "../definitions";
@@ -9,6 +9,8 @@ import { ShapeSwatch } from "./ShapeSwatch";
 
 interface VerdictCardProps {
   investigation: Investigation;
+  /** The answer's actions, such as "Copy link", at the foot of the case file. */
+  actions?: ReactNode;
 }
 
 /**
@@ -18,7 +20,7 @@ interface VerdictCardProps {
  * so the card stays short enough for the chart to follow it closely. Sentences come from the API
  * as they are. The caller places it in a live region that is in the page before it.
  */
-export function VerdictCard({ investigation }: VerdictCardProps): JSX.Element {
+export function VerdictCard({ investigation, actions }: VerdictCardProps): JSX.Element {
   const { results, summary, variable } = investigation;
   const comparison = results.length > 1;
   const full = (
@@ -49,6 +51,7 @@ export function VerdictCard({ investigation }: VerdictCardProps): JSX.Element {
       ) : (
         full
       )}
+      {actions !== undefined ? <div className="verdict-actions">{actions}</div> : null}
     </section>
   );
 }
